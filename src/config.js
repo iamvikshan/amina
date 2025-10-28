@@ -50,15 +50,24 @@ module.exports = {
     DEFAULT_SOURCE: 'scsearch', // ytsearch = Youtube, ytmsearch = Youtube Music, scsearch = SoundCloud, spsearch = Spotify
     LAVALINK_NODES: [
       {
-        id: process.env.LAVALINK_ID,
-        host: process.env.LAVALINK_HOST,
-        port: Number(process.env.LAVALINK_PORT),
-        authorization: process.env.LAVALINK_PASSWORD,
-        secure: false,
+        id: process.env.LAVALINK_ID_1,
+        host: process.env.LAVALINK_HOST_1,
+        port: Number(process.env.LAVALINK_PORT_1),
+        authorization: process.env.LAVALINK_PASSWORD_1,
+        secure: process.env.LAVALINK_SECURE_1 === 'true',
         retryAmount: 20,
         retryDelay: 30000,
       },
-    ],
+      {
+        id: process.env.LAVALINK_ID_2,
+        host: process.env.LAVALINK_HOST_2,
+        port: Number(process.env.LAVALINK_PORT_2),
+        authorization: process.env.LAVALINK_PASSWORD_2,
+        secure: process.env.LAVALINK_SECURE_2 === 'true',
+        retryAmount: 20,
+        retryDelay: 30000,
+      },
+    ].filter(node => node.id && node.host), // Only include nodes that are defined
   },
 
   GIVEAWAYS: {
