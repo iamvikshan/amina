@@ -21,16 +21,15 @@
 <p align="center">
   <a href="ko-fi.com/vikshan">donate</a>
   •
-  <a href="docs.vikshan.tech">docs</a>
+  <a href="docs.vikshan.me">docs</a>
   •
   <a href="https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950">invite me!</a>
 </p>
 
 ---
 
-
-> [!WARNING]
-> This JAVASCRIPT version is no longer maintained. Please use the TypeScript version instead.
+> [!WARNING] This JAVASCRIPT version is no longer maintained. Please use the
+> TypeScript version instead.
 
 ---
 
@@ -56,4 +55,4 @@
   https://img.shields.io/github/license/iamvikshan/amina.svg?style=for-the-badge
 [license-url]: https://github.com/iamvikshan/amina/blob/master/LICENSE
 
-![Alt](https://repobeats.axiom.co/api/embed/27f7dae1dd9a92ee7b2d3dbe7889eb18ab7a4d61.svg "Repobeats analytics image")
+![Alt](https://repobeats.axiom.co/api/embed/33971866cc9f23ecadf447d38dbb129311693c2b.svg 'Repobeats analytics image')

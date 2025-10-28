@@ -3,6 +3,7 @@ const { EMBED_COLORS } = require('@src/config')
 const { parsePermissions } = require('@helpers/Utils')
 const { timeformat } = require('@helpers/Utils')
 const { getSettings } = require('@schemas/Guild')
+const Honeybadger = require('@helpers/Honeybadger')
 
 const cooldownCache = new Map()
 
@@ -80,6 +81,18 @@ module.exports = {
       if (!cmd.showsModal) {
         await interaction.deferReply({ ephemeral: cmd.slashCommand.ephemeral })
       }
+
+      // Set Honeybadger context for this command execution
+      Honeybadger.setContext({
+        command: cmd.name,
+        category: cmd.category,
+        guild_id: interaction.guild?.id,
+        guild_name: interaction.guild?.name,
+        channel_id: interaction.channel?.id,
+        user_id: interaction.user.id,
+        user_tag: interaction.user.tag,
+      })
+
       const settings = await getSettings(interaction.guild)
       await cmd.interactionRun(interaction, { settings })
     } catch (ex) {
@@ -90,8 +103,19 @@ module.exports = {
         )
       }
       interaction.client.logger.error('interactionRun', ex)
+
+      // Notify Honeybadger with command context
+      Honeybadger.notify(ex, {
+        context: {
+          command: cmd.name,
+          category: cmd.category,
+        },
+      })
     } finally {
       if (cmd.cooldown > 0) applyCooldown(interaction.user.id, cmd)
+
+      // Clear Honeybadger context after command execution
+      Honeybadger.resetContext()
     }
   },
 

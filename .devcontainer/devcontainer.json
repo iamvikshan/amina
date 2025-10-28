@@ -17,6 +17,13 @@
     }
   },
 
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "installDirectlyFromGitHubRelease": true,
+      "version": "latest"
+    }
+  },
+
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "bun install",
 

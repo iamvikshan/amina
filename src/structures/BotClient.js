@@ -10,6 +10,7 @@ const {
 const path = require('path')
 const { table } = require('table')
 const Logger = require('../helpers/Logger')
+const Honeybadger = require('../helpers/Honeybadger')
 const { recursiveReadDirSync } = require('../helpers/Utils')
 const { validateCommand, validateContext } = require('../helpers/Validator')
 const { schemas } = require('@src/database/mongoose')
@@ -65,6 +66,9 @@ module.exports = class BotClient extends Client {
     // Initialize logger, database schemas, and DiscordTogether
     this.logger = Logger
 
+    // Honeybadger
+    this.honeybadger = Honeybadger
+
     // Database
     this.database = schemas
 
@@ -72,6 +76,36 @@ module.exports = class BotClient extends Client {
     this.utils = require('../helpers/Utils')
 
     this.discordTogether = new DiscordTogether(this)
+
+    // Set up global error handlers with Honeybadger context
+    this.setupErrorHandlers()
+  }
+
+  // Setup global error handlers
+  setupErrorHandlers() {
+    // Discord.js error events
+    this.on('error', error => {
+      this.logger.error('Discord Client Error', error)
+      Honeybadger.notify(error, {
+        context: {
+          event: 'client_error',
+        },
+      })
+    })
+
+    this.on('warn', warning => {
+      this.logger.warn(warning)
+    })
+
+    // Handle unhandled promise rejections
+    process.on('unhandledRejection', (reason, promise) => {
+      this.logger.error('Unhandled Promise Rejection', reason)
+      Honeybadger.notify(reason, {
+        context: {
+          event: 'unhandled_rejection',
+        },
+      })
+    })
   }
 
   // Load and register events from a directory
@@ -162,6 +196,9 @@ module.exports = class BotClient extends Client {
         if (typeof cmd !== 'object') continue
         validateCommand(cmd)
         this.loadCommand(cmd)
+
+        // Clear the require cache to allow hot reloading
+        delete require.cache[require.resolve(file)]
       } catch (ex) {
         this.logger.error(`Failed to load ${file} Reason: ${ex.message}`)
       }
@@ -192,6 +229,9 @@ module.exports = class BotClient extends Client {
           throw new Error(`Context already exists with that name`)
         }
         this.contextMenus.set(ctx.name, ctx)
+
+        // Clear the require cache to allow hot reloading
+        delete require.cache[require.resolve(file)]
       } catch (ex) {
         this.logger.error(`Failed to load ${file} Reason: ${ex.message}`)
       }

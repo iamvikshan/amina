@@ -18,7 +18,7 @@ GuildChannel.prototype.canSendEmbeds = function () {
  */
 GuildChannel.prototype.safeSend = async function (content, seconds) {
   if (!content) return
-  if (!this.type === ChannelType.GuildText && !this.type === ChannelType.DM)
+  if (this.type !== ChannelType.GuildText && this.type !== ChannelType.DM)
     return
 
   const perms = ['ViewChannel', 'SendMessages']

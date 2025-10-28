@@ -1,5 +1,6 @@
 const { parsePermissions } = require('@helpers/Utils')
 const { timeformat } = require('@helpers/Utils')
+const Honeybadger = require('@helpers/Honeybadger')
 
 const cooldownCache = new Map()
 
@@ -36,12 +37,33 @@ module.exports = {
 
     try {
       await interaction.deferReply({ ephemeral: context.ephemeral })
+
+      // Set Honeybadger context
+      Honeybadger.setContext({
+        context_menu: context.name,
+        context_type: context.type,
+        guild_id: interaction.guild?.id,
+        guild_name: interaction.guild?.name,
+        user_id: interaction.user.id,
+        user_tag: interaction.user.tag,
+      })
+
       await context.run(interaction)
     } catch (ex) {
       interaction.followUp('Oops! An error occurred while running the command')
       interaction.client.logger.error('contextRun', ex)
+
+      // Notify Honeybadger
+      Honeybadger.notify(ex, {
+        context: {
+          context_menu: context.name,
+        },
+      })
     } finally {
       applyCooldown(interaction.user.id, context)
+
+      // Clear context
+      Honeybadger.resetContext()
     }
   },
 }

@@ -1,6 +1,7 @@
 const config = require('@src/config')
 const { EmbedBuilder, WebhookClient } = require('discord.js')
 const pino = require('pino')
+const Honeybadger = require('./Honeybadger')
 
 const webhookLogger = process.env.LOGS_WEBHOOK
   ? new WebhookClient({
@@ -97,8 +98,18 @@ module.exports = class Logger {
   static error(content, ex) {
     if (ex) {
       pinoLogger.error(ex, `${content}: ${ex?.message}`)
+
+      // Report to Honeybadger
+      Honeybadger.notify(ex, {
+        context: {
+          errorLocation: content,
+        },
+      })
     } else {
       pinoLogger.error(content)
+
+      // Report string errors to Honeybadger as well
+      Honeybadger.notify(new Error(content))
     }
     if (webhookLogger) sendWebhook(content, ex)
   }
