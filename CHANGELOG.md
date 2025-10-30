@@ -1,3 +1,15 @@
+# [v1.1.0](https://github.com/iamvikshan/amina/compare/v1.0.0...v1.1.0) (2025-10-30)
+
+
+
+## [1.1.0](https://github.com/iamvikshan/amina/compare/v1.0.0...v1.1.0) (2025-10-30)
+
+### Features
+
+* containerize amina with docker, lavalink, and uptime kuma ([8122b55](https://github.com/iamvikshan/amina/commit/8122b5508ad706eb43800ea54472489a7863c40a))
+* enhance Lavalink configuration with multiple nodes and add TODO roadmap for feature implementation ([9ad597c](https://github.com/iamvikshan/amina/commit/9ad597ccbd80019d8c34e004e5358ba4af7834eb))
+* integrate Honeybadger error tracking and fix Discord.js v15 compatibility ([0265d9f](https://github.com/iamvikshan/amina/commit/0265d9f6565824fa5f78f8b6b4a99d344bcdf046))
+
 # v1.0.0 (2024-12-11)
 
 
