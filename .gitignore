@@ -5,6 +5,7 @@ node_modules/
 *.tar.gz
 .env
 *lock
+!bun.lock
 
 # build output
 astro/dist/
@@ -34,3 +35,4 @@ astro/.env.production
 # macOS-specific files
 .DS_Store
 package-lock.json
+lavalink/plugins/*

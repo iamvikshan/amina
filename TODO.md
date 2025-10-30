@@ -1,5 +1,108 @@
 # Amina Discord Bot - TODO & Feature Roadmap
 
+## 🔄 TypeScript Migration - Gradual Conversion Roadmap
+
+> [!INFO] Amina is gradually migrating from JavaScript to TypeScript using Bun's
+> native TS support.
+
+### ✅ Already Converted (24 files)
+
+**Configuration & Types:**
+
+- [x] `src/config.ts` - Main configuration
+- [x] `types/global.d.ts` - Global type definitions
+- [x] `types/schemas.d.ts` - Schema type definitions
+
+**Handlers:**
+
+- [x] `src/handlers/command.ts` - Command handler
+- [x] `src/handlers/index.ts` - Handler barrel exports
+
+**Helpers (Foundation Layer 1 & 2 ✅ COMPLETE):**
+
+- [x] `src/helpers/Logger.ts` - Logging utility (114 lines)
+- [x] `src/helpers/Validator.ts` - Validation logic (253 lines)
+- [x] `src/helpers/permissions.ts` - Permission name mapping (43 lines)
+- [x] `src/helpers/channelTypes.ts` - Channel type mapping (31 lines)
+- [x] `src/helpers/HttpUtils.ts` - HTTP utility class (121 lines) ⭐ NEW
+- [x] `src/helpers/BotUtils.ts` - Bot utility functions (101 lines) ⭐ NEW
+
+**Structures (Foundation Layer 2 ✅ COMPLETE):**
+
+- [x] `src/structures/CommandCategory.ts` - Command category enum
+- [x] `src/structures/index.ts` - Barrel export file (13 lines)
+- [x] `src/structures/BaseContext.ts` - Context menu base (42 lines) ⭐ NEW
+- [x] `src/structures/Command.ts` - Command base structure (130 lines) ⭐ NEW
+
+**Database Schemas:**
+
+- [x] `src/database/schemas/User.ts` - User schema
+- [x] `src/database/schemas/Guild.ts` - Guild schema
+- [x] `src/database/schemas/Member.ts` - Member schema
+
+**Commands:**
+
+- [x] `src/commands/fun/meme.ts` - Example command
+- [x] `src/commands/utility/help.ts` - Help command
+
+**Services:**
+
+- [x] `src/services/health.ts` - Health check service
+
+### � Medium Priority - Next Phase (Layer 3: Handlers & Simple Utilities)
+
+Convert handlers and remaining small utility files.
+
+#### 1. Simple Handlers (~50-150 lines each)
+
+- [ ] **`src/handlers/automod.js`** - Automod handler
+- [ ] **`src/handlers/greeting.js`** - Welcome/leave messages
+- [ ] **`src/handlers/counter.js`** - Counter handler
+- [ ] **`src/handlers/reactionRoles.js`** - Reaction roles
+- [ ] **`src/handlers/report.js`** - Report handler
+- [ ] **`src/handlers/stats.js`** - Stats tracking
+- [ ] **`src/handlers/suggestion.js`** - Suggestions
+- [ ] **`src/handlers/ticket.js`** - Ticket system
+- [ ] **`src/handlers/tod.js`** - Truth or Dare
+
+#### 2. Remaining Small Helpers
+
+- [ ] **`src/helpers/Honeybadger.js`** (42 lines) - Error tracking config
+
+### 🟢 Lower Priority - Complex Files
+
+Save these for later phases.
+
+#### 4. Large Utility Files
+
+- [ ] **`src/helpers/Utils.js`** (187 lines) - General utilities
+  - Convert after permissions.js and channelTypes.js
+- [ ] **`src/helpers/ModUtils.js`** (616 lines) - Moderation utilities
+  - Complex, many dependencies
+
+#### 5. Core Classes (Final Phase)
+
+- [ ] **`src/structures/BotClient.js`** (390 lines) - Core client class
+  - Most critical file, convert last
+  - Depends on almost everything
+
+#### 6. Remaining Handlers
+
+- [ ] `src/handlers/` - All remaining .js handlers
+  - Convert alongside related features
+
+#### 7. Remaining Schemas
+
+- [ ] `src/database/schemas/` - All remaining .js schemas
+  - Convert as needed per feature
+
+#### 8. Remaining commands
+
+- [ ] `src/commands/` - All remaining .js commands
+  - Convert as features are worked on
+
+---
+
 ## 🎵 Music System - Feature Implementation Roadmap
 
 ### 🔴 High Priority Features
@@ -96,13 +199,6 @@ Nice to have - implement when time permits.
 - [ ] Auto-skip intros/outros (configurable)
 - [ ] User toggleable settings
 
-#### 11. Text-to-Speech
-
-- [ ] **`/tts <text>`** - Text-to-speech in voice
-- [ ] Multiple language support
-- [ ] Voice selection options
-- [ ] Requires TTS plugin installation
-
 #### 12. Music Statistics
 
 - [ ] **`/stats user [@user]`** - User listening stats
@@ -127,6 +223,7 @@ Nice to have - implement when time permits.
 **Status**: Deprecation warning in logs
 
 **Action Required**: Switch to one of these alternatives:
+
 - `youtube-source` - Modern replacement
 - `youtubemusicsearch` - Music-focused
 - `soundcloud` - Alternative platform
@@ -135,368 +232,25 @@ Nice to have - implement when time permits.
 
 ### B. Current Lavalink Plugins Status
 
-- ✅ **LavaSearch** - Ready
-- ✅ **Duncte Bot Filters** - Ready (for /nightcore, /vaporwave, etc.)
-- ⚠️ **YouTube Plugin** - Deprecated
-- ❓ **SponsorBlock** - Not installed (needed for feature #10)
-- ❓ **TTS Plugin** - Not installed (needed for feature #11)
-
----
-
-# TypeScript Migration Guide for Bun
-
-## Overview
-
-We've set up a **very permissive** TypeScript configuration that allows you to gradually migrate from JavaScript to TypeScript without breaking the build. The code can run immediately with both `.js` and `.ts` files.
-
-## Why TypeScript with Bun?
-
-1. **Native TypeScript Support**: Bun runs TypeScript natively without transpilation
-2. **Better Performance**: Bun is significantly faster than Node.js
-3. **Type Safety**: Gradually add type safety to catch bugs earlier
-4. **Better IDE Support**: Enhanced autocomplete and IntelliSense
-5. **Future-Proof**: Modern JavaScript/TypeScript features
-
-## Current Setup
-
-### Configuration Files
-
-- **`tsconfig.json`**: Very loose TypeScript configuration
-  - `allowJs: true` - JavaScript files are allowed
-  - `checkJs: false` - No type checking on JS files
-  - `strict: false` - All strict checks disabled
-  - `noEmit: true` - No compilation, Bun runs TS directly
-  - `skipLibCheck: true` - Skip type checking of declaration files
-- **`types/`**: Ambient type declarations
-  - `global.d.ts` - Types for structures, config, helpers
-  - `schemas.d.ts` - Types for Mongoose schemas
-
-### Updated Scripts
-
-```bash
-# Development with auto-reload
-bun dev
-
-# Production start
-bun start
-
-# Type checking (optional, doesn't block execution)
-bun typecheck
-
-# Watch mode for type checking
-bun typecheck:watch
-
-# Legacy Node.js start
-bun start:node
-```
-
-## Migration Strategy
-
-### Phase 1: Setup (✅ Complete)
-
-- [x] Create loose `tsconfig.json`
-- [x] Add Bun types and TypeScript dependencies
-- [x] Create ambient type declarations
-- [x] Update scripts to use Bun
-
-### Phase 2: Gradual File Migration (In Progress)
-
-You can migrate files **one at a time** without breaking anything:
-
-#### Option A: Rename `.js` to `.ts`
-
-Simply rename a file from `.js` to `.ts`:
-
-```bash
-mv src/commands/fun/meme.js src/commands/fun/meme.ts
-```
-
-The code will work immediately! TypeScript won't complain because of our loose configuration.
-
-#### Option B: Add JSDoc Types (Recommended for gradual migration)
-
-Keep files as `.js` but add JSDoc comments for types:
-
-```javascript
-/**
- * @type {import('@structures/Command').CommandData}
- */
-module.exports = {
-  name: 'ping',
-  description: 'Check bot latency',
-  // ...
-}
-```
-
-#### Option C: Convert to TypeScript Gradually
-
-Convert a file to TypeScript with proper types:
-
-```typescript
-import { CommandData } from '@structures/Command'
-import { ChatInputCommandInteraction } from 'discord.js'
-
-const command: CommandData = {
-  name: 'ping',
-  description: 'Check bot latency',
-  category: 'UTILITY',
-  cooldown: 5,
-  slashCommand: {
-    enabled: true,
-  },
-  async interactionRun(interaction: ChatInputCommandInteraction) {
-    await interaction.followUp(`🏓 Pong! ${interaction.client.ws.ping}ms`)
-  },
-}
-
-export default command
-```
-
-### Phase 3: Incremental Type Safety
-
-As you migrate more files, you can gradually enable stricter checks:
-
-1. Start with files that are easiest to type (utilities, helpers)
-2. Move to command handlers
-3. Finally migrate complex files (BotClient, handlers)
-
-When ready, you can enable stricter checks **per-file** using:
-
-```typescript
-// @ts-check
-// At the top of a JS file to enable type checking
-
-// or
-
-// At the top of a TS file for strict mode
-'use strict'
-```
-
-### Phase 4: Enable Strict Mode (Future)
-
-Once most files are migrated, gradually enable strict checks in `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true
-    // Enable one at a time and fix errors
-  }
-}
-```
-
-## File Migration Priority
-
-Recommended order for migration:
-
-1. **Utilities** (`src/helpers/`) - Usually type-safe already
-2. **Schemas** (`src/database/schemas/`) - Well-defined structures
-3. **Simple Commands** - Commands with straightforward logic
-4. **Event Handlers** - Defined by Discord.js types
-5. **Complex Commands** - Commands with subcommands
-6. **Core Classes** (`src/structures/`) - Most critical, migrate last
-
-## Best Practices
-
-### DO ✅
-
-- Migrate files incrementally, one at a time
-- Test after each migration
-- Use `bun typecheck` to find issues (but don't block on them)
-- Add types gradually as you understand the code better
-- Use `any` type liberally at first, refine later
-- Keep the bot running while migrating
-
-### DON'T ❌
-
-- Try to migrate everything at once
-- Enable strict mode immediately
-- Block on type errors if the code works
-- Remove JSDoc comments (they help with types)
-- Change working logic just to satisfy TypeScript
-
-## Type Checking
-
-### Manual Type Check
-
-```bash
-# Check all files for type errors
-bun typecheck
-
-# Watch mode - checks as you edit
-bun typecheck:watch
-```
-
-Type errors won't prevent the bot from running since `noEmit: true` is set.
-
-### IDE Integration
-
-Your IDE (VS Code) will show type hints and errors automatically. You can:
-
-- Hover over variables to see inferred types
-- Get autocomplete for Discord.js objects
-- See function signatures
-- Find unused variables
-
-## Bun-Specific Optimizations
-
-### Fast Restarts
-
-Bun's `--watch` flag is faster than nodemon:
-
-```bash
-bun --watch src/index.js
-```
-
-### Native APIs
-
-You can use Bun's native APIs for better performance:
-
-```typescript
-// File operations
-import { file } from 'bun'
-const data = await file('data.json').json()
-
-// Fetch (native, no need for node-fetch)
-const response = await fetch('https://api.example.com')
-
-// Fast hashing
-import { hash } from 'bun'
-const hashed = hash('some-string')
-```
-
-### SQLite (Optional)
-
-Bun has native SQLite support if you want to migrate from MongoDB:
-
-```typescript
-import { Database } from 'bun:sqlite'
-const db = new Database('bot.db')
-```
-
-## Troubleshooting
-
-### "Cannot find module" errors
-
-Make sure path aliases work:
-
-```json
-// tsconfig.json
-{
-  "compilerOptions": {
-    "paths": {
-      "@helpers/*": ["./src/helpers/*"]
-    }
-  }
-}
-```
-
-### Type errors but code works
-
-This is expected with loose config. You can:
-
-1. Ignore for now (code still works)
-2. Add `// @ts-ignore` above the line
-3. Use `any` type temporarily
-4. Fix the type properly when you have time
-
-### Slow type checking
-
-Add more exclusions to `tsconfig.json`:
-
-```json
-{
-  "exclude": ["node_modules", "dist", "logs", "**/*.spec.ts"]
-}
-```
-
-## Examples
-
-### Before (JavaScript)
-
-```javascript
-const { ApplicationCommandOptionType } = require('discord.js')
-
-module.exports = {
-  name: 'ping',
-  description: 'Check bot latency',
-  category: 'UTILITY',
-  cooldown: 5,
-  slashCommand: {
-    enabled: true,
-  },
-  async interactionRun(interaction) {
-    await interaction.followUp(`🏓 Pong! ${interaction.client.ws.ping}ms`)
-  },
-}
-```
-
-### After (TypeScript - Gradual)
-
-```typescript
-import { ApplicationCommandOptionType } from 'discord.js'
-import type { CommandData } from '@structures/Command'
-
-// Start with loose types
-const command: CommandData = {
-  name: 'ping',
-  description: 'Check bot latency',
-  category: 'UTILITY',
-  cooldown: 5,
-  slashCommand: {
-    enabled: true,
-  },
-  async interactionRun(interaction) {
-    // Type inferred from CommandData
-    await interaction.followUp(`🏓 Pong! ${interaction.client.ws.ping}ms`)
-  },
-}
-
-export default command
-```
-
-### After (TypeScript - Strict)
-
-```typescript
-import {
-  ApplicationCommandOptionType,
-  ChatInputCommandInteraction,
-} from 'discord.js'
-import type { CommandData } from '@structures/Command'
-
-interface PingCommandData {
-  settings: any // Will be properly typed later
-}
-
-const command: CommandData = {
-  name: 'ping',
-  description: 'Check bot latency',
-  category: 'UTILITY',
-  cooldown: 5,
-  botPermissions: ['SendMessages'],
-  slashCommand: {
-    enabled: true,
-    ephemeral: true,
-  },
-  async interactionRun(
-    interaction: ChatInputCommandInteraction,
-    data: PingCommandData
-  ): Promise<void> {
-    const ping = interaction.client.ws.ping
-    await interaction.followUp({
-      content: `🏓 Pong! ${ping}ms`,
-      ephemeral: true,
-    })
-  },
-}
-
-export default command
-```
-
-## Resources
-
-- [Bun Documentation](https://bun.sh/docs)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-- [Discord.js Guide](https://discordjs.guide/)
-- [TypeScript Migration Guide](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html)
+**✅ All plugins installed and running successfully!**
+
+- ✅ **YouTube Plugin v1.15.0** - ✨ Active (WEB_REMIX, WEB clients)
+- ✅ **LavaSrc v4.2.0** - ✨ Active - Commands not yet implemented
+  - Spotify: ✅ Enabled (credentials passed via docker-compose from .env)
+  - Apple Music: ⏸️ Disabled (add APPLE_MUSIC_TOKEN to .env to enable)
+  - Deezer: ⏸️ Disabled (add DEEZER_KEY to .env to enable)
+- ✅ **LavaSearch v1.0.0** - ✨ Active - Commands not yet implemented
+- ✅ **SponsorBlock v3.0.1** - ✨ Active (7 categories) - Commands not yet
+  implemented
+- ✅ **LavaDSPX v0.0.5** - ✨ Active (high-pass, low-pass, normalization, echo)
+  - Commands not yet implemented
+- ✅ **LavaLyrics v1.1.0** - ✨ Active (Spotify/YouTube/Deezer/Yandex lyrics)
+  - Commands not yet implemented
+- ❌ **Java Timed Lyrics** - Incompatible (requires YouTube route planner)
+- ❌ **Google Cloud TTS** - Not added (requires paid API key)
+
+**Configuration Notes:**
+
+- ✅ Lavalink now receives .env variables via docker-compose (`env_file`)
+- ✅ All plugin repositories verified and working
+- ✅ Optional ENV variables documented in `.env.example`

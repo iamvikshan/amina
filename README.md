@@ -14,6 +14,9 @@
 
 </div>
 
+> [!WARNING] Amina no longer natively support node.js, but bun. 
+> To run amina on a node.js environmeant, you will have to recombile the code using typescript, it is very easy but i am too lazy to add that simple script, and why are you not using bun to begin with?
+
 ## About
 
 Amina is a versatile Discord bot that combines powerful moderation tools with fun entertainment

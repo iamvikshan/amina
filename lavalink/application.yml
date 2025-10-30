@@ -5,17 +5,33 @@ server:
 lavalink:
   plugins:
     # Lavalink will automatically download these plugins on startup
-    - dependency: 'dev.lavalink.youtube:youtube-plugin:1.11.0'
+    - dependency: 'dev.lavalink.youtube:youtube-plugin:1.15.0'
       repository: 'https://maven.lavalink.dev/releases'
-    # Add more plugins here as needed
-    # Example: Spotify plugin
-    # - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.4.0"
-    #   repository: "https://maven.lavalink.dev/releases"
+
+    # Multi-platform support (Spotify, Apple Music, Deezer)
+    - dependency: 'com.github.topi314.lavasrc:lavasrc-plugin:4.2.0'
+      repository: 'https://maven.lavalink.dev/releases'
+
+    # Advanced search functionality
+    - dependency: 'com.github.topi314.lavasearch:lavasearch-plugin:1.0.0'
+      repository: 'https://maven.lavalink.dev/releases'
+
+    # SponsorBlock - skip sponsored segments
+    - dependency: 'com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.1'
+      repository: 'https://maven.lavalink.dev/releases'
+
+    # Additional DSP filters (high-pass, low-pass, normalization, echo)
+    - dependency: 'com.github.Devoxin:LavaDSPX-Plugin:0.0.5'
+      repository: 'https://jitpack.io'
+
+    # Lyrics API base (supports multiple sources including YouTube, Spotify, Deezer)
+    - dependency: 'com.github.topi314.lavalyrics:lavalyrics-plugin:1.1.0'
+      repository: 'https://maven.topi.wtf/releases'
 
   server:
-    password: 'youshallnotpass'
+    password: 'incorrect'
     sources:
-      youtube: true
+      youtube: false # Disable deprecated built-in YouTube source
       bandcamp: true
       soundcloud: true
       twitch: true
@@ -44,6 +60,73 @@ lavalink:
     youtubeSearchEnabled: true
     soundcloudSearchEnabled: true
     gc-warnings: true
+
+plugins:
+  youtube:
+    enabled: true
+    allowSearch: true
+    allowDirectVideoIds: true
+    allowDirectPlaylistIds: true
+    # Configure clients for better reliability and functionality
+    clients:
+      - MUSIC
+      - WEB
+      - ANDROID_TESTSUITE
+      - TVHTML5_SIMPLY_EMBEDDED_PLAYER
+    # OAuth configuration (optional, for members-only content)
+    # oauth:
+    #   enabled: false
+    #   refreshToken: "your-refresh-token-here"
+
+  lavasrc:
+    providers:
+      # Spotify support (requires client ID and secret)
+      - 'spsearch:%ISRC%'
+      - 'sprec:%ISRC%'
+      - 'amsearch:%ISRC%' # Apple Music
+      - 'dzsearch:%ISRC%' # Deezer
+      - 'ytsearch:"%ISRC%"'
+    sources:
+      spotify: true
+      applemusic: false # Disabled until token is provided
+      deezer: false # Disabled until key is provided
+      yandexmusic: false
+      flowerytts: false
+      youtube: true
+    spotify:
+      clientId: '${SPOTIFY_CLIENT_ID:-}'
+      clientSecret: '${SPOTIFY_CLIENT_SECRET:-}'
+      countryCode: 'US'
+      playlistLoadLimit: 6
+      albumLoadLimit: 6
+    applemusic:
+      countryCode: 'US'
+      mediaAPIToken: '${APPLE_MUSIC_TOKEN:-}'
+      playlistLoadLimit: 6
+      albumLoadLimit: 6
+    deezer:
+      masterDecryptionKey: '${DEEZER_KEY:-}'
+
+  sponsorblock:
+    enabled: true
+    # Categories to skip
+    categories:
+      - sponsor
+      - selfpromo
+      - interaction
+      - intro
+      - outro
+      - preview
+      - music_offtopic
+      - filler
+
+  lavalyrics:
+    # Order in which lyrics sources will be queried
+    sources:
+      - spotify # Requires LavaSrc plugin
+      - youtube # Built-in support
+      - deezer # Requires LavaSrc plugin
+      - yandexMusic # Requires LavaSrc plugin (if enabled)
 
 metrics:
   prometheus:

@@ -1,40 +1,48 @@
-FROM alpine:latest
-
-# Install Bun and dependencies
-RUN apk add --no-cache \
-    curl \
-    unzip \
-    bash \
-    dumb-init \
-    ca-certificates \
-    libstdc++ \
-    libgcc \
-    && adduser -D -u 1001 amina \
-    && curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.1" \
-    && mv /root/.bun /home/amina/.bun \
-    && chown -R amina:amina /home/amina/.bun \
-    && ln -s /home/amina/.bun/bin/bun /usr/local/bin/bun \
-    && apk del unzip bash
+# ============================================
+# Stage 1: Dependencies
+# ============================================
+FROM oven/bun:1.3.1-alpine AS dependencies
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy lockfile first for better caching
+COPY bun.lock ./
+COPY package.json ./
 
-# Install dependencies
-RUN bun install --production --ignore-scripts
+# Install production dependencies only
+RUN bun install --frozen-lockfile --production --ignore-scripts
 
-# Copy source code
-COPY src/ ./src/
-COPY types/ ./types/
+# ============================================
+# Stage 2: Final Runtime Image
+# ============================================
+FROM oven/bun:1.3.1-alpine AS runtime
 
-# Create logs directory and set ownership
+# Install only dumb-init (no curl needed)
+RUN apk add --no-cache dumb-init
+
+# Create non-root user
+RUN adduser -D -u 1001 amina
+
+WORKDIR /app
+
+# Copy dependencies from build stage
+COPY --from=dependencies --chown=amina:amina /app/node_modules ./node_modules
+COPY --from=dependencies --chown=amina:amina /app/package.json ./package.json
+
+# Copy application code
+COPY --chown=amina:amina src/ ./src/
+COPY --chown=amina:amina types/ ./types/
+
+# Create logs directory
 RUN mkdir -p /app/logs && chown -R amina:amina /app
 
 USER amina
 
 EXPOSE 3000
 
-# Use dumb-init to handle signals properly
+# Use wget for healthcheck (already in alpine, no additional dependency)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["bun", "run", "src/index.js"]

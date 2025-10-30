@@ -1,9 +1,11 @@
-const { ChannelType } = require('discord.js')
+import { ChannelType } from 'discord.js'
 
 /**
- * @param {number} type
+ * Converts a Discord ChannelType enum to a human-readable string
+ * @param type - The Discord ChannelType enum value
+ * @returns A readable string representation of the channel type
  */
-module.exports = type => {
+export default function channelTypes(type: ChannelType): string {
   switch (type) {
     case ChannelType.GuildText:
       return 'Guild Text'
@@ -29,3 +31,6 @@ module.exports = type => {
       return 'Unknown'
   }
 }
+
+// Named export for flexibility
+export { channelTypes }
