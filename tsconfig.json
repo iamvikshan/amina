@@ -1,0 +1,69 @@
+{
+  "compilerOptions": {
+    // Bun-optimized settings
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext"],
+    "moduleResolution": "bundler",
+    "types": ["bun-types"],
+
+    // Allow JavaScript files to be compiled
+    "allowJs": true,
+    "checkJs": false,
+
+    // Emit settings - we don't need to emit since Bun runs TS natively
+    "noEmit": true,
+
+    // Path mapping (same as jsconfig.json)
+    "baseUrl": "./",
+    "paths": {
+      "@root/*": ["./*"],
+      "@handlers/*": ["./src/handlers/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@schemas/*": ["./src/database/schemas/*"],
+      "@src/*": ["./src/*"],
+      "@structures/*": ["./src/structures/*"],
+      "@commands/*": ["./src/commands/*"]
+    },
+
+    // Very loose type checking for gradual migration
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+
+    // Additional relaxed settings
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+
+    // Allow CommonJS interop
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+
+    // Source map for debugging
+    "sourceMap": true,
+    "inlineSources": true,
+
+    // Experimental decorators (useful for Discord.js applications)
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*", "types/**/*"],
+  "exclude": ["node_modules", "**/node_modules/*", "dist", "build", "logs"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
+}
+

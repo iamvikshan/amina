@@ -1,67 +1,38 @@
-# 🎵 Amina Music System - Feature Implementation Roadmap
+# Amina Discord Bot - TODO & Feature Roadmap
 
-## 📋 Table of Contents
+## 🎵 Music System - Feature Implementation Roadmap
 
-- [High Priority Features](#high-priority-features)
-- [Medium Priority Features](#medium-priority-features)
-- [Low Priority Features](#low-priority-features)
-- [Lavalink Configuration Enhancements](#lavalink-configuration-enhancements)
-- [Plugin Recommendations](#plugin-recommendations)
+### 🔴 High Priority Features
 
----
+Implement these first - leverage existing Lavalink capabilities.
 
-## 🔴 High Priority Features
-
-**Implement these first - leverage existing Lavalink capabilities**
-
-### 1. Filter Commands (Uses existing enabled filters)
+#### 1. Filter Commands (Uses existing enabled filters)
 
 - [ ] **`/nightcore`** - Speed up + pitch up effect
-  - Uses `timescale` filter: `{ speed: 1.2, pitch: 1.2 }`
-  - Popular effect, high user demand
 - [ ] **`/vaporwave`** - Slow down + pitch down aesthetic effect
-  - Uses `timescale` filter: `{ speed: 0.8, pitch: 0.8 }`
 - [ ] **`/8d`** - 8D audio rotation effect
-  - Uses `rotation` filter with `rotationHz: 0.2`
 - [ ] **`/karaoke`** - Remove vocals for karaoke mode
-  - Uses `karaoke` filter with configurable levels
 - [ ] **`/tremolo`** - Trembling sound effect
-  - Uses `tremolo` filter: `{ frequency: 2.0, depth: 0.5 }`
 - [ ] **`/vibrato`** - Vibrating pitch effect
-  - Uses `vibrato` filter: `{ frequency: 2.0, depth: 0.5 }`
 - [ ] **`/distortion`** - Distorted sound effect
-  - Uses `distortion` filter with multiple sin/cos offsets
 - [ ] **`/pitch`** - Adjust pitch without changing speed
-  - Uses `timescale` filter with pitch only
 - [ ] **`/speed`** - Adjust playback speed without pitch
-  - Uses `timescale` filter with speed only
 - [ ] **`/filters`** - Show active filters & reset all
-  - Display current filter status
-  - Option to clear all filters at once
 
-### 2. Platform-Specific Search Commands (Uses LavaSrc plugin)
+#### 2. Platform-Specific Search Commands
 
-- [ ] **`/spotify <query>`** - Search & play from Spotify
-  - Uses `spsearch:` prefix
-  - Already configured in application.yml
-- [ ] **`/deezer <query>`** - Search & play from Deezer
-  - Uses `dzsearch:` prefix
-  - Already configured in application.yml
-- [ ] **`/applemusic <query>`** - Search & play from Apple Music
-  - Uses `amsearch:` prefix
-  - Already configured in application.yml
-- [ ] **`/soundcloud <query>`** - Explicit SoundCloud search
-  - Uses `scsearch:` prefix
-  - Currently default source
+- [ ] **`/spotify <query>`** - Search & play from Spotify (spsearch)
+- [ ] **`/deezer <query>`** - Search & play from Deezer (dzsearch)
+- [ ] **`/applemusic <query>`** - Search & play from Apple Music (amsearch)
+- [ ] **`/soundcloud <query>`** - Explicit SoundCloud search (scsearch)
 
-### 3. Enhanced Equalizer
+#### 3. Enhanced Equalizer
 
-- [ ] **`/equalizer`** - Full 15-band equalizer control
-  - Interactive UI for band adjustment
-  - Preset options: Flat, Bass, Treble, Vocal, Party, Soft
-  - Save custom user presets
+- [ ] **`/equalizer`** - Full 15-band EQ control
+- [ ] Add preset options: Flat, Bass, Treble, Vocal, Party, Soft
+- [ ] Save custom user presets
 
-### 4. Advanced Queue Management
+#### 4. Advanced Queue Management
 
 - [ ] **`/skipto <position>`** - Skip to specific queue position
 - [ ] **`/remove <position>`** - Remove song from queue
@@ -70,13 +41,11 @@
 - [ ] **`/previous`** - Play previous track from history
 - [ ] **`/replay`** - Restart current song from beginning
 
----
+### 🟡 Medium Priority Features
 
-## 🟡 Medium Priority Features
+Implement after high priority features.
 
-**Add after high priority features**
-
-### 5. Favorites & Playlist System
+#### 5. Favorites & Playlist System
 
 - [ ] **`/favorite add`** - Add current song to favorites
 - [ ] **`/favorite list`** - Show user's favorite songs
@@ -86,57 +55,55 @@
 - [ ] **`/playlist add <name>`** - Add song to playlist
 - [ ] **`/playlist play <name>`** - Play playlist
 - [ ] **`/playlist list`** - Show all playlists
-- [ ] **Database schema** for user playlists/favorites
+- [ ] Create database schema for user playlists/favorites
 
-### 6. Radio Station Support
+#### 6. Radio Station Support
 
 - [ ] **`/radio <station>`** - Play internet radio
 - [ ] **`/radio list`** - Show available stations
-- [ ] Predefined station list (genre-based)
+- [ ] Add predefined station list (genre-based)
 - [ ] Support for HTTP/HTTPS streams
 
-### 7. Enhanced Lyrics
+#### 7. Enhanced Lyrics
 
-- [ ] **Improve `/lyrics`** command
+- [ ] Improve `/lyrics` command
 - [ ] Add synced lyrics with timing
 - [ ] Auto-scroll lyrics as song plays
 - [ ] Lyrics from multiple sources (Genius, Musixmatch)
 
-### 8. Filter Presets & Combinations
+#### 8. Filter Presets & Combinations
 
 - [ ] **`/preset save <name>`** - Save current filter combo
 - [ ] **`/preset load <name>`** - Load saved preset
 - [ ] **`/preset list`** - Show available presets
-- [ ] Pre-built presets: Cinema, Concert, Club, Studio
+- [ ] Add pre-built presets: Cinema, Concert, Club, Studio
 
-### 9. DJ Mode (Role-based Control)
+#### 9. DJ Mode (Role-based Control)
 
 - [ ] **`/dj enable`** - Enable DJ-only mode
 - [ ] **`/dj role <role>`** - Set DJ role
 - [ ] Only DJ role can control music when enabled
-- [ ] Override for administrators
+- [ ] Admin override capability
 
----
+### 🟢 Low Priority Features
 
-## 🟢 Low Priority Features
+Nice to have - implement when time permits.
 
-**Nice to have - implement when time permits**
-
-### 10. SponsorBlock Integration
+#### 10. SponsorBlock Integration
 
 - [ ] Install `sponsorblock-plugin` for Lavalink
 - [ ] Auto-skip sponsored segments
 - [ ] Auto-skip intros/outros (configurable)
-- [ ] User toggleable setting
+- [ ] User toggleable settings
 
-### 11. Text-to-Speech
+#### 11. Text-to-Speech
 
 - [ ] **`/tts <text>`** - Text-to-speech in voice
 - [ ] Multiple language support
 - [ ] Voice selection options
-- [ ] Requires `dunctebot-plugin` or `tts-plugin`
+- [ ] Requires TTS plugin installation
 
-### 12. Music Statistics
+#### 12. Music Statistics
 
 - [ ] **`/stats user [@user]`** - User listening stats
 - [ ] **`/stats server`** - Server music stats
@@ -144,7 +111,7 @@
 - [ ] Listening time tracking
 - [ ] Leaderboards
 
-### 13. Custom Soundboard
+#### 13. Custom Soundboard
 
 - [ ] **`/soundboard add <name> <url>`** - Add sound
 - [ ] **`/soundboard play <name>`** - Play sound effect
@@ -153,281 +120,383 @@
 
 ---
 
-## ⚙️ Lavalink Configuration Enhancements
+## 🔧 Lavalink Configuration Enhancements
 
-### A. Replace Deprecated YouTube Source
+### A. ⚠️ URGENT - Replace Deprecated YouTube Source
 
-**URGENT - Current logs show deprecation warning**
+**Status**: Deprecation warning in logs
 
-```yaml
-# Remove from application.yml:
-sources:
-  youtube: true # ❌ DEPRECATED
+**Action Required**: Switch to one of these alternatives:
+- `youtube-source` - Modern replacement
+- `youtubemusicsearch` - Music-focused
+- `soundcloud` - Alternative platform
 
-# Add to plugins section:
-plugins:
-  youtube:
-    enabled: true
-    allowSearch: true
-    allowDirectVideoIds: true
-    allowDirectPlaylistIds: true
-    clients:
-      - MUSIC
-      - WEB
-      - ANDROID_TESTSUITE
-```
+**Timeline**: Update before YouTube plugin breaks
 
-### B. Add Essential Plugins
+### B. Current Lavalink Plugins Status
 
-#### 1. YouTube Source Plugin (REQUIRED)
-
-```yaml
-plugins:
-  youtube:
-    enabled: true
-    allowSearch: true
-    allowDirectVideoIds: true
-    allowDirectPlaylistIds: true
-```
-
-**Download:** https://github.com/lavalink-devs/youtube-source/releases
-
-#### 2. LavaSfy (Enhanced Spotify)
-
-```yaml
-plugins:
-  lavasfy:
-    clientId: '5812c519c17a4fe7b88b911ccebd7ada'
-    clientSecret: '5c7654b5fb6e4baca7b45a51566fe17a'
-    countryCode: 'US'
-    audioPlayback: true
-    autoResolve: true
-```
-
-**Download:** https://github.com/topi314/LavaSfy/releases
-
-#### 3. DuncteBot Plugin (Extra Sources)
-
-```yaml
-plugins:
-  dunctebot:
-    ttsLanguage: 'en-US'
-    sources:
-      getyarn: true # Movie/TV quotes
-      clypit: true # Clyp.it
-      tts: true # Text-to-speech
-      pornhub: false # Disabled
-      reddit: true # Reddit videos
-      ocremix: true # Game music
-      tiktok: true # TikTok
-      mixcloud: true # DJ mixes
-```
-
-**Download:** https://github.com/DuncteBot/skybot-lavalink-plugin/releases
-
-#### 4. SponsorBlock Plugin
-
-```yaml
-plugins:
-  sponsorblock:
-    enabled: true
-    categories:
-      - 'sponsor'
-      - 'selfpromo'
-      - 'interaction'
-      - 'intro'
-      - 'outro'
-```
-
-**Download:** https://github.com/topi314/Sponsorblock-Plugin/releases
-
-### C. Performance Optimizations
-
-```yaml
-lavalink:
-  server:
-    # Better YouTube handling
-    youtubePlaylistLoadLimit: 10 # Increase from 6
-
-    # Lower latency
-    frameBufferDurationMs: 1000 # Reduce from 5000
-
-    # Rate limit strategy
-    ratelimit:
-      strategy: 'RotateOnBan'
-      searchTriggersFail: true
-
-    # HTTP config for proxy (optional)
-    httpConfig:
-      proxyHost: ''
-      proxyPort: 0
-```
-
-### D. Add Country Codes to Sources
-
-```yaml
-plugins:
-  lavasrc:
-    sources:
-      spotify: true
-      deezer: true
-      yandexmusic: true
-      applemusic: true
-    applemusic:
-      countryCode: 'US' # Add this
-    spotify:
-      countryCode: 'US' # Add this
-```
+- ✅ **LavaSearch** - Ready
+- ✅ **Duncte Bot Filters** - Ready (for /nightcore, /vaporwave, etc.)
+- ⚠️ **YouTube Plugin** - Deprecated
+- ❓ **SponsorBlock** - Not installed (needed for feature #10)
+- ❓ **TTS Plugin** - Not installed (needed for feature #11)
 
 ---
 
-## 📦 Plugin Download Links
+# TypeScript Migration Guide for Bun
 
-### Essential (Download & Install First)
+## Overview
 
-1. **YouTube Source** (REQUIRED):
-   https://github.com/lavalink-devs/youtube-source/releases
+We've set up a **very permissive** TypeScript configuration that allows you to gradually migrate from JavaScript to TypeScript without breaking the build. The code can run immediately with both `.js` and `.ts` files.
 
-   - Fixes deprecation warning in logs
-   - Better YouTube support
+## Why TypeScript with Bun?
 
-2. **LavaSrc** (Already configured): Pre-installed
-   - Spotify, Deezer, Apple Music, Yandex
+1. **Native TypeScript Support**: Bun runs TypeScript natively without transpilation
+2. **Better Performance**: Bun is significantly faster than Node.js
+3. **Type Safety**: Gradually add type safety to catch bugs earlier
+4. **Better IDE Support**: Enhanced autocomplete and IntelliSense
+5. **Future-Proof**: Modern JavaScript/TypeScript features
 
-### Recommended
+## Current Setup
 
-3. **LavaSfy**: https://github.com/topi314/LavaSfy/releases
+### Configuration Files
 
-   - Enhanced Spotify with direct playback
+- **`tsconfig.json`**: Very loose TypeScript configuration
+  - `allowJs: true` - JavaScript files are allowed
+  - `checkJs: false` - No type checking on JS files
+  - `strict: false` - All strict checks disabled
+  - `noEmit: true` - No compilation, Bun runs TS directly
+  - `skipLibCheck: true` - Skip type checking of declaration files
+- **`types/`**: Ambient type declarations
+  - `global.d.ts` - Types for structures, config, helpers
+  - `schemas.d.ts` - Types for Mongoose schemas
 
-4. **DuncteBot**: https://github.com/DuncteBot/skybot-lavalink-plugin/releases
+### Updated Scripts
 
-   - TTS, TikTok, Reddit, more sources
+```bash
+# Development with auto-reload
+bun dev
 
-5. **SponsorBlock**: https://github.com/topi314/Sponsorblock-Plugin/releases
-   - Auto-skip sponsored segments
+# Production start
+bun start
 
-### Optional
+# Type checking (optional, doesn't block execution)
+bun typecheck
 
-6. **Lyrics Plugin**: https://github.com/topi314/LavaLyrics/releases
-7. **Google Cloud TTS**: https://github.com/DRSchlaubi/google-cloud-tts-plugin
+# Watch mode for type checking
+bun typecheck:watch
 
----
+# Legacy Node.js start
+bun start:node
+```
 
-## 🎯 Config.js Enhancements Needed
+## Migration Strategy
+
+### Phase 1: Setup (✅ Complete)
+
+- [x] Create loose `tsconfig.json`
+- [x] Add Bun types and TypeScript dependencies
+- [x] Create ambient type declarations
+- [x] Update scripts to use Bun
+
+### Phase 2: Gradual File Migration (In Progress)
+
+You can migrate files **one at a time** without breaking anything:
+
+#### Option A: Rename `.js` to `.ts`
+
+Simply rename a file from `.js` to `.ts`:
+
+```bash
+mv src/commands/fun/meme.js src/commands/fun/meme.ts
+```
+
+The code will work immediately! TypeScript won't complain because of our loose configuration.
+
+#### Option B: Add JSDoc Types (Recommended for gradual migration)
+
+Keep files as `.js` but add JSDoc comments for types:
 
 ```javascript
-MUSIC: {
-  ENABLED: true,
-  IDLE_TIME: 60,
-  DEFAULT_VOLUME: 60,
-  MAX_SEARCH_RESULTS: 5,
-  DEFAULT_SOURCE: 'scsearch',
-
-  // Add these:
-  SOURCES: {
-    YOUTUBE: 'ytsearch',
-    YOUTUBE_MUSIC: 'ytmsearch',
-    SOUNDCLOUD: 'scsearch',
-    SPOTIFY: 'spsearch',
-    DEEZER: 'dzsearch',
-    APPLE_MUSIC: 'amsearch',
-    YANDEX: 'ymsearch',
-  },
-
-  FILTERS: {
-    NIGHTCORE: { timescale: { speed: 1.2, pitch: 1.2 } },
-    VAPORWAVE: { timescale: { speed: 0.8, pitch: 0.8 } },
-    CHIPMUNK: { timescale: { pitch: 1.5 } },
-    SLOW_MOTION: { timescale: { speed: 0.7 } },
-    FAST_FORWARD: { timescale: { speed: 1.5 } },
-  },
-
-  EQ_PRESETS: {
-    FLAT: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    BASS: [0.6, 0.4, 0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    TREBLE: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.2, 0.4, 0.6, 0.8, 1.0],
-    VOCAL: [0, 0, 0, 0, 0.15, 0.25, 0.25, 0.15, 0, 0, 0, 0, 0, 0, 0],
-    PARTY: [0.2, 0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.15, 0.2, 0.25],
-    SOFT: [-0.25, -0.15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.15, -0.25, -0.3],
-  },
-
-  FEATURES: {
-    LYRICS: true,
-    FILTERS: true,
-    PLAYLISTS: true,
-    RADIO: true,
-    DJ_MODE: false,
-  },
-
-  // Existing LAVALINK_NODES...
+/**
+ * @type {import('@structures/Command').CommandData}
+ */
+module.exports = {
+  name: 'ping',
+  description: 'Check bot latency',
+  // ...
 }
 ```
 
----
+#### Option C: Convert to TypeScript Gradually
 
-## 📝 Implementation Notes
+Convert a file to TypeScript with proper types:
 
-### Filter Command Template
+```typescript
+import { CommandData } from '@structures/Command'
+import { ChatInputCommandInteraction } from 'discord.js'
 
-All filter commands follow similar pattern:
-
-```javascript
-await player.filterManager.setFilters({
-  timescale: { speed: 1.2, pitch: 1.2 }, // example
-  // other filters...
-})
-```
-
-### Platform Search Template
-
-```javascript
-const res = await player.search(
-  {
-    query: searchQuery,
-    source: 'spsearch', // or dzsearch, amsearch
+const command: CommandData = {
+  name: 'ping',
+  description: 'Check bot latency',
+  category: 'UTILITY',
+  cooldown: 5,
+  slashCommand: {
+    enabled: true,
   },
-  user
-)
+  async interactionRun(interaction: ChatInputCommandInteraction) {
+    await interaction.followUp(`🏓 Pong! ${interaction.client.ws.ping}ms`)
+  },
+}
+
+export default command
 ```
 
-### Database Schema for Playlists
+### Phase 3: Incremental Type Safety
 
-```javascript
+As you migrate more files, you can gradually enable stricter checks:
+
+1. Start with files that are easiest to type (utilities, helpers)
+2. Move to command handlers
+3. Finally migrate complex files (BotClient, handlers)
+
+When ready, you can enable stricter checks **per-file** using:
+
+```typescript
+// @ts-check
+// At the top of a JS file to enable type checking
+
+// or
+
+// At the top of a TS file for strict mode
+'use strict'
+```
+
+### Phase 4: Enable Strict Mode (Future)
+
+Once most files are migrated, gradually enable strict checks in `tsconfig.json`:
+
+```json
 {
-  userId: String,
-  playlists: [{
-    name: String,
-    tracks: [{
-      title: String,
-      uri: String,
-      duration: Number,
-    }]
-  }],
-  favorites: [{ title, uri, duration }]
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true
+    // Enable one at a time and fix errors
+  }
 }
 ```
 
----
+## File Migration Priority
 
-## ⚡ Quick Start Priority Order
+Recommended order for migration:
 
-1. **Fix YouTube deprecation** (Update application.yml + install plugin)
-2. **Add filter commands** (nightcore, vaporwave, 8d, karaoke)
-3. **Add platform searches** (spotify, deezer, applemusic)
-4. **Enhance queue management** (skipto, remove, move, clearqueue)
-5. **Add equalizer presets**
-6. **Everything else** (medium/low priority)
+1. **Utilities** (`src/helpers/`) - Usually type-safe already
+2. **Schemas** (`src/database/schemas/`) - Well-defined structures
+3. **Simple Commands** - Commands with straightforward logic
+4. **Event Handlers** - Defined by Discord.js types
+5. **Complex Commands** - Commands with subcommands
+6. **Core Classes** (`src/structures/`) - Most critical, migrate last
 
----
+## Best Practices
 
-## 🔗 Useful Resources
+### DO ✅
 
-- Lavalink Docs: https://lavalink.dev/
-- Lavalink Plugins: https://lavalink.dev/plugins
-- lavalink-client NPM: https://www.npmjs.com/package/lavalink-client
-- Filter Examples: https://lavalink.dev/api/rest.html#filters
+- Migrate files incrementally, one at a time
+- Test after each migration
+- Use `bun typecheck` to find issues (but don't block on them)
+- Add types gradually as you understand the code better
+- Use `any` type liberally at first, refine later
+- Keep the bot running while migrating
 
----
+### DON'T ❌
 
-**Last Updated:** October 28, 2025 **Version:** 1.0 **Bot Version:** 5.6.0
+- Try to migrate everything at once
+- Enable strict mode immediately
+- Block on type errors if the code works
+- Remove JSDoc comments (they help with types)
+- Change working logic just to satisfy TypeScript
+
+## Type Checking
+
+### Manual Type Check
+
+```bash
+# Check all files for type errors
+bun typecheck
+
+# Watch mode - checks as you edit
+bun typecheck:watch
+```
+
+Type errors won't prevent the bot from running since `noEmit: true` is set.
+
+### IDE Integration
+
+Your IDE (VS Code) will show type hints and errors automatically. You can:
+
+- Hover over variables to see inferred types
+- Get autocomplete for Discord.js objects
+- See function signatures
+- Find unused variables
+
+## Bun-Specific Optimizations
+
+### Fast Restarts
+
+Bun's `--watch` flag is faster than nodemon:
+
+```bash
+bun --watch src/index.js
+```
+
+### Native APIs
+
+You can use Bun's native APIs for better performance:
+
+```typescript
+// File operations
+import { file } from 'bun'
+const data = await file('data.json').json()
+
+// Fetch (native, no need for node-fetch)
+const response = await fetch('https://api.example.com')
+
+// Fast hashing
+import { hash } from 'bun'
+const hashed = hash('some-string')
+```
+
+### SQLite (Optional)
+
+Bun has native SQLite support if you want to migrate from MongoDB:
+
+```typescript
+import { Database } from 'bun:sqlite'
+const db = new Database('bot.db')
+```
+
+## Troubleshooting
+
+### "Cannot find module" errors
+
+Make sure path aliases work:
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "paths": {
+      "@helpers/*": ["./src/helpers/*"]
+    }
+  }
+}
+```
+
+### Type errors but code works
+
+This is expected with loose config. You can:
+
+1. Ignore for now (code still works)
+2. Add `// @ts-ignore` above the line
+3. Use `any` type temporarily
+4. Fix the type properly when you have time
+
+### Slow type checking
+
+Add more exclusions to `tsconfig.json`:
+
+```json
+{
+  "exclude": ["node_modules", "dist", "logs", "**/*.spec.ts"]
+}
+```
+
+## Examples
+
+### Before (JavaScript)
+
+```javascript
+const { ApplicationCommandOptionType } = require('discord.js')
+
+module.exports = {
+  name: 'ping',
+  description: 'Check bot latency',
+  category: 'UTILITY',
+  cooldown: 5,
+  slashCommand: {
+    enabled: true,
+  },
+  async interactionRun(interaction) {
+    await interaction.followUp(`🏓 Pong! ${interaction.client.ws.ping}ms`)
+  },
+}
+```
+
+### After (TypeScript - Gradual)
+
+```typescript
+import { ApplicationCommandOptionType } from 'discord.js'
+import type { CommandData } from '@structures/Command'
+
+// Start with loose types
+const command: CommandData = {
+  name: 'ping',
+  description: 'Check bot latency',
+  category: 'UTILITY',
+  cooldown: 5,
+  slashCommand: {
+    enabled: true,
+  },
+  async interactionRun(interaction) {
+    // Type inferred from CommandData
+    await interaction.followUp(`🏓 Pong! ${interaction.client.ws.ping}ms`)
+  },
+}
+
+export default command
+```
+
+### After (TypeScript - Strict)
+
+```typescript
+import {
+  ApplicationCommandOptionType,
+  ChatInputCommandInteraction,
+} from 'discord.js'
+import type { CommandData } from '@structures/Command'
+
+interface PingCommandData {
+  settings: any // Will be properly typed later
+}
+
+const command: CommandData = {
+  name: 'ping',
+  description: 'Check bot latency',
+  category: 'UTILITY',
+  cooldown: 5,
+  botPermissions: ['SendMessages'],
+  slashCommand: {
+    enabled: true,
+    ephemeral: true,
+  },
+  async interactionRun(
+    interaction: ChatInputCommandInteraction,
+    data: PingCommandData
+  ): Promise<void> {
+    const ping = interaction.client.ws.ping
+    await interaction.followUp({
+      content: `🏓 Pong! ${ping}ms`,
+      ephemeral: true,
+    })
+  },
+}
+
+export default command
+```
+
+## Resources
+
+- [Bun Documentation](https://bun.sh/docs)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
+- [Discord.js Guide](https://discordjs.guide/)
+- [TypeScript Migration Guide](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html)
