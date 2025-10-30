@@ -1,3 +1,13 @@
+# [v1.1.1](https://github.com/iamvikshan/amina/compare/v1.1.0...v1.1.1) (2025-10-30)
+
+
+
+## [1.1.1](https://github.com/iamvikshan/amina/compare/v1.1.0...v1.1.1) (2025-10-30)
+
+### Bug Fixes
+
+* [phase1.0.1] migrate core files to TypeScript and resolve module import issues ([78d1226](https://github.com/iamvikshan/amina/commit/78d12260dcf7d035d6335aaca68ee69b13b60875))
+
 # [v1.1.0](https://github.com/iamvikshan/amina/compare/v1.0.0...v1.1.0) (2025-10-30)
 
 
