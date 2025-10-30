@@ -20,10 +20,9 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY bun.lock ./
 
 # Install dependencies
-RUN bun install --frozen-lockfile --production --ignore-scripts
+RUN bun install --production --ignore-scripts
 
 # Copy source code
 COPY src/ ./src/
