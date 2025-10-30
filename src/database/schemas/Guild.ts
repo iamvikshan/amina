@@ -1,11 +1,11 @@
-// @root/src/database/schemas/Guild.js
+// @root/src/database/schemas/Guild.ts
 
-const mongoose = require('mongoose')
-const { CACHE_SIZE, STATS } = require('../../config')
-const FixedSizeMap = require('fixedsize-map')
-const { getUser } = require('./User')
+import mongoose from 'mongoose'
+import config from '../../config'
+import FixedSizeMap from 'fixedsize-map'
+import { getUser } from './User'
 
-const cache = new FixedSizeMap(CACHE_SIZE.GUILDS)
+const cache = new FixedSizeMap(config.CACHE_SIZE.GUILDS)
 
 const Schema = new mongoose.Schema({
   _id: String,
@@ -25,7 +25,7 @@ const Schema = new mongoose.Schema({
   stats: {
     enabled: { type: Boolean, default: true },
     xp: {
-      message: { type: String, default: STATS.DEFAULT_LVL_UP_MSG },
+      message: { type: String, default: config.STATS.DEFAULT_LVL_UP_MSG },
       channel: String,
     },
   },
@@ -135,7 +135,7 @@ const Schema = new mongoose.Schema({
 
 const Model = mongoose.model('guild', Schema)
 
-async function getSettings(guild) {
+export async function getSettings(guild: any) {
   if (!guild) throw new Error('Guild is undefined')
   if (!guild.id) throw new Error('Guild Id is undefined')
 
@@ -147,11 +147,11 @@ async function getSettings(guild) {
     // save owner details
     guild
       .fetchOwner()
-      .then(async owner => {
+      .then(async (owner: any) => {
         const userDb = await getUser(owner)
         await userDb.save()
       })
-      .catch(ex => {})
+      .catch(() => {})
 
     // create a new guild model
     guildData = new Model({
@@ -170,7 +170,7 @@ async function getSettings(guild) {
   return guildData
 }
 
-async function updateSettings(guildId, settings) {
+export async function updateSettings(guildId: string, settings: any) {
   if (settings.server && settings.server.staff_roles) {
     settings.server.staff_roles = Array.isArray(settings.server.staff_roles)
       ? settings.server.staff_roles
@@ -189,7 +189,7 @@ async function updateSettings(guildId, settings) {
   return updatedSettings
 }
 
-async function setInviteLink(guildId, inviteLink) {
+export async function setInviteLink(guildId: string, inviteLink: string) {
   const updatedSettings = await Model.findByIdAndUpdate(
     guildId,
     { 'server.invite_link': inviteLink },
@@ -199,7 +199,8 @@ async function setInviteLink(guildId, inviteLink) {
   return updatedSettings
 }
 
-module.exports = {
+// Default export for backwards compatibility
+export default {
   getSettings,
   updateSettings,
   setInviteLink,

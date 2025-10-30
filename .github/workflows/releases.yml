@@ -55,6 +55,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "Latest semantic release tag: $LATEST_TAG"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -74,12 +85,10 @@ jobs:
         with:
           images: vikshan/amina
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}},value=${{ steps.get_tag.outputs.tag }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.get_tag.outputs.tag }}
+            type=semver,pattern={{major}},value=${{ steps.get_tag.outputs.tag }}
+            type=raw,value=latest
 
       - name: Build and push
         id: push
@@ -99,4 +108,13 @@ jobs:
           subject-name: docker.io/vikshan/amina
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
+      - name: Sync README to Docker Hub
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: vikshan
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: vikshan/amina
+          short-description: ${{ github.event.repository.description }}
+          readme-filepath: ./README.md
 

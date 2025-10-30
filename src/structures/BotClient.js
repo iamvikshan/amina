@@ -23,6 +23,21 @@ const MAX_SLASH_COMMANDS = 100
 const MAX_USER_CONTEXTS = 3
 const MAX_MESSAGE_CONTEXTS = 3
 
+/**
+ * Helper function to normalize module imports
+ * Handles both CommonJS (module.exports) and ES6 (export default) styles
+ * @param {any} module - The required module
+ * @returns {any} The actual export
+ */
+function normalizeImport(module) {
+  // If module has a default export (ES6/TypeScript), use it
+  if (module && typeof module === 'object' && 'default' in module) {
+    return module.default
+  }
+  // Otherwise return as-is (CommonJS)
+  return module
+}
+
 module.exports = class BotClient extends Client {
   constructor() {
     super({
@@ -44,7 +59,8 @@ module.exports = class BotClient extends Client {
     // Promisify setTimeout for use with async/await
     this.wait = require('util').promisify(setTimeout)
     // Load configuration
-    this.config = require('@src/config')
+    const configModule = require('@src/config')
+    this.config = configModule.default || configModule
 
     // Initialize collections for slash commands and context menus
     this.slashCommands = new Collection()
@@ -98,7 +114,7 @@ module.exports = class BotClient extends Client {
     })
 
     // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason, promise) => {
+    process.on('unhandledRejection', (reason, _promise) => {
       this.logger.error('Unhandled Promise Rejection', reason)
       Honeybadger.notify(reason, {
         context: {
@@ -116,11 +132,12 @@ module.exports = class BotClient extends Client {
     let failed = 0
 
     // Recursively read all files in the directory
-    recursiveReadDirSync(directory).forEach(filePath => {
+    recursiveReadDirSync(directory, ['.js', '.ts']).forEach(filePath => {
       const file = path.basename(filePath)
       try {
-        const eventName = path.basename(file, '.js')
-        const event = require(filePath)
+        const ext = path.extname(file)
+        const eventName = path.basename(file, ext)
+        const event = normalizeImport(require(filePath))
 
         // Bind the event to the client
         this.on(eventName, event.bind(null, this))
@@ -133,9 +150,7 @@ module.exports = class BotClient extends Client {
         failed += 1
         this.logger.error(`loadEvent - ${file}`, ex)
       }
-    })
-
-    // Log the loaded events
+    }) // Log the loaded events
     console.log(
       table(clientEvents, {
         header: { alignment: 'center', content: 'Client Events' },
@@ -189,10 +204,10 @@ module.exports = class BotClient extends Client {
   // Load and register all commands from a directory
   loadCommands(directory) {
     this.logger.log('Loading commands...')
-    const files = recursiveReadDirSync(directory)
+    const files = recursiveReadDirSync(directory, ['.js', '.ts'])
     for (const file of files) {
       try {
-        const cmd = require(file)
+        const cmd = normalizeImport(require(file))
         if (typeof cmd !== 'object') continue
         validateCommand(cmd)
         this.loadCommand(cmd)
@@ -215,10 +230,10 @@ module.exports = class BotClient extends Client {
   // Load and register all context menus from a directory
   loadContexts(directory) {
     this.logger.log('Loading contexts...')
-    const files = recursiveReadDirSync(directory)
+    const files = recursiveReadDirSync(directory, ['.js', '.ts'])
     for (const file of files) {
       try {
-        const ctx = require(file)
+        const ctx = normalizeImport(require(file))
         if (typeof ctx !== 'object') continue
         validateContext(ctx)
         if (!ctx.enabled) {

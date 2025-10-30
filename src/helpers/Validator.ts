@@ -1,11 +1,13 @@
-const CommandCategory = require('@structures/CommandCategory')
-const permissions = require('./permissions')
-const config = require('@src/config')
-const { log, warn, error } = require('./Logger')
-const { ApplicationCommandType } = require('discord.js')
+import CommandCategory from '@structures/CommandCategory'
+import * as permissions from './permissions'
+import config from '@src/config'
+import { log, warn, error } from './Logger'
+import { ApplicationCommandType } from 'discord.js'
+import type { CommandData } from '@structures/Command'
+import type { ContextData } from '@structures/BaseContext'
 
-module.exports = class Validator {
-  static validateConfiguration() {
+export class Validator {
+  static validateConfiguration(): void {
     log('Validating config file and environment variables')
 
     // Bot Token
@@ -80,7 +82,7 @@ module.exports = class Validator {
     }
 
     // Warnings
-    if (process.env.DEV_ID.length === 0) warn('config.js: DEV_ID are empty')
+    if (process.env.DEV_ID?.length === 0) warn('config.js: DEV_ID are empty')
     if (!process.env.SUPPORT_SERVER)
       warn('config.js: SUPPORT_SERVER is not provided')
     if (!process.env.WEATHERSTACK_KEY)
@@ -89,10 +91,7 @@ module.exports = class Validator {
       warn("env: STRANGE_API_KEY is missing. Image commands won't work")
   }
 
-  /**
-   * @param {import('@structures/Command')} cmd
-   */
-  static validateCommand(cmd) {
+  static validateCommand(cmd: any): asserts cmd is CommandData {
     if (typeof cmd !== 'object') {
       throw new TypeError('Command data must be an Object.')
     }
@@ -119,7 +118,7 @@ module.exports = class Validator {
         )
       }
       for (const perm of cmd.userPermissions) {
-        if (!permissions[perm])
+        if (!(permissions as any)[perm])
           throw new RangeError(`Invalid command userPermission: ${perm}`)
       }
     }
@@ -130,7 +129,7 @@ module.exports = class Validator {
         )
       }
       for (const perm of cmd.botPermissions) {
-        if (!permissions[perm])
+        if (!(permissions as any)[perm])
           throw new RangeError(`Invalid command botPermission: ${perm}`)
       }
     }
@@ -189,10 +188,7 @@ module.exports = class Validator {
     }
   }
 
-  /**
-   * @param {import('@structures/BaseContext')} context
-   */
-  static validateContext(context) {
+  static validateContext(context: any): asserts context is ContextData {
     if (typeof context !== 'object') {
       throw new TypeError('Context must be an object')
     }
@@ -242,9 +238,15 @@ module.exports = class Validator {
         )
       }
       for (const perm of context.userPermissions) {
-        if (!permissions[perm])
+        if (!(permissions as any)[perm])
           throw new RangeError(`Invalid command userPermission: ${perm}`)
       }
     }
   }
 }
+
+export const { validateConfiguration, validateCommand, validateContext } =
+  Validator
+
+// Default export for backwards compatibility
+export default Validator

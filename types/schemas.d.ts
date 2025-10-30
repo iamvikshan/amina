@@ -142,37 +142,5 @@ declare module '@schemas/User' {
   export const User: Model<IUser>
 }
 
-declare module '@schemas/Member' {
-  interface IMember extends Document {
-    guild_id: string
-    member_id: string
-    warnings: number
-    warn: Array<{
-      _id: string
-      reason: string
-      admin: string
-      timestamp: Date
-    }>
-    invite_data: {
-      inviter?: string
-      code?: string
-      tracked: number
-      fake: number
-      left: number
-      added: number
-    }
-    level: number
-    xp: number
-    strikes: number
-    mute: {
-      active: boolean
-      reason?: string
-    }
-  }
-
-  export function getMember(guildId: string, memberId: string): Promise<IMember>
-  export const Member: Model<IMember>
-}
-
 export {}
 

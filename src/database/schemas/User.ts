@@ -1,10 +1,10 @@
-// @root/src/database/schemas/User.js
+// @root/src/database/schemas/User.ts
 
-const mongoose = require('mongoose')
-const { CACHE_SIZE } = require('../../config')
-const FixedSizeMap = require('fixedsize-map')
+import mongoose from 'mongoose'
+import config from '../../config'
+import FixedSizeMap from 'fixedsize-map'
 
-const cache = new FixedSizeMap(CACHE_SIZE.USERS)
+const cache = new FixedSizeMap(config.CACHE_SIZE.USERS)
 
 const FlagSchema = new mongoose.Schema({
   reason: { type: String, required: true },
@@ -73,7 +73,7 @@ const Schema = new mongoose.Schema(
 
 const Model = mongoose.model('user', Schema)
 
-async function getUser(user) {
+export async function getUser(user: any) {
   if (!user) throw new Error('User is required.')
   if (!user.id) throw new Error('User Id is required.')
 
@@ -94,7 +94,13 @@ async function getUser(user) {
   return userDb
 }
 
-async function addFlag(userId, reason, flaggedBy, serverId, serverName) {
+export async function addFlag(
+  userId: string,
+  reason: string,
+  flaggedBy: string,
+  serverId: string,
+  serverName: string
+) {
   const newFlag = {
     reason,
     flaggedBy,
@@ -112,7 +118,7 @@ async function addFlag(userId, reason, flaggedBy, serverId, serverName) {
   return user
 }
 
-async function removeFlag(userId, flaggedBy) {
+export async function removeFlag(userId: string, flaggedBy: string) {
   const user = await Model.findByIdAndUpdate(
     userId,
     { $pull: { flags: { flaggedBy } } },
@@ -123,7 +129,7 @@ async function removeFlag(userId, flaggedBy) {
   return user
 }
 
-async function removeAllFlags(userId) {
+export async function removeAllFlags(userId: string) {
   const user = await Model.findByIdAndUpdate(
     userId,
     { $set: { flags: [] } },
@@ -134,7 +140,11 @@ async function removeAllFlags(userId) {
   return user
 }
 
-async function updatePremium(userId, enabled, expiresAt) {
+export async function updatePremium(
+  userId: string,
+  enabled: boolean,
+  expiresAt: Date | null
+) {
   const user = await Model.findByIdAndUpdate(
     userId,
     { $set: { 'premium.enabled': enabled, 'premium.expiresAt': expiresAt } },
@@ -145,7 +155,11 @@ async function updatePremium(userId, enabled, expiresAt) {
   return user
 }
 
-async function setAfk(userId, reason = null, duration = null) {
+export async function setAfk(
+  userId: string,
+  reason: string | null = null,
+  duration: number | null = null
+) {
   const since = new Date()
   const endTime = duration ? new Date(since.getTime() + duration * 60000) : null
   const user = await Model.findByIdAndUpdate(
@@ -165,7 +179,7 @@ async function setAfk(userId, reason = null, duration = null) {
   return user
 }
 
-async function removeAfk(userId) {
+export async function removeAfk(userId: string) {
   const user = await Model.findByIdAndUpdate(
     userId,
     {
@@ -183,7 +197,7 @@ async function removeAfk(userId) {
   return user
 }
 
-function calculateAge(birthdate) {
+export function calculateAge(birthdate: Date | null): number | null {
   if (!birthdate) return null
   const today = new Date()
   let age = today.getFullYear() - birthdate.getFullYear()
@@ -196,8 +210,8 @@ function calculateAge(birthdate) {
   return age
 }
 
-async function updateBasicProfile(userId, basicData) {
-  const updateData = {}
+export async function updateBasicProfile(userId: string, basicData: any) {
+  const updateData: any = {}
   if (basicData.pronouns !== undefined)
     updateData['profile.pronouns'] = basicData.pronouns
   if (basicData.birthdate) {
@@ -220,8 +234,8 @@ async function updateBasicProfile(userId, basicData) {
   return user
 }
 
-async function updateMiscProfile(userId, miscData) {
-  const updateData = {}
+export async function updateMiscProfile(userId: string, miscData: any) {
+  const updateData: any = {}
   if (miscData.bio !== undefined) updateData['profile.bio'] = miscData.bio
   if (miscData.interests) updateData['profile.interests'] = miscData.interests
   if (miscData.socials) updateData['profile.socials'] = miscData.socials
@@ -238,8 +252,8 @@ async function updateMiscProfile(userId, miscData) {
   return user
 }
 
-async function updateProfile(userId, profileData) {
-  const updateData = {}
+export async function updateProfile(userId: string, profileData: any) {
+  const updateData: any = {}
   Object.entries(profileData).forEach(([key, value]) => {
     if (value !== undefined) updateData[`profile.${key}`] = value
   })
@@ -259,7 +273,7 @@ async function updateProfile(userId, profileData) {
   return user
 }
 
-async function clearProfile(userId) {
+export async function clearProfile(userId: string) {
   const user = await Model.findByIdAndUpdate(
     userId,
     {
@@ -289,7 +303,7 @@ async function clearProfile(userId) {
   return user
 }
 
-async function getUsersWithBirthdayToday() {
+export async function getUsersWithBirthdayToday() {
   const today = new Date()
   const users = await Model.find({
     'profile.birthdate': {
@@ -307,7 +321,8 @@ async function getUsersWithBirthdayToday() {
   })
 }
 
-module.exports = {
+// Default export for backwards compatibility
+export default {
   getUser,
   addFlag,
   removeFlag,

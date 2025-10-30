@@ -1,4 +1,116 @@
-module.exports = {
+import type { ColorResolvable } from 'discord.js'
+
+interface LavalinkNode {
+  id?: string
+  host?: string
+  port: number
+  authorization?: string
+  secure: boolean
+  retryAmount: number
+  retryDelay: number
+}
+
+interface Config {
+  INTERACTIONS: {
+    SLASH: string
+    CONTEXT: string
+    GLOBAL: boolean
+  }
+  CACHE_SIZE: {
+    GUILDS: number
+    USERS: number
+    MEMBERS: number
+  }
+  MESSAGES: {
+    API_ERROR: string
+  }
+  FEEDBACK: {
+    ENABLED: boolean
+    URL?: string
+  }
+  AUTOMOD: {
+    ENABLED: boolean
+    LOG_EMBED: ColorResolvable
+    DM_EMBED: ColorResolvable
+  }
+  DASHBOARD: {
+    enabled: boolean
+    port: string
+  }
+  ECONOMY: {
+    ENABLED: boolean
+    CURRENCY: string
+    DAILY_COINS: number
+    MIN_BEG_AMOUNT: number
+    MAX_BEG_AMOUNT: number
+  }
+  MUSIC: {
+    ENABLED: boolean
+    IDLE_TIME: number
+    DEFAULT_VOLUME: number
+    MAX_SEARCH_RESULTS: number
+    DEFAULT_SOURCE: string
+    LAVALINK_NODES: LavalinkNode[]
+  }
+  GIVEAWAYS: {
+    ENABLED: boolean
+    REACTION: string
+    START_EMBED: ColorResolvable
+    END_EMBED: ColorResolvable
+  }
+  IMAGE: {
+    ENABLED: boolean
+    BASE_API: string
+  }
+  INVITE: {
+    ENABLED: boolean
+  }
+  EMBED_COLORS: {
+    BOT_EMBED: ColorResolvable
+    SUCCESS: ColorResolvable
+    ERROR: ColorResolvable
+    WARNING: ColorResolvable
+  }
+  MODERATION: {
+    ENABLED: boolean
+    EMBED_COLORS: {
+      TIMEOUT: ColorResolvable
+      UNTIMEOUT: ColorResolvable
+      KICK: ColorResolvable
+      SOFTBAN: ColorResolvable
+      BAN: ColorResolvable
+      UNBAN: ColorResolvable
+      VMUTE: ColorResolvable
+      VUNMUTE: ColorResolvable
+      DEAFEN: ColorResolvable
+      UNDEAFEN: ColorResolvable
+      DISCONNECT: ColorResolvable
+      MOVE: ColorResolvable
+    }
+  }
+  STATS: {
+    ENABLED: boolean
+    XP_COOLDOWN: number
+    DEFAULT_LVL_UP_MSG: string
+  }
+  SUGGESTIONS: {
+    ENABLED: boolean
+    EMOJI: {
+      UP_VOTE: string
+      DOWN_VOTE: string
+    }
+    DEFAULT_EMBED: ColorResolvable
+    APPROVED_EMBED: ColorResolvable
+    DENIED_EMBED: ColorResolvable
+  }
+  TICKET: {
+    ENABLED: boolean
+    CREATE_EMBED: ColorResolvable
+    CLOSE_EMBED: ColorResolvable
+  }
+}
+
+const config: Config = {
   INTERACTIONS: {
     SLASH: 'true', // Should the interactions be enabled
     CONTEXT: 'true', // Should contexts be enabled
@@ -104,8 +216,8 @@ module.exports = {
       VUNMUTE: '#98FB98', // (Pale green - gentle freedom)
       DEAFEN: '#C8A2C8', // (Lilac - peaceful quiet)
       UNDEAFEN: '#7FFFD4', // (Aquamarine - return to sound)
-      DISCONNECT: 'RANDOM', // (Keeps her chaotic energy)
-      MOVE: 'RANDOM', // (Keeps her spontaneity)
+      DISCONNECT: 'Random', // (Keeps her chaotic energy)
+      MOVE: 'Random', // (Keeps her spontaneity)
     },
   },
 
@@ -129,7 +241,30 @@ module.exports = {
 
   TICKET: {
     ENABLED: true,
-    CREATE_EMBED: '#E0AAFF', // (Soft violet - welcoming support)
-    CLOSE_EMBED: '#48D1CC', // (Turquoise - positive closure)
+    CREATE_EMBED: '#E0AAFF' as ColorResolvable, // (Soft violet - welcoming support)
+    CLOSE_EMBED: '#48D1CC' as ColorResolvable, // (Turquoise - positive closure)
   },
 }
+
+// Export as default
+export default config
+
+// Named exports for destructured requires
+export const {
+  INTERACTIONS,
+  CACHE_SIZE,
+  MESSAGES,
+  FEEDBACK,
+  AUTOMOD,
+  DASHBOARD,
+  ECONOMY,
+  MUSIC,
+  GIVEAWAYS,
+  IMAGE,
+  INVITE,
+  EMBED_COLORS,
+  MODERATION,
+  STATS,
+  SUGGESTIONS,
+  TICKET,
+} = config

@@ -1,8 +1,8 @@
-// src/structures/CommandCategory.js
+// src/structures/CommandCategory.ts
 
-const config = require('@src/config')
+import config from '@src/config'
 
-module.exports = {
+export default {
   ADMIN: {
     name: 'Admin',
     image:

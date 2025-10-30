@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // Global type definitions for the Amina Discord Bot
 // These types are available globally without imports
 
@@ -9,6 +10,7 @@ import type {
   PermissionResolvable,
   ApplicationCommandOptionData,
   ApplicationCommandType,
+  ColorResolvable,
 } from 'discord.js'
 
 declare global {
@@ -182,7 +184,7 @@ declare module '@src/config' {
       DEFAULT_VOLUME: number
       MAX_SEARCH_RESULTS: number
       DEFAULT_SOURCE: string
-      NODES: any[]
+      LAVALINK_NODES: any[]
     }
     STATS: {
       ENABLED: boolean
@@ -192,12 +194,51 @@ declare module '@src/config' {
     GIVEAWAYS: {
       ENABLED: boolean
     }
+    IMAGE: {
+      ENABLED: boolean
+      BASE_API: string
+    }
+    INVITE: {
+      ENABLED: boolean
+    }
+    SUGGESTIONS: {
+      ENABLED: boolean
+      EMOJI: {
+        UP_VOTE: string
+        DOWN_VOTE: string
+      }
+      DEFAULT_EMBED: ColorResolvable
+      APPROVED_EMBED: ColorResolvable
+      DENIED_EMBED: ColorResolvable
+    }
+    TICKET: {
+      ENABLED: boolean
+      CREATE_EMBED: ColorResolvable
+      CLOSE_EMBED: ColorResolvable
+    }
     EMBED_COLORS: {
-      BOT_EMBED: string
-      TRANSPARENT: string
-      SUCCESS: string
-      ERROR: string
-      WARNING: string
+      BOT_EMBED: ColorResolvable
+      TRANSPARENT: ColorResolvable
+      SUCCESS: ColorResolvable
+      ERROR: ColorResolvable
+      WARNING: ColorResolvable
+    }
+    MODERATION: {
+      ENABLED: boolean
+      EMBED_COLORS: {
+        TIMEOUT: ColorResolvable
+        UNTIMEOUT: ColorResolvable
+        KICK: ColorResolvable
+        SOFTBAN: ColorResolvable
+        BAN: ColorResolvable
+        UNBAN: ColorResolvable
+        VMUTE: ColorResolvable
+        VUNMUTE: ColorResolvable
+        DEAFEN: ColorResolvable
+        UNDEAFEN: ColorResolvable
+        DISCONNECT: ColorResolvable
+        MOVE: ColorResolvable
+      }
     }
   }
 

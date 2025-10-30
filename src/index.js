@@ -8,7 +8,7 @@ require('@helpers/extenders/Guild')
 require('@helpers/extenders/GuildChannel')
 
 // Start health check server
-require('./events/health')
+require('./services/health')
 
 const { checkForUpdates } = require('@helpers/BotUtils')
 const { initializeMongoose } = require('@src/database/mongoose')

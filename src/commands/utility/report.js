@@ -61,9 +61,13 @@ module.exports = {
     })
 
     collector.on('collect', async i => {
-      if (i.customId === 'report_select') {
-        const selected = i.values[0]
-        await showReportModal(i, selected)
+      try {
+        if (i.customId === 'report_select') {
+          const selected = i.values[0]
+          await showReportModal(i, selected)
+        }
+      } catch (error) {
+        console.error('Error handling report select interaction:', error)
       }
     })
   },

@@ -1,7 +1,7 @@
-const config = require('@src/config')
-const { EmbedBuilder, WebhookClient } = require('discord.js')
-const pino = require('pino')
-const Honeybadger = require('./Honeybadger')
+import config from '@src/config'
+import { EmbedBuilder, WebhookClient } from 'discord.js'
+import pino from 'pino'
+import Honeybadger from './Honeybadger'
 
 const webhookLogger = process.env.LOGS_WEBHOOK
   ? new WebhookClient({
@@ -10,7 +10,7 @@ const webhookLogger = process.env.LOGS_WEBHOOK
   : undefined
 
 const today = new Date()
-const pinoLogger = pino.default(
+const pinoLogger = pino(
   {
     level: 'debug',
   },
@@ -40,7 +40,7 @@ const pinoLogger = pino.default(
   ])
 )
 
-function sendWebhook(content, err) {
+function sendWebhook(content?: string, err?: Error | any): void {
   if (!content && !err) return
   const errString = err?.stack || err
 
@@ -62,40 +62,27 @@ function sendWebhook(content, err) {
     value: content || err?.message || 'NA',
   })
   webhookLogger
-    .send({
+    ?.send({
       username: 'Logs',
       embeds: [embed],
     })
-    .catch(ex => {})
+    .catch(() => {})
 }
 
-module.exports = class Logger {
-  /**
-   * @param {string} content
-   */
-  static success(content) {
+export class Logger {
+  static success(content: string): void {
     pinoLogger.info(content)
   }
 
-  /**
-   * @param {string} content
-   */
-  static log(content) {
+  static log(content: string): void {
     pinoLogger.info(content)
   }
 
-  /**
-   * @param {string} content
-   */
-  static warn(content) {
+  static warn(content: string): void {
     pinoLogger.warn(content)
   }
 
-  /**
-   * @param {string} content
-   * @param {object} ex
-   */
-  static error(content, ex) {
+  static error(content: string, ex?: Error | any): void {
     if (ex) {
       pinoLogger.error(ex, `${content}: ${ex?.message}`)
 
@@ -114,10 +101,13 @@ module.exports = class Logger {
     if (webhookLogger) sendWebhook(content, ex)
   }
 
-  /**
-   * @param {string} content
-   */
-  static debug(content) {
+  static debug(content: string): void {
     pinoLogger.debug(content)
   }
 }
+
+// Named exports for convenience
+export const { success, log, warn, error, debug } = Logger
+
+// Default export for backwards compatibility
+export default Logger
