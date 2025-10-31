@@ -20,10 +20,15 @@ Amina is a versatile Discord bot that combines powerful moderation tools with fu
 features. From advanced server management to music playback and mini-games, Amina helps create
 engaging Discord communities.
 
+> [!IMPORTANT]
+>
+> WIP: Amina is currently under active development. Some features may be incomplete or
+> undergoing changes. Please refer to the [documentation](https://docs.vikshan.me) for the latest updates.
+
 ## Quick Links
 
 - [Invite Amina](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)
-- [Documentation](https://docs.vikshan.tech)
+- [Documentation](https://docs.vikshan.me)
 - [Support Server](https://discord.gg/uMgS9evnmv)
 - [Buy me a Coffee](https://ko-fi.com/vikshan)
 
@@ -54,12 +59,22 @@ engaging Discord communities.
 - Weather information
 - Translation services
 
-[Detailed feature list](https://docs.vikshan.tech/commands/commands/)
+[Detailed feature list](https://docs.vikshan.me/commands/commands/)
 
 ## Installation
 
-For self-hosting instructions, please visit our
-[installation guide](https://docs.vikshan.tech/installation/installation).
+### Dashboard Deployment
+
+This repository contains the web dashboard for the Amina Discord bot. For deployment instructions:
+
+- **Quick Start:** See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for platform-specific deployment guides
+- **Checklist:** See [`DEPLOYMENT_CHECKLIST.md`](./DEPLOYMENT_CHECKLIST.md) for pre-deployment requirements
+- **Status:** See [`DEPLOYMENT_STATUS.md`](./DEPLOYMENT_STATUS.md) for current deployment readiness
+
+### Bot Self-Hosting
+
+For self-hosting the Discord bot itself, please visit our
+[installation guide](https://docs.vikshan.me/installation/installation).
 
 ## Support
 
@@ -91,7 +106,7 @@ Join our [Discord Support Server](https://discord.gg/uMgS9evnmv) for help and up
   <a href="https://www.digitalocean.com/?refcode=c5587212fe39&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge">
     <img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" alt="DigitalOcean" height="50">
   </a>
-  <a href="https://go.vikshan.tech/vultr">
+  <a href="https://go.vikshan.me/vultr">
     <img src="https://www.vultr.com/media/logo_ondark.svg" alt="Vultr" height="50" width="100">
   </a>
   <a href="https://partnernetwork.ionos.com/partner/vikshan?origin=PartnerBadge">
@@ -103,8 +118,7 @@ Join our [Discord Support Server](https://discord.gg/uMgS9evnmv) for help and up
 [version-url]: https://github.com/iamvikshan/amina
 [pr-shield]: https://img.shields.io/github/issues-pr/iamvikshan/amina?style=for-the-badge
 [pr-url]: https://github.com/iamvikshan/amina/pulls
-[contributors-shield]:
-  https://img.shields.io/github/contributors/iamvikshan/amina.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/iamvikshan/amina.svg?style=for-the-badge
 [contributors-url]: https://github.com/iamvikshan/amina/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/iamvikshan/amina.svg?style=for-the-badge
 [forks-url]: https://github.com/iamvikshan/amina/network/members

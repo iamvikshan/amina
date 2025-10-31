@@ -1,8 +1,5 @@
-node_modules/
+# Ignore compiled files
+node_modules
+dist
+*.mdx
 *ignore*
-*lock*
-*.env*
-*.toml
-*.sh
-*keep*
-astro/

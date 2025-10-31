@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: amina-dashboard
+    runtime: node
+    plan: starter
+    buildCommand: bun install && bun run build
+    startCommand: bun run beb
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: BUN_VERSION
+        value: latest
+      - key: PORT
+        generateValue: true
+    healthCheckPath: /
+    autoDeploy: true

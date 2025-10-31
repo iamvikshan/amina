@@ -7,24 +7,24 @@ node_modules/
 bun.lockb
 
 # build output
-astro/dist/
+dist/
 # generated types
-astro/.astro/
-astro/.idea/
+.astro/
+.idea/
 
 #tina
-astro/tina/__generated__
-astro/public/admin/index.html
-astro/public/admin/assets/
+tina/__generated__
+public/admin/index.html
+public/admin/assets/
 
 # dependencies
-astro/node_modules/
+node_modules/
 
 # logs
-astro/npm-debug.log*
-astro/yarn-debug.log*
-astro/yarn-error.log*
-astro/pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 
 # environment variables
@@ -33,5 +33,5 @@ astro/.env.production
 
 # macOS-specific files
 .DS_Store
-package-lock.json
+*lock*
 dist
