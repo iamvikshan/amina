@@ -91,7 +91,3 @@ export const PATCH: APIRoute = async ({ params, request }) => {
     );
   }
 };
-
-export function getStaticPaths() {
-  return [];
-}
