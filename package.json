@@ -5,14 +5,12 @@
   "scripts": {
     "dev": "astro dev",
     "start": "bun .",
-    "build": "astro check && astro build",
+    "build": "astro build",
     "build:prod": "NODE_ENV=production astro check && astro build",
-    "b": "astro check && astro build",
-    "p": "astro preview",
+    "preview": "astro preview",
     "preview:prod": "NODE_ENV=production astro preview",
-    "a": "astro",
     "f": "prettier --write .",
-    "typecheck": "astro check",
+    "check": "astro check",
     "clean": "rm -rf dist .astro node_modules/.vite"
   },
   "dependencies": {
