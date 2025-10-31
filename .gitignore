@@ -8,6 +8,7 @@ node_modules/
 !bun.lock
 
 # build output
+dist/
 astro/dist/
 # generated types
 astro/.astro/

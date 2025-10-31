@@ -48,9 +48,7 @@ module.exports = {
       },
     ],
 
-    [
-      '@semantic-release/changelog',
-    ],
+    ['@semantic-release/changelog'],
 
     [
       '@semantic-release/github',

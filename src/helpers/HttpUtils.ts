@@ -122,4 +122,3 @@ export default class HttpUtils {
 export const getJson = HttpUtils.getJson.bind(HttpUtils)
 export const getBuffer = HttpUtils.getBuffer.bind(HttpUtils)
 export const postToBin = HttpUtils.postToBin.bind(HttpUtils)
-

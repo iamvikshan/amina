@@ -126,4 +126,3 @@ const baseCommand: CommandData = {
 }
 
 export default baseCommand
-

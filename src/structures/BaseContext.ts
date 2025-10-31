@@ -44,4 +44,3 @@ const baseContext: ContextData = {
 }
 
 export default baseContext
-

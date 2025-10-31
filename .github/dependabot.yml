@@ -5,21 +5,31 @@
 
 version: 2
 updates:
-  # Enable version updates for NPM
-  - package-ecosystem: 'npm'
-    directory: '/'
-    directory: '/astro/'
+  # Enable version updates for NPM (root)
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'daily'
+      interval: "daily"
     open-pull-requests-limit: 5
     reviewers:
-      - 'iamvikshan'
+      - "iamvikshan"
     labels:
-      - 'dependencies'
+      - "dependencies"
     ignore:
       #     - dependency-name: "discord.js"
-      - dependency-name: 'pretty-ms'
-      - dependency-name: 'node-fetch'
+      - dependency-name: "pretty-ms"
+      - dependency-name: "node-fetch"
+
+  # Enable version updates for NPM (astro)
+  - package-ecosystem: "npm"
+    directory: "/astro/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "iamvikshan"
+    labels:
+      - "dependencies"
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"

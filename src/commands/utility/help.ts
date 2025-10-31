@@ -194,36 +194,33 @@ const waiter = (msg: Message, member: GuildMember) => {
           buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
             components
           )
-          if (msg.editable) {
-            await msg.edit({
-              embeds: [arrEmbeds[currentPage]],
-              components: [menuRow, buttonsRow],
-            })
-          }
+          // Use response.editReply instead of msg.edit
+          await response.editReply({
+            embeds: [arrEmbeds[currentPage]],
+            components: [menuRow, buttonsRow],
+          })
           break
         }
 
         case 'previousBtn':
           if (currentPage !== 0) {
             --currentPage
-            if (msg.editable) {
-              await msg.edit({
-                embeds: [arrEmbeds[currentPage]],
-                components: [menuRow, buttonsRow],
-              })
-            }
+            // Use response.editReply instead of msg.edit
+            await response.editReply({
+              embeds: [arrEmbeds[currentPage]],
+              components: [menuRow, buttonsRow],
+            })
           }
           break
 
         case 'nextBtn':
           if (currentPage < arrEmbeds.length - 1) {
             currentPage++
-            if (msg.editable) {
-              await msg.edit({
-                embeds: [arrEmbeds[currentPage]],
-                components: [menuRow, buttonsRow],
-              })
-            }
+            // Use response.editReply instead of msg.edit
+            await response.editReply({
+              embeds: [arrEmbeds[currentPage]],
+              components: [menuRow, buttonsRow],
+            })
           }
           break
       }

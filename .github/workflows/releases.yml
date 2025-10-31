@@ -5,8 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
-      - 'Dockerfile'
+      - "src/**"
+      - "Dockerfile"
   pull_request:
     branches:
       - main
@@ -117,4 +117,3 @@ jobs:
           short-description: ${{ github.event.repository.description }}
           readme-filepath: ./README.md
           enable-url-completion: true
-

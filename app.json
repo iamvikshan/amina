@@ -59,9 +59,7 @@
     }
   },
 
-  "buildpacks": [
-    { "url": "https://github.com/jakeg/heroku-buildpack-bun" }
-  ],
+  "buildpacks": [{ "url": "https://github.com/jakeg/heroku-buildpack-bun" }],
   "formation": {
     "web": {
       "quantity": 1,

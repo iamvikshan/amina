@@ -1,0 +1,38 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Enable output for Node.js compatibility
+    "noEmit": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    // Use CommonJS for Node.js compatibility
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2022",
+
+    // Remove Bun-specific types for Node.js build
+    "types": ["node"],
+
+    // Emit settings - disable declarations to avoid type errors
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": true,
+
+    // Copy non-TS files
+    "resolveJsonModule": true,
+
+    // Suppress errors for backward compatibility
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "types/**/*"],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*",
+    "dist",
+    "build",
+    "logs",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

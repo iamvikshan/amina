@@ -1,1 +1,38 @@
+# Dependencies
 node_modules/
+
+# Build outputs
+dist/
+build/
+*.min.js
+*.min.css
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.temp/
+.tmp/
+
+# Package manager files
+*lock*
+*ignore*
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+
+# Environment
+.env*
+
+# Dockerfiles (no parser available)
+Dockerfile*
+
+# Specific data files to exclude
+src/data.json
+types/*

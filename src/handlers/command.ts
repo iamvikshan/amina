@@ -5,6 +5,7 @@ import {
   GuildMember,
   Client,
   Collection,
+  MessageFlags,
 } from 'discord.js'
 import config from '@src/config'
 import Utils from '@helpers/Utils'
@@ -38,7 +39,7 @@ export const handleSlashCommand = async (
       .reply({
         content:
           'IDK how this got here, but this command is currently disabled.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       .catch(() => {})
     return
@@ -50,7 +51,7 @@ export const handleSlashCommand = async (
       if (!validation.callback(interaction)) {
         await interaction.reply({
           content: validation.message,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
         return
       }
@@ -64,7 +65,7 @@ export const handleSlashCommand = async (
   ) {
     await interaction.reply({
       content: `💔 Oh no! Only my sweet developers can use this command~!`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     })
     return
   }
@@ -75,7 +76,7 @@ export const handleSlashCommand = async (
     if (!member.permissions.has(cmd.userPermissions)) {
       await interaction.reply({
         content: `💔 You need ${Utils.parsePermissions(cmd.userPermissions)} for this command, darling~!`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       return
     }
@@ -86,7 +87,7 @@ export const handleSlashCommand = async (
     if (!interaction.guild?.members.me?.permissions.has(cmd.botPermissions)) {
       await interaction.reply({
         content: `😳 I need ${Utils.parsePermissions(cmd.botPermissions)} for this command, please~!`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       return
     }
@@ -98,7 +99,7 @@ export const handleSlashCommand = async (
     if (remaining > 0) {
       await interaction.reply({
         content: `⏳ You're on cooldown, dear! You can use the command again in \`${Utils.timeformat(remaining)}\`, nya~!`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       return
     }
@@ -109,7 +110,7 @@ export const handleSlashCommand = async (
     const showsModal = (cmd as any).showsModal
     if (!showsModal) {
       await interaction.deferReply({
-        flags: cmd.slashCommand.ephemeral ? 64 : undefined, // MessageFlags.Ephemeral = 64
+        flags: cmd.slashCommand.ephemeral ? MessageFlags.Ephemeral : undefined,
       })
     }
 
@@ -143,7 +144,7 @@ export const handleSlashCommand = async (
         await interaction.reply({
           content:
             '😢 Oops! An error occurred while running the command, please try again later~!',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
       }
     } catch (replyError) {

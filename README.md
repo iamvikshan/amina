@@ -2,31 +2,44 @@
   <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=150&section=header&text=Amina&fontSize=80&fontAlignY=35&animation=twinkling&fontColor=gradient" />
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/vikshan)
-[![Version][version-shield]](version-url) [![Contributors][contributors-shield]][contributors-url]
+[![wakatime](https://wakatime.com/badge/github/iamvikshan/amina.svg)](https://wakatime.com/badge/github/iamvikshan/amina)
+[![Version][version-shield]](version-url)
+[![Contributors][contributors-shield]][contributors-url]
 [![PRs][pr-shield]][pr-url] [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url] [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
+
   <p>A Feature-Rich Discord Bot for Server Management and Entertainment</p>
 
-[Quick Links](#quick-links) • [Features](#features) • [Installation](#installation) •
-[Support](#support) • [Contributing](#contributing)
+[Quick Links](#quick-links) • [Features](#features) •
+[Installation](#installation) • [Support](#support) •
+[Contributing](#contributing)
 
 </div>
 
-> [!WARNING] Amina no longer natively support node.js, but bun. 
-> To run amina on a node.js environmeant, you will have to recombile the code using typescript, it is very easy but i am too lazy to add that simple script, and why are you not using bun to begin with?
+> [!IMPORTANT]
+>
+> Amina is gradually transitioning to Typescript with [Bun](bun.sh), and thus no longer natively supporting node.js. To run amina on
+> a node.js environment, you will need to compile the code using TypeScript.
+> Run `npm run build` to compile the code to the `dist/` directory, then use
+> `npm run start:node` to run the compiled version. But seriously, why aren't you using bun to begin with? 
+
+
+> [!WARNING]
+>
+> NO SUPPORT WILL BE PROVIDED FOR NODE nor JAVASCRIPT ISSUES, you are on your own!
 
 ## About
 
-Amina is a versatile Discord bot that combines powerful moderation tools with fun entertainment
-features. From advanced server management to music playback and mini-games, Amina helps create
-engaging Discord communities.
+Amina is a versatile Discord bot that combines powerful moderation tools with
+fun entertainment features. From advanced server management to music playback
+and mini-games, Amina helps create engaging Discord communities.
 
 ## Quick Links
 
 - [Invite Amina](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)
-- [Documentation](https://docs.vikshan.tech)
+- [Documentation](https://docs.vikshan.me)
 - [Support Server](https://discord.gg/uMgS9evnmv)
 - [Buy me a Coffee](https://ko-fi.com/vikshan)
 
@@ -57,16 +70,17 @@ engaging Discord communities.
 - Weather information
 - Translation services
 
-[Detailed feature list](https://docs.vikshan.tech/commands/commands/)
+[Detailed feature list](https://docs.vikshan.me/commands/commands/)
 
 ## Installation
 
 For self-hosting instructions, please visit our
-[installation guide](https://docs.vikshan.tech/installation/installation).
+[installation guide](https://docs.vikshan.me/installation/installation).
 
 ## Support
 
-Join our [Discord Support Server](https://discord.gg/uMgS9evnmv) for help and updates.
+Join our [Discord Support Server](https://discord.gg/uMgS9evnmv) for help and
+updates.
 
 <div align="center">
   <img src="https://invidget.switchblade.xyz/uMgS9evnmv" alt="Discord Server Invite">
@@ -84,7 +98,7 @@ Join our [Discord Support Server](https://discord.gg/uMgS9evnmv) for help and up
 
 <div align="center">
 
-![Alt](https://repobeats.axiom.co/api/embed/33971866cc9f23ecadf447d38dbb129311693c2b.svg "Repobeats analytics image")
+![Alt](https://repobeats.axiom.co/api/embed/33971866cc9f23ecadf447d38dbb129311693c2b.svg 'Repobeats analytics image')
 
 </div>
 
@@ -94,7 +108,7 @@ Join our [Discord Support Server](https://discord.gg/uMgS9evnmv) for help and up
   <a href="https://www.digitalocean.com/?refcode=c5587212fe39&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge">
     <img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" alt="DigitalOcean" height="50">
   </a>
-  <a href="https://go.vikshan.tech/vultr">
+  <a href="https://go.vikshan.me/vultr">
     <img src="https://www.vultr.com/media/logo_ondark.svg" alt="Vultr" height="50" width="100">
   </a>
   <a href="https://partnernetwork.ionos.com/partner/vikshan?origin=PartnerBadge">
@@ -106,8 +120,7 @@ Join our [Discord Support Server](https://discord.gg/uMgS9evnmv) for help and up
 [version-url]: https://github.com/iamvikshan/amina
 [pr-shield]: https://img.shields.io/github/issues-pr/iamvikshan/amina?style=for-the-badge
 [pr-url]: https://github.com/iamvikshan/amina/pulls
-[contributors-shield]:
-  https://img.shields.io/github/contributors/iamvikshan/amina.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/iamvikshan/amina.svg?style=for-the-badge
 [contributors-url]: https://github.com/iamvikshan/amina/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/iamvikshan/amina.svg?style=for-the-badge
 [forks-url]: https://github.com/iamvikshan/amina/network/members

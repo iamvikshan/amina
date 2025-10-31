@@ -120,4 +120,3 @@ export default class BotUtils {
 export const checkForUpdates = BotUtils.checkForUpdates.bind(BotUtils)
 export const getImageFromMessage = BotUtils.getImageFromMessage.bind(BotUtils)
 export const musicValidations = BotUtils.musicValidations
-

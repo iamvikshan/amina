@@ -247,23 +247,6 @@ declare module '@src/config' {
 }
 
 // Helper type utilities
-declare module '@helpers/Utils' {
-  class Utils {
-    static containsLink(text: string): boolean
-    static containsDiscordInvite(text: string): boolean
-    static getRandomInt(max: number): number
-    static isHex(text: string): boolean
-    static isValidColor(text: string): boolean
-    static diffHours(dt: Date, now: Date): number
-    static timeformat(timeInSeconds: number): string
-    static daysAgo(d: Date): number
-    static getRemainingTime(timeUntil: number): string
-    static parsePermissions(perms: string[]): string
-    static recursiveReadDirSync(dir: string): string[]
-  }
-  export = Utils
-}
-
 declare module '@helpers/Logger' {
   interface Logger {
     log(message: string, ...args: any[]): void
@@ -277,4 +260,3 @@ declare module '@helpers/Logger' {
 }
 
 export {}
-

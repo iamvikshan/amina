@@ -6,13 +6,12 @@ const {
   ComponentType,
   ApplicationCommandOptionType,
 } = require('discord.js')
-const { EMBED_COLORS, INTERACTIONS } = require('@src/config')
+const { EMBED_COLORS } = require('@src/config')
 const { BotClient } = require('@src/structures')
 const { getSettings } = require('@schemas/Guild')
 const {
   addQuestion,
   deleteQuestion,
-  getQuestionById,
 } = require('@schemas/TruthOrDare')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
@@ -170,7 +169,7 @@ module.exports = {
 
     // Subcommand: list
     if (sub === 'listservers') {
-      const { client, channel, member } = interaction
+      const { client, member } = interaction
       const matched = []
       const match = interaction.options.getString('match') || null
 
@@ -250,12 +249,12 @@ module.exports = {
         if (response.customId === 'prevBtn' && currentPage > 1) {
           currentPage--
           const embed = buildEmbed()
-          await sentMsg.edit({ embeds: [embed] })
+          await response.editReply({ embeds: [embed] })
         }
         if (response.customId === 'nxtBtn' && currentPage < totalPages) {
           currentPage++
           const embed = buildEmbed()
-          await sentMsg.edit({ embeds: [embed] })
+          await response.editReply({ embeds: [embed] })
         }
       })
 
@@ -467,7 +466,7 @@ async function triggerOnboarding(client, serverId = null) {
   }
 
   let count = 0
-  for (const [id, guild] of client.guilds.cache) {
+  for (const [, guild] of client.guilds.cache) {
     const settings = await getSettings(guild)
     if (!settings.server.setup_completed) {
       guildCreateEvent(guild)

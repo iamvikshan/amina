@@ -62,7 +62,8 @@ const command: CommandData = {
         }
 
         const embed = await getRandomEmbed('dank')
-        await interaction.editReply({
+        // Use response.editReply instead of interaction.editReply
+        await response.editReply({
           embeds: [embed],
           components: [buttonRow],
         })
