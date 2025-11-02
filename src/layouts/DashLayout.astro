@@ -12,12 +12,12 @@ const { title = 'Dashboard - AMINA', description } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="scrollbar-hide lenis lenis-smooth scroll-pt-16">
+<html lang='en' class='scrollbar-hide lenis lenis-smooth scroll-pt-16'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>{title}</title>
-    {description && <meta name="description" content={description} />}
+    {description && <meta name='description' content={description} />}
     <script is:inline>
       // Using the same theme handling as MainLayout but preserving DashLayout's dark mode colors
       if (
@@ -30,13 +30,16 @@ const { title = 'Dashboard - AMINA', description } = Astro.props;
         document.documentElement.classList.remove('dark');
       }
     </script>
-    <script>
-      import '@scripts/lenisSmoothScroll.js';
-    </script>
   </head>
   <body>
+    <script>
+      // Lazy load Lenis smooth scroll after page interaction
+      if (typeof window !== 'undefined') {
+        import('@scripts/lenisSmoothScroll.js');
+      }
+    </script>
     <div
-      class="min-h-screen bg-sky-50 dark:bg-slate-900 transition-colors duration-200"
+      class='min-h-screen bg-sky-50 dark:bg-slate-900 transition-colors duration-200'
     >
       <DashNav />
       <main>

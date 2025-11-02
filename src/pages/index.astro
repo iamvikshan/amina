@@ -1,4 +1,6 @@
 ---
+export const prerender = true;
+
 // Import the necessary components
 import MainLayout from '@/layouts/MainLayout.astro';
 import HeroSection from '@components/sections/landing/HeroSection.astro';
@@ -30,10 +32,10 @@ const docsUrl = 'https://docs.vikshan.me';
   <HeroSection
     title=`Energize Your Discord with <span
         class="text-pink-500 dark:text-pink-400">Amina</span>`
-    subTitle="A vibrant, multifaceted Discord bot bringing creativity, fun, and powerful moderation to your server."
-    addBotBtn="Add to Discord"
-    addBotBtnURL="https://discord.com/oauth2/authorize?client_id=1035629678632915055"
-    docsBtn="View Commands"
+    subTitle='A vibrant, multifaceted Discord bot bringing creativity, fun, and powerful moderation to your server.'
+    addBotBtn='Add to Discord'
+    addBotBtnURL='https://discord.com/oauth2/authorize?client_id=1035629678632915055'
+    docsBtn='View Commands'
     docsBtnURL=`${docsUrl}/commands`
     withReview={true}
     avatars={avatarSrcs}
@@ -41,16 +43,16 @@ const docsUrl = 'https://docs.vikshan.me';
     starCount={5}
     reviews=`From Over <span class="font-bold">10k</span> Servers`
     src={heroImage}
-    alt="Animated representation of Amina bot interacting with Discord users"
+    alt='Animated representation of Amina bot interacting with Discord users'
   />
 
   <ClientsSection
-    title="Powering Communities Everywhere"
-    subTitle="Join the diverse range of servers that trust Amina."
+    title='Powering Communities Everywhere'
+    subTitle='Join the diverse range of servers that trust Amina.'
   />
 
   <FeaturesGeneral
-    title="Bringing Your Server to Life"
+    title='Bringing Your Server to Life'
     subTitle="Amina tackles the unique challenges of community management with a blend of enthusiasm and powerful features. From creative engagement to robust moderation, we're dedicated to making your Discord server thrive."
     src={featureImage}
     alt="Amina's feature set displayed in a colorful, dynamic interface"
@@ -90,7 +92,7 @@ const docsUrl = 'https://docs.vikshan.me';
   />
 
   <TestimonialsSection
-    title="Transforming Discord Communities"
+    title='Transforming Discord Communities'
     subTitle="Experience the Amina difference with instant setup and round-the-clock support. See how we're redefining community management."
     testimonials={[
       {
@@ -121,11 +123,11 @@ const docsUrl = 'https://docs.vikshan.me';
     ]}
   />
 
-  <FAQ title="Frequently<br />asked questions" faqs={faqs} />
+  <FAQ title='Frequently<br />asked questions' faqs={faqs} />
 
   <HeroSectionAlt
-    title="Join the Amina Community"
-    subTitle="Amina is an open-source Discord bot, lovingly crafted with discord.js. Contribute, customize, and help us grow!"
-    url="https://github.com/iamvikshan/amina"
+    title='Join the Amina Community'
+    subTitle='Amina is an open-source Discord bot, lovingly crafted with discord.js. Contribute, customize, and help us grow!'
+    url='https://github.com/iamvikshan/amina'
   />
 </MainLayout>

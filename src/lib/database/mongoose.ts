@@ -38,6 +38,11 @@ async function connectDB() {
     global.mongoConnection!.promise = mongoose
       .connect(MONGO_URI, {
         bufferCommands: false,
+        maxPoolSize: 10, // Maximum connection pool size
+        minPoolSize: 2, // Minimum connection pool size
+        maxIdleTimeMS: 30000, // Close idle connections after 30s
+        serverSelectionTimeoutMS: 5000, // Timeout for server selection
+        socketTimeoutMS: 45000, // Socket timeout
       })
       .then((mongoose) => {
         console.log('MongoDB connected successfully');

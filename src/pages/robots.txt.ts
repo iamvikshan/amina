@@ -1,6 +1,8 @@
 // https://docs.astro.build/en/guides/integrations-guide/sitemap/#usage
 import type { APIRoute } from 'astro';
 
+export const prerender = true;
+
 const robotsTxt = `
 User-agent: Googlebot
 Disallow:

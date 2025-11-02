@@ -1,3 +1,9 @@
 ---
 export const prerender = false;
+
+// Set cache headers for user-specific content
+Astro.response.headers.set(
+  'Cache-Control',
+  'private, no-cache, must-revalidate'
+);
 ---

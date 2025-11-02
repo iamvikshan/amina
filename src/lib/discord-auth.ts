@@ -118,15 +118,22 @@ export class DiscordAuth {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: params,
+        body: params.toString(),
       },
       true
     );
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
+
+      if (error.error === 'invalid_client') {
+        throw new Error(
+          'Invalid Discord credentials. Please check your CLIENT_ID and CLIENT_SECRET in .env file.'
+        );
+      }
+
       throw new Error(
-        `Token exchange failed: ${error.error_description || response.statusText}`
+        `Token exchange failed: ${error.error_description || error.error || response.statusText}`
       );
     }
 
@@ -148,13 +155,23 @@ export class DiscordAuth {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: params,
+        body: params.toString(),
       },
       true
     );
 
     if (!response.ok) {
-      throw new Error('Failed to refresh token');
+      const error = await response.json().catch(() => ({}));
+
+      if (error.error === 'invalid_client') {
+        throw new Error(
+          'Invalid Discord credentials. Please check your CLIENT_ID and CLIENT_SECRET in .env file.'
+        );
+      }
+
+      throw new Error(
+        `Token refresh failed: ${error.error_description || error.error || response.statusText}`
+      );
     }
 
     return response.json();

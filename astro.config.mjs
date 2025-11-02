@@ -17,7 +17,7 @@ const getSiteURL = (val) => {
       return val.startsWith('http') ? val : `https://${val}`;
     }
   }
-  return 'http://localhost:8080';
+  return 'http://localhost:4321';
 };
 
 export default defineConfig({
@@ -29,16 +29,37 @@ export default defineConfig({
     host: true,
   },
   adapter: node({ mode: 'standalone' }),
-  image: { domains: ['images.unsplash.com'] },
+  image: {
+    domains: ['images.unsplash.com'],
+    // Enable image optimization caching
+    remotePatterns: [{ protocol: 'https' }],
+  },
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   integrations: [
     react(),
     tailwind(),
     sitemap(),
-    compressor({ gzip: true, brotli: true }),
+    // Only compress in production builds
+    ...(import.meta.env.PROD ? [compressor({ gzip: true, brotli: true })] : []),
   ],
   vite: {
-    build: { cssMinify: true, minify: true },
+    build: {
+      cssMinify: true,
+      minify: true,
+      // Enable code splitting for better caching
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Vendor chunks for better caching
+            if (id.includes('node_modules')) {
+              if (id.includes('react')) return 'vendor-react';
+              if (id.includes('lucide')) return 'vendor-icons';
+              return 'vendor';
+            }
+          },
+        },
+      },
+    },
 
     envDir: path.resolve(__dirname, '..'),
     resolve: {

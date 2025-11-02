@@ -3,6 +3,8 @@ import { getImage } from 'astro:assets';
 import icon from '@images/icon.png';
 import maskableIcon from '@images/icon-maskable.png';
 
+export const prerender = true;
+
 interface Favicon {
   purpose: 'any' | 'maskable' | 'monochrome';
   src: ImageMetadata;

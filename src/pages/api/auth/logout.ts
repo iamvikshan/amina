@@ -2,6 +2,8 @@
 import type { APIRoute } from 'astro';
 import { clearAuthCookies, getAuthCookies } from '@/lib/cookie-utils';
 
+export const prerender = false;
+
 export const POST: APIRoute = async ({ cookies }) => {
   try {
     // Get the access token before clearing cookies
