@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const Schema = new mongoose.Schema(
   {
@@ -16,8 +16,8 @@ const Schema = new mongoose.Schema(
       inviteToParticipate: String,
       drawing: String,
       dropMessage: String,
-      winMessage: mongoose.Mixed,
-      embedFooter: mongoose.Mixed,
+      winMessage: mongoose.Schema.Types.Mixed,
+      embedFooter: mongoose.Schema.Types.Mixed,
       noWinner: String,
       winners: String,
       endedAt: String,
@@ -26,25 +26,25 @@ const Schema = new mongoose.Schema(
     thumbnail: String,
     hostedBy: String,
     winnerIds: { type: [String], default: undefined },
-    reaction: mongoose.Mixed,
+    reaction: mongoose.Schema.Types.Mixed,
     botsCanWin: Boolean,
-    embedColor: mongoose.Mixed,
-    embedColorEnd: mongoose.Mixed,
+    embedColor: mongoose.Schema.Types.Mixed,
+    embedColorEnd: mongoose.Schema.Types.Mixed,
     exemptPermissions: { type: [], default: undefined },
     exemptMembers: String,
     bonusEntries: String,
-    extraData: mongoose.Mixed,
+    extraData: mongoose.Schema.Types.Mixed,
     lastChance: {
       enabled: Boolean,
       content: String,
       threshold: Number,
-      embedColor: mongoose.Mixed,
+      embedColor: mongoose.Schema.Types.Mixed,
     },
     pauseOptions: {
       isPaused: Boolean,
       content: String,
       unPauseAfter: Number,
-      embedColor: mongoose.Mixed,
+      embedColor: mongoose.Schema.Types.Mixed,
       durationAfterPause: Number,
     },
     isDrop: Boolean,
@@ -60,10 +60,8 @@ const Schema = new mongoose.Schema(
   }
 )
 
-const Model = mongoose.model('giveaways', Schema)
-module.exports = {
-  model: Model,
-  getGiveaways: async guildId => {
-    return await Model.find({ guildId }).lean()
-  },
+export const model = mongoose.model('giveaways', Schema)
+
+export async function getGiveaways(guildId: string): Promise<any[]> {
+  return await model.find({ guildId }).lean()
 }

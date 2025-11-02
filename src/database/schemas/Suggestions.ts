@@ -1,0 +1,79 @@
+import mongoose from 'mongoose'
+import type { Message } from 'discord.js'
+
+const Schema = new mongoose.Schema(
+  {
+    guild_id: String,
+    channel_id: String,
+    message_id: String,
+    user_id: String,
+    suggestion: String,
+    status: {
+      type: String,
+      enum: ['PENDING', 'APPROVED', 'REJECTED', 'DELETED'],
+      default: 'PENDING',
+    },
+    stats: {
+      upvotes: { type: Number, default: 0 },
+      downvotes: { type: Number, default: 0 },
+    },
+    status_updates: [
+      {
+        _id: false,
+        user_id: String,
+        status: {
+          type: String,
+          enum: ['APPROVED', 'REJECTED', 'DELETED'],
+        },
+        reason: String,
+        timestamp: { type: Date, default: new Date() },
+      },
+    ],
+  },
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    },
+  }
+)
+
+export const model = mongoose.model('suggestions', Schema)
+
+export async function addSuggestion(
+  message: Message,
+  userId: string,
+  suggestion: string
+): Promise<any> {
+  return new model({
+    guild_id: message.guildId,
+    channel_id: message.channelId,
+    message_id: message.id,
+    user_id: userId,
+    suggestion: suggestion,
+  }).save()
+}
+
+export async function findSuggestion(
+  guildId: string,
+  messageId: string
+): Promise<any> {
+  return model.findOne({ guild_id: guildId, message_id: messageId })
+}
+
+export async function deleteSuggestionDb(
+  guildId: string,
+  messageId: string,
+  memberId: string,
+  reason: string
+): Promise<any> {
+  return model.updateOne(
+    { guild_id: guildId, message_id: messageId },
+    {
+      status: 'DELETED',
+      $push: {
+        status_updates: { user_id: memberId, status: 'DELETED', reason },
+      },
+    }
+  )
+}

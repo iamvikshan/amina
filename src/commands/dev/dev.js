@@ -9,13 +9,9 @@ const {
 const { EMBED_COLORS } = require('@src/config')
 const { BotClient } = require('@src/structures')
 const { getSettings } = require('@schemas/Guild')
-const {
-  addQuestion,
-  deleteQuestion,
-} = require('@schemas/TruthOrDare')
+const { addQuestion, deleteQuestion } = require('@schemas/TruthOrDare')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
-require('dotenv').config()
 
 const DUMMY_TOKEN = 'MY_TOKEN_IS_SECRET'
 

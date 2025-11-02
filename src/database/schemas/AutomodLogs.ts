@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
+import type { GuildMember } from 'discord.js'
 
 const reqString = {
   type: String,
@@ -25,15 +26,18 @@ const Schema = new mongoose.Schema(
 
 const Model = mongoose.model('automod-logs', Schema)
 
-module.exports = {
-  addAutoModLogToDb: async (member, content, reason, strikes) => {
-    if (!member) throw new Error('Member is undefined')
-    await new Model({
-      guild_id: member.guild.id,
-      member_id: member.id,
-      content,
-      reason,
-      strikes,
-    }).save()
-  },
+export async function addAutoModLogToDb(
+  member: GuildMember,
+  content: string,
+  reason: string,
+  strikes: number
+): Promise<void> {
+  if (!member) throw new Error('Member is undefined')
+  await new Model({
+    guild_id: member.guild.id,
+    member_id: member.id,
+    content,
+    reason,
+    strikes,
+  }).save()
 }

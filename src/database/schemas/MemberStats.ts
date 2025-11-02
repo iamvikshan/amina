@@ -1,6 +1,8 @@
-const mongoose = require('mongoose')
-const { CACHE_SIZE } = require('@src/config.js')
-const FixedSizeMap = require('fixedsize-map')
+import mongoose from 'mongoose'
+import config from '@src/config'
+import FixedSizeMap from 'fixedsize-map'
+
+const { CACHE_SIZE } = config
 
 const cache = new FixedSizeMap(CACHE_SIZE.MEMBERS)
 
@@ -38,28 +40,33 @@ const Schema = new mongoose.Schema(
 
 const Model = mongoose.model('member-stats', Schema)
 
-module.exports = {
-  getMemberStats: async (guildId, memberId) => {
-    const key = `${guildId}|${memberId}`
-    if (cache.contains(key)) return cache.get(key)
+export async function getMemberStats(
+  guildId: string,
+  memberId: string
+): Promise<any> {
+  const key = `${guildId}|${memberId}`
+  if (cache.contains(key)) return cache.get(key)
 
-    let member = await Model.findOne({ guild_id: guildId, member_id: memberId })
-    if (!member) {
-      member = new Model({
-        guild_id: guildId,
-        member_id: memberId,
-      })
-    }
-
-    cache.add(key, member)
-    return member
-  },
-
-  getXpLb: async (guildId, limit = 10) =>
-    Model.find({
+  let member = await Model.findOne({ guild_id: guildId, member_id: memberId })
+  if (!member) {
+    member = new Model({
       guild_id: guildId,
+      member_id: memberId,
     })
-      .limit(limit)
-      .sort({ level: -1, xp: -1 })
-      .lean(),
+  }
+
+  cache.add(key, member)
+  return member
+}
+
+export async function getXpLb(
+  guildId: string,
+  limit: number = 10
+): Promise<any[]> {
+  return Model.find({
+    guild_id: guildId,
+  })
+    .limit(limit)
+    .sort({ level: -1, xp: -1 })
+    .lean()
 }

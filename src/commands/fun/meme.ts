@@ -23,9 +23,6 @@ const command: CommandData = {
   description: '✨ Time for some giggles! Let me find you a funny meme! 🎭',
   category: 'FUN',
   cooldown: 1,
-  command: {
-    enabled: false,
-  },
   slashCommand: {
     enabled: true,
     ephemeral: false,
@@ -42,43 +39,24 @@ const command: CommandData = {
     )
 
     const embed = await getRandomEmbed('dank')
-    await interaction.editReply({
+    await interaction.followUp({
       embeds: [embed],
       components: [buttonRow],
     })
 
     const collector = interaction.channel?.createMessageComponentCollector({
       filter: reactor => reactor.user.id === interaction.user.id,
-      time: 5 * 60 * 1000, // 5 minutes
     })
 
     collector?.on('collect', async response => {
-      try {
-        if (response.customId !== 'regenMemeBtn') return
+      if (response.customId !== 'regenMemeBtn') return
+      await response.deferUpdate()
 
-        // Defer the update first
-        if (!response.deferred && !response.replied) {
-          await response.deferUpdate()
-        }
-
-        const embed = await getRandomEmbed('dank')
-        // Use response.editReply instead of interaction.editReply
-        await response.editReply({
-          embeds: [embed],
-          components: [buttonRow],
-        })
-      } catch (error) {
-        // Log the error but don't crash
-        console.error('Error handling meme button interaction:', error)
-      }
-    })
-
-    collector?.on('end', () => {
-      // Disable the button after timeout
-      buttonRow.components[0].setDisabled(true)
-      interaction
-        .editReply({ embeds: [embed], components: [buttonRow] })
-        .catch(() => {})
+      const embed = await getRandomEmbed('dank')
+      await interaction.editReply({
+        embeds: [embed],
+        components: [buttonRow],
+      })
     })
   },
 }

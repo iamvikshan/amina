@@ -1,10 +1,10 @@
-const { EmbedBuilder, ApplicationCommandType } = require('discord.js')
-const { EMBED_COLORS } = require('@src/config')
+import { EmbedBuilder, ApplicationCommandType, type User } from 'discord.js'
+import config from '@src/config'
+import type { ContextData } from '@structures/BaseContext'
 
-/**
- * @type {import('@structures/BaseContext')}
- */
-module.exports = {
+const { EMBED_COLORS } = config
+
+const avatarContext: ContextData = {
   name: 'avatar',
   description: 'displays avatar information about the user',
   type: ApplicationCommandType.User,
@@ -18,7 +18,7 @@ module.exports = {
   },
 }
 
-function getAvatar(user) {
+function getAvatar(user: User) {
   const x64 = user.displayAvatarURL({ extension: 'png', size: 64 })
   const x128 = user.displayAvatarURL({ extension: 'png', size: 128 })
   const x256 = user.displayAvatarURL({ extension: 'png', size: 256 })
@@ -43,3 +43,5 @@ function getAvatar(user) {
     embeds: [embed],
   }
 }
+
+export default avatarContext

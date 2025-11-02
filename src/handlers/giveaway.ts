@@ -41,4 +41,3 @@ class MongooseGiveaways extends GiveawaysManager {
 }
 
 export default (client: any) => new MongooseGiveaways(client)
-

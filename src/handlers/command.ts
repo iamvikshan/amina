@@ -106,7 +106,7 @@ export const handleSlashCommand = async (
   }
 
   try {
-    // Defer reply if command doesn't show a modal
+    // Add a property to commands that show modals
     const showsModal = (cmd as any).showsModal
     if (!showsModal) {
       await interaction.deferReply({
@@ -128,30 +128,13 @@ export const handleSlashCommand = async (
     const settings = await getSettings(interaction.guild)
     await cmd.interactionRun(interaction, { settings })
   } catch (ex) {
-    // Only try to respond if we can and it's appropriate
-    try {
-      const showsModal = (cmd as any).showsModal
-      // Only attempt to send error message if:
-      // 1. Command doesn't show a modal
-      // 2. Interaction was deferred but not yet replied to
-      // 3. We're still within the 15-minute interaction window
-      if (!showsModal && interaction.deferred && !interaction.replied) {
-        await interaction.editReply(
-          '😢 Oops! An error occurred while running the command, please try again later~!'
-        )
-      } else if (!interaction.replied && !interaction.deferred && !showsModal) {
-        // Try to reply if we haven't deferred or replied yet
-        await interaction.reply({
-          content:
-            '😢 Oops! An error occurred while running the command, please try again later~!',
-          flags: MessageFlags.Ephemeral,
-        })
-      }
-    } catch (replyError) {
-      // If we can't reply, just log it (interaction may have expired or been handled elsewhere)
-      client.logger.error('Failed to send error message', replyError)
+    // Only follow up if we deferred
+    const showsModal = (cmd as any).showsModal
+    if (!showsModal) {
+      await interaction.followUp(
+        '😢 Oops! An error occurred while running the command, please try again later~!'
+      )
     }
-
     client.logger.error('interactionRun', ex)
 
     // Notify Honeybadger with command context
@@ -167,7 +150,7 @@ export const handleSlashCommand = async (
     }
 
     // Clear Honeybadger context after command execution
-    Honeybadger.clear()
+    Honeybadger.resetContext()
   }
 }
 

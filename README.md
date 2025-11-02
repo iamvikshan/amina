@@ -9,7 +9,6 @@
 [![Stargazers][stars-shield]][stars-url] [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
-
   <p>A Feature-Rich Discord Bot for Server Management and Entertainment</p>
 
 [Quick Links](#quick-links) • [Features](#features) •
@@ -23,8 +22,7 @@
 > Amina is gradually transitioning to Typescript with [Bun](bun.sh), and thus no longer natively supporting node.js. To run amina on
 > a node.js environment, you will need to compile the code using TypeScript.
 > Run `npm run build` to compile the code to the `dist/` directory, then use
-> `npm run start:node` to run the compiled version. But seriously, why aren't you using bun to begin with? 
-
+> `npm run start:node` to run the compiled version. But seriously, why aren't you using bun to begin with?
 
 > [!WARNING]
 >
@@ -75,7 +73,7 @@ and mini-games, Amina helps create engaging Discord communities.
 ## Installation
 
 For self-hosting instructions, please visit our
-[installation guide](https://docs.vikshan.me/installation/installation).
+[installation guide](https://docs.vikshan.me/selfhost/start/).
 
 ## Support
 

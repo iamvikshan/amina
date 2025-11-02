@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
+import type { GuildMember } from 'discord.js'
 
 const reqString = {
   type: String,
@@ -45,34 +46,46 @@ const Schema = new mongoose.Schema(
   }
 )
 
-const Model = mongoose.model('mod-logs', Schema)
+export const model = mongoose.model('mod-logs', Schema)
 
-module.exports = {
-  model: Model,
+export async function addModLogToDb(
+  admin: GuildMember,
+  target: any,
+  reason: string,
+  type: string
+): Promise<any> {
+  return await new model({
+    guild_id: admin.guild.id,
+    member_id: target.id,
+    reason,
+    admin: {
+      id: admin.id,
+      tag: admin.user.tag,
+    },
+    type,
+  }).save()
+}
 
-  addModLogToDb: async (admin, target, reason, type) =>
-    await new Model({
-      guild_id: admin.guild.id,
-      member_id: target.id,
-      reason,
-      admin: {
-        id: admin.id,
-        tag: admin.user.tag,
-      },
-      type,
-    }).save(),
-
-  getWarningLogs: async (guildId, targetId) =>
-    Model.find({
+export async function getWarningLogs(
+  guildId: string,
+  targetId: string
+): Promise<any[]> {
+  return model
+    .find({
       guild_id: guildId,
       member_id: targetId,
       type: 'WARN',
-    }).lean(),
+    })
+    .lean()
+}
 
-  clearWarningLogs: async (guildId, targetId) =>
-    Model.deleteMany({
-      guild_id: guildId,
-      member_id: targetId,
-      type: 'WARN',
-    }),
+export async function clearWarningLogs(
+  guildId: string,
+  targetId: string
+): Promise<any> {
+  return model.deleteMany({
+    guild_id: guildId,
+    member_id: targetId,
+    type: 'WARN',
+  })
 }

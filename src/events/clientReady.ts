@@ -1,17 +1,15 @@
-const {
-  counterHandler,
-  inviteHandler,
-  presenceHandler,
-} = require('@src/handlers')
-const { cacheReactionRoles } = require('@schemas/ReactionRoles')
-const { getSettings } = require('@schemas/Guild')
-const { getPresenceConfig, getDevCommandsConfig } = require('@schemas/Dev')
-const { ApplicationCommandType } = require('discord.js')
+import { counterHandler, inviteHandler, presenceHandler } from '@src/handlers'
+import { cacheReactionRoles } from '@schemas/ReactionRoles'
+import { getSettings } from '@schemas/Guild'
+import { getPresenceConfig, getDevCommandsConfig } from '@schemas/Dev'
+import { ApplicationCommandType } from 'discord.js'
+import type { BotClient } from '@src/structures'
 
 /**
- * @param {import('@src/structures').BotClient} client
+ * Client ready event handler
+ * @param client - The bot client instance
  */
-module.exports = async client => {
+export default async (client: BotClient): Promise<void> => {
   client.logger.success(`Logged in as ${client.user.tag}! (${client.user.id})`)
 
   // Initialize Music Manager
@@ -38,14 +36,17 @@ module.exports = async client => {
 
       // Process {servers} and {members} placeholders
       if (message.includes('{servers}')) {
-        message = message.replaceAll('{servers}', client.guilds.cache.size)
+        message = message.replaceAll(
+          '{servers}',
+          String(client.guilds.cache.size)
+        )
       }
 
       if (message.includes('{members}')) {
         const members = client.guilds.cache
           .map(g => g.memberCount)
           .reduce((partial_sum, a) => partial_sum + a, 0)
-        message = message.replaceAll('{members}', members)
+        message = message.replaceAll('{members}', String(members))
       }
 
       client.logger.log(

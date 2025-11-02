@@ -1,4 +1,4 @@
-const { Guild, ChannelType } = require('discord.js')
+import { Guild, ChannelType /* type GuildChannel */ } from 'discord.js'
 
 const ROLE_MENTION = /<?@?&?(\d{17,20})>?/
 const CHANNEL_MENTION = /<?#?(\d{17,20})>?/
@@ -6,17 +6,18 @@ const MEMBER_MENTION = /<?@?!?(\d{17,20})>?/
 
 /**
  * Get all channels that match the query
- * @param {string} query
- * @param {import("discord.js").GuildChannelTypes[]} type
+ * @param query - The search query
+ * @param type - Array of channel types to filter by
  */
 Guild.prototype.findMatchingChannels = function (
-  query,
+  this: Guild,
+  query: string,
   type = [ChannelType.GuildText, ChannelType.GuildAnnouncement]
-) {
+): any[] /*GuildChannel[]*/ {
   if (!this || !query || typeof query !== 'string') return []
 
   const channelManager = this.channels.cache.filter(ch =>
-    type.includes(ch.type)
+    type.includes(ch.type as any)
   )
 
   const patternMatch = query.match(CHANNEL_MENTION)
@@ -26,9 +27,9 @@ Guild.prototype.findMatchingChannels = function (
     if (channel) return [channel]
   }
 
-  const exact = []
-  const startsWith = []
-  const includes = []
+  const exact: any[] = []
+  const startsWith: any[] = []
+  const includes: any[] = []
   channelManager.forEach(ch => {
     const lowerName = ch.name.toLowerCase()
     if (ch.name === query) exact.push(ch)
@@ -43,18 +44,19 @@ Guild.prototype.findMatchingChannels = function (
 }
 
 /**
- * Get all channels that match the query
- * @param {string} query
- * @param {import("discord.js").GuildChannelTypes[]} type
+ * Get all voice channels that match the query
+ * @param query - The search query
+ * @param type - Array of voice channel types to filter by
  */
 Guild.prototype.findMatchingVoiceChannels = function (
-  query,
+  this: Guild,
+  query: string,
   type = [ChannelType.GuildVoice, ChannelType.GuildStageVoice]
-) {
+): any[] {
   if (!this || !query || typeof query !== 'string') return []
 
   const channelManager = this.channels.cache.filter(ch =>
-    type.includes(ch.type)
+    type.includes(ch.type as any)
   )
 
   const patternMatch = query.match(CHANNEL_MENTION)
@@ -64,9 +66,9 @@ Guild.prototype.findMatchingVoiceChannels = function (
     if (channel) return [channel]
   }
 
-  const exact = []
-  const startsWith = []
-  const includes = []
+  const exact: any[] = []
+  const startsWith: any[] = []
+  const includes: any[] = []
   channelManager.forEach(ch => {
     const lowerName = ch.name.toLowerCase()
     if (ch.name === query) exact.push(ch)
@@ -82,9 +84,12 @@ Guild.prototype.findMatchingVoiceChannels = function (
 
 /**
  * Find all roles that match the query
- * @param {string} query
+ * @param query - The search query
  */
-Guild.prototype.findMatchingRoles = function (query) {
+Guild.prototype.findMatchingRoles = function (
+  this: Guild,
+  query: string
+): any[] {
   if (!this || !query || typeof query !== 'string') return []
 
   const patternMatch = query.match(ROLE_MENTION)
@@ -94,9 +99,9 @@ Guild.prototype.findMatchingRoles = function (query) {
     if (role) return [role]
   }
 
-  const exact = []
-  const startsWith = []
-  const includes = []
+  const exact: any[] = []
+  const startsWith: any[] = []
+  const includes: any[] = []
   this.roles.cache.forEach(role => {
     const lowerName = role.name.toLowerCase()
     if (role.name === query) exact.push(role)
@@ -111,10 +116,14 @@ Guild.prototype.findMatchingRoles = function (query) {
 
 /**
  * Resolves a guild member from search query
- * @param {string} query
- * @param {boolean} exact
+ * @param query - The search query
+ * @param exact - Whether to perform exact matching
  */
-Guild.prototype.resolveMember = async function (query, exact = false) {
+Guild.prototype.resolveMember = async function (
+  this: Guild,
+  query: string,
+  exact: boolean = false
+): Promise<any> {
   if (!query || typeof query !== 'string') return
 
   // Check if mentioned or ID is passed
@@ -145,12 +154,12 @@ Guild.prototype.resolveMember = async function (query, exact = false) {
 
 /**
  * Fetch member stats
+ * @returns Array of [total, bots, members]
  */
-Guild.prototype.fetchMemberStats = async function () {
-  const all = await this.members.fetch({
-    force: false,
-    cache: false,
-  })
+Guild.prototype.fetchMemberStats = async function (
+  this: Guild
+): Promise<number[]> {
+  const all = await this.members.fetch()
   const total = all.size
   const bots = all.filter(mem => mem.user.bot).size
   const members = total - bots

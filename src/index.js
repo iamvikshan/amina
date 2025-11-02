@@ -1,5 +1,4 @@
 // @root/src/index.js
-require('dotenv').config()
 require('module-alias/register')
 
 // register extenders

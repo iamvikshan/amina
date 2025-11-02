@@ -1,10 +1,11 @@
-const { LavalinkManager } = require('lavalink-client')
-const configModule = require('@src/config')
-const config = configModule.default || configModule
+import { LavalinkManager } from 'lavalink-client'
+import config from '@src/config'
+import type { BotClient } from '@src/structures'
+
 const { MUSIC } = config
 
-class Manager extends LavalinkManager {
-  constructor(client) {
+export default class Manager extends LavalinkManager {
+  constructor(client: BotClient) {
     super({
       nodes: MUSIC.LAVALINK_NODES,
       sendToShard: (guildId, payload) =>
@@ -14,7 +15,7 @@ class Manager extends LavalinkManager {
         maxPreviousTracks: 30,
       },
       playerOptions: {
-        defaultSearchPlatform: MUSIC.DEFAULT_SOURCE,
+        defaultSearchPlatform: MUSIC.DEFAULT_SOURCE as any,
         onDisconnect: {
           autoReconnect: true,
           destroyPlayer: false,
@@ -46,5 +47,3 @@ class Manager extends LavalinkManager {
     })
   }
 }
-
-module.exports = Manager

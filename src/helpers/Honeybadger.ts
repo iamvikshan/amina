@@ -98,4 +98,3 @@ const HoneybadgerWrapper = {
 }
 
 export default HoneybadgerWrapper
-

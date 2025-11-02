@@ -1,33 +1,36 @@
-const { ActivityType } = require('discord.js')
-const { getPresenceConfig } = require('@schemas/Dev')
+import { ActivityType } from 'discord.js'
+import { getPresenceConfig } from '@schemas/Dev'
+import type { BotClient } from '@src/structures'
 
 /**
- * @param {import('@src/structures').BotClient} client
+ * Updates the bot's presence/status
+ * @param client - The bot client instance
  */
-async function updatePresence(client) {
+async function updatePresence(client: BotClient): Promise<void> {
   const config = await getPresenceConfig()
 
   if (!config.PRESENCE.ENABLED) {
-    return client.user.setPresence({
+    client.user.setPresence({
       status: 'invisible',
       activities: [],
     })
+    return
   }
 
   let message = config.PRESENCE.MESSAGE
 
   if (message.includes('{servers}')) {
-    message = message.replaceAll('{servers}', client.guilds.cache.size)
+    message = message.replaceAll('{servers}', String(client.guilds.cache.size))
   }
 
   if (message.includes('{members}')) {
     const members = client.guilds.cache
       .map(g => g.memberCount)
       .reduce((partial_sum, a) => partial_sum + a, 0)
-    message = message.replaceAll('{members}', members)
+    message = message.replaceAll('{members}', String(members))
   }
 
-  const getType = type => {
+  const getType = (type: string): ActivityType => {
     switch (type) {
       case 'COMPETING':
         return ActivityType.Competing
@@ -46,7 +49,7 @@ async function updatePresence(client) {
     }
   }
 
-  const activity = {
+  const activity: any = {
     name: message,
     type: getType(config.PRESENCE.TYPE),
   }
@@ -62,7 +65,7 @@ async function updatePresence(client) {
   }
 
   await client.user.setPresence({
-    status: config.PRESENCE.STATUS,
+    status: config.PRESENCE.STATUS as any,
     activities: [activity],
   })
 
@@ -73,9 +76,10 @@ async function updatePresence(client) {
 }
 
 /**
- * @param {import('@src/structures').BotClient} client
+ * Initialize and handle bot presence updates
+ * @param client - The bot client instance
  */
-module.exports = async function handlePresence(client) {
+export default async function handlePresence(client: BotClient): Promise<void> {
   await updatePresence(client)
   setInterval(() => updatePresence(client), 10 * 60 * 1000)
 }

@@ -1,10 +1,12 @@
-const { getSettings } = require('@schemas/Guild')
+import { getSettings } from '@schemas/Guild'
+import type { BotClient } from '@src/structures'
+import type { Guild } from 'discord.js'
 
 /**
  * Updates the counter channel for all the guildId's present in the update queue
- * @param {import('@src/structures').BotClient} client
+ * @param client - The bot client instance
  */
-async function updateCounterChannels(client) {
+export async function updateCounterChannels(client: BotClient): Promise<void> {
   client.counterUpdateQueue.forEach(async guildId => {
     const guild = client.guilds.cache.get(guildId)
     if (!guild) return
@@ -31,7 +33,7 @@ async function updateCounterChannels(client) {
 
         if (vc.manageable)
           vc.setName(channelName).catch(err =>
-            vc.client.logger.log('Set Name error: ', err)
+            (vc.client as BotClient).logger.log('Set Name error: ', err)
           )
       }
     } catch (ex) {
@@ -49,24 +51,23 @@ async function updateCounterChannels(client) {
 
 /**
  * Initialize guild counters at startup
- * @param {import("discord.js").Guild} guild
- * @param {Object} settings
+ * @param guild - The guild to initialize counters for
+ * @param settings - The guild settings
  */
-async function init(guild, settings) {
+export async function init(guild: Guild, settings: any): Promise<boolean> {
   if (
-    settings.counters.find(doc =>
+    settings.counters.find((doc: any) =>
       ['MEMBERS', 'BOTS'].includes(doc.counter_type.toUpperCase())
     )
   ) {
-    const stats = await guild.fetchMemberStats()
+    const stats = await (guild as any).fetchMemberStats()
     settings.server.bots = stats[1] // update bot count in database
     await settings.save()
   }
 
   // schedule for update
-  if (!guild.client.counterUpdateQueue.includes(guild.id))
-    guild.client.counterUpdateQueue.push(guild.id)
+  const client = guild.client as BotClient
+  if (!client.counterUpdateQueue.includes(guild.id))
+    client.counterUpdateQueue.push(guild.id)
   return true
 }
-
-module.exports = { init, updateCounterChannels }
