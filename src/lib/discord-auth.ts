@@ -32,7 +32,11 @@ export interface TokenData {
 
 export class DiscordAuth {
   private config: DiscordAuthConfig;
-  private rateLimitMap = new Map<string, number>();
+  // Changed to per-user rate limiting: Map<userId, Map<endpoint, timestamp>>
+  private rateLimitMap = new Map<string, Map<string, number>>();
+  // Global rate limit tracking: stores timestamps of last 50 requests
+  private globalRequestTimestamps: number[] = [];
+  private readonly GLOBAL_RATE_LIMIT = 50; // Discord's global limit: 50 req/sec
 
   constructor() {
     try {
@@ -57,18 +61,70 @@ export class DiscordAuth {
   private async makeDiscordRequest(
     endpoint: string,
     options: RequestInit,
-    skipRateLimit = false
+    skipRateLimit = false,
+    userId: string = 'anonymous'
   ): Promise<Response> {
     if (!skipRateLimit) {
       const now = Date.now();
-      const lastRequest = this.rateLimitMap.get(endpoint) || 0;
+
+      // === Global Rate Limit Check ===
+      // Remove timestamps older than 1 second
+      this.globalRequestTimestamps = this.globalRequestTimestamps.filter(
+        (timestamp) => now - timestamp < 1000
+      );
+
+      // If we've made 50 requests in the last second, wait
+      if (this.globalRequestTimestamps.length >= this.GLOBAL_RATE_LIMIT) {
+        const oldestTimestamp = this.globalRequestTimestamps[0];
+        const waitTime = 1000 - (now - oldestTimestamp);
+        if (waitTime > 0) {
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
+        // Clean up again after waiting
+        this.globalRequestTimestamps = this.globalRequestTimestamps.filter(
+          (timestamp) => Date.now() - timestamp < 1000
+        );
+      }
+
+      // === Per-User Per-Endpoint Rate Limit Check ===
+      // Get or create user's rate limit map
+      let userRateLimits = this.rateLimitMap.get(userId);
+      if (!userRateLimits) {
+        userRateLimits = new Map<string, number>();
+        this.rateLimitMap.set(userId, userRateLimits);
+      }
+
+      const lastRequest = userRateLimits.get(endpoint) || 0;
       const timeGap = now - lastRequest;
 
       if (timeGap < 1000) {
         await new Promise((resolve) => setTimeout(resolve, 1000 - timeGap));
       }
 
-      this.rateLimitMap.set(endpoint, Date.now());
+      userRateLimits.set(endpoint, Date.now());
+
+      // Track this request in global timestamps
+      this.globalRequestTimestamps.push(Date.now());
+
+      // Clean up old entries to prevent memory leak
+      // Only clean when map gets large (> 50 users)
+      if (this.rateLimitMap.size > 50) {
+        const fiveMinutesAgo = now - 5 * 60 * 1000;
+
+        for (const [uid, endpoints] of this.rateLimitMap.entries()) {
+          // Clean old endpoints for each user
+          for (const [ep, timestamp] of endpoints.entries()) {
+            if (timestamp < fiveMinutesAgo) {
+              endpoints.delete(ep);
+            }
+          }
+
+          // Remove user entirely if no endpoints left
+          if (endpoints.size === 0) {
+            this.rateLimitMap.delete(uid);
+          }
+        }
+      }
     }
 
     const response = await fetch(`https://discord.com/api/v10/${endpoint}`, {
@@ -85,7 +141,7 @@ export class DiscordAuth {
       await new Promise((resolve) =>
         setTimeout(resolve, parseInt(retryAfter || '1') * 1000)
       );
-      return this.makeDiscordRequest(endpoint, options, true);
+      return this.makeDiscordRequest(endpoint, options, true, userId);
     }
 
     return response;
@@ -177,12 +233,20 @@ export class DiscordAuth {
     return response.json();
   }
 
-  public async getUserInfo(accessToken: string) {
-    const response = await this.makeDiscordRequest('users/@me', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+  public async getUserInfo(accessToken: string, userId?: string) {
+    // Use provided userId or hash of token as fallback
+    const rateLimitId = userId || `token_${accessToken.slice(-8)}`;
+
+    const response = await this.makeDiscordRequest(
+      'users/@me',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    });
+      false,
+      rateLimitId
+    );
 
     if (!response.ok) {
       throw new Error('Failed to fetch user info');
@@ -191,13 +255,24 @@ export class DiscordAuth {
     return response.json();
   }
 
-  public async validateToken(accessToken: string): Promise<boolean> {
+  public async validateToken(
+    accessToken: string,
+    userId?: string
+  ): Promise<boolean> {
     try {
-      const response = await this.makeDiscordRequest('oauth2/@me', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      // Use provided userId or hash of token as fallback
+      const rateLimitId = userId || `token_${accessToken.slice(-8)}`;
+
+      const response = await this.makeDiscordRequest(
+        'oauth2/@me',
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      });
+        false,
+        rateLimitId
+      );
 
       return response.ok;
     } catch (error) {

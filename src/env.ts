@@ -1,53 +1,48 @@
 // Environment variable validation and type safety
 // Usage: import { env } from '@/env'
 
-import { z } from 'astro/zod';
-
-const envSchema = z.object({
+// Direct access to environment variables with fallbacks
+export const env = {
   // Discord Configuration
-  CLIENT_ID: z.string().min(1, 'CLIENT_ID is required'),
-  CLIENT_SECRET: z.string().min(1, 'CLIENT_SECRET is required'),
+  CLIENT_ID: import.meta.env.CLIENT_ID || '',
+  CLIENT_SECRET: import.meta.env.CLIENT_SECRET || '',
+  BOT_TOKEN: import.meta.env.BOT_TOKEN || '',
 
   // Application URLs
-  BASE_URL: z
-    .string()
-    .default('http://localhost:4321')
-    .transform((val) => {
-      const isProduction = import.meta.env.PROD === true;
-      if (isProduction && (!val || val === 'http://localhost:4321')) {
-        throw new Error('BASE_URL must be set to your production domain');
-      }
-      return val;
-    }),
-  SUPPORT_SERVER: z.string().url().optional(),
+  BASE_URL: import.meta.env.BASE_URL || 'http://localhost:4321',
+  SUPPORT_SERVER: import.meta.env.SUPPORT_SERVER || '',
 
   // Database
-  MONGO_CONNECTION: z.string().min(1, 'MONGO_CONNECTION is required'),
+  MONGO_CONNECTION: import.meta.env.MONGO_CONNECTION || '',
 
   // Environment
-  NODE_ENV: z
-    .enum(['development', 'production', 'test'])
-    .default('development'),
-  PORT: z.string().regex(/^\d+$/).default('4321'),
-});
+  NODE_ENV:
+    (import.meta.env.NODE_ENV as 'development' | 'production' | 'test') ||
+    'development',
+  PORT: import.meta.env.PORT || '4321',
+  PROD: import.meta.env.PROD || false,
+} as const;
 
-// Parse and validate environment variables
-function validateEnv() {
-  try {
-    return envSchema.parse(import.meta.env);
-  } catch (error) {
-    console.error('❌ Environment validation failed:');
-    if (error instanceof z.ZodError) {
-      error.errors.forEach((err) => {
-        console.error(`  - ${err.path.join('.')}: ${err.message}`);
-      });
-    }
-    throw new Error('Invalid environment configuration');
+// Type for the environment variables
+export type Env = typeof env;
+
+// Helper to validate required env vars at runtime
+export function validateRequiredEnv(): void {
+  const required = [
+    'CLIENT_ID',
+    'CLIENT_SECRET',
+    'BOT_TOKEN',
+    'MONGO_CONNECTION',
+  ] as const;
+  const missing = required.filter((key) => !env[key]);
+
+  if (missing.length > 0) {
+    console.error(
+      '❌ Missing required environment variables:',
+      missing.join(', ')
+    );
+    throw new Error(
+      `Missing required environment variables: ${missing.join(', ')}`
+    );
   }
 }
-
-// Export validated environment variables
-export const env = validateEnv();
-
-// Type-safe environment variables
-export type Env = z.infer<typeof envSchema>;

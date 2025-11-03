@@ -7,13 +7,13 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "astro-build.astro-vscode",
-        "GitHub.copilot",
         "unifiedjs.vscode-mdx",
         "bradlc.vscode-tailwindcss",
         "esbenp.prettier-vscode",
         "eamodio.gitlens",
         "oven.bun-vscode",
-        "astro-build.astro-vscode"
+        "astro-build.astro-vscode",
+        "mongodb.mongodb-vscode"
       ]
     }
   },

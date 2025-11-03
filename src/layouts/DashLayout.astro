@@ -30,6 +30,12 @@ const { title = 'Dashboard - AMINA', description } = Astro.props;
         document.documentElement.classList.remove('dark');
       }
     </script>
+    <script>
+      // Initialize Alpine.js
+      import Alpine from 'alpinejs';
+      (window as any).Alpine = Alpine;
+      Alpine.start();
+    </script>
   </head>
   <body>
     <script>

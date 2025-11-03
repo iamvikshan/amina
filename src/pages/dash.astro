@@ -53,7 +53,12 @@ try {
 }
 
 // Create a Set of configured guild IDs for efficient lookup
-const configuredGuildIds = new Set(configuredGuilds.map((guild) => guild.id));
+// Only include guilds where the bot is currently present (leftAt is null/undefined)
+const configuredGuildIds = new Set(
+  configuredGuilds
+    .filter((guild) => !guild.server.leftAt)
+    .map((guild) => guild._id)
+);
 ---
 
 <DashLayout

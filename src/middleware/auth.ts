@@ -17,16 +17,18 @@ type RouteConfig = {
 };
 
 // Define your routes configuration
+// IMPORTANT: More specific paths must come BEFORE general ones
 const routes: RouteConfig[] = [
-  { path: '/', requiresAuth: false },
-  { path: '/auth', requiresAuth: false },
-  { path: '/api', requiresAuth: false },
-  // All dashboard routes require auth and should be dynamic
+  // Protected routes - check these first
   { path: '/dash', requiresAuth: true, forceDynamic: true },
-  { path: '/api/guild', requiresAuth: true, forceDynamic: true },
-  { path: '/api/user', requiresAuth: true, forceDynamic: true },
   { path: '/guild', requiresAuth: true, forceDynamic: true },
   { path: '/user', requiresAuth: true, forceDynamic: true },
+  { path: '/api/guild', requiresAuth: true, forceDynamic: true },
+  { path: '/api/user', requiresAuth: true, forceDynamic: true },
+  // Public routes
+  { path: '/auth', requiresAuth: false },
+  { path: '/api', requiresAuth: false },
+  { path: '/', requiresAuth: false },
 ];
 
 export const authGuard = defineMiddleware(
@@ -43,44 +45,40 @@ export const authGuard = defineMiddleware(
 
     // For routes requiring auth, ensure we're in a dynamic context
     if (matchingRoute.forceDynamic && !cookies.get) {
-      console.warn(
+      console.error(
         `Route ${url.pathname} requires dynamic rendering. Add 'export const prerender = false' to the page component.`
       );
       return redirect(authUrl);
     }
 
-    console.log('🛡️ Auth guard checking:', url.pathname);
-    const { accessToken, refreshToken } = getAuthCookies(cookies);
+    const { accessToken, refreshToken, userId } = getAuthCookies(cookies);
+
     // No tokens present - redirect to login
     if (!accessToken || !refreshToken) {
-      console.log('🚫 No tokens found, redirecting to login');
       return redirect(authUrl);
     }
 
     try {
-      console.log('🔄 Validating access token...');
-      const isValid = await discordAuth.validateToken(accessToken);
+      const isValid = await discordAuth.validateToken(accessToken, userId);
 
       if (!isValid) {
-        console.log('♻️ Token invalid, attempting refresh...');
         try {
           const newTokens = await discordAuth.refreshToken(refreshToken);
           const userData = await discordAuth.getUserInfo(
-            newTokens.access_token
+            newTokens.access_token,
+            userId
           );
           setAuthCookies(cookies, newTokens, userData);
-          console.log('✨ Tokens refreshed successfully');
         } catch (refreshError) {
-          console.error('❌ Token refresh failed:', refreshError);
+          console.error('Token refresh failed:', refreshError);
           clearAuthCookies(cookies);
           return redirect('/');
         }
       }
 
-      console.log('✅ Auth check passed');
       return next();
     } catch (error) {
-      console.error('💥 Auth error:', error);
+      console.error('Authentication error:', error);
       clearAuthCookies(cookies);
       return redirect('/');
     }
