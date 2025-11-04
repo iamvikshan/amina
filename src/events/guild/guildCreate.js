@@ -27,11 +27,11 @@ module.exports = async (client, guild) => {
     await guildSettings.save()
   }
 
-  // Notify dashboard via webhook
+  // Notify dashboard to refresh guild data
   if (process.env.BASE_URL && process.env.WEBHOOK_SECRET) {
     try {
       const response = await fetch(
-        `${process.env.BASE_URL}/api/guild-sync`,
+        `${process.env.BASE_URL}/api/guild/refresh`,
         {
           method: 'POST',
           headers: {
@@ -39,24 +39,22 @@ module.exports = async (client, guild) => {
             Authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
           },
           body: JSON.stringify({
-            event: 'guildCreate',
             guildId: guild.id,
-            timestamp: new Date().toISOString(),
           }),
         }
       )
 
       if (response.ok) {
-        console.log('✅ Dashboard notified of guild join')
+        console.log('✅ Dashboard cache refreshed for guild join')
       } else {
         console.error(
-          '⚠️ Dashboard webhook failed:',
+          '⚠️ Dashboard refresh failed:',
           response.status,
           await response.text()
         )
       }
     } catch (err) {
-      console.error('❌ Failed to notify dashboard of guild join:', err.message)
+      console.error('❌ Failed to refresh dashboard cache:', err.message)
     }
   }
 

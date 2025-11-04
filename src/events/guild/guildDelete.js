@@ -18,11 +18,11 @@ module.exports = async (client, guild) => {
   settings.server.leftAt = new Date()
   await settings.save()
 
-  // Notify dashboard via webhook
+  // Notify dashboard to refresh guild data
   if (process.env.BASE_URL && process.env.WEBHOOK_SECRET) {
     try {
       const response = await fetch(
-        `${process.env.BASE_URL}/api/guild-sync`,
+        `${process.env.BASE_URL}/api/guild/refresh`,
         {
           method: 'POST',
           headers: {
@@ -30,24 +30,22 @@ module.exports = async (client, guild) => {
             Authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
           },
           body: JSON.stringify({
-            event: 'guildDelete',
             guildId: guild.id,
-            timestamp: new Date().toISOString(),
           }),
         }
       )
 
       if (response.ok) {
-        console.log('✅ Dashboard notified of guild leave')
+        console.log('✅ Dashboard cache refreshed for guild leave')
       } else {
         console.error(
-          '⚠️ Dashboard webhook failed:',
+          '⚠️ Dashboard refresh failed:',
           response.status,
           await response.text()
         )
       }
     } catch (err) {
-      console.error('❌ Failed to notify dashboard of guild leave:', err.message)
+      console.error('❌ Failed to refresh dashboard cache:', err.message)
     }
   }
 
