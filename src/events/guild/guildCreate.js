@@ -27,6 +27,39 @@ module.exports = async (client, guild) => {
     await guildSettings.save()
   }
 
+  // Notify dashboard via webhook
+  if (process.env.BASE_URL && process.env.WEBHOOK_SECRET) {
+    try {
+      const response = await fetch(
+        `${process.env.BASE_URL}/api/guild-sync`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
+          },
+          body: JSON.stringify({
+            event: 'guildCreate',
+            guildId: guild.id,
+            timestamp: new Date().toISOString(),
+          }),
+        }
+      )
+
+      if (response.ok) {
+        console.log('✅ Dashboard notified of guild join')
+      } else {
+        console.error(
+          '⚠️ Dashboard webhook failed:',
+          response.status,
+          await response.text()
+        )
+      }
+    } catch (err) {
+      console.error('❌ Failed to notify dashboard of guild join:', err.message)
+    }
+  }
+
   // Check for existing invite link or create a new one
   let inviteLink = guildSettings.server.invite_link
   if (!inviteLink) {

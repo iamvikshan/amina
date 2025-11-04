@@ -18,6 +18,39 @@ module.exports = async (client, guild) => {
   settings.server.leftAt = new Date()
   await settings.save()
 
+  // Notify dashboard via webhook
+  if (process.env.BASE_URL && process.env.WEBHOOK_SECRET) {
+    try {
+      const response = await fetch(
+        `${process.env.BASE_URL}/api/guild-sync`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
+          },
+          body: JSON.stringify({
+            event: 'guildDelete',
+            guildId: guild.id,
+            timestamp: new Date().toISOString(),
+          }),
+        }
+      )
+
+      if (response.ok) {
+        console.log('✅ Dashboard notified of guild leave')
+      } else {
+        console.error(
+          '⚠️ Dashboard webhook failed:',
+          response.status,
+          await response.text()
+        )
+      }
+    } catch (err) {
+      console.error('❌ Failed to notify dashboard of guild leave:', err.message)
+    }
+  }
+
   let ownerTag = 'Deleted User'
   const ownerId = guild.ownerId || settings.server.owner
   let owner
