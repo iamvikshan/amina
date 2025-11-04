@@ -1,3 +1,13 @@
+# [v1.1.5](https://github.com/iamvikshan/amina/compare/v1.1.4...v1.1.5) (2025-11-04)
+
+
+
+## [1.1.5](https://github.com/iamvikshan/amina/compare/v1.1.4...v1.1.5) (2025-11-04)
+
+### Bug Fixes
+
+* Add Dashboard Webhook Sync for Real-Time Guild Updates ([#28](https://github.com/iamvikshan/amina/issues/28)) ([531d45a](https://github.com/iamvikshan/amina/commit/531d45ae84ac05bf713529c8af21bf6f4da719b8))
+
 # [v1.1.4](https://github.com/iamvikshan/amina/compare/v1.1.3...v1.1.4) (2025-11-02)
 
 
