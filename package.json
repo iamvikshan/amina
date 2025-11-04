@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@honeybadger-io/js": "^6.12.3",
-    "@octokit/rest": "^21.1.1",
+    "@octokit/rest": "^22.0.1",
     "@vitalets/google-translate-api": "^9.2.1",
     "axios": "^1.13.1",
     "btoa": "^1.2.1",
