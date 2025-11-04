@@ -19,8 +19,8 @@ module.exports = async (client, guild) => {
   settings.server.leftAt = new Date()
   await settings.save()
 
-  // Notify dashboard to refresh guild data
-  await notifyDashboard(client, guild.id, 'leave')
+  // Notify dashboard to refresh guild data (fire-and-forget)
+  notifyDashboard(client, guild.id, 'leave')
 
   let ownerTag = 'Deleted User'
   const ownerId = guild.ownerId || settings.server.owner
