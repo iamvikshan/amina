@@ -1,0 +1,1190 @@
+---
+export const prerender = false;
+
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@/components/ui/dashboard/Sidebar.astro';
+import type { SidebarSection } from '@/components/ui/dashboard/Sidebar.astro';
+import { GuildManager } from '@/lib/database/mongoose';
+import type { IGuild } from '@/lib/database/types/guild';
+import { getDiscordUserData } from '@/lib/data-utils';
+
+const { guildId } = Astro.params;
+
+if (!guildId) {
+  return Astro.redirect('/dash');
+}
+
+let guild: IGuild | null = null;
+let error: string | null = null;
+let userData = null;
+
+try {
+  // Get user data
+  userData = await getDiscordUserData(Astro.cookies);
+
+  // Fetch guild settings from database
+  const guildManager = await GuildManager.getInstance();
+  guild = await guildManager.getGuild(guildId);
+
+  if (!guild) {
+    error = 'Guild not found. Please add the bot to your server first.';
+  } else if (guild.server.leftAt) {
+    error =
+      'The bot has left this server. Please re-add it to manage settings.';
+  }
+} catch (err) {
+  console.error('Error loading guild dashboard:', err);
+  error = 'Failed to load guild settings. Please try again.';
+}
+
+// If there's an error, show error page
+if (error || !guild) {
+  return Astro.redirect(
+    `/dash?error=${encodeURIComponent(error || 'Unknown error')}`
+  );
+}
+
+const pageTitle = `${guild.server.name} - Dashboard`;
+
+// Get current path for active state
+const currentPath = Astro.url.pathname;
+
+// Define sidebar sections using Amina's battle terminology
+// Using anchor links to scroll to sections on the same page
+const sidebarSections: SidebarSection[] = [
+  {
+    title: '', // No category title for Overview
+    items: [
+      {
+        label: 'Overview',
+        onClick:
+          "document.getElementById('overview-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'home',
+      },
+    ],
+  },
+  {
+    title: 'Defense Protocols',
+    items: [
+      {
+        label: 'Auto-Moderation',
+        onClick:
+          "document.getElementById('moderation-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'shield',
+      },
+      {
+        label: 'Warning System',
+        onClick:
+          "document.getElementById('moderation-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'shield',
+      },
+    ],
+  },
+  {
+    title: 'Recruitment Station',
+    items: [
+      {
+        label: 'Welcome Messages',
+        onClick:
+          "document.getElementById('welcome-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'message',
+        badge: guild.welcome?.enabled ? 'Active' : undefined,
+        badgeVariant: 'success',
+      },
+      {
+        label: 'Farewell Messages',
+        onClick:
+          "document.getElementById('welcome-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'message',
+      },
+      {
+        label: 'Levels & XP',
+        onClick:
+          "document.getElementById('welcome-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'zap',
+        badge: guild.stats?.enabled ? 'Enabled' : undefined,
+        badgeVariant: 'success',
+      },
+    ],
+  },
+  {
+    title: 'Intelligence & Support',
+    items: [
+      {
+        label: 'Ticket System',
+        onClick:
+          "document.getElementById('intelligence-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'ticket',
+        badge: guild.ticket?.enabled ? 'Active' : undefined,
+        badgeVariant: 'success',
+      },
+      {
+        label: 'Logging Settings',
+        onClick:
+          "document.getElementById('intelligence-section').scrollIntoView({ behavior: 'smooth' })",
+        icon: 'log',
+        badge: guild.logs?.enabled ? 'Active' : undefined,
+        badgeVariant: 'success',
+      },
+    ],
+  },
+];
+---
+
+<Layout
+  title={pageTitle}
+  description={`Manage settings for ${guild.server.name}`}
+>
+  <!-- Load Alpine.js for interactive components -->
+  <script
+    is:inline
+    defer
+    src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <div class="flex min-h-screen bg-night-black">
+    <!-- Amina's Tactical Sidebar -->
+    <Sidebar
+      sections={sidebarSections}
+      header={{
+        title: guild.server.name,
+        subtitle: 'Battle Station',
+        backHref: '/dash',
+      }}
+      collapsible={true}
+      defaultCollapsed={false}
+    />
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto">
+      <!-- Page Header -->
+      <div class="border-b border-night-steel bg-night-shadow p-8">
+        <div class="mx-auto max-w-7xl">
+          <h1 class="font-heading text-3xl font-black uppercase text-white">
+            {guild.server.name}
+          </h1>
+          <p class="mt-2 text-gray-400">Command center for your server</p>
+        </div>
+      </div>
+
+      <!-- Content Sections -->
+      <div
+        class="mx-auto max-w-7xl px-8 py-8 space-y-12"
+        x-data="guildDashboard()"
+      >
+        <!-- Overview Section -->
+        <section id="overview-section">
+          <div class="space-y-8">
+            <h2
+              class="font-heading text-2xl font-bold uppercase text-amina-crimson"
+            >
+              Server Overview
+            </h2>
+
+            <div
+              class="rounded-xl border border-night-steel bg-night-shadow p-6 shadow-lg space-y-4"
+            >
+              <div class="grid grid-cols-2 gap-6">
+                <div>
+                  <p class="text-sm text-gray-400">Server Name</p>
+                  <p class="text-lg font-medium text-white">
+                    {guild.server.name}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Region</p>
+                  <p class="text-lg font-medium text-white">
+                    {guild.server.region}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Bot Deployed</p>
+                  <p class="text-lg font-medium text-white">
+                    {new Date(guild.server.joinedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Battle Ready</p>
+                  <p class="text-lg font-medium text-white">
+                    {
+                      guild.server.setup_completed ? (
+                        <span class="text-discord-green">✅ Operational</span>
+                      ) : (
+                        <span class="text-imperial-amber">
+                          ⚠️ Setup Required
+                        </span>
+                      )
+                    }
+                  </p>
+                </div>
+              </div>
+
+              {
+                !guild.server.setup_completed && (
+                  <div class="mt-6 rounded-lg border border-imperial-amber/50 bg-imperial-amber/10 p-4">
+                    <div class="flex gap-3">
+                      <span class="text-imperial-amber">⚠️</span>
+                      <div>
+                        <p class="font-medium text-imperial-amber">
+                          Setup Incomplete
+                        </p>
+                        <p class="mt-1 text-sm text-gray-300">
+                          Your server is not fully configured. Run{' '}
+                          <code class="rounded bg-night-steel px-2 py-1 font-mono text-cyber-blue">
+                            /settings
+                          </code>{' '}
+                          in Discord to complete setup and unlock all features.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Moderation Tab -->
+      </div>
+
+      <!-- Moderation Section -->
+      <section id="moderation-section">
+        <div class="space-y-8">
+          <h2
+            class="font-heading text-2xl font-bold uppercase text-amina-crimson"
+          >
+            Defense Protocols
+          </h2>
+
+          <!-- Automod Section -->
+          <div
+            class="rounded-xl border border-night-steel bg-night-shadow p-6 shadow-lg mb-6"
+          >
+            <h3
+              class="font-heading text-xl font-bold uppercase text-white mb-4"
+            >
+              Auto-Moderation
+            </h3>
+
+            <form
+              @submit.prevent="saveSettings('automod', { automod: guild.automod })"
+            >
+              <div class="space-y-6">
+                <!-- Strikes & Action -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                      Max Strikes
+                    </label>
+                    <input
+                      type="number"
+                      x-model="guild.automod.strikes"
+                      min="1"
+                      max="100"
+                      class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                      Action on Max Strikes
+                    </label>
+                    <select
+                      x-model="guild.automod.action"
+                      class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    >
+                      <option value="TIMEOUT">Timeout</option>
+                      <option value="KICK">Kick</option>
+                      <option value="BAN">Ban</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Toggle Options -->
+                <div class="space-y-4">
+                  <div
+                    class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                  >
+                    <div>
+                      <label class="text-sm font-medium text-white">
+                        Anti Ghost Ping
+                      </label>
+                      <p class="text-xs text-gray-400">
+                        Detect and log deleted messages that ping users
+                      </p>
+                    </div>
+                    <label
+                      class="relative inline-flex items-center cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        x-model="guild.automod.anti_ghostping"
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                      >
+                      </div>
+                    </label>
+                  </div>
+
+                  <div
+                    class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                  >
+                    <div>
+                      <label class="text-sm font-medium text-white">
+                        Anti Spam
+                      </label>
+                      <p class="text-xs text-gray-400">
+                        Detect and prevent message spam
+                      </p>
+                    </div>
+                    <label
+                      class="relative inline-flex items-center cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        x-model="guild.automod.anti_spam"
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                      >
+                      </div>
+                    </label>
+                  </div>
+
+                  <div
+                    class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                  >
+                    <div>
+                      <label class="text-sm font-medium text-white">
+                        Anti Invites
+                      </label>
+                      <p class="text-xs text-gray-400">
+                        Block Discord invite links
+                      </p>
+                    </div>
+                    <label
+                      class="relative inline-flex items-center cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        x-model="guild.automod.anti_invites"
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                      >
+                      </div>
+                    </label>
+                  </div>
+
+                  <div
+                    class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                  >
+                    <div>
+                      <label class="text-sm font-medium text-white">
+                        Anti Links
+                      </label>
+                      <p class="text-xs text-gray-400">Block external links</p>
+                    </div>
+                    <label
+                      class="relative inline-flex items-center cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        x-model="guild.automod.anti_links"
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                      >
+                      </div>
+                    </label>
+                  </div>
+
+                  <div
+                    class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                  >
+                    <div>
+                      <label class="text-sm font-medium text-white">
+                        Anti Attachments
+                      </label>
+                      <p class="text-xs text-gray-400">
+                        Block file attachments
+                      </p>
+                    </div>
+                    <label
+                      class="relative inline-flex items-center cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        x-model="guild.automod.anti_attachments"
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                      >
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Mass Mention Limit -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Mass Mention Limit
+                  </label>
+                  <input
+                    type="number"
+                    x-model="guild.automod.anti_massmention"
+                    min="0"
+                    max="50"
+                    class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    placeholder="0 = disabled"
+                  />
+                  <p class="text-xs text-gray-400 mt-1">
+                    Maximum number of mentions allowed per message
+                  </p>
+                </div>
+
+                <!-- Save Button -->
+                <div class="flex justify-end pt-4 border-t border-night-steel">
+                  <button
+                    type="submit"
+                    class="px-6 py-2 bg-discord-blurple hover:bg-discord-blurple/80 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    :disabled="saving"
+                  >
+                    <span x-show="!saving">Save Changes</span>
+                    <span x-show="saving">Saving...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Warning System Section -->
+          <div
+            class="rounded-xl border border-night-steel bg-night-shadow p-8 shadow-lg"
+          >
+            <h3
+              class="font-heading text-xl font-bold uppercase text-white mb-6"
+            >
+              Warning System
+            </h3>
+
+            <form
+              @submit.prevent="saveSettings('warnings', { max_warn: guild.max_warn })"
+            >
+              <div class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                      Max Warnings
+                    </label>
+                    <input
+                      type="number"
+                      x-model="guild.max_warn.limit"
+                      min="1"
+                      max="50"
+                      class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                      Action on Max Warnings
+                    </label>
+                    <select
+                      x-model="guild.max_warn.action"
+                      class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    >
+                      <option value="TIMEOUT">Timeout</option>
+                      <option value="KICK">Kick</option>
+                      <option value="BAN">Ban</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="flex justify-end pt-4 border-t border-night-steel">
+                  <button
+                    type="submit"
+                    class="px-6 py-2 bg-discord-blurple hover:bg-discord-blurple/80 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    :disabled="saving"
+                  >
+                    <span x-show="!saving">Save Changes</span>
+                    <span x-show="saving">Saving...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Welcome Section -->
+      <section id="welcome-section">
+        <div class="space-y-8">
+          <h2
+            class="font-heading text-2xl font-bold uppercase text-amina-crimson"
+          >
+            Recruitment Station
+          </h2>
+
+          <!-- Welcome Messages Card -->
+          <div
+            class="rounded-xl border border-night-steel bg-night-shadow p-8 shadow-lg"
+          >
+            <h3
+              class="font-heading text-xl font-bold uppercase text-white mb-6"
+            >
+              Welcome Messages
+            </h3>
+            <form
+              @submit.prevent="saveSettings('welcome', { welcome: guild.welcome })"
+            >
+              <div class="space-y-6">
+                <div
+                  class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                >
+                  <div>
+                    <label class="text-sm font-medium text-white">
+                      Enable Welcome Messages
+                    </label>
+                    <p class="text-xs text-gray-400">
+                      Automatically greet new members when they join
+                    </p>
+                  </div>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      x-model="guild.welcome.enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                    >
+                    </div>
+                  </label>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Welcome Message
+                  </label>
+                  <textarea
+                    x-model="guild.welcome.content"
+                    rows="3"
+                    class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    placeholder="Welcome {member:mention} to {server}!"
+                  ></textarea>
+                  <p class="text-xs text-gray-400 mt-1">
+                    Variables: &#123;member:mention&#125;,
+                    &#123;member:tag&#125;, &#123;server&#125;,
+                    &#123;count&#125;
+                  </p>
+                </div>
+                <div class="flex justify-end pt-4 border-t border-night-steel">
+                  <button
+                    type="submit"
+                    class="px-6 py-2 bg-discord-blurple hover:bg-discord-blurple/80 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
+                    :disabled="saving"
+                  >
+                    <span x-show="!saving">Save Changes</span>
+                    <span x-show="saving">Saving...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Farewell Messages Card -->
+          <div
+            class="rounded-xl border border-night-steel bg-night-shadow p-8 shadow-lg"
+          >
+            <h3
+              class="font-heading text-xl font-bold uppercase text-white mb-6"
+            >
+              Farewell Messages
+            </h3>
+            <form
+              @submit.prevent="saveSettings('farewell', { farewell: guild.farewell })"
+            >
+              <div class="space-y-6">
+                <div
+                  class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                >
+                  <div>
+                    <label class="text-sm font-medium text-white">
+                      Enable Farewell Messages
+                    </label>
+                    <p class="text-xs text-gray-400">
+                      Send goodbye messages when members leave
+                    </p>
+                  </div>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      x-model="guild.farewell.enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                    >
+                    </div>
+                  </label>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Farewell Message
+                  </label>
+                  <textarea
+                    x-model="guild.farewell.content"
+                    rows="3"
+                    class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    placeholder="Goodbye {member:tag}! 👋"></textarea>
+                  <p class="text-xs text-gray-400 mt-1">
+                    Variables: &#123;member:mention&#125;,
+                    &#123;member:tag&#125;, &#123;server&#125;
+                  </p>
+                </div>
+                <div class="flex justify-end pt-4 border-t border-night-steel">
+                  <button
+                    type="submit"
+                    class="px-6 py-2 bg-discord-blurple hover:bg-discord-blurple/80 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
+                    :disabled="saving"
+                  >
+                    <span x-show="!saving">Save Changes</span>
+                    <span x-show="saving">Saving...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Levels & XP Card -->
+          <div
+            class="rounded-xl border border-night-steel bg-night-shadow p-8 shadow-lg"
+          >
+            <h3
+              class="font-heading text-xl font-bold uppercase text-white mb-6"
+            >
+              Levels & XP System
+            </h3>
+            <form
+              @submit.prevent="saveSettings('stats', { stats: guild.stats })"
+            >
+              <div class="space-y-6">
+                <div
+                  class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                >
+                  <div>
+                    <label class="text-sm font-medium text-white">
+                      Enable XP System
+                    </label>
+                    <p class="text-xs text-gray-400">
+                      Award XP to members for sending messages
+                    </p>
+                  </div>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      x-model="guild.stats.enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                    >
+                    </div>
+                  </label>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Level-Up Message
+                  </label>
+                  <textarea
+                    x-model="guild.stats.xp.message"
+                    rows="3"
+                    class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                    placeholder="{member:tag}, Yay! 🎉 You just leveled up to Level {level}! 🌟"
+                  ></textarea>
+                  <p class="text-xs text-gray-400 mt-1">
+                    Variables: &#123;member:tag&#125;,
+                    &#123;member:mention&#125;, &#123;level&#125;
+                  </p>
+                </div>
+                <div class="flex justify-end pt-4 border-t border-night-steel">
+                  <button
+                    type="submit"
+                    class="px-6 py-2 bg-discord-blurple hover:bg-discord-blurple/80 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
+                    :disabled="saving"
+                  >
+                    <span x-show="!saving">Save Changes</span>
+                    <span x-show="saving">Saving...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Intelligence & Support Section -->
+      <section id="intelligence-section">
+        <div class="space-y-8">
+          <h2
+            class="font-heading text-2xl font-bold uppercase text-amina-crimson"
+          >
+            Intelligence & Support
+          </h2>
+
+          <!-- Ticket System Card -->
+          <div
+            class="rounded-xl border border-night-steel bg-night-shadow p-8 shadow-lg"
+          >
+            <h3
+              class="font-heading text-xl font-bold uppercase text-white mb-6"
+            >
+              Ticket System
+            </h3>
+            <form
+              @submit.prevent="saveSettings('ticket', { ticket: guild.ticket })"
+            >
+              <div class="space-y-6">
+                <div
+                  class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                >
+                  <div>
+                    <label class="text-sm font-medium text-white">
+                      Enable Ticket System
+                    </label>
+                    <p class="text-xs text-gray-400">
+                      Allow members to create support tickets
+                    </p>
+                  </div>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      x-model="guild.ticket.enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                    >
+                    </div>
+                  </label>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    Maximum Tickets per User
+                  </label>
+                  <input
+                    type="number"
+                    x-model="guild.ticket.limit"
+                    min="1"
+                    max="25"
+                    class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
+                  />
+                </div>
+                <div class="flex justify-end pt-4 border-t border-night-steel">
+                  <button
+                    type="submit"
+                    class="px-6 py-2 bg-discord-blurple hover:bg-discord-blurple/80 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
+                    :disabled="saving"
+                  >
+                    <span x-show="!saving">Save Changes</span>
+                    <span x-show="saving">Saving...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Logging Settings Card -->
+          <div
+            class="rounded-xl border border-night-steel bg-night-shadow p-8 shadow-lg"
+          >
+            <h3
+              class="font-heading text-xl font-bold uppercase text-white mb-6"
+            >
+              Logging Settings
+            </h3>
+            <form
+              @submit.prevent="saveSettings('logging', { logs: guild.logs })"
+            >
+              <div class="space-y-6">
+                <!-- Enable Logging -->
+                <div
+                  class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                >
+                  <div>
+                    <label class="text-sm font-medium text-white">
+                      Enable Logging
+                    </label>
+                    <p class="text-xs text-gray-400">
+                      Master switch for all logging features
+                    </p>
+                  </div>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      x-model="guild.logs.enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                    >
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Member Events -->
+                <div>
+                  <h4
+                    class="font-medium text-gray-300 mb-3 text-sm uppercase tracking-wide"
+                  >
+                    Member Events
+                  </h4>
+                  <div class="space-y-3">
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Message Edits
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when messages are edited
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.member.message_edit"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Message Deletions
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when messages are deleted
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.member.message_delete"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Role Changes
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when member roles are updated
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.member.role_changes"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Channel Events -->
+                <div>
+                  <h4
+                    class="font-medium text-gray-300 mb-3 text-sm uppercase tracking-wide"
+                  >
+                    Channel Events
+                  </h4>
+                  <div class="space-y-3">
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Channel Created
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when channels are created
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.channel.create"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Channel Edited
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when channels are modified
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.channel.edit"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Channel Deleted
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when channels are deleted
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.channel.delete"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Role Events -->
+                <div>
+                  <h4
+                    class="font-medium text-gray-300 mb-3 text-sm uppercase tracking-wide"
+                  >
+                    Role Events
+                  </h4>
+                  <div class="space-y-3">
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Role Created
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when roles are created
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.role.create"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Role Edited
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when roles are modified
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.role.edit"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                    <div
+                      class="flex items-center justify-between p-4 rounded-lg border border-night-steel hover:border-cyber-blue transition-colors"
+                    >
+                      <div>
+                        <label class="text-sm font-medium text-white">
+                          Role Deleted
+                        </label>
+                        <p class="text-xs text-gray-400">
+                          Log when roles are deleted
+                        </p>
+                      </div>
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          x-model="guild.logs.role.delete"
+                          class="sr-only peer"
+                        />
+                        <div
+                          class="w-11 h-6 bg-night-steel peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amina-crimson/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amina-crimson peer-checked:shadow-glow-crimson"
+                        >
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="flex justify-end pt-4 border-t border-night-steel">
+                  <button
+                    type="submit"
+                    class="px-6 py-2 bg-discord-blurple hover:bg-discord-blurple-dark text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="saving"
+                  >
+                    <span x-show="!saving">Save Changes</span>
+                    <span x-show="saving">Saving...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ guildData: guild }}>
+  function guildDashboard() {
+    return {
+      guild: guildData,
+      saving: false,
+      hasUnsavedChanges: false,
+
+      async saveSettings(section, data) {
+        this.saving = true;
+        try {
+          const response = await fetch(
+            `/api/guild/${this.guild._id}/${section}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('Failed to save settings');
+          }
+
+          const result = await response.json();
+          this.guild = result.guild;
+          this.hasUnsavedChanges = false;
+
+          // Show success notification
+          this.showNotification('Settings saved successfully!', 'success');
+        } catch (error) {
+          console.error('Save error:', error);
+          this.showNotification(
+            'Failed to save settings. Please try again.',
+            'error'
+          );
+        } finally {
+          this.saving = false;
+        }
+      },
+
+      showNotification(message, type) {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transition-all duration-300 ${
+          type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => {
+          toast.style.transform = 'translateY(0)';
+          toast.style.opacity = '1';
+        }, 10);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(-20px)';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      },
+    };
+  }
+</script>

@@ -1,9 +1,17 @@
 ---
+/**
+ * Main Layout - Minimal SEO Wrapper
+ * ==================================
+ * Simplified layout that only handles SEO, metadata, and basic HTML structure.
+ * Pages are responsible for composing their own Header and Footer components.
+ *
+ * This follows the pixels architecture pattern for cleaner component composition.
+ */
+
 // Importing necessary components
 import Meta from '@components/Meta.astro';
-import Navbar from '@components/sections/navbar&footer/Navbar.astro';
-import FooterSection from '@components/sections/navbar&footer/FooterSection.astro';
 import { SITE } from '@data/constants';
+import '@/assets/styles/global.css';
 
 // Setting expected props
 const { title = SITE.title, meta, structuredData, lang = 'en' } = Astro.props;
@@ -11,6 +19,7 @@ const { title = SITE.title, meta, structuredData, lang = 'en' } = Astro.props;
 // Interface to type-check the properties
 interface Props {
   title?: string;
+  description?: string;
   meta?: string;
   structuredData?: object;
   lang?: string;
@@ -21,7 +30,7 @@ interface Props {
 This is the main structure for the page.
 We set the language of the page to English and add classes for scrollbar and scroll behavior.
 -->
-<html lang={lang} class='scrollbar-hide lenis lenis-smooth scroll-pt-16'>
+<html lang={lang} class="scrollbar-hide lenis lenis-smooth scroll-pt-16">
   <head>
     <!-- Adding metadata to the HTML document -->
     <Meta meta={meta} structuredData={structuredData} />
@@ -41,7 +50,7 @@ We set the language of the page to English and add classes for scrollbar and scr
     </script>
   </head>
   <body
-    class='bg-sky-50 selection:bg-cyan-400 selection:text-neutral-700 dark:bg-slate-900'
+    class="bg-sky-50 selection:bg-amina-crimson selection:text-white dark:bg-night-black"
   >
     <script>
       // Lazy load Lenis smooth scroll after page interaction
@@ -50,16 +59,11 @@ We set the language of the page to English and add classes for scrollbar and scr
       }
     </script>
     <!--
-    Setting up the main structure of the page.
-    The Navbar is placed at the top, with a slot for the main content and FooterSection at the bottom.
+    Minimal page structure - just the slot for content.
+    Pages are responsible for including Header and Footer components themselves.
+    This allows for maximum flexibility and cleaner composition.
     -->
-    <div class='mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
-      <Navbar />
-      <main>
-        <slot />
-      </main>
-    </div>
-    <FooterSection />
+    <slot />
     <style>
       /* CSS rules for the page scrollbar */
       .scrollbar-hide::-webkit-scrollbar {

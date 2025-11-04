@@ -45,16 +45,6 @@ const footerLinks = [
   },
 ];
 
-const dashNavBarLinks = [
-  { name: 'Home', url: '/' },
-  { name: 'Dashboard', url: '/dash' },
-  {
-    name: 'Docs',
-    url: 'https://docs.vikshan.me',
-    rel: 'noopener noreferrer',
-    target: '_blank',
-  },
-];
 // An object of links for social icons
 const socialLinks = {
   discord: 'https://discord.com/oauth2/authorize?client_id=1035629678632915055',
@@ -63,4 +53,4 @@ const socialLinks = {
   youtube: 'https://youtube.com/@vikshan',
 };
 
-export default { navBarLinks, footerLinks, socialLinks, dashNavBarLinks };
+export default { navBarLinks, footerLinks, socialLinks };

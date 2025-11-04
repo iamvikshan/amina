@@ -35,3 +35,7 @@ astro/.env.production
 .DS_Store
 bun.lock
 dist
+AMINA_STORY.md
+BOT_WEBHOOK_INTEGRATION.md
+DESIGN_SYSTEM.md
+PHASE_2_PROGRESS.md

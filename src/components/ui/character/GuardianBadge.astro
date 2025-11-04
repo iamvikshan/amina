@@ -1,0 +1,69 @@
+---
+// Guardian Rank Badge Component
+import type { GuardianRank } from '@/lib/guardian-ranks';
+
+interface Props {
+  rank: GuardianRank;
+  showProgress?: boolean;
+  progress?: number;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}
+
+const {
+  rank,
+  showProgress = false,
+  progress = 0,
+  size = 'md',
+  className = '',
+} = Astro.props;
+
+const sizeClasses = {
+  sm: 'text-xs px-2 py-1',
+  md: 'text-sm px-3 py-1.5',
+  lg: 'text-base px-4 py-2',
+};
+---
+
+<div class={`inline-flex flex-col gap-2 ${className}`}>
+  <div
+    class={`inline-flex items-center gap-2 rounded-xl border-2 ${rank.color} border-current bg-night-shadow/50 backdrop-blur-sm ${sizeClasses[size]} font-heading font-bold shadow-lg`}
+  >
+    <span class="opacity-90">{rank.badgeSymbol}</span>
+    <span class="uppercase tracking-wider">{rank.name}</span>
+    <span class="opacity-60 text-xs">Lv.{rank.level}</span>
+  </div>
+
+  {
+    showProgress && rank.maxServers !== Infinity && (
+      <div class="flex items-center gap-2 text-xs">
+        <div class="flex-1 h-1.5 bg-night-steel rounded-full overflow-hidden">
+          <div
+            class={`h-full ${rank.color.replace('text-', 'bg-')} transition-all duration-500 shadow-glow-crimson`}
+            style={`width: ${progress}%`}
+          />
+        </div>
+        <span class="text-gray-400 font-mono">{progress}%</span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  /* Subtle glow animation for the badge */
+  [class*='rounded-xl'] {
+    animation: badge-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes badge-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 10px currentColor;
+    }
+    50% {
+      box-shadow:
+        0 0 20px currentColor,
+        0 0 30px currentColor;
+    }
+  }
+</style>

@@ -23,6 +23,8 @@ const routes: RouteConfig[] = [
   { path: '/dash', requiresAuth: true, forceDynamic: true },
   { path: '/guild', requiresAuth: true, forceDynamic: true },
   { path: '/user', requiresAuth: true, forceDynamic: true },
+  // Webhook endpoint - MUST come before /api/guild (handles its own Bearer token auth)
+  { path: '/api/guild/refresh', requiresAuth: false }, // Supports both webhook and manual refresh
   { path: '/api/guild', requiresAuth: true, forceDynamic: true },
   { path: '/api/user', requiresAuth: true, forceDynamic: true },
   // Public routes

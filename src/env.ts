@@ -15,6 +15,9 @@ export const env = {
   // Database
   MONGO_CONNECTION: import.meta.env.MONGO_CONNECTION || '',
 
+  // Webhook Security
+  WEBHOOK_SECRET: import.meta.env.WEBHOOK_SECRET || '',
+
   // Environment
   NODE_ENV:
     (import.meta.env.NODE_ENV as 'development' | 'production' | 'test') ||
