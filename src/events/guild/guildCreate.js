@@ -28,8 +28,8 @@ module.exports = async (client, guild) => {
     await guildSettings.save()
   }
 
-  // Notify dashboard to refresh guild data
-  await notifyDashboard(client, guild.id, 'join')
+  // Notify dashboard to refresh guild data (fire-and-forget)
+  notifyDashboard(client, guild.id, 'join')
 
   // Check for existing invite link or create a new one
   let inviteLink = guildSettings.server.invite_link
