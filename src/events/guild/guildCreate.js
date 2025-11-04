@@ -8,6 +8,7 @@ const {
   ChannelType,
 } = require('discord.js')
 const { EMBED_COLORS } = require('@src/config')
+const { notifyDashboard } = require('@helpers/webhook')
 
 /**
  * @param {import('@src/structures').BotClient} client
@@ -28,35 +29,7 @@ module.exports = async (client, guild) => {
   }
 
   // Notify dashboard to refresh guild data
-  if (process.env.BASE_URL && process.env.WEBHOOK_SECRET) {
-    try {
-      const response = await fetch(
-        `${process.env.BASE_URL}/api/guild/refresh`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
-          },
-          body: JSON.stringify({
-            guildId: guild.id,
-          }),
-        }
-      )
-
-      if (response.ok) {
-        console.log('✅ Dashboard cache refreshed for guild join')
-      } else {
-        console.error(
-          '⚠️ Dashboard refresh failed:',
-          response.status,
-          await response.text()
-        )
-      }
-    } catch (err) {
-      console.error('❌ Failed to refresh dashboard cache:', err.message)
-    }
-  }
+  await notifyDashboard(client, guild.id, 'join')
 
   // Check for existing invite link or create a new one
   let inviteLink = guildSettings.server.invite_link
