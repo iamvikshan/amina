@@ -8,6 +8,7 @@ const {
   ChannelType,
 } = require('discord.js')
 const { EMBED_COLORS } = require('@src/config')
+const { notifyDashboard } = require('@helpers/webhook')
 
 /**
  * @param {import('@src/structures').BotClient} client
@@ -26,6 +27,9 @@ module.exports = async (client, guild) => {
     guildSettings.server.owner_id = guild.ownerId
     await guildSettings.save()
   }
+
+  // Notify dashboard to refresh guild data (fire-and-forget)
+  notifyDashboard(client, guild.id, 'join')
 
   // Check for existing invite link or create a new one
   let inviteLink = guildSettings.server.invite_link

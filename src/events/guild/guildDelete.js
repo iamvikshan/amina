@@ -5,18 +5,22 @@ const {
   ButtonStyle,
 } = require('discord.js')
 const { getSettings } = require('@schemas/Guild')
+const { notifyDashboard } = require('@helpers/webhook')
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 module.exports = async (client, guild) => {
   if (!guild.available) return
-  console.log(
+  client.logger.log(
     `Guild Left: ${guild.name} (${guild.id}) Members: ${guild.memberCount}`
   )
 
   const settings = await getSettings(guild)
   settings.server.leftAt = new Date()
   await settings.save()
+
+  // Notify dashboard to refresh guild data (fire-and-forget)
+  notifyDashboard(client, guild.id, 'leave')
 
   let ownerTag = 'Deleted User'
   const ownerId = guild.ownerId || settings.server.owner
@@ -25,9 +29,9 @@ module.exports = async (client, guild) => {
   try {
     owner = await client.users.fetch(ownerId)
     ownerTag = owner.tag
-    console.log(`Fetched owner: ${ownerTag}`)
+    client.logger.log(`Fetched owner: ${ownerTag}`)
   } catch (err) {
-    console.error(`Failed to fetch owner: ${err.message}`)
+    client.logger.error(`Failed to fetch owner: ${err.message}`)
   }
 
   // Create the embed for webhook
@@ -69,12 +73,12 @@ module.exports = async (client, guild) => {
         avatarURL: client.user.displayAvatarURL(),
         embeds: [webhookEmbed],
       })
-      console.log('Successfully sent webhook message for guild leave event.')
+      client.logger.success('Successfully sent webhook message for guild leave event.')
     } catch (err) {
-      console.error(`Failed to send webhook message: ${err.message}`)
+      client.logger.error(`Failed to send webhook message: ${err.message}`)
     }
   } else {
-    console.log('Join/Leave webhook is not configured.')
+    client.logger.warn('Join/Leave webhook is not configured.')
   }
 
   // Attempt to send DM to owner
@@ -119,24 +123,24 @@ module.exports = async (client, guild) => {
 
     try {
       await wait(1000)
-      console.log(`Attempting to send DM to owner: ${ownerId}`)
+      client.logger.log(`Attempting to send DM to owner: ${ownerId}`)
 
       await owner.send({
         embeds: [dmEmbed],
         components: [row],
       })
 
-      console.log('Successfully sent goodbye DM to the server owner.')
+      client.logger.success('Successfully sent goodbye DM to the server owner.')
     } catch (err) {
-      console.error(`Error sending DM: ${err.message}`)
+      client.logger.error(`Error sending DM: ${err.message}`)
       if (err.code === 50007) {
-        console.error(
+        client.logger.error(
           'Cannot send messages to this user. They may have DMs disabled or blocked the bot.'
         )
       }
     }
   } else {
-    console.log(
+    client.logger.warn(
       'Unable to send DM to owner as owner information is not available.'
     )
   }
