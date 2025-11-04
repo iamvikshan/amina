@@ -6,7 +6,7 @@
  * @returns {Promise<void>}
  */
 async function notifyDashboard(client, guildId, eventType = 'refresh') {
-  if (!process.env.BASE_URL || !process.env.WEBHOOK_SECRET) {
+  if (!process.env.BASE_URL?.trim() || !process.env.WEBHOOK_SECRET?.trim()) {
     return
   }
 
