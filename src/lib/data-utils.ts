@@ -80,6 +80,7 @@ async function fetchWithRetry<T>(
   maxRetries = 3
 ): Promise<T> {
   let attempts = 0;
+  let lastError: Error | null = null;
 
   while (attempts < maxRetries) {
     try {
@@ -87,23 +88,38 @@ async function fetchWithRetry<T>(
       return await handleDiscordResponse<T>(response);
     } catch (error) {
       attempts++;
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      console.error(
+        `[fetchWithRetry] Attempt ${attempts}/${maxRetries} failed for ${url}:`,
+        lastError.message
+      );
 
       if (error instanceof Error && error.message === 'RATE_LIMITED') {
+        console.warn(`[fetchWithRetry] Rate limited, retrying...`);
         continue; // Retry after waiting
       }
 
       if (attempts === maxRetries) {
-        throw error;
+        console.error(
+          `[fetchWithRetry] Max retries exceeded for ${url}. Last error:`,
+          lastError.message
+        );
+        throw lastError;
       }
 
       // Wait before retrying (exponential backoff)
-      await new Promise((resolve) =>
-        setTimeout(resolve, Math.pow(2, attempts) * 1000)
+      const waitTime = Math.pow(2, attempts) * 1000;
+      console.log(
+        `[fetchWithRetry] Waiting ${waitTime}ms before retry ${attempts + 1}...`
       );
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
   }
 
-  throw new Error('Max retries exceeded');
+  throw new Error(
+    `Max retries exceeded for ${url}. Last error: ${lastError?.message || 'Unknown'}`
+  );
 }
 
 export async function getDiscordUserData(
@@ -112,12 +128,16 @@ export async function getDiscordUserData(
   const { accessToken, userData } = getAuthCookies(cookies);
 
   if (userData) {
+    console.log('[getDiscordUserData] Using cached user data from cookies');
     return userData;
   }
 
   if (!accessToken) {
+    console.error('[getDiscordUserData] No access token found');
     throw new Error('No access token found');
   }
+
+  console.log('[getDiscordUserData] Fetching user data from Discord API');
 
   const options = {
     headers: {
@@ -138,14 +158,23 @@ export async function getDiscordGuilds(
   const { accessToken } = getAuthCookies(cookies);
 
   if (!accessToken) {
+    console.error('[getDiscordGuilds] No access token found');
     throw new Error('No access token found');
   }
 
   // Check cache first
   const cached = guildsCache.get(accessToken);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    const age = Math.round((Date.now() - cached.timestamp) / 1000);
+    console.log(
+      `[getDiscordGuilds] Using cached guilds (age: ${age}s, TTL: 300s)`
+    );
     return cached.data;
   }
+
+  console.log(
+    '[getDiscordGuilds] Cache miss or expired, fetching from Discord API'
+  );
 
   const options = {
     headers: {

@@ -13,7 +13,8 @@
         "eamodio.gitlens",
         "oven.bun-vscode",
         "astro-build.astro-vscode",
-        "mongodb.mongodb-vscode"
+        "mongodb.mongodb-vscode",
+        "jock.svg"
       ]
     }
   },

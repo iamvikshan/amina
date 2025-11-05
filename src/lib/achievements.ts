@@ -25,70 +25,113 @@ export function checkAchievements(
   userData: any
 ): Achievement[] {
   const achievements: Achievement[] = [
+    // Core Deployment Achievements
     {
-      id: 'first_mission',
-      name: 'First Mission',
-      description: 'Added Amina to your first server',
-      icon: '[>]',
-      rarity: 'common',
-      unlocked: serverCount >= 1,
-    },
-    {
-      id: 'night_guard_initiate',
-      name: 'Night Guard Initiate',
-      description: 'Completed full server setup',
-      icon: '[*]',
+      id: 'first_watch',
+      name: 'First Watch',
+      description:
+        'Deployed Amina to your first realm. The Night Guard Protocol begins!',
+      icon: '[>_]',
       rarity: 'common',
       unlocked: configuredCount >= 1,
     },
     {
-      id: 'squad_builder',
-      name: 'Squad Builder',
-      description: 'Manage 3 servers simultaneously',
-      icon: '[**]',
-      rarity: 'rare',
-      unlocked: serverCount >= 3,
-    },
-    {
-      id: 'community_guardian',
-      name: 'Community Guardian',
-      description: 'Protect 5 realms at once',
-      icon: '[***]',
-      rarity: 'rare',
-      unlocked: serverCount >= 5,
-    },
-    {
-      id: 'empire_defender',
-      name: 'Empire Defender',
-      description: 'Command 10+ realms',
-      icon: '[****]',
-      rarity: 'epic',
-      unlocked: serverCount >= 10,
-    },
-    {
-      id: 'legend_status',
-      name: 'Legend of the Digital Empire',
-      description: 'Manage 20+ servers',
-      icon: '[*****]',
-      rarity: 'legendary',
-      unlocked: serverCount >= 20,
-    },
-    {
-      id: 'early_riser',
-      name: 'Early Riser',
-      description: 'Logged in before 6 AM',
-      icon: '(^_^)',
+      id: 'squad_leader',
+      name: 'Squad Leader',
+      description:
+        'Protecting multiple realms now. Your command expands! (•̀ᴗ•́)و',
+      icon: '[>>_]',
       rarity: 'common',
+      unlocked: configuredCount >= 2,
+    },
+    {
+      id: 'network_guardian',
+      name: 'Network Guardian',
+      description:
+        'Five realms under protection. Your influence grows across the network.',
+      icon: '[*_*]',
+      rarity: 'rare',
+      unlocked: configuredCount >= 5,
+    },
+    {
+      id: 'empire_shield',
+      name: "Empire's Shield",
+      description:
+        "Ten realms defended. You're becoming a true guardian commander.",
+      icon: '[**_]',
+      rarity: 'rare',
+      unlocked: configuredCount >= 10,
+    },
+    {
+      id: 'realm_master',
+      name: 'Realm Master',
+      description:
+        'Fifteen realms bow to your guardianship. A master of protection.',
+      icon: '[***]',
+      rarity: 'epic',
+      unlocked: configuredCount >= 15,
+    },
+    {
+      id: 'living_legend',
+      name: 'Living Legend',
+      description:
+        'Twenty realms and beyond. Legends are written about guardians like you.',
+      icon: '[****]',
+      rarity: 'legendary',
+      unlocked: configuredCount >= 20,
+    },
+    // Time-Based Achievements
+    {
+      id: 'dawn_warrior',
+      name: 'Dawn Warrior',
+      description:
+        'Active before dawn breaks. A true early bird guardian! (^_^)',
+      icon: '(^_^)/',
+      rarity: 'rare',
       unlocked: new Date().getHours() < 6,
     },
     {
-      id: 'night_owl',
-      name: 'Night Owl',
-      description: 'Active after midnight',
-      icon: '(-..-)',
-      rarity: 'common',
-      unlocked: new Date().getHours() >= 0 && new Date().getHours() < 5,
+      id: 'midnight_sentinel',
+      name: 'Midnight Sentinel',
+      description:
+        'On watch when others sleep. The night is your domain. (⌐■_■)',
+      icon: '(⌐■_■)',
+      rarity: 'rare',
+      unlocked: new Date().getHours() === 0,
     },
+    // Optional/Future Achievements (not yet fully implemented)
+    // {
+    //   id: 'speedrunner',
+    //   name: 'Speedrunner',
+    //   description: "Five realms in one day? You don't waste time! [>>]",
+    //   icon: '[>>]',
+    //   rarity: 'epic',
+    //   unlocked: false, // Requires timestamp tracking
+    // },
+    // {
+    //   id: 'dedication',
+    //   name: 'Unwavering Dedication',
+    //   description: '30 days of constant vigilance. Your commitment is unmatched.',
+    //   icon: '[*_*]',
+    //   rarity: 'epic',
+    //   unlocked: false, // Requires login streak system
+    // },
+    // {
+    //   id: 'social_butterfly',
+    //   name: 'Social Butterfly',
+    //   description: 'Protecting large communities. Thousands trust your guardianship! (◕‿◕)',
+    //   icon: '(◕‿◕)',
+    //   rarity: 'rare',
+    //   unlocked: false, // Requires large server tracking
+    // },
+    // {
+    //   id: 'perfectionist',
+    //   name: 'Perfectionist',
+    //   description: 'Every realm fully configured. Perfection achieved. [****]',
+    //   icon: '[****]',
+    //   rarity: 'legendary',
+    //   unlocked: false, // Requires full config completion tracking
+    // },
   ];
 
   return achievements.filter((a) => a.unlocked);

@@ -2,6 +2,8 @@
 // Amina Character Portrait Component
 // Displays Amina's avatar with different expressions based on state
 
+import { ImagePaths } from '@/utils/cdn';
+
 interface Props {
   expression?: 'idle' | 'success' | 'alert' | 'error';
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -59,67 +61,25 @@ const indicatorSizes = {
   xl: 'w-6 h-6 border-[3px]',
 };
 
-// TODO: Replace with actual character art when available
-// For now, using styled placeholder
-const portraitSrc = null; // Will be: `/src/images/amina/portrait-${expression}.png`
+// Map expressions to CDN images
+const portraits: Record<string, string> = {
+  idle: ImagePaths.portraits.idle,
+  success: ImagePaths.portraits.success,
+  alert: ImagePaths.portraits.alert,
+  error: ImagePaths.portraits.error,
+};
+
+const portraitSrc = portraits[expression];
 ---
 
 <div
   class={`amina-portrait relative ${sizeClasses[size]} ${showGlow ? glowClasses[expression] : ''} ${className}`}
 >
-  {
-    portraitSrc ? (
-      <img
-        src={portraitSrc}
-        alt={`Amina - ${expression}`}
-        class="w-full h-full object-cover"
-      />
-    ) : (
-      /* Placeholder until character art is ready */
-      <div class="w-full h-full bg-gradient-to-br from-amina-crimson via-amina-rose-red to-amina-blood-red flex items-center justify-center relative overflow-hidden">
-        {/* Circuit pattern overlay */}
-        <div class="absolute inset-0 opacity-20">
-          <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <pattern
-              id="circuit"
-              x="0"
-              y="0"
-              width="20"
-              height="20"
-              patternUnits="userSpaceOnUse"
-            >
-              <circle cx="2" cy="2" r="1" fill="currentColor" />
-              <line
-                x1="2"
-                y1="2"
-                x2="18"
-                y2="2"
-                stroke="currentColor"
-                stroke-width="0.5"
-              />
-              <line
-                x1="2"
-                y1="2"
-                x2="2"
-                y2="18"
-                stroke="currentColor"
-                stroke-width="0.5"
-              />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#circuit)" />
-          </svg>
-        </div>
-
-        {/* Amina Initial */}
-        <span class="text-white font-heading text-4xl font-black relative z-10">
-          A
-        </span>
-
-        {/* Accent glow effect */}
-        <div class="absolute inset-0 bg-gradient-to-t from-cyber-blue/20 to-transparent" />
-      </div>
-    )
-  }
+  <img
+    src={portraitSrc}
+    alt={`Amina - ${expression}`}
+    class="w-full h-full object-cover"
+  />
 
   {/* Discord-style presence indicator */}
   {

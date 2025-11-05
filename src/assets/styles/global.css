@@ -379,3 +379,13 @@ textarea {
     transform: translateY(0);
   }
 }
+
+/* Pixel Art Rendering - For Badges & Achievement Icons */
+.pixel-art,
+.pixelated {
+  image-rendering: -moz-crisp-edges; /* Firefox */
+  image-rendering: -webkit-crisp-edges; /* Webkit */
+  image-rendering: pixelated; /* Chrome/Edge */
+  image-rendering: crisp-edges; /* Safari */
+  -ms-interpolation-mode: nearest-neighbor; /* IE */
+}

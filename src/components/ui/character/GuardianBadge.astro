@@ -1,5 +1,6 @@
 ---
 // Guardian Rank Badge Component
+import { ImagePaths } from '@/utils/cdn';
 import type { GuardianRank } from '@/lib/guardian-ranks';
 
 interface Props {
@@ -23,13 +24,36 @@ const sizeClasses = {
   md: 'text-sm px-3 py-1.5',
   lg: 'text-base px-4 py-2',
 };
+
+const badgeImageSizes = {
+  sm: 'w-5 h-5',
+  md: 'w-6 h-6',
+  lg: 'w-8 h-8',
+};
+
+// Map rank names to badge images
+const badgeImages: Record<string, string> = {
+  Recruit: ImagePaths.badges.recruit,
+  Scout: ImagePaths.badges.scout,
+  Guardian: ImagePaths.badges.guard,
+  Elite: ImagePaths.badges.elite,
+  Commander: ImagePaths.badges.commander,
+  Legend: ImagePaths.badges.legend,
+};
+
+const badgeImage = badgeImages[rank.name];
 ---
 
 <div class={`inline-flex flex-col gap-2 ${className}`}>
   <div
     class={`inline-flex items-center gap-2 rounded-xl border-2 ${rank.color} border-current bg-night-shadow/50 backdrop-blur-sm ${sizeClasses[size]} font-heading font-bold shadow-lg`}
   >
-    <span class="opacity-90">{rank.badgeSymbol}</span>
+    {/* Pixel art badge icon */}
+    <img
+      src={badgeImage}
+      alt={`${rank.name} Badge`}
+      class={`${badgeImageSizes[size]} object-contain pixelated`}
+    />
     <span class="uppercase tracking-wider">{rank.name}</span>
     <span class="opacity-60 text-xs">Lv.{rank.level}</span>
   </div>
@@ -50,6 +74,13 @@ const sizeClasses = {
 </div>
 
 <style>
+  /* Pixel art rendering - crisp edges, no blur */
+  .pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+
   /* Subtle glow animation for the badge */
   [class*='rounded-xl'] {
     animation: badge-glow 3s ease-in-out infinite;

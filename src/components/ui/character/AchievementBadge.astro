@@ -1,6 +1,9 @@
 ---
 // Achievement Badge Component
 import { getRarityColor, type Achievement } from '@/lib/achievements';
+import { ImagePaths } from '@/utils/cdn';
+
+// Import all achievement images
 
 interface Props {
   achievement: Achievement;
@@ -25,10 +28,28 @@ const sizeClasses = {
 };
 
 const iconSizes = {
-  sm: 'text-lg',
-  md: 'text-2xl',
-  lg: 'text-3xl',
+  sm: 'w-8 h-8',
+  md: 'w-12 h-12',
+  lg: 'w-16 h-16',
 };
+
+// Map achievement IDs to their respective CDN images
+const achievementImages: Record<string, string> = {
+  first_watch: ImagePaths.achievements.first_watch,
+  squad_leader: ImagePaths.achievements.squad_leader,
+  network_guardian: ImagePaths.achievements.network_guardian,
+  empire_shield: ImagePaths.achievements.empire_shield,
+  realm_master: ImagePaths.achievements.realm_master,
+  living_legend: ImagePaths.achievements.living_legend,
+  dawn_warrior: ImagePaths.achievements.dawn_warrior,
+  midnight_sentinel: ImagePaths.achievements.midnight_sentinel,
+  speedrunner: ImagePaths.achievements.speedrunner,
+  dedication: ImagePaths.achievements.dedication,
+  social_butterfly: ImagePaths.achievements.social_butterfly,
+  perfectionist: ImagePaths.achievements.perfectionist,
+};
+
+const achievementImage = achievementImages[achievement.id];
 ---
 
 <div
@@ -36,9 +57,20 @@ const iconSizes = {
   title={achievement.description}
 >
   <div class="flex items-center gap-3">
-    <span class={`${iconSizes[size]} ${colors.text}`}>
-      {achievement.icon}
-    </span>
+    {
+      achievementImage ? (
+        <img
+          src={achievementImage}
+          alt={achievement.name}
+          class={`${iconSizes[size]} pixel-art flex-shrink-0`}
+          loading="lazy"
+        />
+      ) : (
+        <span class={`text-2xl ${colors.text} flex-shrink-0`}>
+          {achievement.icon}
+        </span>
+      )
+    }
     <div class="flex-1">
       <div class={`font-heading font-bold ${colors.text}`}>
         {achievement.name}

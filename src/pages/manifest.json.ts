@@ -1,7 +1,6 @@
 import type { APIRoute, ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
-import icon from '@images/icon.png';
-import maskableIcon from '@images/icon-maskable.png';
+import icon from '@images/amina/logo/headshot-circle.png';
 
 export const prerender = true;
 
@@ -20,7 +19,7 @@ const favicons: Favicon[] = [
   },
   {
     purpose: 'maskable',
-    src: maskableIcon,
+    src: icon,
     sizes,
   },
 ];

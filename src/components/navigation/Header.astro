@@ -30,19 +30,31 @@ import {
   getDiscordGuilds,
 } from '@/lib/data-utils';
 import { getGuardianRank } from '@/lib/guardian-ranks';
+import type { DiscordUser, DiscordGuild } from '@/lib/data-utils';
 
-// Try to get user data - this will be null if not authenticated
-// Wrap in try-catch to handle prerendering gracefully (cookies not available)
-let userData = null;
-let isAuthenticated = false;
+// Accept optional pre-fetched data to avoid duplicate API calls
+interface Props {
+  userData?: DiscordUser | null;
+  discordGuilds?: DiscordGuild[];
+}
 
-try {
-  userData = await getDiscordUserData(Astro.cookies);
-  isAuthenticated = !!userData;
-} catch (error) {
-  // If there's an error (like in prerendering when cookies aren't available),
-  // just treat as logged out - this is expected behavior
-  isAuthenticated = false;
+const { userData: preFetchedUserData, discordGuilds: preFetchedGuilds } =
+  Astro.props;
+
+// Try to get user data - use pre-fetched if available, otherwise fetch
+let userData = preFetchedUserData;
+let isAuthenticated = !!userData;
+
+// Only fetch if not provided as props
+if (!userData) {
+  try {
+    userData = await getDiscordUserData(Astro.cookies);
+    isAuthenticated = !!userData;
+  } catch (error) {
+    // If there's an error (like in prerendering when cookies aren't available),
+    // just treat as logged out - this is expected behavior
+    isAuthenticated = false;
+  }
 }
 
 // Only fetch these if authenticated
@@ -52,7 +64,10 @@ let managedGuildsCount = 0;
 
 if (isAuthenticated && userData) {
   avatarUrl = getAvatarUrl(userData);
-  const discordGuilds = await getDiscordGuilds(Astro.cookies);
+
+  // Use pre-fetched guilds if available, otherwise fetch
+  const discordGuilds =
+    preFetchedGuilds || (await getDiscordGuilds(Astro.cookies));
 
   // Filter to managed guilds only
   const managedGuilds = discordGuilds.filter((guild) => {
@@ -64,12 +79,18 @@ if (isAuthenticated && userData) {
   guardianRank = getGuardianRank(managedGuildsCount);
 }
 
+// Check if we're on a dashboard page
+const isDashboardPage = Astro.url.pathname.startsWith('/dash');
+
 // Unified global navigation links
-const links = [
-  { name: 'Home', url: '/' },
-  { name: 'Dashboard', url: '/dash' },
-  { name: 'Docs', url: 'https://docs.vikshan.me', target: '_blank' },
-];
+// Don't show navigation links on dashboard pages - users can use logo to go home
+// and docs is in the dropdown
+const links = isDashboardPage
+  ? []
+  : [
+      { name: 'Dashboard', url: '/dash' },
+      { name: 'Docs', url: 'https://docs.vikshan.me', target: '_blank' },
+    ];
 
 // Always go home to main page
 const homeUrl = '/';
@@ -108,28 +129,25 @@ const homeUrl = '/';
       </a>
 
       <!-- Desktop Navigation -->
-      <nav
-        aria-label="Main"
-        class="relative flex-1 items-center justify-center flex mt-1"
-      >
-        <ul
-          class="group flex flex-1 list-none items-center justify-center space-x-1"
-        >
-          {
-            links.map((link) => (
-              <li>
-                <a
-                  href={link.url}
-                  target={link.target}
-                  class="group inline-flex h-8 w-max items-center justify-center rounded-md bg-transparent px-4 py text-sm font-medium transition-colors text-neutral-400 hover:text-amina-crimson focus:text-amina-crimson focus:outline-none disabled:pointer-events-none disabled:opacity-50"
-                >
-                  {link.name}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
+      {
+        links.length > 0 && (
+          <nav aria-label="Main" class="flex items-center mt-1">
+            <ul class="group flex list-none items-center space-x-1">
+              {links.map((link) => (
+                <li>
+                  <a
+                    href={link.url}
+                    target={link.target}
+                    class="group inline-flex h-8 w-max items-center justify-center rounded-md bg-transparent px-4 py text-sm font-medium transition-colors text-neutral-400 hover:text-amina-crimson focus:text-amina-crimson focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
     </div>
 
     <!-- Desktop Right Side -->
