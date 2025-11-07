@@ -37,3 +37,6 @@ astro/.env.production
 .DS_Store
 package-lock.json
 lavalink/plugins/*
+awscliv2.zip
+aws/
+viks-kp.pem
