@@ -1,22 +1,18 @@
 # [v1.1.5](https://github.com/iamvikshan/amina/compare/v1.1.4...v1.1.5) (2025-11-04)
 
-
-
 ## [1.1.5](https://github.com/iamvikshan/amina/compare/v1.1.4...v1.1.5) (2025-11-04)
 
 ### Bug Fixes
 
-* Add Dashboard Webhook Sync for Real-Time Guild Updates ([#28](https://github.com/iamvikshan/amina/issues/28)) ([531d45a](https://github.com/iamvikshan/amina/commit/531d45ae84ac05bf713529c8af21bf6f4da719b8))
+- Add Dashboard Webhook Sync for Real-Time Guild Updates ([#28](https://github.com/iamvikshan/amina/issues/28)) ([531d45a](https://github.com/iamvikshan/amina/commit/531d45ae84ac05bf713529c8af21bf6f4da719b8))
 
 # [v1.1.4](https://github.com/iamvikshan/amina/compare/v1.1.3...v1.1.4) (2025-11-02)
-
-
 
 ## [1.1.4](https://github.com/iamvikshan/amina/compare/v1.1.3...v1.1.4) (2025-11-02)
 
 ### Bug Fixes
 
-* [phase 1.0.4] complete TypeScript migration batch - 46 files converted (94/374 total, 25.1%) ([2ced866](https://github.com/iamvikshan/amina/commit/2ced866a9c6bc47ff90c24301d05acc544566b80))
+- [phase 1.0.4] complete TypeScript migration batch - 46 files converted (94/374 total, 25.1%) ([2ced866](https://github.com/iamvikshan/amina/commit/2ced866a9c6bc47ff90c24301d05acc544566b80))
 
 # [v1.1.3](https://github.com/iamvikshan/amina/compare/v1.1.2...v1.1.3) (2025-10-31)
 

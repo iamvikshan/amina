@@ -6,7 +6,6 @@ logs/
 *.md
 .prettier*
 eslint.config.mjs
-tsconfig.json
 jsconfig.json
 astro/
 .devcontainer/
@@ -18,10 +17,9 @@ Procfile
 release.config.js
 TODO.md
 MIGRATION.md
-TYPESCRIPT_SETUP.md
-CODEBASE_ANALYSIS.md
 docker-compose*.yml
 Dockerfile
 .dockerignore
 lavalink/
 scripts/
+*.pem

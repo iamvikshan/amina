@@ -73,7 +73,9 @@ module.exports = async (client, guild) => {
         avatarURL: client.user.displayAvatarURL(),
         embeds: [webhookEmbed],
       })
-      client.logger.success('Successfully sent webhook message for guild leave event.')
+      client.logger.success(
+        'Successfully sent webhook message for guild leave event.'
+      )
     } catch (err) {
       client.logger.error(`Failed to send webhook message: ${err.message}`)
     }

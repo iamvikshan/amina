@@ -14,9 +14,6 @@ services:
       LAVALINK_PORT_1: 2333
       LAVALINK_SECURE_1: "false"
       HEALTH_PORT: 3000
-    depends_on:
-      lavalink:
-        condition: service_healthy
     networks:
       - amina-network
     ports:
