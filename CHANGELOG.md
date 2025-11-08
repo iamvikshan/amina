@@ -1,3 +1,13 @@
+# [v1.1.6](https://github.com/iamvikshan/amina/compare/v1.1.5...v1.1.6) (2025-11-08)
+
+
+
+## [1.1.6](https://github.com/iamvikshan/amina/compare/v1.1.5...v1.1.6) (2025-11-08)
+
+### Bug Fixes
+
+* resolve Docker container module resolution issues ([fff0d46](https://github.com/iamvikshan/amina/commit/fff0d46ba1e629433df089b8263a28f2cddb9df8))
+
 # [v1.1.5](https://github.com/iamvikshan/amina/compare/v1.1.4...v1.1.5) (2025-11-04)
 
 ## [1.1.5](https://github.com/iamvikshan/amina/compare/v1.1.4...v1.1.5) (2025-11-04)
