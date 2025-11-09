@@ -44,8 +44,7 @@ services:
       - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD_1:-incorrect}
     volumes:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
-      # Plugins are auto-downloaded from application.yml, but this volume caches them
-      - ./lavalink/plugins:/opt/Lavalink/plugins
+      - lavalink-plugins:/opt/Lavalink/plugins
     networks:
       - amina-network
     ports:
@@ -86,4 +85,6 @@ networks:
 
 volumes:
   uptime-kuma-data:
+    driver: local
+  lavalink-plugins:
     driver: local
