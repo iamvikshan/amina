@@ -1,12 +1,14 @@
 ---
-const { url } = Astro.props;
+const { url, class: className } = Astro.props;
 interface Props {
   url: string;
+  class?: string;
 }
-const linkClass =
-  'inline-flex h-10 w-10 items-center justify-center gap-x-2 rounded-lg border border-transparent text-sm font-bold text-neutral-700 outline-none ring-zinc-500 hover:bg-slate-500/10 focus:outline-none focus-visible:ring focus-visible:ring-zinc-500 dark:ring-zinc-200 dark:hover:bg-slate-50/10';
+const baseClass =
+  'inline-flex h-10 w-10 items-center justify-center rounded-lg bg-night-steel/40 border border-night-steel text-neutral-400 transition-all duration-300 hover:border-amina-crimson hover:text-amina-crimson hover:shadow-[0_0_15px_rgba(220,20,60,0.4)] hover:scale-110 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-amina-crimson';
+const linkClass = className ? `${baseClass} ${className}` : baseClass;
 ---
 
-<a class={linkClass} href={url} target="_blank" rel="noopener noreferrer">
+<a class={linkClass} href={url} target='_blank' rel='noopener noreferrer'>
   <slot />
 </a>

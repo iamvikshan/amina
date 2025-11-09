@@ -1,138 +1,180 @@
 // @/lib/bot-stats.ts
-// Bot statistics utilities for fetching real-time Discord bot data
+// Bot statistics utilities for fetching real-time bot data from shared database
+// Updated every 10 minutes by bot's presence handler
 
-import { env, validateRequiredEnv } from '@/env';
+import { connectDB } from '@/lib/database/mongoose';
+import mongoose from 'mongoose';
+
+// Database types
+interface BotStatsData {
+  guilds: number;
+  users: number;
+  channels: number;
+  ping: number;
+  uptime: number;
+  lastUpdated: Date;
+}
+
+interface PresenceData {
+  ENABLED: boolean;
+  STATUS: 'online' | 'idle' | 'dnd' | 'invisible';
+  TYPE: string;
+  MESSAGE: string;
+  URL: string;
+}
+
+interface DevConfig {
+  BOT_STATS?: BotStatsData;
+  PRESENCE?: PresenceData;
+  DEV_COMMANDS?: any;
+  _id?: any;
+  __v?: number;
+}
 
 // Cache interface
 interface BotStatsCache {
   guildCount: number;
-  estimatedMembers: number;
+  memberCount: number;
+  ping: number;
+  status: 'online' | 'idle' | 'dnd' | 'invisible';
   timestamp: number;
 }
 
-// In-memory cache (1 hour TTL)
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+// In-memory cache (10 minute TTL to match bot update frequency)
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 let statsCache: BotStatsCache | null = null;
-
-// Average members per guild (conservative estimate)
-// TODO: Replace with actual member counts from database (Option B)
-// When implementing Option B:
-// 1. Create a GuildStats collection in MongoDB with { guildId, memberCount, lastUpdated }
-// 2. Use bot webhooks to update member counts on GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE
-// 3. Periodically sync member counts (daily background job)
-// 4. Sum actual member counts instead of estimation
-const AVG_MEMBERS_PER_GUILD = 100;
 
 export interface BotStats {
   guildCount: number;
-  estimatedMembers: number;
+  memberCount: number;
+  ping: number;
+  status: 'online' | 'idle' | 'dnd' | 'invisible';
   cached: boolean;
   cacheAge?: number; // in seconds
+  lastUpdated?: Date; // when bot last updated stats
 }
 
 /**
- * Fetch bot application info from Discord API
+ * Fetch bot statistics from shared database (dev-configs collection)
+ * Bot updates these stats every 10 minutes via presence handler
  */
-async function fetchBotApplicationInfo(): Promise<{
-  approximate_guild_count: number;
-}> {
-  validateRequiredEnv();
+async function fetchBotStatsFromDB(): Promise<{
+  guilds: number;
+  users: number;
+  ping: number;
+  status: 'online' | 'idle' | 'dnd' | 'invisible';
+  lastUpdated: Date;
+} | null> {
+  await connectDB();
 
-  const response = await fetch('https://discord.com/api/v10/applications/@me', {
-    headers: {
-      Authorization: `Bot ${env.BOT_TOKEN}`,
-    },
-  });
+  // Query dev-configs collection for BOT_STATS
+  const DevConfig =
+    mongoose.models['dev-config'] ||
+    mongoose.model(
+      'dev-config',
+      new mongoose.Schema({}, { strict: false, collection: 'dev-configs' })
+    );
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error(
-      `[fetchBotApplicationInfo] Discord API error (${response.status}):`,
-      errorText
-    );
-    throw new Error(
-      `Failed to fetch bot stats: ${response.status} ${response.statusText}`
-    );
+  const config = (await DevConfig.findOne().lean()) as DevConfig | null;
+
+  if (!config?.BOT_STATS) {
+    return null;
   }
 
-  return await response.json();
+  return {
+    guilds: config.BOT_STATS.guilds || 0,
+    users: config.BOT_STATS.users || 0,
+    ping: config.BOT_STATS.ping || 0,
+    status: config.PRESENCE?.STATUS || 'online',
+    lastUpdated: config.BOT_STATS.lastUpdated || new Date(),
+  };
 }
 
 /**
- * Get bot statistics (guild count and estimated members)
- * Uses 1-hour cache to minimize API calls
+ * Get bot statistics (guild count and member count)
+ * Uses 10-minute cache to match bot update frequency
+ * Data is updated by bot every 10 minutes via presence handler
  */
 export async function getBotStats(): Promise<BotStats> {
   // Check cache first
   if (statsCache && Date.now() - statsCache.timestamp < CACHE_DURATION) {
     const cacheAge = Math.round((Date.now() - statsCache.timestamp) / 1000);
-    console.log(
-      `[getBotStats] Using cached stats (age: ${cacheAge}s, TTL: 3600s)`
-    );
     return {
       guildCount: statsCache.guildCount,
-      estimatedMembers: statsCache.estimatedMembers,
+      memberCount: statsCache.memberCount,
+      ping: statsCache.ping,
+      status: statsCache.status,
       cached: true,
       cacheAge,
     };
   }
 
-  console.log('[getBotStats] Cache miss or expired, fetching from Discord API');
-
   try {
-    const appInfo = await fetchBotApplicationInfo();
-    const guildCount = appInfo.approximate_guild_count || 0;
+    const dbStats = await fetchBotStatsFromDB();
 
-    // TODO: Replace estimation with actual member counts from database (Option B)
-    // Query: SELECT SUM(memberCount) FROM GuildStats WHERE leftAt IS NULL
-    const estimatedMembers = guildCount * AVG_MEMBERS_PER_GUILD;
+    if (!dbStats) {
+      // Return defaults if no stats available
+      return {
+        guildCount: 0,
+        memberCount: 0,
+        ping: 0,
+        status: 'online',
+        cached: false,
+      };
+    }
 
     // Update cache
     statsCache = {
-      guildCount,
-      estimatedMembers,
+      guildCount: dbStats.guilds,
+      memberCount: dbStats.users,
+      ping: dbStats.ping,
+      status: dbStats.status,
       timestamp: Date.now(),
     };
 
-    console.log(
-      `[getBotStats] Fetched fresh stats: ${guildCount} guilds, ~${estimatedMembers} members`
-    );
-
     return {
-      guildCount,
-      estimatedMembers,
+      guildCount: dbStats.guilds,
+      memberCount: dbStats.users,
+      ping: dbStats.ping,
+      status: dbStats.status,
       cached: false,
+      lastUpdated: dbStats.lastUpdated,
     };
   } catch (error) {
     console.error('[getBotStats] Error fetching bot stats:', error);
 
     // If we have stale cache, return it as fallback
     if (statsCache) {
-      console.warn('[getBotStats] Using stale cache as fallback');
       return {
         guildCount: statsCache.guildCount,
-        estimatedMembers: statsCache.estimatedMembers,
+        memberCount: statsCache.memberCount,
+        ping: statsCache.ping,
+        status: statsCache.status,
         cached: true,
         cacheAge: Math.round((Date.now() - statsCache.timestamp) / 1000),
       };
     }
 
-    // No cache available, throw error
-    throw error;
+    // No cache available, return defaults
+    return {
+      guildCount: 0,
+      memberCount: 0,
+      ping: 0,
+      status: 'online',
+      cached: false,
+    };
   }
-}
-
-/**
- * Clear the bot stats cache (useful for testing or manual refresh)
- */
-export function clearBotStatsCache(): void {
-  statsCache = null;
-  console.log('[clearBotStatsCache] Cache cleared');
 }
 
 /**
  * Format large numbers with commas and optional suffix
  */
 export function formatStatNumber(num: number, suffix = ''): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M' + suffix;
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K' + suffix;
+  }
   return num.toLocaleString('en-US') + suffix;
 }

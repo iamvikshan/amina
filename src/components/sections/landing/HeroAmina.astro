@@ -7,12 +7,13 @@
  * - Dramatic character presentation
  * - Animated particles background
  * - Glowing CTA buttons
- * - Trust indicators
+ * - Trust indicators with real-time stats
  */
 
-import { Image } from 'astro:assets';
 import { ImagePaths } from '@/utils/cdn';
 import SecondaryBtn from '@components/ui/buttons/SecondaryBtn.astro';
+import { getBotStats } from '@/lib/bot-stats';
+import { getUptimeStats } from '@/lib/uptime';
 
 interface Props {
   addBotUrl?: string;
@@ -23,149 +24,166 @@ const {
   addBotUrl = 'https://discord.com/oauth2/authorize?client_id=1035629678632915055',
   docsUrl = '/docs',
 } = Astro.props;
+
+// Fetch real bot stats from Discord API
+let guildCount = 50000; // Fallback value
+let uptime = 99.9; // Fallback value
+
+try {
+  const botStats = await getBotStats();
+  guildCount = botStats.guildCount;
+} catch (error) {
+  console.error('[HeroAmina] Failed to fetch bot stats, using fallback values');
+}
+
+try {
+  const uptimeStats = await getUptimeStats();
+  uptime = uptimeStats.uptime;
+} catch (error) {
+  console.error(
+    '[HeroAmina] Failed to fetch uptime stats, using fallback values'
+  );
+}
+
+// Format numbers for display
+const formattedGuildCount =
+  guildCount >= 1000 ? `${Math.floor(guildCount / 1000)}k+` : `${guildCount}+`;
 ---
 
 <section
-  class="relative overflow-hidden bg-gradient-to-b from-night-black via-night-shadow to-night-black py-20 md:py-32"
-  id="hero"
+  class='relative overflow-hidden bg-gradient-to-b from-night-black via-night-shadow to-night-black py-20 md:py-32'
+  id='hero'
 >
   <!-- Animated Background -->
-  <div class="absolute inset-0 overflow-hidden opacity-30">
+  <div class='absolute inset-0 overflow-hidden opacity-30'>
     <!-- Circuit Pattern Overlay -->
     <div
       class='absolute inset-0 bg-[url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwQ0VEMSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=")] opacity-20'
     >
     </div>
     <!-- Particles Container -->
-    <div id="particles-hero" class="absolute inset-0"></div>
+    <div id='particles-hero' class='absolute inset-0'></div>
   </div>
 
   <!-- Glow Effects -->
   <div
-    class="absolute top-20 left-10 w-96 h-96 bg-amina-crimson/20 rounded-full blur-3xl animate-pulse"
+    class='absolute top-20 left-10 w-96 h-96 bg-amina-crimson/20 rounded-full blur-3xl animate-pulse'
   >
   </div>
   <div
-    class="absolute bottom-20 right-10 w-96 h-96 bg-cyber-blue/20 rounded-full blur-3xl animate-pulse"
-    style="animation-delay: 1s"
+    class='absolute bottom-20 right-10 w-96 h-96 bg-cyber-blue/20 rounded-full blur-3xl animate-pulse'
+    style='animation-delay: 1s'
   >
   </div>
 
-  <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+  <div class='relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
+    <div class='grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
       <!-- Left Side: Content -->
-      <div class="space-y-8 hero-content">
-        <!-- Protocol Badge -->
-        <div
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-cyber-blue/30 text-cyber-blue"
-        >
-          <span class="text-xl">[>]</span>
-          <span class="text-sm font-heading font-bold tracking-wider uppercase"
-            >Night Guard Protocol</span
-          >
-        </div>
-
+      <div class='space-y-8 hero-content'>
         <!-- Main Heading -->
-        <div class="space-y-4">
+        <div class='space-y-4'>
           <h1
-            class="text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight"
+            class='text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight'
           >
-            <span class="block text-gray-100"> Protect Your </span>
-            <span class="text-gray-100">
-              Discord Server<sup class="text-cyber-blue/70 text-lg font-mono"
+            <span class='block text-gray-100'> Protect Your </span>
+            <span class='text-gray-100'>
+              Discord Server<sup class='text-cyber-blue/70 text-lg font-mono'
                 >*</sup
               > with{' '}
             </span>
             <span
-              class="bg-gradient-to-r from-amina-crimson via-rose-red to-amina-crimson bg-clip-text text-transparent animate-gradient-x"
+              class='bg-gradient-to-r from-amina-crimson via-rose-red to-amina-crimson bg-clip-text text-transparent animate-gradient-x'
             >
               Amina
             </span>
           </h1>
-          <p class="text-xs text-gray-500 italic mt-2 font-mono">
-            <span class="text-cyber-blue/70">*</span> Amina prefers to call them
+          <p class='text-xs text-gray-500 italic mt-2 font-mono'>
+            <span class='text-cyber-blue/70'>*</span> Amina prefers to call them
             "realms" (✿◠‿◠)
           </p>
 
           <p
-            class="text-xl md:text-2xl text-gray-300 max-w-2xl leading-relaxed"
+            class='text-xl md:text-2xl text-gray-300 max-w-2xl leading-relaxed'
           >
             Your friendly guardian bringing tactical moderation, creative
             engagement and unwavering protection to your community. <span
-              class="text-2xl">(•̀ᴗ•́)و</span
+              class='text-2xl'>(•̀ᴗ•́)و</span
             >
           </p>
         </div>
 
         <!-- CTA Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class='flex flex-col sm:flex-row gap-4'>
           <a
             href={addBotUrl}
-            class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-heading font-bold text-white bg-amina-crimson rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-glow-crimson"
-            id="add-bot-cta"
+            class='group relative inline-flex items-center justify-center px-8 py-4 text-lg font-heading font-bold text-white bg-amina-crimson rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-glow-crimson'
+            id='add-bot-cta'
           >
-            <span class="relative z-10 flex items-center gap-2">
+            <span class='relative z-10 flex items-center gap-2'>
               <svg
-                class="w-6 h-6"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
+                class='w-6 h-6'
+                fill='currentColor'
+                viewBox='0 0 24 24'
+                xmlns='http://www.w3.org/2000/svg'
               >
                 <path
-                  d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"
+                  d='M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z'
                 ></path>
               </svg>
               Add to Discord
             </span>
             <!-- Animated gradient background -->
             <div
-              class="absolute inset-0 bg-gradient-to-r from-amina-crimson via-rose-red to-amina-crimson opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              class='absolute inset-0 bg-gradient-to-r from-amina-crimson via-rose-red to-amina-crimson opacity-0 group-hover:opacity-100 transition-opacity duration-300'
             >
             </div>
           </a>
 
-          <SecondaryBtn url={docsUrl} text="Documentation" icon="document" />
+          <SecondaryBtn url={docsUrl} text='Documentation' icon='document' />
         </div>
 
         <!-- Trust Indicators -->
         <div
-          class="flex flex-wrap items-center gap-6 pt-4 text-sm text-gray-400"
+          class='flex flex-wrap items-center gap-6 pt-4 text-sm text-gray-400'
         >
-          <div class="flex items-center gap-2">
-            <span class="text-discord-green text-xl">🛡️</span>
+          <div class='flex items-center gap-2'>
+            <span class='text-discord-green text-xl'>🛡️</span>
             <span
-              ><strong class="text-gray-200">50k+</strong> Protected Realms</span
+              ><strong class='text-gray-200'>{formattedGuildCount}</strong> Protected
+              Realms</span
             >
           </div>
-          <div class="flex items-center gap-2">
-            <span class="text-imperial-gold text-xl">⚡</span>
-            <span><strong class="text-gray-200">99.9%</strong> Uptime</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-cyber-blue text-xl">🌙</span>
+          <div class='flex items-center gap-2'>
+            <span class='text-imperial-gold text-xl'>⚡</span>
             <span
-              ><strong class="text-gray-200">24/7</strong> Guardian Active</span
+              ><strong class='text-gray-200'>{uptime.toFixed(1)}%</strong> Uptime</span
+            >
+          </div>
+          <div class='flex items-center gap-2'>
+            <span class='text-cyber-blue text-xl'>🌙</span>
+            <span
+              ><strong class='text-gray-200'>24/7</strong> Guardian Active</span
             >
           </div>
         </div>
       </div>
 
       <!-- Right Side: Amina Character -->
-      <div class="relative lg:block hidden">
-        <div class="relative hero-character">
+      <div class='relative lg:block hidden'>
+        <div class='relative hero-character'>
           <!-- Holographic effect ring -->
           <div
-            class="absolute inset-0 rounded-full bg-gradient-to-r from-cyber-blue/20 to-amina-crimson/20 blur-2xl animate-spin-slow"
+            class='absolute inset-0 rounded-full bg-gradient-to-r from-cyber-blue/20 to-amina-crimson/20 blur-2xl animate-spin-slow'
           >
           </div>
 
           <!-- Character Image -->
-          <div class="relative z-10">
+          <div class='relative z-10'>
             <img
               src={ImagePaths.hero.hero}
-              alt="Amina - Your Discord Guardian"
-              class="w-full h-auto drop-shadow-2xl hero-image"
-              loading="eager"
+              alt='Amina - Your Discord Guardian'
+              class='w-full h-auto drop-shadow-2xl hero-image'
+              loading='eager'
               width={600}
               height={1067}
             />
@@ -173,18 +191,9 @@ const {
 
           <!-- Floating UI Elements -->
           <div
-            class="absolute top-20 -left-10 bg-night-steel/80 backdrop-blur-md border border-cyber-blue/50 rounded-lg px-4 py-2 floating-ui"
+            class='absolute top-20 -left-10 bg-night-steel/80 backdrop-blur-md border border-cyber-blue/50 rounded-lg px-4 py-2 floating-ui'
           >
-            <p class="text-cyber-blue text-sm font-mono">[*] System Active</p>
-          </div>
-
-          <div
-            class="absolute bottom-32 -right-10 bg-night-steel/80 backdrop-blur-md border border-amina-crimson/50 rounded-lg px-4 py-2 floating-ui"
-            style="animation-delay: 0.5s"
-          >
-            <p class="text-amina-crimson text-sm font-mono">
-              [>>] Guardian Online
-            </p>
+            <p class='text-cyber-blue text-sm font-mono'>:/ heyyo, i'm amina</p>
           </div>
         </div>
       </div>

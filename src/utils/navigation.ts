@@ -10,7 +10,7 @@ const navBarLinks = [
 // An array of links for footer
 const footerLinks = [
   {
-    section: 'Resources',
+    section: 'Arsenal',
     links: [
       {
         name: 'Documentation',
@@ -20,14 +20,14 @@ const footerLinks = [
       },
       // { name: 'Blog', url: '/blog' },
       {
-        name: 'Invite Amina',
+        name: 'Recruit Amina',
         url: 'https://discord.com/oauth2/authorize?client_id=1035629678632915055',
       },
-      { name: 'Dashboard', url: '/dash' },
+      { name: 'Command Center', url: '/dash' },
     ],
   },
   {
-    section: 'Community',
+    section: 'Alliance',
     links: [
       {
         name: 'GitHub',
@@ -36,7 +36,7 @@ const footerLinks = [
         target: '_blank',
       },
       {
-        name: 'Support',
+        name: 'Support Server',
         url: `${import.meta.env.SUPPORT_SERVER}`,
         rel: 'noopener noreferrer',
         target: '_blank',

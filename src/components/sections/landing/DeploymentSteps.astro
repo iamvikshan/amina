@@ -7,6 +7,10 @@
 
 import PrimaryBtn from '@components/ui/buttons/PrimaryBtn.astro';
 import TertiaryBtn from '@components/ui/buttons/TertiaryBtn.astro';
+import { getBotStats, formatStatNumber } from '@/lib/bot-stats';
+
+// Fetch real bot stats
+const botStats = await getBotStats();
 
 interface Step {
   number: number;
@@ -48,81 +52,81 @@ const steps: Step[] = [
 ];
 ---
 
-<section class="py-20 md:py-32 bg-night-shadow relative overflow-hidden">
+<section class='py-20 md:py-32 bg-night-shadow relative overflow-hidden'>
   <!-- Animated Background Grid -->
-  <div class="absolute inset-0 overflow-hidden">
+  <div class='absolute inset-0 overflow-hidden'>
     <div
-      class="absolute inset-0 bg-gradient-to-b from-cyber-blue/5 via-transparent to-amina-crimson/5"
+      class='absolute inset-0 bg-gradient-to-b from-cyber-blue/5 via-transparent to-amina-crimson/5'
     >
     </div>
     <!-- Grid lines -->
     <svg
-      class="absolute inset-0 w-full h-full"
-      xmlns="http://www.w3.org/2000/svg"
+      class='absolute inset-0 w-full h-full'
+      xmlns='http://www.w3.org/2000/svg'
     >
       <defs>
-        <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+        <pattern id='grid' width='50' height='50' patternUnits='userSpaceOnUse'>
           <path
-            d="M 50 0 L 0 0 0 50"
-            fill="none"
-            stroke="rgba(0, 206, 209, 0.1)"
-            stroke-width="1"></path>
+            d='M 50 0 L 0 0 0 50'
+            fill='none'
+            stroke='rgba(0, 206, 209, 0.1)'
+            stroke-width='1'></path>
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill="url(#grid)"></rect>
+      <rect width='100%' height='100%' fill='url(#grid)'></rect>
     </svg>
   </div>
 
-  <div class="relative mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+  <div class='relative mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8'>
     <!-- Section Header -->
-    <div class="text-center mb-16 space-y-4">
+    <div class='text-center mb-16 space-y-4'>
       <div
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-imperial-gold/30 text-imperial-gold"
+        class='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-imperial-gold/30 text-imperial-gold'
       >
-        <span class="text-xl">[]</span>
-        <span class="text-sm font-heading font-bold tracking-wider uppercase"
+        <span class='text-xl'>[]</span>
+        <span class='text-sm font-heading font-bold tracking-wider uppercase'
           >Quick Deployment Protocol</span
         >
       </div>
 
       <h2
-        class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white"
+        class='text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white'
       >
         Guardian Online in <span
-          class="bg-gradient-to-r from-imperial-gold to-yellow-400 bg-clip-text text-transparent"
+          class='bg-gradient-to-r from-imperial-gold to-yellow-400 bg-clip-text text-transparent'
           >3 Steps</span
         >
       </h2>
 
-      <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+      <p class='text-xl text-gray-300 max-w-2xl mx-auto'>
         No complex setup. No coding required. Amina deploys in under 3 minutes
         and starts protecting your realm immediately.
       </p>
     </div>
 
     <!-- Steps Container -->
-    <div class="relative">
+    <div class='relative'>
       <!-- Connection Line (Desktop) -->
       <div
-        class="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-cyber-blue via-imperial-gold to-amina-crimson transform -translate-y-1/2 opacity-20"
+        class='hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-cyber-blue via-imperial-gold to-amina-crimson transform -translate-y-1/2 opacity-20'
       >
       </div>
 
       <!-- Steps Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8">
+      <div class='grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8'>
         {
           steps.map((step, index) => (
-            <div class="step-card group relative" data-step={step.number}>
+            <div class='step-card group relative' data-step={step.number}>
               {/* Card Container */}
-              <div class="relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-cyber-blue/30 rounded-2xl p-8 transition-all duration-500 hover:border-cyber-blue hover:shadow-glow-blue hover:scale-105 hover:-translate-y-2">
+              <div class='relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-cyber-blue/30 rounded-2xl p-8 transition-all duration-500 hover:border-cyber-blue hover:shadow-glow-blue hover:scale-105 hover:-translate-y-2'>
                 {/* Step Number Badge */}
-                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
-                  <div class="relative">
+                <div class='absolute -top-6 left-1/2 transform -translate-x-1/2'>
+                  <div class='relative'>
                     {/* Glowing circle */}
-                    <div class="absolute inset-0 bg-cyber-blue rounded-full blur-lg opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div class='absolute inset-0 bg-cyber-blue rounded-full blur-lg opacity-50 group-hover:opacity-100 transition-opacity duration-300' />
                     {/* Number badge */}
-                    <div class="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyber-blue to-imperial-gold flex items-center justify-center border-4 border-night-shadow">
-                      <span class="text-xl font-heading font-bold text-night-shadow">
+                    <div class='relative w-12 h-12 rounded-full bg-gradient-to-br from-cyber-blue to-imperial-gold flex items-center justify-center border-4 border-night-shadow'>
+                      <span class='text-xl font-heading font-bold text-night-shadow'>
                         {step.number}
                       </span>
                     </div>
@@ -130,38 +134,38 @@ const steps: Step[] = [
                 </div>
 
                 {/* Icon & Kaomoji */}
-                <div class="flex items-center justify-center gap-4 mb-6 mt-4">
-                  <span class="text-5xl transition-transform duration-300 group-hover:scale-110">
+                <div class='flex items-center justify-center gap-4 mb-6 mt-4'>
+                  <span class='text-5xl transition-transform duration-300 group-hover:scale-110'>
                     {step.icon}
                   </span>
-                  <span class="text-3xl text-cyber-blue animate-float">
+                  <span class='text-3xl text-cyber-blue animate-float'>
                     {step.kaomoji}
                   </span>
                 </div>
 
                 {/* Content */}
-                <div class="text-center space-y-4">
-                  <h3 class="text-2xl font-heading font-bold text-white group-hover:text-cyber-blue transition-colors duration-300">
+                <div class='text-center space-y-4'>
+                  <h3 class='text-2xl font-heading font-bold text-white group-hover:text-cyber-blue transition-colors duration-300'>
                     {step.title}
                   </h3>
 
-                  <p class="text-gray-300 leading-relaxed">
+                  <p class='text-gray-300 leading-relaxed'>
                     {step.description}
                   </p>
 
                   {/* Duration Badge */}
-                  <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-imperial-gold/10 border border-imperial-gold/30 text-imperial-gold text-sm font-mono">
+                  <div class='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-imperial-gold/10 border border-imperial-gold/30 text-imperial-gold text-sm font-mono'>
                     <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                      class='w-4 h-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        stroke-width='2'
+                        d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
                       />
                     </svg>
                     <span>{step.duration}</span>
@@ -169,9 +173,9 @@ const steps: Step[] = [
                 </div>
 
                 {/* Progress Indicator */}
-                <div class="absolute bottom-4 left-4 right-4 h-1 bg-night-shadow rounded-full overflow-hidden">
+                <div class='absolute bottom-4 left-4 right-4 h-1 bg-night-shadow rounded-full overflow-hidden'>
                   <div
-                    class="h-full bg-gradient-to-r from-cyber-blue to-imperial-gold progress-bar"
+                    class='h-full bg-gradient-to-r from-cyber-blue to-imperial-gold progress-bar'
                     style={`width: ${(step.number / 3) * 100}%`}
                   />
                 </div>
@@ -179,13 +183,13 @@ const steps: Step[] = [
 
               {/* Connection Arrow (Desktop) */}
               {index < steps.length - 1 && (
-                <div class="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                <div class='hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10'>
                   <svg
-                    class="w-8 h-8 text-cyber-blue opacity-50"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
+                    class='w-8 h-8 text-cyber-blue opacity-50'
+                    fill='currentColor'
+                    viewBox='0 0 24 24'
                   >
-                    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                    <path d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z' />
                   </svg>
                 </div>
               )}
@@ -197,43 +201,44 @@ const steps: Step[] = [
 
     <!-- Bottom CTA Section -->
     <div
-      class="mt-16 text-center bg-gradient-to-r from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-2xl p-8 md:p-12"
+      class='mt-16 text-center bg-gradient-to-r from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-2xl p-8 md:p-12'
     >
-      <div class="space-y-6">
-        <div class="flex items-center justify-center gap-3">
-          <span class="text-4xl">⚡</span>
-          <h3 class="text-2xl md:text-3xl font-heading font-bold text-white">
+      <div class='space-y-6'>
+        <div class='flex items-center justify-center gap-3'>
+          <span class='text-4xl'>⚡</span>
+          <h3 class='text-2xl md:text-3xl font-heading font-bold text-white'>
             Ready to Deploy?
           </h3>
-          <span class="text-4xl">⚡</span>
+          <span class='text-4xl'>⚡</span>
         </div>
 
-        <p class="text-lg text-gray-300 max-w-2xl mx-auto">
-          Join <span class="text-cyber-blue font-bold">50,000+ realms</span> already
-          protected by Amina. Start your guardian journey today.
+        <p class='text-lg text-gray-300 max-w-2xl mx-auto'>
+          Join <span class='text-cyber-blue font-bold'
+            >{formatStatNumber(botStats.guildCount, '+ realms')}</span
+          > already protected by Amina. Start your guardian journey today.
         </p>
 
         <div
-          class="flex flex-col sm:flex-row items-center justify-center gap-4"
+          class='flex flex-col sm:flex-row items-center justify-center gap-4'
         >
           <PrimaryBtn
-            url="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID"
-            text="Add Amina Now"
-            icon="discord"
+            url='https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID'
+            text='Add Amina Now'
+            icon='discord'
           />
-          <TertiaryBtn url="/docs/setup" text="Setup Guide" icon="star" />
+          <TertiaryBtn url='/docs/setup' text='Setup Guide' icon='star' />
         </div>
 
-        <p class="text-sm text-gray-400 flex items-center justify-center gap-2">
+        <p class='text-sm text-gray-400 flex items-center justify-center gap-2'>
           <svg
-            class="w-4 h-4 text-green-500"
-            fill="currentColor"
-            viewBox="0 0 20 20"
+            class='w-4 h-4 text-green-500'
+            fill='currentColor'
+            viewBox='0 0 20 20'
           >
             <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clip-rule="evenodd"></path>
+              fill-rule='evenodd'
+              d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+              clip-rule='evenodd'></path>
           </svg>
           No credit card required · Free tier available forever
         </p>

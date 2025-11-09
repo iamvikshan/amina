@@ -7,6 +7,7 @@
  */
 
 import { getBotStats } from '@/lib/bot-stats';
+import { getUptimeStats } from '@/lib/uptime';
 
 interface Stat {
   icon: string;
@@ -18,17 +19,29 @@ interface Stat {
   kaomoji: string;
 }
 
-// Fetch real bot stats from Discord API
+// Fetch real bot stats from shared database (updated by bot every 10 minutes)
 let guildCount = 50000; // Fallback value
 let memberCount = 5000000; // Fallback value
 
 try {
   const botStats = await getBotStats();
   guildCount = botStats.guildCount;
-  memberCount = botStats.estimatedMembers;
+  memberCount = botStats.memberCount; // Now actual member count, not estimated
 } catch (error) {
   console.error(
     '[BattleStats] Failed to fetch bot stats, using fallback values'
+  );
+}
+
+// Fetch real uptime from Uptime Kuma
+let uptime = 99.9; // Fallback value
+
+try {
+  const uptimeStats = await getUptimeStats();
+  uptime = uptimeStats.uptime;
+} catch (error) {
+  console.error(
+    '[BattleStats] Failed to fetch uptime stats, using fallback values'
   );
 }
 
@@ -62,8 +75,8 @@ const stats: Stat[] = [
   },
   {
     icon: '⚡',
-    value: '99',
-    suffix: '.9%',
+    value: uptime.toString(),
+    suffix: '%',
     label: 'Uptime',
     description: 'Always on, always guarding',
     color: 'green-500',
@@ -72,131 +85,136 @@ const stats: Stat[] = [
 ];
 ---
 
-<section class="py-20 md:py-32 bg-night-shadow relative overflow-hidden">
+<section class='py-20 md:py-32 bg-night-shadow relative overflow-hidden'>
   <!-- Background Circuit Pattern -->
-  <div class="absolute inset-0 opacity-10">
-    <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+  <div class='absolute inset-0 opacity-10'>
+    <svg class='w-full h-full' xmlns='http://www.w3.org/2000/svg'>
       <defs>
         <pattern
-          id="circuit"
-          width="100"
-          height="100"
-          patternUnits="userSpaceOnUse"
+          id='circuit'
+          width='100'
+          height='100'
+          patternUnits='userSpaceOnUse'
         >
           <path
-            d="M10 10h20v20h-20z M40 10h20v20h-20z M10 40h20v20h-20z M40 40h20v20h-20z M70 10h20v20h-20z M70 40h20v20h-20z"
-            stroke="#00CED1"
-            stroke-width="1"
-            fill="none"></path>
-          <circle cx="30" cy="30" r="3" fill="#DC143C"></circle>
-          <circle cx="60" cy="20" r="2" fill="#FFD700"></circle>
-          <circle cx="80" cy="50" r="2" fill="#00CED1"></circle>
+            d='M10 10h20v20h-20z M40 10h20v20h-20z M10 40h20v20h-20z M40 40h20v20h-20z M70 10h20v20h-20z M70 40h20v20h-20z'
+            stroke='#00CED1'
+            stroke-width='1'
+            fill='none'></path>
+          <circle cx='30' cy='30' r='3' fill='#DC143C'></circle>
+          <circle cx='60' cy='20' r='2' fill='#FFD700'></circle>
+          <circle cx='80' cy='50' r='2' fill='#00CED1'></circle>
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill="url(#circuit)"></rect>
+      <rect width='100%' height='100%' fill='url(#circuit)'></rect>
     </svg>
   </div>
 
   <!-- Animated Gradient Orbs -->
   <div
-    class="absolute top-0 left-1/4 w-96 h-96 bg-cyber-blue/20 rounded-full blur-3xl animate-pulse-slow"
+    class='absolute top-0 left-1/4 w-96 h-96 bg-cyber-blue/20 rounded-full blur-3xl animate-pulse-slow'
   >
   </div>
   <div
-    class="absolute bottom-0 right-1/4 w-96 h-96 bg-amina-crimson/20 rounded-full blur-3xl animate-pulse-slow"
-    style="animation-delay: 1s;"
+    class='absolute bottom-0 right-1/4 w-96 h-96 bg-amina-crimson/20 rounded-full blur-3xl animate-pulse-slow'
+    style='animation-delay: 1s;'
   >
   </div>
 
-  <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+  <div class='relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
     <!-- Section Header -->
-    <div class="text-center mb-16 space-y-4">
+    <div class='text-center mb-16 space-y-4'>
       <div
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-amina-crimson/30 text-amina-crimson"
+        class='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-amina-crimson/30 text-amina-crimson'
       >
-        <span class="text-xl">[⚡]</span>
-        <span class="text-sm font-heading font-bold tracking-wider uppercase"
+        <span class='text-xl'>[⚡]</span>
+        <span class='text-sm font-heading font-bold tracking-wider uppercase'
           >Battle-Tested Performance</span
         >
       </div>
 
       <h2
-        class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white"
+        class='text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white'
       >
         Guardian <span
-          class="bg-gradient-to-r from-amina-crimson via-imperial-gold to-cyber-blue bg-clip-text text-transparent"
+          class='bg-gradient-to-r from-amina-crimson via-imperial-gold to-cyber-blue bg-clip-text text-transparent'
           >Statistics</span
         >
       </h2>
 
-      <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+      <p class='text-xl text-gray-300 max-w-3xl mx-auto'>
         Real numbers from the field. Amina doesn't just promise protection—she
         delivers it at scale, every single day.
       </p>
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
       {
         stats.map((stat, index) => (
           <div
-            class="stat-card group relative"
+            class='stat-card group relative'
             data-index={index}
             data-target={stat.value}
             data-suffix={stat.suffix}
           >
             <div
-              class="relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-gray-700/50 rounded-2xl p-8 transition-all duration-500 hover:border-[var(--stat-color)] hover:scale-105 hover:shadow-glow"
-              style={`--stat-color: ${stat.color === 'cyber-blue' ? '#00CED1' : stat.color === 'amina-crimson' ? '#DC143C' : stat.color === 'imperial-gold' ? '#FFD700' : '#10B981'};`}
+              class='relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-gray-700/50 rounded-2xl p-8 transition-all duration-500 hover:border-[var(--stat-color)] hover:scale-105 hover:shadow-glow'
+              style={`--stat-color: ${
+                stat.color === 'cyber-blue' ? '#00CED1'
+                : stat.color === 'amina-crimson' ? '#DC143C'
+                : stat.color === 'imperial-gold' ? '#FFD700'
+                : '#10B981'
+              };`}
             >
               {/* Top Border Accent */}
-              <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--stat-color)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div class='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--stat-color)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
 
               {/* Icon & Kaomoji */}
-              <div class="flex items-center justify-between mb-6">
-                <div class="text-5xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12">
+              <div class='flex items-center justify-between mb-6'>
+                <div class='text-5xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12'>
                   {stat.icon}
                 </div>
-                <div class="text-2xl text-[var(--stat-color)] opacity-50 group-hover:opacity-100 transition-opacity duration-300">
+                <div class='text-2xl text-[var(--stat-color)] opacity-50 group-hover:opacity-100 transition-opacity duration-300'>
                   {stat.kaomoji}
                 </div>
               </div>
 
               {/* Animated Counter */}
-              <div class="mb-4">
-                <div class="flex items-baseline gap-1">
+              <div class='mb-4'>
+                <div class='flex items-baseline gap-1'>
                   <span
-                    class="stat-number text-5xl font-heading font-bold text-white group-hover:text-[var(--stat-color)] transition-colors duration-300"
+                    class='stat-number text-5xl font-heading font-bold text-white group-hover:text-[var(--stat-color)] transition-colors duration-300'
                     data-target={stat.value}
                   >
                     0
                   </span>
-                  <span class="text-3xl font-heading font-bold text-[var(--stat-color)]">
+                  <span class='text-3xl font-heading font-bold text-[var(--stat-color)]'>
                     {stat.suffix}
                   </span>
                 </div>
               </div>
 
               {/* Label */}
-              <h3 class="text-xl font-heading font-bold text-white mb-2 group-hover:text-[var(--stat-color)] transition-colors duration-300">
+              <h3 class='text-xl font-heading font-bold text-white mb-2 group-hover:text-[var(--stat-color)] transition-colors duration-300'>
                 {stat.label}
               </h3>
 
               {/* Description */}
-              <p class="text-sm text-gray-400 leading-relaxed">
+              <p class='text-sm text-gray-400 leading-relaxed'>
                 {stat.description}
               </p>
 
               {/* Progress Bar */}
-              <div class="mt-6 h-1 bg-night-shadow rounded-full overflow-hidden">
+              <div class='mt-6 h-1 bg-night-shadow rounded-full overflow-hidden'>
                 <div
-                  class="h-full bg-gradient-to-r from-[var(--stat-color)] to-transparent progress-bar"
-                  style="width: 0%;"
+                  class='h-full bg-gradient-to-r from-[var(--stat-color)] to-transparent progress-bar'
+                  style='width: 0%;'
                 />
               </div>
 
               {/* Corner Accent */}
-              <div class="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-[var(--stat-color)]/30 group-hover:border-[var(--stat-color)] transition-colors duration-300" />
+              <div class='absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-[var(--stat-color)]/30 group-hover:border-[var(--stat-color)] transition-colors duration-300' />
             </div>
           </div>
         ))
@@ -204,33 +222,33 @@ const stats: Stat[] = [
     </div>
 
     <!-- Additional Info -->
-    <div class="mt-16 text-center">
+    <div class='mt-16 text-center'>
       <div
-        class="inline-flex flex-col items-center gap-4 p-8 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-2xl"
+        class='inline-flex flex-col items-center gap-4 p-8 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-2xl'
       >
-        <p class="text-lg text-gray-300 flex items-center gap-2">
+        <p class='text-lg text-gray-300 flex items-center gap-2'>
           <svg
-            class="w-5 h-5 text-green-500"
-            fill="currentColor"
-            viewBox="0 0 20 20"
+            class='w-5 h-5 text-green-500'
+            fill='currentColor'
+            viewBox='0 0 20 20'
           >
             <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clip-rule="evenodd"></path>
+              fill-rule='evenodd'
+              d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+              clip-rule='evenodd'></path>
           </svg>
           <span>All statistics updated in real-time</span>
-          <span class="text-2xl">(•̀ᴗ•́)و</span>
+          <span class='text-2xl'>(•̀ᴗ•́)و</span>
         </p>
 
-        <div class="flex items-center gap-6 text-sm text-gray-400">
-          <span class="flex items-center gap-2">
-            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
+        <div class='flex items-center gap-6 text-sm text-gray-400'>
+          <span class='flex items-center gap-2'>
+            <span class='w-2 h-2 bg-green-500 rounded-full animate-pulse'
             ></span>
             System Status: Operational
           </span>
-          <span class="flex items-center gap-2">
-            <span class="w-2 h-2 bg-cyber-blue rounded-full animate-pulse"
+          <span class='flex items-center gap-2'>
+            <span class='w-2 h-2 bg-cyber-blue rounded-full animate-pulse'
             ></span>
             API Response: &lt;50ms
           </span>
@@ -325,9 +343,8 @@ const stats: Stat[] = [
       }
 
       // Format number with commas
-      const formatted = isDecimal
-        ? current.toFixed(1)
-        : Math.floor(current).toLocaleString();
+      const formatted =
+        isDecimal ? current.toFixed(1) : Math.floor(current).toLocaleString();
 
       element.textContent = formatted;
     }, 16);

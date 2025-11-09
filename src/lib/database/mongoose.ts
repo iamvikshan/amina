@@ -1,4 +1,4 @@
-// @root/astro/lib/database/mongoose.ts
+// @root/src/lib/database/mongoose.ts
 import mongoose from 'mongoose';
 import { Guild } from './schemas/Guild';
 import { User } from './schemas/User';
@@ -239,5 +239,5 @@ export class GuildManager {
   }
 }
 
-export { Guild, User };
+export { Guild, User, connectDB };
 export default { GuildManager, UserManager };

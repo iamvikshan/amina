@@ -128,16 +128,12 @@ export async function getDiscordUserData(
   const { accessToken, userData } = getAuthCookies(cookies);
 
   if (userData) {
-    console.log('[getDiscordUserData] Using cached user data from cookies');
     return userData;
   }
 
   if (!accessToken) {
-    console.error('[getDiscordUserData] No access token found');
     throw new Error('No access token found');
   }
-
-  console.log('[getDiscordUserData] Fetching user data from Discord API');
 
   const options = {
     headers: {

@@ -22,15 +22,11 @@ import RankShowcase from '@components/sections/landing/RankShowcase.astro';
 import GuardianTestimonials from '@components/sections/landing/GuardianTestimonials.astro';
 import BattleStats from '@components/sections/landing/BattleStats.astro';
 import CTAGuardian from '@components/sections/landing/CTAGuardian.astro';
-import FAQ from '@components/sections/misc/FAQ.astro';
 
 // Import feature assets for Guardian Arsenal
 import moderationImage from '@images/automated-tools.avif';
 import commandsImage from '@images/dashboard-image.avif';
 import analyticsImage from '@images/features-image.avif';
-
-// Import FAQ data
-import faqs from '@data/faqs.json';
 
 // Feature data for Guardian Arsenal
 const guardianFeatures = [
@@ -72,38 +68,33 @@ const guardianFeatures = [
   title="Amina - Your 24/7 Discord Guardian | Night Guard Protocol"
 >
   <!-- Global navigation with server islands -->
-  <div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-    <Header server:defer>
-      <HeaderSkeleton slot="fallback" />
-    </Header>
+  <Header server:defer>
+    <HeaderSkeleton slot="fallback" />
+  </Header>
 
-    <main class="space-y-0">
-      <!-- Hero Section - Full-screen character-driven introduction -->
-      <HeroAmina />
+  <main class="space-y-0">
+    <!-- Hero Section - Full-screen character-driven introduction -->
+    <HeroAmina />
 
-      <!-- Guardian Arsenal - Core feature showcase -->
-      <GuardianArsenal features={guardianFeatures} />
+    <!-- Guardian Arsenal - Core feature showcase -->
+    <GuardianArsenal features={guardianFeatures} />
 
-      <!-- Deployment Steps - Quick setup guide -->
-      <DeploymentSteps />
+    <!-- Deployment Steps - Quick setup guide -->
+    <DeploymentSteps />
 
-      <!-- Rank Showcase - Unique progression system -->
-      <RankShowcase />
+    <!-- Rank Showcase - Unique progression system -->
+    <RankShowcase />
 
-      <!-- Guardian Testimonials - Social proof with ranks -->
-      <GuardianTestimonials />
+    <!-- Guardian Testimonials - Social proof with ranks -->
+    <GuardianTestimonials />
 
-      <!-- Battle Stats - Animated performance metrics -->
-      <BattleStats />
+    <!-- Battle Stats - Animated performance metrics -->
+    <BattleStats />
 
-      <!-- FAQ - Guardian Intel -->
-      <FAQ title="Guardian<br />Intel [?]" faqs={faqs} />
+    <!-- Final CTA - Join the Night Guard -->
+    <CTAGuardian />
+  </main>
 
-      <!-- Final CTA - Join the Night Guard -->
-      <CTAGuardian />
-    </main>
-  </div>
-
-  <!-- Footer outside the max-width container for full-width background -->
+  <!-- Footer with full-width background -->
   <FooterSection />
 </Layout>
