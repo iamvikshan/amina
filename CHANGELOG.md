@@ -1,3 +1,13 @@
+# [v1.2.0](https://github.com/iamvikshan/amina/compare/v1.1.7...v1.2.0) (2025-11-10)
+
+
+
+## [1.2.0](https://github.com/iamvikshan/amina/compare/v1.1.7...v1.2.0) (2025-11-10)
+
+### Features
+
+* [phase 3.0] complete TypeScript migration of all events, entry point, and core helpers ([73e9885](https://github.com/iamvikshan/amina/commit/73e988507d8116f9724c6937b93bf676f6e0916c))
+
 # [v1.1.7](https://github.com/iamvikshan/amina/compare/v1.1.6...v1.1.7) (2025-11-09)
 
 ## [1.1.7](https://github.com/iamvikshan/amina/compare/v1.1.6...v1.1.7) (2025-11-09)
