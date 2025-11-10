@@ -1,14 +1,36 @@
 import { ActivityType } from 'discord.js'
-import { getPresenceConfig } from '@schemas/Dev'
+import { getPresenceConfig, updateBotStats } from '@schemas/Dev'
 import type { BotClient } from '@src/structures'
 
 /**
- * Updates the bot's presence/status
+ * Updates the bot's presence/status AND bot statistics
  * @param client - The bot client instance
  */
 async function updatePresence(client: BotClient): Promise<void> {
   const config = await getPresenceConfig()
 
+  // Update bot statistics in database (for dashboard)
+  try {
+    // Get WebSocket ping, default to 0 if not available yet
+    const wsPing = client.ws.ping > 0 ? client.ws.ping : 0
+
+    const stats = {
+      guilds: client.guilds.cache.size,
+      users: client.guilds.cache.reduce((sum, g) => sum + g.memberCount, 0),
+      channels: client.channels.cache.size,
+      ping: wsPing,
+      uptime: process.uptime(),
+    }
+
+    await updateBotStats(stats)
+    client.logger.log(
+      `Bot stats updated: ${stats.guilds} guilds, ${stats.users} users, ${stats.channels} channels, ${wsPing}ms ping`
+    )
+  } catch (error) {
+    client.logger.error('Failed to update bot stats:', error)
+  }
+
+  // Update presence status
   if (!config.PRESENCE.ENABLED) {
     client.user.setPresence({
       status: 'invisible',
@@ -68,18 +90,16 @@ async function updatePresence(client: BotClient): Promise<void> {
     status: config.PRESENCE.STATUS as any,
     activities: [activity],
   })
-
-  // Log the presence update
-  client.logger.log(
-    `Presence Updated: STATUS:${config.PRESENCE.STATUS}, TYPE:${config.PRESENCE.TYPE}`
-  )
 }
 
 /**
  * Initialize and handle bot presence updates
+ * Updates both presence and bot statistics every 10 minutes
  * @param client - The bot client instance
  */
 export default async function handlePresence(client: BotClient): Promise<void> {
   await updatePresence(client)
+
+  // Update every 10 minutes (matches dashboard cache TTL)
   setInterval(() => updatePresence(client), 10 * 60 * 1000)
 }

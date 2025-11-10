@@ -264,4 +264,3 @@ async function handleProfileClear(
 }
 
 export default { handleProfileModal, handleProfileClear }
-

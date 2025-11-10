@@ -1,22 +1,18 @@
 # [v1.1.7](https://github.com/iamvikshan/amina/compare/v1.1.6...v1.1.7) (2025-11-09)
 
-
-
 ## [1.1.7](https://github.com/iamvikshan/amina/compare/v1.1.6...v1.1.7) (2025-11-09)
 
 ### Bug Fixes
 
-* [phase 2.0] complete handlers migration - all 19 handlers converted to TypeScript ([6b8de3f](https://github.com/iamvikshan/amina/commit/6b8de3f8425dfe65baf97890a76860b90a0aa9d8))
+- [phase 2.0] complete handlers migration - all 19 handlers converted to TypeScript ([6b8de3f](https://github.com/iamvikshan/amina/commit/6b8de3f8425dfe65baf97890a76860b90a0aa9d8))
 
 # [v1.1.6](https://github.com/iamvikshan/amina/compare/v1.1.5...v1.1.6) (2025-11-08)
-
-
 
 ## [1.1.6](https://github.com/iamvikshan/amina/compare/v1.1.5...v1.1.6) (2025-11-08)
 
 ### Bug Fixes
 
-* resolve Docker container module resolution issues ([fff0d46](https://github.com/iamvikshan/amina/commit/fff0d46ba1e629433df089b8263a28f2cddb9df8))
+- resolve Docker container module resolution issues ([fff0d46](https://github.com/iamvikshan/amina/commit/fff0d46ba1e629433df089b8263a28f2cddb9df8))
 
 # [v1.1.5](https://github.com/iamvikshan/amina/compare/v1.1.4...v1.1.5) (2025-11-04)
 

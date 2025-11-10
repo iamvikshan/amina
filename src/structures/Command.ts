@@ -15,6 +15,7 @@ export type CommandCategory =
   | 'ECONOMY'
   | 'FUN'
   | 'IMAGE'
+  | 'INFO'
   | 'INFORMATION'
   | 'INVITE'
   | 'MODERATION'
@@ -53,9 +54,9 @@ export interface InteractionInfo {
   /** Whether the slash command is enabled or not */
   enabled: boolean
   /** Whether the reply should be ephemeral */
-  ephemeral: boolean
+  ephemeral?: boolean
   /** Command options */
-  options: ApplicationCommandOptionData[]
+  options?: ApplicationCommandOptionData[]
 }
 
 /**
@@ -83,7 +84,7 @@ export interface CommandData {
   /** A short description of the command */
   description: string
   /** The command cooldown in seconds */
-  cooldown: number
+  cooldown?: number
   /** Whether the command requires premium */
   isPremium?: boolean
   /** The category this command belongs to */
@@ -97,13 +98,18 @@ export interface CommandData {
   /** Command configuration */
   command?: CommandInfo
   /** Slash command configuration */
-  slashCommand: InteractionInfo
+  slashCommand?: InteractionInfo
   /** The callback to be executed when the interaction is invoked */
-  interactionRun: (
+  interactionRun?: (
     interaction: ChatInputCommandInteraction,
     data: any
   ) => Promise<any> | any
 }
+
+/**
+ * Command type alias for convenience
+ */
+export type Command = CommandData
 
 /**
  * Default command template

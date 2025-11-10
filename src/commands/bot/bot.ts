@@ -1,18 +1,18 @@
-const {
+import {
   EmbedBuilder,
   ButtonBuilder,
   ActionRowBuilder,
   ApplicationCommandOptionType,
   ButtonStyle,
-} = require('discord.js')
-const { timeformat } = require('@helpers/Utils')
-const { EMBED_COLORS, DASHBOARD } = require('@src/config.js')
-const botstats = require('./sub/botstats')
+  ChatInputCommandInteraction,
+} from 'discord.js'
+import { timeformat } from '@helpers/Utils'
+import { EMBED_COLORS, DASHBOARD } from '@src/config'
+import botstats from './sub/botstats'
+import type { Command } from '@structures/Command'
+import type { BotClient } from '@structures/BotClient'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'bot',
   description: 'bot related commands',
   category: 'INFO',
@@ -59,19 +59,19 @@ module.exports = {
     ],
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
     if (!sub) return interaction.followUp('Not a valid subcommand')
 
     // Invite
     if (sub === 'invite') {
-      const response = botInvite(interaction.client)
+      const response = botInvite(interaction.client as BotClient)
       try {
         await interaction.user.send(response)
         return interaction.followUp(
           'Check your DM for my information! :envelope_with_arrow:'
         )
-      } catch (ex) {
+      } catch (_ex) {
         return interaction.followUp(
           'I cannot send you my information! Is your DM open?'
         )
@@ -111,13 +111,15 @@ module.exports = {
           .setStyle(ButtonStyle.Link)
       )
 
-      let buttonsRow = new ActionRowBuilder().addComponents(components)
+      let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        components
+      )
       return interaction.followUp({ embeds: [embed], components: [buttonsRow] })
     }
 
     // Stats
     else if (sub === 'stats') {
-      const response = botstats(interaction.client)
+      const response = botstats(interaction.client as BotClient)
       return interaction.followUp(response)
     }
 
@@ -148,7 +150,9 @@ module.exports = {
           .setStyle(ButtonStyle.Link)
       )
 
-      let buttonsRow = new ActionRowBuilder().addComponents(components)
+      let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        components
+      )
       return interaction.followUp({ embeds: [embed], components: [buttonsRow] })
     }
 
@@ -175,7 +179,7 @@ module.exports = {
         })
 
         const changelogContent = Buffer.from(
-          response.data.content,
+          (response.data as any).content,
           'base64'
         ).toString('utf-8')
 
@@ -221,7 +225,9 @@ module.exports = {
   },
 }
 
-function botInvite(client) {
+export default command
+
+function botInvite(client: BotClient) {
   const embed = new EmbedBuilder()
     .setAuthor({ name: 'Invite' })
     .setColor(EMBED_COLORS.BOT_EMBED)
@@ -260,6 +266,8 @@ function botInvite(client) {
     )
   }
 
-  let buttonsRow = new ActionRowBuilder().addComponents(components)
+  let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    components
+  )
   return { embeds: [embed], components: [buttonsRow] }
 }

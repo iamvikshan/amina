@@ -39,6 +39,33 @@ const Schema = new mongoose.Schema(
         default: false,
       },
     },
+    // NEW: Bot statistics updated every 10 minutes by presence handler
+    BOT_STATS: {
+      guilds: {
+        type: Number,
+        default: 0,
+      },
+      users: {
+        type: Number,
+        default: 0,
+      },
+      channels: {
+        type: Number,
+        default: 0,
+      },
+      ping: {
+        type: Number,
+        default: 0,
+      },
+      uptime: {
+        type: Number,
+        default: 0,
+      },
+      lastUpdated: {
+        type: Date,
+        default: Date.now,
+      },
+    },
   },
   {
     timestamps: true,
@@ -79,4 +106,35 @@ export async function setDevCommands(enabled: boolean): Promise<any> {
   document.DEV_COMMANDS.ENABLED = enabled
   await document.save()
   return document.DEV_COMMANDS
+}
+
+// NEW: Update bot statistics
+export async function updateBotStats(stats: {
+  guilds: number
+  users: number
+  channels: number
+  ping: number
+  uptime: number
+}): Promise<any> {
+  const document = await Model.findOne()
+  if (!document) {
+    return await Model.create({
+      BOT_STATS: { ...stats, lastUpdated: new Date() },
+    })
+  }
+
+  document.BOT_STATS = {
+    ...stats,
+    lastUpdated: new Date(),
+  }
+
+  await document.save()
+  return document.BOT_STATS
+}
+
+// NEW: Get bot statistics
+export async function getBotStats(): Promise<any> {
+  const document = await Model.findOne()
+  if (!document) return (await Model.create({})).BOT_STATS
+  return document.BOT_STATS
 }

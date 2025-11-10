@@ -7,68 +7,71 @@
 
 ### 📊 Migration Progress Overview
 
-**Overall Status: 105 / 374 files converted (28.1%)**
+**Overall Status: 133 / 374 files converted (35.6%)**
 
 | Category          | Converted | Remaining | Total | Progress |
 | ----------------- | --------- | --------- | ----- | -------- |
-| **Core & Config** | 3         | 1         | 4     | 75%      |
+| **Core & Config** | 4         | 0         | 4     | ✅ 100%  |
 | **Structures**    | 5         | 0         | 5     | ✅ 100%  |
-| **Helpers**       | 11        | 1         | 12    | ✅ 92%   |
+| **Helpers**       | 19        | 0         | 19    | ✅ 100%  |
 | **Database**      | 10        | 0         | 10    | ✅ 100%  |
 | **Handlers**      | 19        | 0         | 19    | ✅ 100%  |
-| **Events**        | 6         | 19        | 25    | 24%      |
-| **Commands**      | 2         | 274       | 276   | 1%       |
+| **Events**        | 25        | 0         | 25    | ✅ 100%  |
+| **Commands**      | 4         | 210       | 214   | 2%       |
 | **Contexts**      | 1         | 0         | 1     | ✅ 100%  |
 | **Services**      | 1         | 0         | 1     | ✅ 100%  |
 
-**Phase 2 Progress:** ✅ COMPLETE! (25/25 files done - 100%)
-**Next Target:** Phase 3 - Events (19 remaining files)
+**Phase 3 Progress:** ✅ COMPLETE! (28/28 files done - 100%)
+**Next Target:** Phase 4 - Commands (210 remaining files)
 
 ---
 
-### Phase 1 & 2 ✅ COMPLETE - Core Infrastructure, Database & Handlers
+### Phase 1, 2 & 3 ✅ COMPLETE - Core Infrastructure, Database, Handlers & Events
 
 **Major Achievements:**
 
-- ✅ **Core Infrastructure Complete** - Structures, Helpers, Config, Services
-- ✅ **Database Layer Complete** - All schemas + mongoose connection converted!
-- ✅ **All Handlers Complete** - 19/19 handlers converted (100%)! 🎉
-- ✅ **Context Menus Complete** - Avatar context converted
-- ✅ **6 Events Converted** - clientReady, error, raw, warn, interactionCreate, voiceStateUpdate
+- ✅ **Core Infrastructure Complete** - Structures, Helpers, Config, Services (100%)
+- ✅ **Database Layer Complete** - All schemas + mongoose connection converted (100%)
+- ✅ **All Handlers Complete** - 19/19 handlers converted (100%)
+- ✅ **All Events Complete** - 25/25 event files converted (100%)
+- ✅ **Context Menus Complete** - Avatar context converted (100%)
+- ✅ **Entry Point Converted** - index.js → index.ts with Bun native path resolution
+- ✅ **ModUtils Refactored** - Split into modular structure (7 files)
 
-**Progress: 105 TypeScript files converted, 269 JavaScript files remaining**
+**Progress: 133 TypeScript files converted, 210 JavaScript files remaining**
 
-#### ✅ Converted Files (105 files)
+#### ✅ Converted Files (133 files)
 
-**Configuration & Types (3 files):**
+**Configuration & Types (4 files - ✅ 100% Complete!):**
 
 - [x] `src/config.ts` - Main configuration
+- [x] `src/index.ts` - Main entry point ⭐ **NEW**
 - [x] `types/global.d.ts` - Global type definitions
 - [x] `types/schemas.d.ts` - Schema type definitions
 
-**Handlers (19 files - ✅ 100% COMPLETE!):**
+**Handlers (19 files - ✅ 100% Complete!):**
 
-- [x] `src/handlers/command.ts` - Command handler ⭐
+- [x] `src/handlers/command.ts` - Command handler
 - [x] `src/handlers/index.ts` - Handler barrel exports
 - [x] `src/handlers/giveaway.ts` - Giveaway system handler
-- [x] `src/handlers/manager.ts` - Music manager (Lavalink) ⭐
-- [x] `src/handlers/reactionRoles.ts` - Reaction roles ⭐
-- [x] `src/handlers/counter.ts` - Counter system ⭐
-- [x] `src/handlers/presence.ts` - Bot presence ⭐
-- [x] `src/handlers/player.ts` - Music player ⭐
-- [x] `src/handlers/context.ts` - Context menu handler ⭐
-- [x] `src/handlers/stats.ts` - Stats tracking ⭐ **NEW**
-- [x] `src/handlers/greeting.ts` - Welcome/leave messages ⭐ **NEW**
-- [x] `src/handlers/invite.ts` - Invite tracking ⭐ **NEW**
-- [x] `src/handlers/tod.ts` - Truth or Dare game ⭐ **NEW**
-- [x] `src/handlers/profile.ts` - User profiles ⭐ **NEW**
-- [x] `src/handlers/guild.ts` - Guild management ⭐ **NEW**
-- [x] `src/handlers/automod.ts` - Automod system ⭐ **NEW**
-- [x] `src/handlers/ticket.ts` - Ticket system ⭐ **NEW**
-- [x] `src/handlers/report.ts` - Report system ⭐ **NEW**
-- [x] `src/handlers/suggestion.ts` - Suggestion system ⭐ **NEW**
+- [x] `src/handlers/manager.ts` - Music manager (Lavalink)
+- [x] `src/handlers/reactionRoles.ts` - Reaction roles
+- [x] `src/handlers/counter.ts` - Counter system
+- [x] `src/handlers/presence.ts` - Bot presence
+- [x] `src/handlers/player.ts` - Music player
+- [x] `src/handlers/context.ts` - Context menu handler
+- [x] `src/handlers/stats.ts` - Stats tracking
+- [x] `src/handlers/greeting.ts` - Welcome/leave messages
+- [x] `src/handlers/invite.ts` - Invite tracking
+- [x] `src/handlers/tod.ts` - Truth or Dare game
+- [x] `src/handlers/profile.ts` - User profiles
+- [x] `src/handlers/guild.ts` - Guild management
+- [x] `src/handlers/automod.ts` - Automod system
+- [x] `src/handlers/ticket.ts` - Ticket system
+- [x] `src/handlers/report.ts` - Report system
+- [x] `src/handlers/suggestion.ts` - Suggestion system
 
-**✨ Helpers (11 files - 92% Complete!):**
+**Helpers (19 files - ✅ 100% Complete!):**
 
 - [x] `src/helpers/Logger.ts` - Logging utility
 - [x] `src/helpers/Validator.ts` - Validation logic
@@ -78,91 +81,96 @@
 - [x] `src/helpers/BotUtils.ts` - Bot utility functions
 - [x] `src/helpers/Utils.ts` - General utilities
 - [x] `src/helpers/Honeybadger.ts` - Error tracking
-- [x] `src/helpers/extenders/Guild.ts` - Guild extensions ⭐ **NEW**
-- [x] `src/helpers/extenders/Message.ts` - Message extensions ⭐ **NEW**
-- [x] `src/helpers/extenders/GuildChannel.ts` - Channel extensions ⭐ **NEW**
+- [x] `src/helpers/webhook.ts` - Dashboard notifications ⭐ **NEW**
+- [x] `src/helpers/extenders/Guild.ts` - Guild extensions
+- [x] `src/helpers/extenders/Message.ts` - Message extensions
+- [x] `src/helpers/extenders/GuildChannel.ts` - Channel extensions
+- [x] `src/helpers/ModUtils/index.ts` - Barrel export ⭐ **NEW**
+- [x] `src/helpers/ModUtils/core.ts` - Core moderation utils ⭐ **NEW**
+- [x] `src/helpers/ModUtils/purge.ts` - Message purging ⭐ **NEW**
+- [x] `src/helpers/ModUtils/warnings.ts` - Warning system ⭐ **NEW**
+- [x] `src/helpers/ModUtils/timeout.ts` - Timeout management ⭐ **NEW**
+- [x] `src/helpers/ModUtils/kick-ban.ts` - Kick/ban operations ⭐ **NEW**
+- [x] `src/helpers/ModUtils/voice.ts` - Voice controls ⭐ **NEW**
 
-**✨ Structures (5 files - Foundation Complete!):**
+**Structures (5 files - ✅ 100% Complete!):**
 
 - [x] `src/structures/CommandCategory.ts` - Command category enum
 - [x] `src/structures/index.ts` - Barrel export file
 - [x] `src/structures/BaseContext.ts` - Context menu base
-- [x] `src/structures/Command.ts` - Command base structure
-- [x] `src/structures/BotClient.ts` - Core bot client ⭐ **MAJOR**
+- [x] `src/structures/Command.ts` - Command base structure (enhanced ⭐ **NEW**)
+- [x] `src/structures/BotClient.ts` - Core bot client
 
-**✨ Database (10 files - 100% Complete!):**
+**Database (10 files - ✅ 100% Complete!):**
 
-- [x] `src/database/mongoose.ts` - Database connection ⭐ **NEW**
+- [x] `src/database/mongoose.ts` - Database connection
 - [x] `src/database/schemas/User.ts` - User schema
 - [x] `src/database/schemas/Guild.ts` - Guild schema
 - [x] `src/database/schemas/Member.ts` - Member schema
-- [x] `src/database/schemas/ModLog.ts` - Moderation logs ⭐ **NEW**
-- [x] `src/database/schemas/AutomodLogs.ts` - Automod logs ⭐ **NEW**
-- [x] `src/database/schemas/Giveaways.ts` - Giveaways ⭐ **NEW**
-- [x] `src/database/schemas/Dev.ts` - Developer data ⭐ **NEW**
-- [x] `src/database/schemas/TruthOrDare.ts` - Truth or Dare ⭐ **NEW**
-- [x] `src/database/schemas/ReactionRoles.ts` - Reaction roles ⭐ **NEW**
-- [x] `src/database/schemas/Suggestions.ts` - Suggestions ⭐ **NEW**
-- [x] `src/database/schemas/MemberStats.ts` - Member stats ⭐ **NEW**
+- [x] `src/database/schemas/ModLog.ts` - Moderation logs
+- [x] `src/database/schemas/AutomodLogs.ts` - Automod logs
+- [x] `src/database/schemas/Giveaways.ts` - Giveaways
+- [x] `src/database/schemas/Dev.ts` - Developer data
+- [x] `src/database/schemas/TruthOrDare.ts` - Truth or Dare
+- [x] `src/database/schemas/ReactionRoles.ts` - Reaction roles
+- [x] `src/database/schemas/Suggestions.ts` - Suggestions
+- [x] `src/database/schemas/MemberStats.ts` - Member stats
 
-**Commands (2 files):**
+**Commands (4 files):**
 
-- [x] `src/commands/fun/meme.ts` - Meme command ⭐ Fixed button handling
-- [x] `src/commands/utility/help.ts` - Help command ⭐ Fixed interactions
+- [x] `src/commands/fun/meme.ts` - Meme command
+- [x] `src/commands/utility/help.ts` - Help command
+- [x] `src/commands/bot/bot.ts` - Bot info commands ⭐ **NEW**
+- [x] `src/commands/bot/sub/botstats.ts` - Bot statistics ⭐ **NEW**
 
-**Events (6 files):**
+**Events (25 files - ✅ 100% Complete!):**
 
+- [x] `src/events/clientReady.ts` - Client ready event
+- [x] `src/events/error.ts` - Error handler
+- [x] `src/events/raw.ts` - Raw event handler
+- [x] `src/events/warn.ts` - Warning handler
 - [x] `src/events/interactions/interactionCreate.ts` - Interaction handler
-- [x] `src/events/clientReady.ts` - Client ready event ⭐
-- [x] `src/events/error.ts` - Error handler ⭐
-- [x] `src/events/raw.ts` - Raw event handler ⭐
-- [x] `src/events/warn.ts` - Warning handler ⭐
-- [x] `src/events/voice/voiceStateUpdate.ts` - Voice state handler ⭐ **NEW**
+- [x] `src/events/voice/voiceStateUpdate.ts` - Voice state handler
+- [x] `src/events/guild/guildCreate.ts` - Guild join handler ⭐ **NEW**
+- [x] `src/events/guild/guildDelete.ts` - Guild leave handler ⭐ **NEW**
+- [x] `src/events/invite/inviteCreate.ts` - Invite creation tracker ⭐ **NEW**
+- [x] `src/events/invite/inviteDelete.ts` - Invite deletion tracker ⭐ **NEW**
+- [x] `src/events/member/guildMemberAdd.ts` - Member join handler ⭐ **NEW**
+- [x] `src/events/member/guildMemberRemove.ts` - Member leave handler ⭐ **NEW**
+- [x] `src/events/member/rolesChange.ts` - Role change tracker ⭐ **NEW**
+- [x] `src/events/message/messageCreate.ts` - Message handler ⭐ **NEW**
+- [x] `src/events/message/messageUpdate.ts` - Message edit handler ⭐ **NEW**
+- [x] `src/events/message/messageDelete.ts` - Message deletion handler ⭐ **NEW**
+- [x] `src/events/reaction/messageReactionAdd.ts` - Reaction add handler ⭐ **NEW**
+- [x] `src/events/reaction/messageReactionRemove.ts` - Reaction remove handler ⭐ **NEW**
+- [x] `src/events/player/trackStart.ts` - Track start handler ⭐ **NEW**
+- [x] `src/events/player/trackEnd.ts` - Track end handler ⭐ **NEW**
+- [x] `src/events/player/queueEnd.ts` - Queue end handler ⭐ **NEW**
+- [x] `src/events/player/playerDestroy.ts` - Player destroy handler ⭐ **NEW**
+- [x] `src/events/player/playerDisconnect.ts` - Player disconnect handler ⭐ **NEW**
 
-**Contexts (1 file - 100% Complete!):**
+**Contexts (1 file - ✅ 100% Complete!):**
 
-- [x] `src/contexts/avatar.ts` - Avatar context menu ⭐ **NEW**
+- [x] `src/contexts/avatar.ts` - Avatar context menu
 
-**Services (1 file):**
+**Services (1 file - ✅ 100% Complete!):**
 
 - [x] `src/services/health.ts` - Health check service
 
-#### ⏳ Remaining Files to Convert (269 JavaScript files)
+#### ⏳ Remaining Files to Convert (210 JavaScript files)
 
-**Core (1 file):**
+**Core:** ✅ All Complete! (4/4 converted)
 
-- [ ] `src/index.js` - Main entry point
-
-**Helpers (1 file):**
-
-- [ ] `src/helpers/ModUtils.js` - 616 lines, complex moderation utilities
+**Helpers:** ✅ All Complete! (19/19 converted)
 
 **Handlers:** ✅ All Complete! (19/19 converted)
 
-**Events (19 files remaining):**
+**Events:** ✅ All Complete! (25/25 converted)
 
-- [ ] `src/events/guild/guildCreate.js`
-- [ ] `src/events/guild/guildDelete.js`
-- [ ] `src/events/invite/inviteCreate.js`
-- [ ] `src/events/invite/inviteDelete.js`
-- [ ] `src/events/member/guildMemberAdd.js`
-- [ ] `src/events/member/guildMemberRemove.js`
-- [ ] `src/events/member/rolesChange.js`
-- [ ] `src/events/message/messageCreate.js`
-- [ ] `src/events/message/messageUpdate.js`
-- [ ] `src/events/message/messageDelete.js`
-- [ ] `src/events/player/trackStart.js`
-- [ ] `src/events/player/trackEnd.js`
-- [ ] `src/events/player/playerDisconnect.js`
-- [ ] `src/events/player/playerDestroy.js`
-- [ ] `src/events/player/queueEnd.js`
-- [ ] `src/events/reaction/messageReactionAdd.js`
-- [ ] `src/events/reaction/messageReactionRemove.js`
+**Commands (210 files remaining):**
 
-**Commands (274 files):**
-
-- Admin (17 files): autorole, counter, embed, logs, maxwarn, reactionrole, say, settings, ticket, automod/_ (3), greeting/_ (2)
-- Bot (2 files): bot.js, sub/botstats.js
+- Admin (17 files): autorole, counter, embed, logs, maxwarn, reactionrole, say, settings, ticket, automod/\* (3), greeting/\* (2)
+- Bot: ✅ All Complete! (2/2 converted)
 - Dev (4 files): dev, premium, presence, zzz
 - Economy (8 files): bank, beg, daily, gamble, sub/\* (4)
 - Fun (14 files): facts, filters, flip, generators, hack, hangman, image, love, overlay, react, tictactoe, tod, together
@@ -175,7 +183,7 @@
 - Suggestions (2 files): suggest, suggestion
 - Utility (12 files): afk, epicgames, github, paste, pokedex, profile, proxies, qrcode, redflag, report, urban, weather
 
-### � Phase 2 - ✅ COMPLETE! (25/25 files - 100%)
+### 📦 Phase 2 - ✅ COMPLETE! (25/25 files - 100%)
 
 **Target: Core system files that affect bot functionality**
 
@@ -190,86 +198,92 @@
 
 ---
 
-### � Phase 3 - Events (In Progress - 6/25 done, 24%)
+### 📦 Phase 3 - ✅ COMPLETE! (28/28 files - 100%)
 
-**Target: Event handlers**
+**Target: Event handlers and remaining core files**
 
-#### ✅ Completed (6 files):
+#### ✅ All Files Completed:
 
-- [x] `src/events/clientReady.ts`
-- [x] `src/events/error.ts`
-- [x] `src/events/raw.ts`
-- [x] `src/events/warn.ts`
-- [x] `src/events/interactions/interactionCreate.ts`
-- [x] `src/events/voice/voiceStateUpdate.ts`
+- All event files (25/25) ✅
+  - Core events: clientReady, error, raw, warn
+  - Interaction events: interactionCreate
+  - Voice events: voiceStateUpdate
+  - Guild events: guildCreate, guildDelete
+  - Invite events: inviteCreate, inviteDelete
+  - Member events: guildMemberAdd, guildMemberRemove, rolesChange
+  - Message events: messageCreate, messageUpdate, messageDelete
+  - Reaction events: messageReactionAdd, messageReactionRemove
+  - Player events: trackStart, trackEnd, queueEnd, playerDestroy, playerDisconnect
+- Entry point converted (1/1) ✅
+  - index.js → index.ts with Bun native path resolution
+- ModUtils refactored (7/7 files) ✅
+  - Split into modular structure: core, purge, warnings, timeout, kick-ban, voice, index
+- webhook.js → webhook.ts ✅
+- Command structure enhanced ✅
+  - Added `Command` type export for better TypeScript support
+  - Made properties optional for flexibility
+  - Added 'INFO' category
 
-#### 🔄 Remaining (19 files):
+**Phase 3 Complete! Moving to Phase 4: Commands** 🎉
 
-**Guild Events (2 files):**
+---
 
-- [ ] `src/events/guild/guildCreate.js`
-- [ ] `src/events/guild/guildDelete.js`
+### 📦 Phase 4 - Commands Conversion (4/214 done - 2%)
 
-**Invite Events (2 files):**
+**Target: Convert all command files to TypeScript**
 
-- [ ] `src/events/invite/inviteCreate.js`
-- [ ] `src/events/invite/inviteDelete.js`
+#### ✅ Completed (4 files):
 
-**Member Events (3 files):**
+- [x] `src/commands/fun/meme.ts`
+- [x] `src/commands/utility/help.ts`
+- [x] `src/commands/bot/bot.ts`
+- [x] `src/commands/bot/sub/botstats.ts`
 
-- [ ] `src/events/member/guildMemberAdd.js`
-- [ ] `src/events/member/guildMemberRemove.js`
-- [ ] `src/events/member/rolesChange.js`
+#### 🔄 In Progress (210 files remaining):
 
-**Message Events (3 files):**
+**Recommended conversion order by category:**
 
-- [ ] `src/events/message/messageCreate.js`
-- [ ] `src/events/message/messageUpdate.js`
-- [ ] `src/events/message/messageDelete.js`
+1. **Dev Commands (4 files)** - Small, isolated commands
+   - [ ] dev.js, premium.js, presence.js, zzz.js
 
-**Player Events (5 files):**
+2. **Info Commands (6 files)** - Information display commands
+   - [ ] info.js, leaderboard.js, shared/\* (4 files)
 
-- [ ] `src/events/player/trackStart.js`
-- [ ] `src/events/player/trackEnd.js`
-- [ ] `src/events/player/playerDisconnect.js`
-- [ ] `src/events/player/playerDestroy.js`
-- [ ] `src/events/player/queueEnd.js`
+3. **Social Commands (2 files)** - Social interaction features
+   - [ ] invites.js, reputation.js
 
-**Reaction Events (2 files):**
+4. **Stats Commands (4 files)** - Statistics and ranking
+   - [ ] rank.js, stats.js, statstracking.js, xp.js
 
-- [ ] `src/events/reaction/messageReactionAdd.js`
-- [ ] `src/events/reaction/messageReactionRemove.js`
+5. **Suggestions Commands (2 files)** - Suggestion system
+   - [ ] suggest.js, suggestion.js
 
-**Voice Events:** ✅ Complete (1/1)
+6. **Economy Commands (8 files)** - Economy system
+   - [ ] bank.js, beg.js, daily.js, gamble.js, sub/\* (4 files)
 
-**Interaction Events:** ✅ Complete (1/1)
+7. **Fun Commands (14 files)** - Entertainment features
+   - [ ] facts.js, filters.js, flip.js, generators.js, hack.js, hangman.js
+   - [ ] image.js, love.js, overlay.js, react.js, tictactoe.js, tod.js, together.js
 
-### 🔵 Phase 4 - Commands (274 files)
+8. **Utility Commands (12 files)** - Utility tools
+   - [ ] afk.js, epicgames.js, github.js, paste.js, pokedex.js, profile.js
+   - [ ] proxies.js, qrcode.js, redflag.js, report.js, urban.js, weather.js
 
-**Target: Convert command files by category**
+9. **Giveaways Commands (8 files)** - Giveaway system
+   - [ ] giveaway.js, sub/\* (7 files)
 
-**Recommended Order:**
+10. **Music Commands (17 files)** - Music player features
+    - [ ] autoplay.js, bassboost.js, leave.js, loop.js, lyric.js, np.js
+    - [ ] pause.js, play.js, queue.js, resume.js, search.js, seek.js
+    - [ ] shuffle.js, skip.js, stop.js, volume.js
 
-1. **Dev commands** (4 files) - Admin/testing commands
-2. **Bot commands** (2 files) - Bot info commands
-3. **Stats commands** (4 files) - Stats tracking
-4. **Social commands** (2 files) - Social features
-5. **Suggestions** (2 files) - Suggestion system
-6. **Economy** (8 files) - Economy system
-7. **Giveaways** (8 files) - Giveaway system
-8. **Info** (6 files) - Information commands
-9. **Fun** (13 files) - Fun/entertainment commands (1 already done: meme.ts)
-10. **Utility** (11 files) - Utility commands (1 already done: help.ts)
-11. **Admin** (17 files) - Server administration
-12. **Moderation** (16 files) - Moderation commands
-13. **Music** (17 files) - Music player commands
+11. **Moderation Commands (16 files)** - Moderation tools
+    - [ ] ban.js, kick.js, nick.js, purge.js, softban.js, timeout.js
+    - [ ] unban.js, untimeout.js, voice.js, warn.js, warnings.js, message/\* (6 files)
 
-### 🟣 Phase 5 - Final Files
-
-**Target: Entry point and context menus**
-
-- [ ] `src/index.js` - Main entry point (convert last)
-- [ ] `src/contexts/avatar.js` - Avatar context menu
+12. **Admin Commands (17 files)** - Administrative features
+    - [ ] autorole.js, counter.js, embed.js, logs.js, maxwarn.js, reactionrole.js
+    - [ ] say.js, settings.js, ticket.js, automod/\* (3 files), greeting/\* (2 files)
 
 ---
 

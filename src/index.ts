@@ -1,28 +1,27 @@
-// @root/src/index.js
-require('module-alias/register')
+// @root/src/index.ts
 
 // register extenders
-require('@helpers/extenders/Message')
-require('@helpers/extenders/Guild')
-require('@helpers/extenders/GuildChannel')
+import '@helpers/extenders/Message'
+import '@helpers/extenders/Guild'
+import '@helpers/extenders/GuildChannel'
 
 // Start health check server
-require('./services/health')
+import './services/health'
 
-const { checkForUpdates } = require('@helpers/BotUtils')
-const { initializeMongoose } = require('@src/database/mongoose')
-const { BotClient } = require('@src/structures')
-const { validateConfiguration } = require('@helpers/Validator')
+import { checkForUpdates } from '@helpers/BotUtils'
+import { initializeMongoose } from '@src/database/mongoose'
+import { BotClient } from '@src/structures'
+import { validateConfiguration } from '@helpers/Validator'
 
 validateConfiguration()
 
 // Declare client in global scope
-let client
+let client: BotClient | undefined
 
-async function initializeBot() {
+async function initializeBot(): Promise<BotClient> {
   try {
     // initialize client
-    client = new BotClient() // Remove 'const' here since we're using the global client
+    client = new BotClient()
 
     // check for updates
     await checkForUpdates()
@@ -39,7 +38,7 @@ async function initializeBot() {
     await client.login(process.env.BOT_TOKEN)
 
     // Initialize dashboard last, after bot is ready
-    // @root/src/index.js
+    // @root/src/index.ts
     // if (client.config.DASHBOARD.enabled) {
     //   client.logger.log('Launching dashboard...')
     //   try {
@@ -87,7 +86,7 @@ async function initializeBot() {
 }
 
 // Global error handling
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', (err: any) => {
   if (client) {
     client.logger.error('Unhandled Rejection:', err)
   } else {
@@ -95,7 +94,7 @@ process.on('unhandledRejection', err => {
   }
 })
 
-process.on('uncaughtException', err => {
+process.on('uncaughtException', (err: Error) => {
   if (client) {
     client.logger.error('Uncaught Exception:', err)
   } else {

@@ -1,15 +1,23 @@
-const {
+import {
   EmbedBuilder,
   ButtonBuilder,
   ActionRowBuilder,
   ButtonStyle,
-} = require('discord.js')
-const { getSettings } = require('@schemas/Guild')
-const { notifyDashboard } = require('@helpers/webhook')
+  Guild,
+} from 'discord.js'
+import { getSettings } from '@schemas/Guild'
+import { notifyDashboard } from '@helpers/webhook'
+import type { BotClient } from '@src/structures'
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+const wait = (ms: number): Promise<void> =>
+  new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = async (client, guild) => {
+/**
+ * Handles guild deletion event when the bot leaves a server
+ * @param {BotClient} client - The bot client instance
+ * @param {Guild} guild - The guild that was left
+ */
+export default async (client: BotClient, guild: Guild): Promise<void> => {
   if (!guild.available) return
   client.logger.log(
     `Guild Left: ${guild.name} (${guild.id}) Members: ${guild.memberCount}`
@@ -30,7 +38,7 @@ module.exports = async (client, guild) => {
     owner = await client.users.fetch(ownerId)
     ownerTag = owner.tag
     client.logger.log(`Fetched owner: ${ownerTag}`)
-  } catch (err) {
+  } catch (err: any) {
     client.logger.error(`Failed to fetch owner: ${err.message}`)
   }
 
@@ -76,7 +84,7 @@ module.exports = async (client, guild) => {
       client.logger.success(
         'Successfully sent webhook message for guild leave event.'
       )
-    } catch (err) {
+    } catch (err: any) {
       client.logger.error(`Failed to send webhook message: ${err.message}`)
     }
   } else {
@@ -93,7 +101,7 @@ module.exports = async (client, guild) => {
       new ButtonBuilder()
         .setLabel('Support Server')
         .setStyle(ButtonStyle.Link)
-        .setURL(process.env.SUPPORT_SERVER),
+        .setURL(process.env.SUPPORT_SERVER as string),
       new ButtonBuilder()
         .setLabel('Leave Feedback')
         .setStyle(ButtonStyle.Link)
@@ -102,7 +110,7 @@ module.exports = async (client, guild) => {
         ),
     ]
 
-    const row = new ActionRowBuilder().addComponents(components)
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(components)
 
     // Create a new embed for the DM
     const dmEmbed = new EmbedBuilder()
@@ -133,7 +141,7 @@ module.exports = async (client, guild) => {
       })
 
       client.logger.success('Successfully sent goodbye DM to the server owner.')
-    } catch (err) {
+    } catch (err: any) {
       client.logger.error(`Error sending DM: ${err.message}`)
       if (err.code === 50007) {
         client.logger.error(

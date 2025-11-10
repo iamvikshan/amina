@@ -1,7 +1,14 @@
-const { MUSIC, EMBED_COLORS } = require('@src/config')
-const { EmbedBuilder } = require('discord.js')
+import { MUSIC, EMBED_COLORS } from '@src/config'
+import { EmbedBuilder } from 'discord.js'
+import type { BotClient } from '@src/structures'
+import type { Player } from 'lavalink-client'
 
-module.exports = async (client, player) => {
+/**
+ * Handles queue end events
+ * @param {BotClient} client - The bot client instance
+ * @param {Player} player - The player whose queue ended
+ */
+export default async (client: BotClient, player: Player): Promise<void> => {
   const guild = client.guilds.cache.get(player.guildId)
   if (!guild) return
 
@@ -17,12 +24,12 @@ module.exports = async (client, player) => {
     await player.setVolume(MUSIC.DEFAULT_VOLUME)
   }
 
-  const msg = player.get('message')
+  const msg: any = player.get('message')
   if (msg && msg.deletable) {
     await msg.delete().catch(() => {})
   }
 
-  const channel = guild.channels.cache.get(player.textChannelId)
+  const channel: any = guild.channels.cache.get(player.textChannelId)
   if (channel) {
     await channel.safeSend(
       {

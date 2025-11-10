@@ -201,4 +201,3 @@ async function sendRandomQuestion(
 export default {
   handleTodButtonClick,
 }
-

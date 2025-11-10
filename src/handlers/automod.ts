@@ -254,4 +254,3 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
 export default {
   performAutomod,
 }
-

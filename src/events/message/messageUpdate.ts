@@ -1,13 +1,19 @@
-const { EmbedBuilder } = require('discord.js')
-const { getSettings } = require('@schemas/Guild')
-const { EMBED_COLORS } = require('@src/config')
+import { EmbedBuilder, Message, PartialMessage } from 'discord.js'
+import { getSettings } from '@schemas/Guild'
+import { EMBED_COLORS } from '@src/config'
+import type { BotClient } from '@src/structures'
 
 /**
- * @param {import('@src/structures').BotClient} client
- * @param {import('discord.js').Message|import('discord.js').PartialMessage} oldMessage
- * @param {import('discord.js').Message|import('discord.js').PartialMessage} newMessage
+ * Handles message update events
+ * @param {BotClient} client - The bot client instance
+ * @param {Message | PartialMessage} oldMessage - The old message before update
+ * @param {Message | PartialMessage} newMessage - The new message after update
  */
-module.exports = async (client, oldMessage, newMessage) => {
+export default async (
+  client: BotClient,
+  oldMessage: Message | PartialMessage,
+  newMessage: Message | PartialMessage
+): Promise<void> => {
   // Ignore if message is partial
   if (oldMessage.partial) return
 
@@ -20,7 +26,9 @@ module.exports = async (client, oldMessage, newMessage) => {
   const settings = await getSettings(oldMessage.guild)
   if (!settings.logs.enabled || !settings.logs_channel) return
 
-  const logChannel = oldMessage.guild.channels.cache.get(settings.logs_channel)
+  const logChannel: any = oldMessage.guild.channels.cache.get(
+    settings.logs_channel
+  )
   if (!logChannel) return
 
   // Ignore if the content hasn't changed
@@ -43,14 +51,14 @@ module.exports = async (client, oldMessage, newMessage) => {
       {
         name: 'Old Content',
         value:
-          oldMessage.content.length > 1024
+          oldMessage.content && oldMessage.content.length > 1024
             ? oldMessage.content.slice(0, 1021) + '...'
             : oldMessage.content || 'None',
       },
       {
         name: 'New Content',
         value:
-          newMessage.content.length > 1024
+          newMessage.content && newMessage.content.length > 1024
             ? newMessage.content.slice(0, 1021) + '...'
             : newMessage.content || 'None',
       }

@@ -1,11 +1,17 @@
-const { inviteHandler, greetingHandler } = require('@src/handlers')
-const { getSettings } = require('@schemas/Guild')
+import { inviteHandler, greetingHandler } from '@src/handlers'
+import { getSettings } from '@schemas/Guild'
+import type { BotClient } from '@src/structures'
+import type { GuildMember } from 'discord.js'
 
 /**
- * @param {import('@src/structures').BotClient} client
- * @param {import('discord.js').GuildMember} member
+ * Handles guild member add event
+ * @param {BotClient} client - The bot client instance
+ * @param {GuildMember} member - The member who joined
  */
-module.exports = async (client, member) => {
+export default async (
+  client: BotClient,
+  member: GuildMember
+): Promise<void> => {
   if (!member || !member.guild) return
 
   const { guild } = member
@@ -14,12 +20,12 @@ module.exports = async (client, member) => {
   // Autorole
   if (settings.autorole) {
     const role = guild.roles.cache.get(settings.autorole)
-    if (role) member.roles.add(role).catch(err => {})
+    if (role) member.roles.add(role).catch(_err => {})
   }
 
   // Check for counter channel
   if (
-    settings.counters.find(doc =>
+    settings.counters.find((doc: any) =>
       ['MEMBERS', 'BOTS', 'USERS'].includes(doc.counter_type.toUpperCase())
     )
   ) {

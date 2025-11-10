@@ -1,20 +1,23 @@
-const { getSettings: registerGuild, setInviteLink } = require('@schemas/Guild')
-const {
+import { getSettings as registerGuild, setInviteLink } from '@schemas/Guild'
+import {
   ButtonBuilder,
   ActionRowBuilder,
   EmbedBuilder,
   ButtonStyle,
   PermissionFlagsBits,
   ChannelType,
-} = require('discord.js')
-const { EMBED_COLORS } = require('@src/config')
-const { notifyDashboard } = require('@helpers/webhook')
+  Guild,
+} from 'discord.js'
+import { EMBED_COLORS } from '@src/config'
+import { notifyDashboard } from '@helpers/webhook'
+import type { BotClient } from '@src/structures'
 
 /**
- * @param {import('@src/structures').BotClient} client
- * @param {import('discord.js').Guild} guild
+ * Handles guild creation event when the bot joins a new server
+ * @param {BotClient} client - The bot client instance
+ * @param {Guild} guild - The guild that was joined
  */
-module.exports = async (client, guild) => {
+export default async (client: BotClient, guild: Guild): Promise<void> => {
   if (!guild.available) return
   if (!guild.members.cache.has(guild.ownerId)) {
     await guild.fetchOwner({ cache: true }).catch(() => {})
@@ -22,9 +25,9 @@ module.exports = async (client, guild) => {
   client.logger.log(`Guild Joined: ${guild.name} Members: ${guild.memberCount}`)
   const guildSettings = await registerGuild(guild)
 
-  // Ensure owner_id is set
-  if (!guildSettings.server.owner_id) {
-    guildSettings.server.owner_id = guild.ownerId
+  // Ensure owner is set
+  if (!guildSettings.server.owner) {
+    guildSettings.server.owner = guild.ownerId
     await guildSettings.save()
   }
 
@@ -35,8 +38,8 @@ module.exports = async (client, guild) => {
   let inviteLink = guildSettings.server.invite_link
   if (!inviteLink) {
     try {
-      const targetChannel = guild.channels.cache.find(
-        channel =>
+      const targetChannel: any = guild.channels.cache.find(
+        (channel: any) =>
           channel.type === ChannelType.GuildText &&
           channel
             .permissionsFor(guild.members.me)
@@ -74,23 +77,23 @@ module.exports = async (client, guild) => {
     new ButtonBuilder()
       .setLabel('Support Server')
       .setStyle(ButtonStyle.Link)
-      .setURL(process.env.SUPPORT_SERVER),
+      .setURL(process.env.SUPPORT_SERVER as string),
   ]
 
-  const row = new ActionRowBuilder().addComponents(components)
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(components)
 
   // Only proceed if setup is not completed
   if (!guildSettings.server.setup_completed) {
     // Send thank you message to the server
-    const targetChannel = guild.channels.cache.find(
-      channel =>
+    const targetChannel: any = guild.channels.cache.find(
+      (channel: any) =>
         channel.type === ChannelType.GuildText &&
         channel
           .permissionsFor(guild.members.me)
           .has(PermissionFlagsBits.SendMessages)
     )
 
-    let serverMessageLink = null
+    let serverMessageLink: string | null = null
     if (targetChannel) {
       const serverEmbed = new EmbedBuilder()
         .setColor(EMBED_COLORS.SUCCESS)
@@ -205,7 +208,7 @@ module.exports = async (client, guild) => {
         { name: 'Server ID', value: guild.id, inline: false },
         {
           name: 'Owner',
-          value: `${client.users.cache.get(guild.ownerId).tag} [\`${guild.ownerId}\`]`,
+          value: `${client.users.cache.get(guild.ownerId)?.tag} [\`${guild.ownerId}\`]`,
           inline: false,
         },
         {

@@ -13,8 +13,6 @@ const { addQuestion, deleteQuestion } = require('@schemas/TruthOrDare')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
 
-const DUMMY_TOKEN = 'MY_TOKEN_IS_SECRET'
-
 /**
  * @type {import("@structures/Command")}
  */
@@ -107,19 +105,6 @@ module.exports = {
           {
             name: 'script',
             description: 'Script to execute',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-          },
-        ],
-      },
-      {
-        name: 'eval',
-        description: 'Evaluates something',
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'expression',
-            description: 'Content to evaluate',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -298,19 +283,6 @@ module.exports = {
       interaction.followUp({ embeds: result })
     }
 
-    // Subcommand: eval
-    if (sub === 'eval') {
-      const input = interaction.options.getString('expression')
-      let response
-      try {
-        const output = eval(input)
-        response = buildSuccessResponse(output, interaction.client)
-      } catch (ex) {
-        response = buildErrorResponse(ex)
-      }
-      await interaction.followUp(response)
-    }
-
     // Subcommand: add-tod
     if (sub === 'add-tod') {
       const category = interaction.options.getString('category')
@@ -414,38 +386,6 @@ async function execute(script) {
       .setColor(EMBED_COLORS.ERROR)
     return errorEmbed
   }
-}
-
-const buildSuccessResponse = (output, client) => {
-  output = require('util')
-    .inspect(output, { depth: 0 })
-    .replaceAll(client.token, DUMMY_TOKEN)
-
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: '📤 Output' })
-    .setDescription(
-      '```js\n' +
-        (output.length > 4096 ? `${output.substr(0, 4000)}...` : output) +
-        '\n```'
-    )
-    .setColor('Random')
-    .setTimestamp(Date.now())
-
-  return { embeds: [embed] }
-}
-
-const buildErrorResponse = err => {
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: '📤 Error' })
-    .setDescription(
-      '```js\n' +
-        (err.length > 4096 ? `${err.substr(0, 4000)}...` : err) +
-        '\n```'
-    )
-    .setColor(EMBED_COLORS.ERROR)
-    .setTimestamp(Date.now())
-
-  return { embeds: [embed] }
 }
 
 // New function: triggerOnboarding

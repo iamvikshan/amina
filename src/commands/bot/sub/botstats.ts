@@ -1,18 +1,17 @@
-const {
+import {
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-} = require('discord.js')
-const { EMBED_COLORS, DASHBOARD } = require('@src/config')
-const { timeformat } = require('@helpers/Utils')
-const os = require('os')
-const { stripIndent } = require('common-tags')
+} from 'discord.js'
+import { EMBED_COLORS, DASHBOARD } from '@src/config'
+import { timeformat } from '@helpers/Utils'
+import { updateBotStats } from '@schemas/Dev'
+import os from 'os'
+import { stripIndent } from 'common-tags'
+import type { BotClient } from '@structures/BotClient'
 
-/**
- * @param {import('@structures/BotClient')} client
- */
-module.exports = client => {
+export default function botstats(client: BotClient) {
   // STATS
   const guilds = client.guilds.cache.size
   const channels = client.channels.cache.size
@@ -37,7 +36,9 @@ module.exports = client => {
   desc += `❒ Total guilds: ${guilds}\n`
   desc += `❒ Total users: ${users}\n`
   desc += `❒ Total channels: ${channels}\n`
-  desc += `❒ Websocket Ping: ${client.ws.ping} ms\n`
+  // Use validated websocket ping (default to 0 when not available)
+  const wsPing = client.ws.ping > 0 ? client.ws.ping : 0
+  desc += `❒ Websocket Ping: ${wsPing} ms\n`
   desc += '\n'
 
   const embed = new EmbedBuilder()
@@ -85,6 +86,32 @@ module.exports = client => {
       }
     )
 
+  // Update bot statistics in DB (non-blocking). This helps keep dashboard data fresh
+  try {
+    const stats = {
+      guilds,
+      users,
+      channels,
+      ping: wsPing,
+      uptime: process.uptime(),
+    }
+
+    updateBotStats(stats)
+      .then(() =>
+        client.logger.log(
+          `Bot stats updated via /bot stats: ${guilds} guilds, ${users} users, ${channels} channels, ${wsPing}ms ping`
+        )
+      )
+      .catch(err =>
+        client.logger.error('Failed to update bot stats via /bot stats:', err)
+      )
+  } catch (err) {
+    client.logger.error(
+      'Unexpected error updating bot stats via /bot stats:',
+      err
+    )
+  }
+
   // Buttons
   let components = []
   components.push(
@@ -116,7 +143,9 @@ module.exports = client => {
     )
   }
 
-  let buttonsRow = new ActionRowBuilder().addComponents(components)
+  let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    components
+  )
 
   return { embeds: [embed], components: [buttonsRow] }
 }

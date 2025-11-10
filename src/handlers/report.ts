@@ -427,4 +427,3 @@ async function sendWebhook(
 }
 
 export default { handleReportModal }
-

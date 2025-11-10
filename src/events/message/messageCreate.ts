@@ -1,27 +1,27 @@
-const { automodHandler, statsHandler } = require('@src/handlers')
-const { EMBED_COLORS } = require('@src/config')
-const { getSettings } = require('@schemas/Guild')
-const { getUser, removeAfk } = require('@schemas/User')
-const { EmbedBuilder } = require('discord.js')
-const fetch = require('node-fetch')
+import { automodHandler, statsHandler } from '@src/handlers'
+import { EMBED_COLORS } from '@src/config'
+import { getSettings } from '@schemas/Guild'
+import { getUser, removeAfk } from '@schemas/User'
+import { EmbedBuilder, Message } from 'discord.js'
+import type { BotClient } from '@src/structures'
 
 /**
  * Fetches pronouns for a user from PronounsDB API v2
  * @param {string} userId Discord user ID
  * @returns {Promise<string>} Returns pronouns in subject/object format
  */
-async function fetchPronouns(userId) {
+async function fetchPronouns(userId: string): Promise<string> {
   try {
     const response = await fetch(
       `https://pronoundb.org/api/v2/lookup?platform=discord&ids=${userId}`
     )
     if (!response.ok) return 'they/them'
 
-    const data = await response.json()
+    const data: any = await response.json()
     const userPronouns = data[userId]?.sets?.en?.[0]
 
     // Map the v2 API single pronouns to subject/object pairs
-    const pronounsMap = {
+    const pronounsMap: Record<string, string> = {
       he: 'he/him',
       she: 'she/her',
       they: 'they/them',
@@ -43,7 +43,7 @@ async function fetchPronouns(userId) {
  * @param {string} subject The subject pronoun
  * @returns {string} Returns 're for "they", 's for others
  */
-function getVerbConjugation(subject) {
+function getVerbConjugation(subject: string): string {
   return subject === 'they' ? "'re" : "'s"
 }
 
@@ -52,7 +52,10 @@ function getVerbConjugation(subject) {
  * @param {Object} params Parameters for generating message
  * @returns {string} Formatted AFK message
  */
-function generateAfkMessage(params) {
+function generateAfkMessage(params: {
+  pronouns: string
+  minutes?: number
+}): string {
   const { pronouns, minutes = 0 } = params
   const [subject, object] = pronouns.split('/')
 
@@ -60,7 +63,7 @@ function generateAfkMessage(params) {
   const Subject = subject.charAt(0).toUpperCase() + subject.slice(1)
   const verb = getVerbConjugation(subject)
 
-  const timeBasedIntros = {
+  const timeBasedIntros: Record<string, string[]> = {
     short: [
       `*whispers* ${Subject} just left! The trail is still warm!`,
       `*tiptoes in* Psst! ${Subject} stepped away moments ago!`,
@@ -79,7 +82,7 @@ function generateAfkMessage(params) {
     ],
   }
 
-  let category
+  let category: string
   if (minutes < 5) category = 'short'
   else if (minutes < 30) category = 'medium'
   else if (minutes < 60) category = 'long'
@@ -90,15 +93,16 @@ function generateAfkMessage(params) {
 }
 
 /**
- * @param {import('@src/structures').BotClient} client
- * @param {import('discord.js').Message} message
+ * Handles message creation events
+ * @param {BotClient} client - The bot client instance
+ * @param {Message} message - The message that was created
  */
-module.exports = async (client, message) => {
+export default async (client: BotClient, message: Message): Promise<void> => {
   if (!message.guild || message.author.bot) return
   const settings = await getSettings(message.guild)
 
   // Check if message author is AFK and remove their AFK status
-  const authorData = await getUser(message.author)
+  const authorData: any = await getUser(message.author)
   if (authorData.afk?.enabled) {
     const authorPronouns = await fetchPronouns(message.author.id)
     const [subject] = authorPronouns.split('/')
@@ -112,19 +116,21 @@ module.exports = async (client, message) => {
         `*Bounces excitedly* Welcome back ${message.author.toString()}! 🌟\n` +
           `${Subject}${verb} faster than a shooting star! ✨`
       )
-    const response = await message.channel.send({ embeds: [embed] })
+    const response: any = await (message.channel as any).send({
+      embeds: [embed],
+    })
     setTimeout(() => response.delete().catch(() => {}), 5000)
   }
 
   // Check for mentioned users who are AFK
   if (message.mentions.users.size > 0) {
     const mentions = [...message.mentions.users.values()]
-    const afkMentions = []
+    const afkMentions: any[] = []
 
     for (const mentionedUser of mentions) {
       if (mentionedUser.id === message.author.id) continue
 
-      const userData = await getUser(mentionedUser)
+      const userData: any = await getUser(mentionedUser)
       if (userData.afk?.enabled) {
         const userPronouns = await fetchPronouns(mentionedUser.id)
         const minutes = userData.afk.since
@@ -144,7 +150,7 @@ module.exports = async (client, message) => {
         let endTime = ''
         if (userData.afk.endTime && userData.afk.endTime > new Date()) {
           const minutesLeft = Math.round(
-            (userData.afk.endTime - new Date()) / 1000 / 60
+            (userData.afk.endTime.getTime() - new Date().getTime()) / 1000 / 60
           )
           const [subject] = userPronouns.split('/')
           const verb = getVerbConjugation(subject)
@@ -169,13 +175,15 @@ module.exports = async (client, message) => {
         .setDescription(
           afkMentions
             .map(
-              mention =>
+              (mention: any) =>
                 `${mention.intro}\n${mention.user} is away: ${mention.reason}${mention.timePassed}${mention.endTime}`
             )
             .join('\n\n')
         )
 
-      const response = await message.channel.send({ embeds: [embed] })
+      const response: any = await (message.channel as any).send({
+        embeds: [embed],
+      })
       setTimeout(() => response.delete().catch(() => {}), 10000)
     }
   }
@@ -188,7 +196,7 @@ module.exports = async (client, message) => {
       "*appears in a puff of glitter* Psst! Want to see something cool? Try using /help! That's how you talk to me now! 🌟",
       '*drops from the ceiling* HELLO! 👋 Just use / to see all the amazing things I can do!',
     ]
-    message.channel.send(
+    ;(message.channel as any).send(
       responses[Math.floor(Math.random() * responses.length)]
     )
   }

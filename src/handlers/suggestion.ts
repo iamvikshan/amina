@@ -406,4 +406,3 @@ export default {
   rejectSuggestion,
   deleteSuggestion,
 }
-

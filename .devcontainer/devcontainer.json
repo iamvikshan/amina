@@ -30,7 +30,8 @@
         "eamodio.gitlens",
         "oven.bun-vscode",
         "ms-azuretools.vscode-docker",
-        "WakaTime.vscode-wakatime"
+        "WakaTime.vscode-wakatime",
+        "mongodb.mongodb-vscode"
       ]
     }
   },

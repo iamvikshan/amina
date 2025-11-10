@@ -1,11 +1,17 @@
-const { inviteHandler, greetingHandler } = require('@src/handlers')
-const { getSettings } = require('@schemas/Guild')
+import { inviteHandler, greetingHandler } from '@src/handlers'
+import { getSettings } from '@schemas/Guild'
+import type { BotClient } from '@src/structures'
+import type { GuildMember, PartialGuildMember } from 'discord.js'
 
 /**
- * @param {import('@src/structures').BotClient} client
- * @param {import('discord.js').GuildMember|import('discord.js').PartialGuildMember} member
+ * Handles guild member remove event
+ * @param {BotClient} client - The bot client instance
+ * @param {GuildMember | PartialGuildMember} member - The member who left
  */
-module.exports = async (client, member) => {
+export default async (
+  client: BotClient,
+  member: GuildMember | PartialGuildMember
+): Promise<void> => {
   if (member.partial) await member.user.fetch()
   if (!member.guild) return
 
@@ -14,7 +20,7 @@ module.exports = async (client, member) => {
 
   // Check for counter channel
   if (
-    settings.counters.find(doc =>
+    settings.counters.find((doc: any) =>
       ['MEMBERS', 'BOTS', 'USERS'].includes(doc.counter_type.toUpperCase())
     )
   ) {
@@ -30,5 +36,5 @@ module.exports = async (client, member) => {
   const inviterData = await inviteHandler.trackLeftMember(guild, member.user)
 
   // Farewell message
-  greetingHandler.sendFarewell(member, inviterData)
+  greetingHandler.sendFarewell(member as GuildMember, inviterData)
 }

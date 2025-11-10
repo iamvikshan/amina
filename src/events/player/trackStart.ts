@@ -1,18 +1,30 @@
-const {
+import {
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
-} = require('discord.js')
-const { EMBED_COLORS } = require('@src/config')
+} from 'discord.js'
+import { EMBED_COLORS } from '@src/config'
+import type { BotClient } from '@src/structures'
+import type { Player, Track } from 'lavalink-client'
 
-module.exports = async (client, player, track) => {
+/**
+ * Handles track start events
+ * @param {BotClient} client - The bot client instance
+ * @param {Player} player - The player instance
+ * @param {Track} track - The track that started
+ */
+export default async (
+  client: BotClient,
+  player: Player,
+  track: Track
+): Promise<void> => {
   const guild = client.guilds.cache.get(player.guildId)
   if (!guild) return
 
   if (!player.textChannelId || !track) return
 
-  const channel = guild.channels.cache.get(player.textChannelId)
+  const channel: any = guild.channels.cache.get(player.textChannelId)
   if (!channel) return
 
   if (player.get('autoplay') === true) {
@@ -29,8 +41,8 @@ module.exports = async (client, player, track) => {
 
   const previous = await player.queue.shiftPrevious()
 
-  const row = player =>
-    new ActionRowBuilder().addComponents(
+  const row = (player: Player) =>
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('previous')
         .setEmoji('⏪')
@@ -54,7 +66,7 @@ module.exports = async (client, player, track) => {
         .setStyle(ButtonStyle.Secondary)
     )
 
-  const msg = await channel.safeSend({
+  const msg: any = await channel.safeSend({
     embeds: [
       new EmbedBuilder()
         .setColor(EMBED_COLORS.BOT_EMBED)
@@ -64,7 +76,7 @@ module.exports = async (client, player, track) => {
         )
         .setThumbnail(track.info.artworkUrl)
         .setFooter({
-          text: `Requested by: ${track.requester.username}`,
+          text: `Requested by: ${(track.requester as any).username}`,
         })
         .addFields(
           {
@@ -87,18 +99,18 @@ module.exports = async (client, player, track) => {
   if (msg) player.set('message', msg)
 
   const collector = msg.createMessageComponentCollector({
-    filter: async int => {
+    filter: async (int: any) => {
       const sameVc =
         int.guild.members.me.voice.channelId === int.member.voice.channelId
       return sameVc
     },
   })
 
-  collector.on('collect', async int => {
+  collector.on('collect', async (int: any) => {
     if (!int.isButton()) return
 
     await int.deferReply({ ephemeral: true })
-    let description
+    let description: string
 
     switch (int.customId) {
       case 'previous':

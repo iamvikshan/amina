@@ -1,11 +1,17 @@
+import type { BotClient } from '@src/structures'
+
 /**
  * Notify the dashboard to refresh guild data
- * @param {import('@src/structures').BotClient} client - The Discord bot client
+ * @param {BotClient} client - The Discord bot client
  * @param {string} guildId - The guild ID to refresh
  * @param {string} eventType - The event type ('join' or 'leave')
  * @returns {Promise<void>}
  */
-async function notifyDashboard(client, guildId, eventType = 'refresh') {
+export async function notifyDashboard(
+  client: BotClient,
+  guildId: string,
+  eventType: string = 'refresh'
+): Promise<void> {
   if (!process.env.BASE_URL?.trim() || !process.env.WEBHOOK_SECRET?.trim()) {
     return
   }
@@ -35,7 +41,7 @@ async function notifyDashboard(client, guildId, eventType = 'refresh') {
         `Dashboard webhook failed (${response.status}): ${errorText}`
       )
     }
-  } catch (err) {
+  } catch (err: any) {
     if (err.name === 'AbortError') {
       client.logger.error('Dashboard webhook timed out after 10 seconds')
     } else {
@@ -43,5 +49,3 @@ async function notifyDashboard(client, guildId, eventType = 'refresh') {
     }
   }
 }
-
-module.exports = { notifyDashboard }

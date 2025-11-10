@@ -1,13 +1,19 @@
-const { EmbedBuilder, AuditLogEvent } = require('discord.js')
-const { getSettings } = require('@schemas/Guild')
-const { EMBED_COLORS } = require('@src/config')
+import { EmbedBuilder, AuditLogEvent, GuildMember } from 'discord.js'
+import { getSettings } from '@schemas/Guild'
+import { EMBED_COLORS } from '@src/config'
+import type { BotClient } from '@src/structures'
 
 /**
- * @param {import('@src/structures').BotClient} client
- * @param {import('discord.js').GuildMember} oldMember
- * @param {import('discord.js').GuildMember} newMember
+ * Handles member role changes event
+ * @param {BotClient} client - The bot client instance
+ * @param {GuildMember} oldMember - The member before role changes
+ * @param {GuildMember} newMember - The member after role changes
  */
-module.exports = async (client, oldMember, newMember) => {
+export default async (
+  client: BotClient,
+  oldMember: GuildMember,
+  newMember: GuildMember
+): Promise<void> => {
   // Ignore if the guild is unavailable
   if (!newMember.guild.available) return
 
@@ -19,7 +25,9 @@ module.exports = async (client, oldMember, newMember) => {
   // Check if role change logging is specifically enabled
   if (!settings.logs.member.role_changes) return
 
-  const logChannel = newMember.guild.channels.cache.get(settings.logs_channel)
+  const logChannel: any = newMember.guild.channels.cache.get(
+    settings.logs_channel
+  )
   if (!logChannel) return
 
   const oldRoles = oldMember.roles.cache

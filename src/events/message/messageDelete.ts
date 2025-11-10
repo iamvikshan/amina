@@ -1,19 +1,26 @@
-const { EmbedBuilder } = require('discord.js')
-const { getSettings } = require('@schemas/Guild')
-const { EMBED_COLORS } = require('@src/config')
+import { EmbedBuilder, Message, PartialMessage } from 'discord.js'
+import { getSettings } from '@schemas/Guild'
+import { EMBED_COLORS } from '@src/config'
+import type { BotClient } from '@src/structures'
 
 /**
- * @param {import('@src/structures').BotClient} client
- * @param {import('discord.js').Message|import('discord.js').PartialMessage} message
+ * Handles message deletion events
+ * @param {BotClient} client - The bot client instance
+ * @param {Message | PartialMessage} message - The deleted message
  */
-module.exports = async (client, message) => {
+export default async (
+  client: BotClient,
+  message: Message | PartialMessage
+): Promise<void> => {
   if (message.partial) return
   if (!message.guild) return
 
   const settings = await getSettings(message.guild)
   if (!settings.logs.enabled || !settings.logs_channel) return
 
-  const logChannel = message.guild.channels.cache.get(settings.logs_channel)
+  const logChannel: any = message.guild.channels.cache.get(
+    settings.logs_channel
+  )
   if (!logChannel) return
 
   // Log message deletions only if message_delete is true
@@ -42,7 +49,11 @@ module.exports = async (client, message) => {
   }
 
   // Check for ghost pings if the setting is enabled
-  if (settings.automod.anti_ghostping && !message.author.bot) {
+  if (
+    settings.automod.anti_ghostping &&
+    message.author &&
+    !message.author.bot
+  ) {
     const { members, roles, everyone } = message.mentions
 
     if (members.size > 0 || roles.size > 0 || everyone) {
