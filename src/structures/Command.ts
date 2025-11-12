@@ -87,6 +87,10 @@ export interface CommandData {
   cooldown?: number
   /** Whether the command requires premium */
   isPremium?: boolean
+  /** Whether the command is only available to bot developers */
+  devOnly?: boolean
+  /** Whether the command is only registered in the test guild */
+  testGuildOnly?: boolean
   /** The category this command belongs to */
   category: CommandCategory
   /** Permissions required by the client to use the command */

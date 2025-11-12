@@ -98,7 +98,7 @@ export const handleSlashCommand = async (
     const remaining = getRemainingCooldown(interaction.user.id, cmd)
     if (remaining > 0) {
       await interaction.reply({
-        content: `⏳ You're on cooldown, dear! You can use the command again in \`${Utils.timeformat(remaining)}\`, nya~!`,
+        content: `you're on cooldown ${interaction.user.displayName}, you can use the command again in \`${Utils.timeformat(remaining)}\`, you could use this time to touch grass, yk!`,
         flags: MessageFlags.Ephemeral,
       })
       return
@@ -132,7 +132,7 @@ export const handleSlashCommand = async (
     const showsModal = (cmd as any).showsModal
     if (!showsModal) {
       await interaction.followUp(
-        '😢 Oops! An error occurred while running the command, please try again later~!'
+        ':( Oops! An error occurred while running the command, this might be a bug, report it with the `/report` command or try again later~!'
       )
     }
     client.logger.error('interactionRun', ex)
