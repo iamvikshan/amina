@@ -1,3 +1,13 @@
+# [v1.2.1](https://github.com/iamvikshan/amina/compare/v1.2.0...v1.2.1) (2025-11-12)
+
+
+
+## [1.2.1](https://github.com/iamvikshan/amina/compare/v1.2.0...v1.2.1) (2025-11-12)
+
+### Bug Fixes
+
+* [phase 4.0.1] complete admin, dev, and moderation command conversions ([8c1cea4](https://github.com/iamvikshan/amina/commit/8c1cea4fc6adc58f82f221f21ae5f8459533ec21))
+
 # [v1.2.0](https://github.com/iamvikshan/amina/compare/v1.1.7...v1.2.0) (2025-11-10)
 
 ## [1.2.0](https://github.com/iamvikshan/amina/compare/v1.1.7...v1.2.0) (2025-11-10)
