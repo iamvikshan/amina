@@ -10,7 +10,7 @@ Astro.response.headers.set(
 // Import layout and navigation
 import Layout from '@/layouts/Layout.astro';
 import Header from '@/components/navigation/Header.astro';
-import FooterSection from '@components/sections/navbar&footer/FooterSection.astro';
+import DashboardFooter from '@components/navigation/DashboardFooter.astro';
 
 // Import dashboard components
 import ServerCard from '@/components/ui/dashboard/ServerCard.astro';
@@ -381,4 +381,4 @@ const achievements = checkAchievements(serverCount, configuredCount, userData);
 </Layout>
 
 <!-- Footer -->
-<FooterSection />
+<DashboardFooter />

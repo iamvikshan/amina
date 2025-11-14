@@ -7,7 +7,7 @@ export const SITE = {
     'Meet Amina, a vibrant Discord bot bringing creativity, fun, and a dash of chaos to your server! Currently in development, Amina offers unique features wrapped in a playful personality. Join us in shaping her future!',
   description_short:
     'A quirky, artistic Discord bot that brings life to your server with creative features and infectious enthusiasm.',
-  url: 'https://amina.vikshan.me',
+  url: 'https://4mina.app',
   author: 'Vikshan',
 };
 

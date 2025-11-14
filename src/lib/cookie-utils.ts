@@ -11,7 +11,7 @@ export const AUTH_COOKIE_NAMES = {
 
 export const COOKIE_OPTIONS = {
   path: '/',
-  secure: import.meta.env.PROD, // Only use secure in production
+  secure: (process.env.NODE_ENV || 'development') === 'production', // Only use secure in production
   httpOnly: true,
   sameSite: 'lax' as const,
 };

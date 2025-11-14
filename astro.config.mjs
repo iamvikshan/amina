@@ -11,11 +11,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Helper function to ensure proper URL format
 const getSiteURL = (val) => {
-  const isProduction = import.meta.env.PROD === true;
-  if (isProduction) {
-    if (val && val !== '/') {
-      return val.startsWith('http') ? val : `https://${val}`;
-    }
+  if (val && val !== '/') {
+    return val.startsWith('http') ? val : `https://${val}`;
   }
   return 'http://localhost:4321';
 };
@@ -39,8 +36,7 @@ export default defineConfig({
     react(),
     tailwind(),
     sitemap(),
-    // Only compress in production builds
-    ...(import.meta.env.PROD ? [compressor({ gzip: true, brotli: true })] : []),
+    compressor({ gzip: true, brotli: true }),
   ],
   vite: {
     build: {

@@ -183,7 +183,7 @@ const {
 
         {/* Documentation */}
         <a
-          href="https://docs.vikshan.me"
+          href="https://docs.4mina.app"
           rel="noopener noreferrer"
           target="_blank"
           class="liquid-glass-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-200"
@@ -200,7 +200,7 @@ const {
 
         {/* Support */}
         <a
-          href={import.meta.env.SUPPORT_SERVER || '#'}
+          href={(await import('@/env')).env.SUPPORT_SERVER || '#'}
           rel="noopener noreferrer"
           target="_blank"
           class="liquid-glass-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-200"

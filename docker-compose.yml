@@ -1,0 +1,25 @@
+services:
+  amina:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # No build args needed anymore - secrets only at runtime!
+    image: amina:latest
+    container_name: amina
+    # If a .env file exists in project root, load it
+    env_file:
+      - .env
+    ports:
+      - '4321:4321'
+    environment:
+      - NODE_ENV=production
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MONGO_CONNECTION=${MONGO_CONNECTION}
+      - BASE_URL=${BASE_URL}
+      - SUPPORT_SERVER=${SUPPORT_SERVER}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - HOST=0.0.0.0
+      - PORT=4321
+    restart: unless-stopped

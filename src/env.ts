@@ -1,29 +1,32 @@
 // Environment variable validation and type safety
 // Usage: import { env } from '@/env'
 
-// Direct access to environment variables with fallbacks
+// Direct access to environment variables with fallbacks (server runtime)
+const NODE_ENV = (process.env.NODE_ENV || 'development') as
+  | 'development'
+  | 'production'
+  | 'test';
+
 export const env = {
   // Discord Configuration
-  CLIENT_ID: import.meta.env.CLIENT_ID || '',
-  CLIENT_SECRET: import.meta.env.CLIENT_SECRET || '',
-  BOT_TOKEN: import.meta.env.BOT_TOKEN || '',
+  CLIENT_ID: process.env.CLIENT_ID || '',
+  CLIENT_SECRET: process.env.CLIENT_SECRET || '',
+  BOT_TOKEN: process.env.BOT_TOKEN || '',
 
   // Application URLs
-  BASE_URL: import.meta.env.BASE_URL || 'http://localhost:4321',
-  SUPPORT_SERVER: import.meta.env.SUPPORT_SERVER || '',
+  BASE_URL: process.env.BASE_URL || 'http://localhost:4321',
+  SUPPORT_SERVER: process.env.SUPPORT_SERVER || '',
 
   // Database
-  MONGO_CONNECTION: import.meta.env.MONGO_CONNECTION || '',
+  MONGO_CONNECTION: process.env.MONGO_CONNECTION || '',
 
   // Webhook Security
-  WEBHOOK_SECRET: import.meta.env.WEBHOOK_SECRET || '',
+  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || '',
 
   // Environment
-  NODE_ENV:
-    (import.meta.env.NODE_ENV as 'development' | 'production' | 'test') ||
-    'development',
-  PORT: import.meta.env.PORT || '4321',
-  PROD: import.meta.env.PROD || false,
+  NODE_ENV: NODE_ENV,
+  PORT: process.env.PORT || '4321',
+  PROD: NODE_ENV === 'production',
 } as const;
 
 // Type for the environment variables
@@ -41,7 +44,7 @@ export function validateRequiredEnv(): void {
 
   if (missing.length > 0) {
     console.error(
-      '❌ Missing required environment variables:',
+      'Missing required environment variables:',
       missing.join(', ')
     );
     throw new Error(

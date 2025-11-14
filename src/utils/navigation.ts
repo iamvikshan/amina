@@ -2,7 +2,7 @@
 const navBarLinks = [
   { name: 'Home', url: '/' },
   // { name: 'Blog', url: '/blog' },
-  { name: 'Docs', url: 'https://docs.vikshan.me', target: '_blank' },
+  { name: 'Docs', url: 'https://docs.4mina.app', target: '_blank' },
   /* { name: 'Products', url: '/products' },
   { name: 'Services', url: '/services' },
   { name: 'Contact', url: '/contact' }, */
@@ -14,7 +14,7 @@ const footerLinks = [
     links: [
       {
         name: 'Documentation',
-        url: 'https://docs.vikshan.me',
+        url: 'https://docs.4mina.app',
         target: '_blank',
         rel: 'noopener noreferrer',
       },

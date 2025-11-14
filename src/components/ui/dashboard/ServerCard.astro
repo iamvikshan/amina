@@ -25,8 +25,9 @@ const getStatusMessage = (configured: boolean) => {
   };
 };
 
-// Get the Discord OAuth2 URL for adding the bot
-const CLIENT_ID = import.meta.env.CLIENT_ID;
+// Get the Discord OAuth2 URL for adding the bot (server runtime env)
+import { env } from '@/env';
+const CLIENT_ID = env.CLIENT_ID;
 const dashUrl = new URL(Astro.request.url).origin + '/auth/callback';
 const DISCORD_PERMISSIONS = '8'; // Administrator permissions
 

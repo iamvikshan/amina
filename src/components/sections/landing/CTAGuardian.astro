@@ -43,13 +43,13 @@ const currentStatus = statusColors[botStats.status] || statusColors.online;
 ---
 
 <section
-  class='py-20 md:py-32 bg-gradient-to-b from-night-shadow via-night-steel/30 to-night-shadow relative overflow-hidden'
+  class="py-20 md:py-32 bg-gradient-to-b from-night-shadow via-night-steel/30 to-night-shadow relative overflow-hidden"
 >
   <!-- Background Effects -->
-  <div class='absolute inset-0'>
+  <div class="absolute inset-0">
     <!-- Radial gradient -->
     <div
-      class='absolute inset-0 bg-gradient-radial from-amina-crimson/20 via-transparent to-transparent'
+      class="absolute inset-0 bg-gradient-radial from-amina-crimson/20 via-transparent to-transparent"
     >
     </div>
 
@@ -60,50 +60,50 @@ const currentStatus = statusColors[botStats.status] || statusColors.online;
     </div>
 
     <!-- Floating particles -->
-    <div class='particles-cta absolute inset-0'></div>
+    <div class="particles-cta absolute inset-0"></div>
   </div>
 
-  <div class='relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
-    <div class='flex flex-col lg:flex-row items-center gap-12 lg:gap-16'>
+  <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
       <!-- Left: Amina Casual Portrait -->
-      <div class='flex-1 flex justify-center lg:justify-end'>
-        <div class='relative group'>
+      <div class="flex-1 flex justify-center lg:justify-end">
+        <div class="relative group">
           <!-- Glow effect behind Amina -->
           <div
-            class='absolute inset-0 bg-gradient-to-t from-amina-crimson/30 via-cyber-blue/20 to-transparent blur-3xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-700'
+            class="absolute inset-0 bg-gradient-to-t from-amina-crimson/30 via-cyber-blue/20 to-transparent blur-3xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-700"
           >
           </div>
 
           <!-- Character container -->
-          <div class='relative'>
+          <div class="relative">
             <img
               src={ImagePaths.hero.casual}
-              alt='Amina - Your Guardian'
-              class='w-full max-w-md h-auto relative z-10 drop-shadow-2xl animate-float'
-              loading='lazy'
+              alt="Amina - Your Guardian"
+              class="w-full max-w-md h-auto relative z-10 drop-shadow-2xl animate-float"
+              loading="lazy"
             />
 
             <!-- Floating UI elements around Amina -->
-            <div class='absolute top-10 -left-10 animate-float-delayed-1'>
+            <div class="absolute top-10 -left-10 animate-float-delayed-1">
               <div
-                class='px-4 py-2 bg-night-steel/80 backdrop-blur-md border border-cyber-blue rounded-xl text-cyan-400 text-sm font-mono shadow-glow-blue'
+                class="px-4 py-2 bg-night-steel/80 backdrop-blur-md border border-cyber-blue rounded-xl text-cyan-400 text-sm font-mono shadow-glow-blue"
               >
                 [System: Ready]
               </div>
             </div>
 
-            <div class='absolute top-32 -right-10 animate-float-delayed-2'>
+            <div class="absolute top-32 -right-10 animate-float-delayed-2">
               <div
-                class='px-4 py-2 bg-night-steel/80 backdrop-blur-md border rounded-xl text-sm font-mono'
+                class="px-4 py-2 bg-night-steel/80 backdrop-blur-md border rounded-xl text-sm font-mono"
                 style={`border-color: ${currentStatus.borderColor}; color: ${currentStatus.textColor}; box-shadow: 0 0 20px ${currentStatus.glowColor};`}
               >
                 [Status: {currentStatus.label}]
               </div>
             </div>
 
-            <div class='absolute bottom-20 -left-8 animate-float-delayed-3'>
+            <div class="absolute bottom-20 -left-8 animate-float-delayed-3">
               <div
-                class='px-4 py-2 bg-night-steel/80 backdrop-blur-md border border-amina-crimson rounded-xl text-amina-crimson text-sm font-mono shadow-glow-red'
+                class="px-4 py-2 bg-night-steel/80 backdrop-blur-md border border-amina-crimson rounded-xl text-amina-crimson text-sm font-mono shadow-glow-red"
               >
                 [Ping: {botStats.ping}ms]
               </div>
@@ -113,36 +113,36 @@ const currentStatus = statusColors[botStats.status] || statusColors.online;
       </div>
 
       <!-- Right: CTA Content -->
-      <div class='flex-1 text-center lg:text-left space-y-8'>
+      <div class="flex-1 text-center lg:text-left space-y-8">
         <!-- Badge -->
         <div
-          class='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-amina-crimson/30 text-amina-crimson'
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-amina-crimson/30 text-amina-crimson"
         >
-          <span class='text-xl'>[♥]</span>
-          <span class='text-sm font-heading font-bold tracking-wider uppercase'
+          <span class="text-xl">[♥]</span>
+          <span class="text-sm font-heading font-bold tracking-wider uppercase"
             >Join the Night Guard</span
           >
         </div>
 
         <!-- Heading -->
-        <div class='space-y-4'>
+        <div class="space-y-4">
           <h2
-            class='text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight'
+            class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight"
           >
             Your Realm Needs a <span
-              class='bg-gradient-to-r from-amina-crimson via-rose-red to-imperial-gold bg-clip-text text-transparent'
+              class="bg-gradient-to-r from-amina-crimson via-rose-red to-imperial-gold bg-clip-text text-transparent"
               >Guardian</span
             >
           </h2>
 
-          <p class='text-xl text-gray-300 leading-relaxed max-w-2xl'>
+          <p class="text-xl text-gray-300 leading-relaxed max-w-2xl">
             Stop manually moderating. Stop losing sleep. Let Amina handle the
             night watch while you focus on building your community.
           </p>
         </div>
 
         <!-- Feature checklist -->
-        <div class='space-y-3'>
+        <div class="space-y-3">
           {
             [
               'Free forever tier with core features',
@@ -151,67 +151,67 @@ const currentStatus = statusColors[botStats.status] || statusColors.online;
               '99.9% uptime guarantee',
               '24/7 automated protection',
             ].map((feature) => (
-              <div class='flex items-center gap-3 text-gray-300'>
-                <div class='flex-shrink-0 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center'>
+              <div class="flex items-center gap-3 text-gray-300">
+                <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
                   <svg
-                    class='w-4 h-4 text-green-500'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
+                    class="w-4 h-4 text-green-500"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
                   >
                     <path
-                      fill-rule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clip-rule='evenodd'
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
                     />
                   </svg>
                 </div>
-                <span class='text-lg'>{feature}</span>
+                <span class="text-lg">{feature}</span>
               </div>
             ))
           }
         </div>
 
         <!-- CTA Buttons -->
-        <div class='flex flex-col sm:flex-row items-center gap-4 pt-4'>
+        <div class="flex flex-col sm:flex-row items-center gap-4 pt-4">
           <a
-            href='https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID'
-            class='group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-amina-crimson to-rose-red text-white rounded-xl font-heading font-bold text-lg hover:scale-105 hover:shadow-glow-red transition-all duration-300'
+            href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID"
+            class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-amina-crimson to-rose-red text-white rounded-xl font-heading font-bold text-lg hover:scale-105 hover:shadow-glow-red transition-all duration-300"
           >
-            <svg class='w-7 h-7' fill='currentColor' viewBox='0 0 24 24'>
+            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
               <path
-                d='M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z'
+                d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"
               ></path>
             </svg>
             <span>Add Amina to Discord</span>
             <svg
-              class='w-5 h-5 transition-transform duration-300 group-hover:translate-x-2'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
+              class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
               <path
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                stroke-width='2'
-                d='M13 7l5 5m0 0l-5 5m5-5H6'></path>
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
             </svg>
           </a>
 
           <a
-            href='/dash'
-            class='w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-5 bg-transparent border-2 border-cyber-blue text-cyber-blue rounded-xl font-heading font-bold text-lg hover:bg-cyber-blue/10 hover:scale-105 transition-all duration-300'
+            href="/dash"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-5 bg-transparent border-2 border-cyber-blue text-cyber-blue rounded-xl font-heading font-bold text-lg hover:bg-cyber-blue/10 hover:scale-105 transition-all duration-300"
           >
             <svg
-              class='w-5 h-5'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
               <path
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                stroke-width='2'
-                d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
               ></path>
             </svg>
             <span>View Dashboard</span>
@@ -220,54 +220,54 @@ const currentStatus = statusColors[botStats.status] || statusColors.online;
 
         <!-- Trust badges -->
         <div
-          class='flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-gray-400'
+          class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 text-sm text-gray-400"
         >
-          <span class='flex items-center gap-2'>
+          <span class="flex items-center gap-2">
             <svg
-              class='w-4 h-4 text-green-500'
-              fill='currentColor'
-              viewBox='0 0 20 20'
+              class="w-4 h-4 text-green-500"
+              fill="currentColor"
+              viewBox="0 0 20 20"
             >
               <path
-                fill-rule='evenodd'
-                d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                clip-rule='evenodd'></path>
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"></path>
             </svg>
             Verified by Discord
           </span>
-          <span class='text-gray-600'>•</span>
-          <span class='flex items-center gap-2'>
+          <span class="text-gray-600">•</span>
+          <span class="flex items-center gap-2">
             <svg
-              class='w-4 h-4 text-imperial-gold'
-              fill='currentColor'
-              viewBox='0 0 20 20'
+              class="w-4 h-4 text-imperial-gold"
+              fill="currentColor"
+              viewBox="0 0 20 20"
             >
               <path
-                d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z'
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
               ></path>
             </svg>
             4.9/5 Rating
           </span>
-          <span class='text-gray-600'>•</span>
-          <span class='flex items-center gap-2'>
+          <span class="text-gray-600">•</span>
+          <span class="flex items-center gap-2">
             <svg
-              class='w-4 h-4 text-cyber-blue'
-              fill='currentColor'
-              viewBox='0 0 20 20'
+              class="w-4 h-4 text-cyber-blue"
+              fill="currentColor"
+              viewBox="0 0 20 20"
             >
               <path
-                fill-rule='evenodd'
-                d='M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z'
-                clip-rule='evenodd'></path>
+                fill-rule="evenodd"
+                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                clip-rule="evenodd"></path>
             </svg>
             Enterprise Grade Security
           </span>
         </div>
 
         <!-- Kaomoji -->
-        <div class='text-center lg:text-left pt-4'>
-          <p class='text-gray-400 text-lg'>
-            Let's protect your realm together <span class='text-3xl'
+        <div class="text-center lg:text-left pt-4">
+          <p class="text-gray-400 text-lg">
+            Let's protect your realm together <span class="text-3xl"
               >(｀･ω･´)ゞ</span
             >
           </p>

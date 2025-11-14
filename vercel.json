@@ -1,9 +1,0 @@
-{
-  "buildCommand": "bun run build",
-  "devCommand": "bun run dev",
-  "installCommand": "bun install",
-  "framework": "astro",
-  "outputDirectory": "dist",
-  "regions": ["iad1"],
-  "env": { "NODE_VERSION": "20" }
-}

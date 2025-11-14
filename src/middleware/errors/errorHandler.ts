@@ -67,7 +67,7 @@ export function errorHandler(error: Error, context: APIContext) {
   }
 
   // Production vs Development error responses
-  const isProd = import.meta.env.PROD;
+  const isProd = (process.env.NODE_ENV || 'development') === 'production';
   const errorResponse = {
     status: response.status,
     message: isProd ? response.message : error.message,

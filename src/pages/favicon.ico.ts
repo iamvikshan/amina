@@ -5,7 +5,7 @@ import path from 'node:path';
 
 export const prerender = true;
 
-const faviconSrc = path.resolve('src/images/amina/logo/headshot-circle.png');
+const faviconSrc = path.resolve('src/images/amina/logo/headshot-emoji.png');
 
 export const GET: APIRoute = async () => {
   // Resize the image to multiple sizes

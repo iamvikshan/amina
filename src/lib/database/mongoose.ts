@@ -11,10 +11,13 @@ import type {
 } from './types/guild';
 import type { IUser, IUserProfile } from './types/user';
 
-const MONGO_URI = import.meta.env.MONGO_CONNECTION;
-
-if (!MONGO_URI) {
-  throw new Error('Missing MONGO_CONNECTION environment variable');
+// Only validate at runtime when actually connecting, not during build
+function validateMongoUri(): string {
+  const uri = process.env.MONGO_CONNECTION || '';
+  if (!uri) {
+    throw new Error('Missing MONGO_CONNECTION environment variable');
+  }
+  return uri;
 }
 
 declare global {
@@ -35,8 +38,9 @@ async function connectDB() {
   }
 
   if (!global.mongoConnection?.promise) {
+    const uri = validateMongoUri(); // Validate only when actually connecting
     global.mongoConnection!.promise = mongoose
-      .connect(MONGO_URI, {
+      .connect(uri, {
         bufferCommands: false,
         maxPoolSize: 10, // Maximum connection pool size
         minPoolSize: 2, // Minimum connection pool size

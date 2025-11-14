@@ -12,7 +12,7 @@ export const prerender = true;
 import Layout from '@/layouts/Layout.astro';
 import Header from '@/components/navigation/Header.astro';
 import HeaderSkeleton from '@/components/navigation/HeaderSkeleton.astro';
-import FooterSection from '@components/sections/navbar&footer/FooterSection.astro';
+import FooterSection from '@components/navigation/FooterSection.astro';
 
 // Import NEW Amina-branded sections
 import HeroAmina from '@components/sections/landing/HeroAmina.astro';
@@ -38,7 +38,7 @@ const guardianFeatures = [
     description:
       'Advanced spam detection, profanity filtering, and automated warnings. Amina handles the night watch so you can sleep.',
     image: moderationImage,
-    learnMoreUrl: 'https://docs.vikshan.me/moderation',
+    learnMoreUrl: 'https://docs.4mina.app/moderation',
   },
   {
     icon: '🎨',
@@ -48,7 +48,7 @@ const guardianFeatures = [
     description:
       'Custom commands, interactive games, leveling systems, and social features. Keep your community active and entertained.',
     image: commandsImage,
-    learnMoreUrl: 'https://docs.vikshan.me/commands',
+    learnMoreUrl: 'https://docs.4mina.app/commands',
   },
   {
     icon: '📊',
@@ -97,4 +97,9 @@ const guardianFeatures = [
 
   <!-- Footer with full-width background -->
   <FooterSection />
+
+  <!-- Hydrate real-time metrics for stat components -->
+  <script>
+    import '@scripts/hydrateMetrics.js';
+  </script>
 </Layout>

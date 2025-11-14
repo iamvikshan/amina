@@ -66,4 +66,12 @@ export const ImagePaths = {
     casual: getCDNUrl('hero/full-body-casual.png'),
     hero: getCDNUrl('hero/full-body-hero.png'),
   },
+
+  logo: {
+    headshotCircle: getCDNUrl('logo/headshot-circle.png'),
+    headshotEmoji: getCDNUrl('logo/headshot-emoji.png'),
+    headshotEmojiSvg: getCDNUrl('logo/headshot-emoji.svg'),
+    headshotMain: getCDNUrl('logo/headshot-main.png'),
+    headshotSimplified: getCDNUrl('logo/headshot-simplified.png'),
+  },
 } as const;

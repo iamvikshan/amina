@@ -5,7 +5,7 @@ export const servicesData = [
     description:
       "Explore Amina's current commands and features! She's always excited to show you what she can do.",
     icon: 'wand',
-    url: 'https://docs.vikshan.me',
+    url: 'https://docs.4mina.app',
     target: '_blank',
   },
   {
@@ -26,7 +26,7 @@ export const servicesData = [
     description:
       'From creative tools to mini-games, discover all the ways Amina brings joy to your server!',
     icon: 'gamepad',
-    url: 'https://docs.vikshan.me',
+    url: 'https://docs.4mina.app',
     target: '_blank',
   },
   {
@@ -34,7 +34,7 @@ export const servicesData = [
     description:
       'New to Amina? Learn how to invite her to your server and start the adventure!',
     icon: 'rocket',
-    url: 'https://docs.vikshan.me',
+    url: 'https://docs.4mina.app',
     target: '_blank',
   },
   {

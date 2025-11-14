@@ -1,6 +1,6 @@
 import type { APIRoute, ImageMetadata } from 'astro';
 import { getImage } from 'astro:assets';
-import icon from '@images/amina/logo/headshot-circle.png';
+import icon from '@images/amina/logo/headshot-emoji.png';
 
 export const prerender = true;
 

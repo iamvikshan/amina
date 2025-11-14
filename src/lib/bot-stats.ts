@@ -38,6 +38,14 @@ interface BotStatsCache {
   ping: number;
   status: 'online' | 'idle' | 'dnd' | 'invisible';
   timestamp: number;
+  channels?: number;
+  uptimeHours?: number;
+  presence?: {
+    status: 'online' | 'idle' | 'dnd' | 'invisible';
+    message: string;
+    type: string;
+    url: string;
+  };
 }
 
 // In-memory cache (10 minute TTL to match bot update frequency)
@@ -52,6 +60,14 @@ export interface BotStats {
   cached: boolean;
   cacheAge?: number; // in seconds
   lastUpdated?: Date; // when bot last updated stats
+  channels?: number; // total channel count
+  uptimeHours?: number; // bot uptime in hours
+  presence?: {
+    status: 'online' | 'idle' | 'dnd' | 'invisible';
+    message: string;
+    type: string;
+    url: string;
+  };
 }
 
 /**
@@ -64,6 +80,14 @@ async function fetchBotStatsFromDB(): Promise<{
   ping: number;
   status: 'online' | 'idle' | 'dnd' | 'invisible';
   lastUpdated: Date;
+  channels: number;
+  uptime: number;
+  presence?: {
+    status: 'online' | 'idle' | 'dnd' | 'invisible';
+    message: string;
+    type: string;
+    url: string;
+  };
 } | null> {
   await connectDB();
 
@@ -87,6 +111,16 @@ async function fetchBotStatsFromDB(): Promise<{
     ping: config.BOT_STATS.ping || 0,
     status: config.PRESENCE?.STATUS || 'online',
     lastUpdated: config.BOT_STATS.lastUpdated || new Date(),
+    channels: config.BOT_STATS.channels || 0,
+    uptime: config.BOT_STATS.uptime || 0,
+    presence: config.PRESENCE
+      ? {
+          status: config.PRESENCE.STATUS || 'online',
+          message: config.PRESENCE.MESSAGE || 'On patrol',
+          type: config.PRESENCE.TYPE || 'CUSTOM',
+          url: config.PRESENCE.URL || '',
+        }
+      : undefined,
   };
 }
 
@@ -106,6 +140,9 @@ export async function getBotStats(): Promise<BotStats> {
       status: statsCache.status,
       cached: true,
       cacheAge,
+      channels: statsCache.channels,
+      uptimeHours: statsCache.uptimeHours,
+      presence: statsCache.presence,
     };
   }
 
@@ -124,12 +161,17 @@ export async function getBotStats(): Promise<BotStats> {
     }
 
     // Update cache
+    const uptimeHours = dbStats.uptime / 3600; // Convert seconds to hours
+
     statsCache = {
       guildCount: dbStats.guilds,
       memberCount: dbStats.users,
       ping: dbStats.ping,
       status: dbStats.status,
       timestamp: Date.now(),
+      channels: dbStats.channels,
+      uptimeHours,
+      presence: dbStats.presence,
     };
 
     return {
@@ -139,6 +181,9 @@ export async function getBotStats(): Promise<BotStats> {
       status: dbStats.status,
       cached: false,
       lastUpdated: dbStats.lastUpdated,
+      channels: dbStats.channels,
+      uptimeHours,
+      presence: dbStats.presence,
     };
   } catch (error) {
     console.error('[getBotStats] Error fetching bot stats:', error);
@@ -152,6 +197,9 @@ export async function getBotStats(): Promise<BotStats> {
         status: statsCache.status,
         cached: true,
         cacheAge: Math.round((Date.now() - statsCache.timestamp) / 1000),
+        channels: statsCache.channels,
+        uptimeHours: statsCache.uptimeHours,
+        presence: statsCache.presence,
       };
     }
 

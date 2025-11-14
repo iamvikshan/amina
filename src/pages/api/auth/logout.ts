@@ -1,6 +1,7 @@
 // src/pages/api/auth/logout.ts
 import type { APIRoute } from 'astro';
 import { clearAuthCookies, getAuthCookies } from '@/lib/cookie-utils';
+import { env } from '@/env';
 
 export const prerender = false;
 
@@ -22,8 +23,8 @@ export const POST: APIRoute = async ({ cookies }) => {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
               token: accessToken,
-              client_id: import.meta.env.CLIENT_ID,
-              client_secret: import.meta.env.CLIENT_SECRET,
+              client_id: env.CLIENT_ID,
+              client_secret: env.CLIENT_SECRET,
             }),
           }
         );

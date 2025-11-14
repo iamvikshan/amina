@@ -1,11 +1,13 @@
 // @/lib/discord-auth.ts
 import { z } from 'astro:content';
+import { env as runtimeEnv } from '@/env';
 
 const envSchema = z.object({
   CLIENT_ID: z.string().min(1),
   CLIENT_SECRET: z.string().min(1),
   BASE_URL: z.string().transform((val) => {
-    const isProduction = import.meta.env.PROD === true;
+    const isProduction =
+      (process.env.NODE_ENV || 'development') === 'production';
     if (isProduction) {
       if (val && val !== '/') {
         return val.startsWith('http') ? val : `https://${val}`;
@@ -39,22 +41,41 @@ export class DiscordAuth {
   private readonly GLOBAL_RATE_LIMIT = 50; // Discord's global limit: 50 req/sec
 
   constructor() {
-    try {
-      const env = envSchema.parse({
-        CLIENT_ID: import.meta.env.CLIENT_ID,
-        CLIENT_SECRET: import.meta.env.CLIENT_SECRET,
-        BASE_URL: import.meta.env.BASE_URL,
-      });
+    // Read from runtime env (container) via central env module
+    const clientId = runtimeEnv.CLIENT_ID;
+    const clientSecret = runtimeEnv.CLIENT_SECRET;
+    const baseUrl = runtimeEnv.BASE_URL;
 
+    // Only validate if we're in a runtime context (not during build)
+    // During SSR/build, these will be empty strings and validation happens at actual request time
+    if (clientId || clientSecret) {
+      try {
+        const env = envSchema.parse({
+          CLIENT_ID: clientId,
+          CLIENT_SECRET: clientSecret,
+          BASE_URL: baseUrl,
+        });
+
+        this.config = {
+          clientId: env.CLIENT_ID,
+          clientSecret: env.CLIENT_SECRET,
+          redirectUri: `${env.BASE_URL}/auth/callback`,
+          scopes: ['identify', 'guilds', 'email'],
+        };
+      } catch (error) {
+        console.error('Environment validation failed:', error);
+        throw new Error(
+          'Required environment variables are missing or invalid'
+        );
+      }
+    } else {
+      // Build-time placeholder - will be initialized at runtime
       this.config = {
-        clientId: env.CLIENT_ID,
-        clientSecret: env.CLIENT_SECRET,
-        redirectUri: `${env.BASE_URL}/auth/callback`,
+        clientId: '',
+        clientSecret: '',
+        redirectUri: 'http://localhost:4321/auth/callback',
         scopes: ['identify', 'guilds', 'email'],
       };
-    } catch (error) {
-      console.error('Environment validation failed:', error);
-      throw new Error('Required environment variables are missing or invalid');
     }
   }
 
@@ -276,7 +297,10 @@ export class DiscordAuth {
 
       return response.ok;
     } catch (error) {
-      if (!import.meta.env.PROD && accessToken) {
+      if (
+        (process.env.NODE_ENV || 'development') !== 'production' &&
+        accessToken
+      ) {
         return true;
       }
       return false;
