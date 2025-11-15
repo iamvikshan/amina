@@ -25,7 +25,6 @@ if (Astro.request.method === 'GET') {
     const tokenData = await discordAuth.exchangeCode(code);
     const userData = await discordAuth.getUserInfo(tokenData.access_token);
 
-    // Set auth cookies
     setAuthCookies(Astro.cookies, tokenData, userData);
 
     return Astro.redirect('/dash', 302);

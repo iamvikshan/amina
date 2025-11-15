@@ -7,15 +7,23 @@ const NODE_ENV = (process.env.NODE_ENV || 'development') as
   | 'production'
   | 'test';
 
+/**
+ * Runtime Secrets Configuration
+ * ==============================
+ * ONLY secrets belong here. Public URLs live in src/config/site.ts
+ *
+ * Required secrets:
+ * - CLIENT_ID: Discord application client ID
+ * - CLIENT_SECRET: Discord application client secret
+ * - BOT_TOKEN: Discord bot token
+ * - MONGO_CONNECTION: MongoDB connection string
+ * - WEBHOOK_SECRET: Secret for webhook verification
+ */
 export const env = {
   // Discord Configuration
   CLIENT_ID: process.env.CLIENT_ID || '',
   CLIENT_SECRET: process.env.CLIENT_SECRET || '',
   BOT_TOKEN: process.env.BOT_TOKEN || '',
-
-  // Application URLs
-  BASE_URL: process.env.BASE_URL || 'http://localhost:4321',
-  SUPPORT_SERVER: process.env.SUPPORT_SERVER || '',
 
   // Database
   MONGO_CONNECTION: process.env.MONGO_CONNECTION || '',
@@ -25,7 +33,6 @@ export const env = {
 
   // Environment
   NODE_ENV: NODE_ENV,
-  PORT: process.env.PORT || '4321',
   PROD: NODE_ENV === 'production',
 } as const;
 

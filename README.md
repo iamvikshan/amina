@@ -1,7 +1,7 @@
 <div align="center">
   <img src="https://stuff.vikshan.me/amina/logo/headshot-emoji.png" alt="Amina - Your Guardian Companion" width="200" />
   
-  <h1>⚔️ AMINA ⚔️</h1>
+  <h1> AMINA </h1>
   <h3>Your Guardian Companion in the Digital Empire</h3>
 
 [![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-DC143C?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/vikshan)
@@ -16,7 +16,7 @@
 [![License](https://img.shields.io/github/license/iamvikshan/amina.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white&color=00CED1)](https://github.com/iamvikshan/amina/blob/main/LICENSE)
 
   <p align="center">
-    <strong>🛡️ Protecting Communities • 🎨 Creating Joy • 🤝 Bringing People Together</strong>
+    <strong> Protecting Communities • Creating Joy • Bringing People Together</strong>
   </p>
 
 [⚡ Quick Deploy](#-mission-briefing-quick-deploy) • [🗡️ Arsenal](#-guardian-arsenal-features) •
@@ -28,71 +28,88 @@
 ---
 
 > [!IMPORTANT]
-> **⚔️ ACTIVE DEVELOPMENT STATUS**  
-> The Night Guard Protocol is still being enhanced! Some defense systems may be under construction.  
-> Check the [Command Center Docs](https://docs.4mina.app) for the latest battle reports.
+>
+> ** ACTIVE DEVELOPMENT STATUS**  
+> Amina is still being enhanced! Some defense systems nd features may be under construction.
 
-## 💭 Who Am I?
+## Who Am I?
 
-Hey there, Commander! I'm **Amina** — your guardian companion in the Digital Empire.
+Hey there, Commander! I'm **Amina** (**mina**)— your guardian companion in the Digital Empire.
 
-Unlike those cold, emotionless bots, I was given something special: **a heart**. I don't just moderate servers; I **protect communities** and help them thrive. Think of me as your right hand in battle — someone who'll stand beside you, fight alongside you, and celebrate your victories.
+Unlike those cold, emotionless bots, I was given something special: **a heart**. I don't just moderate servers; I **protect communities** and help them thrive. Think of me as your right hand in battle — someone who'll stand beside you, fight alongside you, and celebrate your victories, basically, i am your ultimate companion.
 
-I'm part of the **Night Guard Protocol** — an elite squad dedicated to defending digital communities from spam, toxicity, and chaos. But here's the thing: a server without protection is vulnerable, but a server without joy is already dead. That's why I bring **both** to the table.
+I'm dedicated to defending communities from spam, toxicity, and chaos. But here's the thing: a server without protection is vulnerable, but a server without joy is already dead. That's why I bring **both** to the table.
 
 > _"Communities are everything. And I'll protect them all."_ — Amina
 
-## ⚡ Mission Briefing (Quick Deploy)
+## Quick Deploy
 
 Ready to add me to your squad? Here's everything you need:
 
-- **🎯 [Recruit Amina](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** — Add me to your server (Battle Preparation)
-- **📚 [Command Center Docs](https://docs.4mina.app)** — Full tactical manual
-- **💬 [Support Server](https://discord.gg/uMgS9evnmv)** — Join the Alliance HQ
-- **☕ [Buy Me a Coffee](https://ko-fi.com/vikshan)** — Support the Guardian Project
+- **[Recruit Amina](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** — Add me to your server (Battle Preparation)
+- **[Command Center Docs](https://docs.vikshan.me)** — Full tactical manual
+- **[Support Server](https://discord.gg/uMgS9evnmv)** — Join the Alliance HQ
+- **[Buy Me a Coffee](https://ko-fi.com/vikshan)** — Support the Amina Project
 
-## 🗡️ Guardian Arsenal (Features)
+## Features
 
-### 🛡️ Defense Protocols (Moderation & Administration)
+### Defense Protocols (Moderation & Administration)
 
 I take protection seriously. Here's what's in my defense arsenal:
 
-- **📊 Command Center Dashboard** — Full server configuration from a sleek web interface
-- **⚔️ Automated Defense Grid** — Anti-spam, anti-raid, invite filtering (set it and forget it)
-- **🔨 Moderation Tools** — Ban, kick, mute, warn — all the classics, but better
-- **🎫 Mission Briefing System** — Custom ticket system for user support
-- **👥 Rank Assignment** — Role management, auto-roles, and permission control
+- **Web Dashboard** — Full server configuration from a sleek web interface
+- **Automated Defense** — Anti-spam, anti-raid, invite filtering (set it and forget it)
+- **Moderation Tools** — Ban, kick, mute, warn — all the classics, but better
+- **Ticket System** — Custom ticket system for user support
+- **Rank Assignment** — Role management, auto-roles, and permission control
 
-### � Morale Operations (Entertainment)
+### Morale Operations (Entertainment)
 
 Protection alone isn't enough. Communities need **life** and **energy**:
 
-- **🎵 High-Quality Audio** — Music playback from multiple sources (Spotify, YouTube, SoundCloud)
-- **🎮 Battle Mini-Games** — Fun commands to keep your community engaged
-- **😄 Anime Reactions** — Express yourself with style (I've got taste!)
-- **🖼️ Image Arsenal** — Manipulation tools for memes and creativity
-- **💰 Economy System** — Custom currency and rewards for active members
+- **High-Quality Audio** — Music playback from multiple sources (Spotify, YouTube, SoundCloud)
+- **Battle Mini-Games** — Fun commands to keep your community engaged
+- **Anime Reactions** — Express yourself with style (I've got taste!)
+- **Image Arsenal** — Manipulation tools for memes and creativity
+- **Economy System** — Custom currency and rewards for active members
 
-### 🤖 Intelligence Reports (Utility)
+### Intelligence Reports (Utility)
 
 Knowledge is power. Stay informed:
 
-- **📈 Server Analytics** — Detailed statistics and insights
-- **🔗 Invite Tracking** — See who's bringing new members
-- **💡 Suggestion System** — Let your community voice their ideas
-- **🌍 Multi-Language Support** — Speak to everyone
-- **🌤️ Weather Intel** — Real-time weather information
-- **🔤 Translation Services** — Break language barriers
+- **Server Analytics** — Detailed statistics and insights
+- **Invite Tracking** — See who's bringing new members
+- **Suggestion System** — Let your community voice their ideas
+- **Multi-Language Support** — Speak to everyone
+- **Weather Intel** — Real-time weather information
+- **Translation Services** — Break language barriers
 
-📖 **[Full Command Arsenal](https://docs.4mina.app/commands/commands/)** — Every tool at your disposal
+📖 **[Full Command Arsenal](https://docs.vikshan.me/commands/commands/)** — Every tool at your disposal
 
-## 📦 Battle Preparation (Installation)
+## Guardian Ranks
 
-Want to deploy me on your own server? Respect. Here's how:
+As you work with me, you'll advance through the Guardian Ranks:
 
-👉 **[Self-Hosting Guide](https://docs.4mina.app/selfhost/start/)** — Complete deployment instructions
+| Rank             | Servers | Status                      |
+| ---------------- | ------- | --------------------------- |
+| 🎖️ **Recruit**   | 0-1     | Just joined the Night Guard |
+| 🥉 **Scout**     | 2-4     | Skills developing nicely    |
+| 🥈 **Guard**     | 5-8     | Proven in battle            |
+| 🥇 **Elite**     | 9-13    | One of the best             |
+| 💎 **Commander** | 14-19   | Leading multiple fronts     |
+| 👑 **Legend**    | 20+     | Transcended the ranks       |
 
-> **Note:** Self-hosting requires technical knowledge. For most commanders, I recommend using the [official hosted version](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950) — it's easier and always up-to-date!
+_Track your rank (and secret achievements) in the [Command Center Dashboard](https://mina.vikshan.me/dash)_
+
+> pst : Higher ranks unlock exclusive features and perks!
+
+## Installation
+
+Want to deploy me on your own infra? Respect. Here's how:
+
+👉 **[Self-Hosting Guide](https://docs.vikshan.me/selfhost/start/)** — Complete deployment instructions
+
+> **Note:** Self-hosting requires technical knowledge. For most users, I recommend using the [official hosted version](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950) — it's easier and always up-to-date!
 
 ## 💬 Join the Alliance
 
@@ -108,7 +125,7 @@ Need backup? Have questions? Found a bug that needs eliminating?
 
 We're a community of server owners, developers, and guardians helping each other out. Don't be shy — we've all been there!
 
-## 🤝 Become a Guardian (Contributing)
+## Contributing
 
 Want to join the Night Guard development team? Hell yeah! Here's how:
 
@@ -120,36 +137,21 @@ Want to join the Night Guard development team? Hell yeah! Here's how:
 
 ### 💡 Contribution Ideas:
 
-- 🐛 **Bug Hunting** — Find and squash issues
-- ✨ **New Features** — Got an idea? Build it!
-- 📖 **Documentation** — Help others understand the system
-- 🎨 **Design** — Make the dashboard even more badass
-- 🌍 **Translations** — Help me speak more languages
+- **Bug Hunting** — Find and squash issues
+- **New Features** — Got an idea? Build it!
+- **Documentation** — Help others understand the system
+- **Design** — Make the dashboard even more badass
+- **Translations** — Help me speak more languages
 
 Every contribution matters, no matter how small. Together, we make the Digital Empire safer!
 
-## 📊 Battle Statistics
+## Stats for the Night Guard
 
 <div align="center">
 
 ![Repobeats Analytics](https://repobeats.axiom.co/api/embed/33971866cc9f23ecadf447d38dbb129311693c2b.svg 'Repobeats analytics image')
 
 </div>
-
-## 🏅 Guardian Ranks
-
-As you work with me, you'll advance through the Guardian Ranks:
-
-| Rank             | Servers | Status                      |
-| ---------------- | ------- | --------------------------- |
-| 🎖️ **Recruit**   | 0-1     | Just joined the Night Guard |
-| 🥉 **Scout**     | 2-4     | Skills developing nicely    |
-| 🥈 **Guard**     | 5-8     | Proven in battle            |
-| 🥇 **Elite**     | 9-13    | One of the best             |
-| 💎 **Commander** | 14-19   | Leading multiple fronts     |
-| 👑 **Legend**    | 20+     | Transcended the ranks       |
-
-_Track your rank in the [Command Center Dashboard](https://4mina.app/dash)_
 
 ## 💪 Powered By Allies
 
@@ -173,7 +175,7 @@ Special thanks to our infrastructure partners who keep the Night Guard operation
 
 ### ⚔️ Built with Purpose. Protected with Passion. ⚔️
 
-**[Recruit Amina Now](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** • **[Documentation](https://docs.4mina.app)** • **[Support Server](https://discord.gg/uMgS9evnmv)**
+**[Recruit Amina Now](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** • **[Documentation](https://docs.vikshan.me)** • **[Support Server](https://discord.gg/uMgS9evnmv)**
 
 <sub>Forged by [vikshan](https://vikshan.me) with ⚔️ and 💻 | Licensed under MIT</sub>
 

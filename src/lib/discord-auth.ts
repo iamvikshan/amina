@@ -1,20 +1,11 @@
 // @/lib/discord-auth.ts
 import { z } from 'astro:content';
 import { env as runtimeEnv } from '@/env';
+import { getOAuthRedirect } from '@/config/permalinks';
 
 const envSchema = z.object({
   CLIENT_ID: z.string().min(1),
   CLIENT_SECRET: z.string().min(1),
-  BASE_URL: z.string().transform((val) => {
-    const isProduction =
-      (process.env.NODE_ENV || 'development') === 'production';
-    if (isProduction) {
-      if (val && val !== '/') {
-        return val.startsWith('http') ? val : `https://${val}`;
-      }
-    }
-    return val && val !== '/' ? val : 'http://localhost:4321';
-  }),
 });
 
 interface DiscordAuthConfig {
@@ -44,7 +35,6 @@ export class DiscordAuth {
     // Read from runtime env (container) via central env module
     const clientId = runtimeEnv.CLIENT_ID;
     const clientSecret = runtimeEnv.CLIENT_SECRET;
-    const baseUrl = runtimeEnv.BASE_URL;
 
     // Only validate if we're in a runtime context (not during build)
     // During SSR/build, these will be empty strings and validation happens at actual request time
@@ -53,13 +43,12 @@ export class DiscordAuth {
         const env = envSchema.parse({
           CLIENT_ID: clientId,
           CLIENT_SECRET: clientSecret,
-          BASE_URL: baseUrl,
         });
 
         this.config = {
           clientId: env.CLIENT_ID,
           clientSecret: env.CLIENT_SECRET,
-          redirectUri: `${env.BASE_URL}/auth/callback`,
+          redirectUri: getOAuthRedirect(),
           scopes: ['identify', 'guilds', 'email'],
         };
       } catch (error) {
@@ -73,7 +62,7 @@ export class DiscordAuth {
       this.config = {
         clientId: '',
         clientSecret: '',
-        redirectUri: 'http://localhost:4321/auth/callback',
+        redirectUri: getOAuthRedirect(),
         scopes: ['identify', 'guilds', 'email'],
       };
     }

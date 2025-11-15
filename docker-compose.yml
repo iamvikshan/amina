@@ -3,7 +3,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      # No build args needed anymore - secrets only at runtime!
+      args:
+        # Environment variables needed at build time
+        - CLIENT_ID=${CLIENT_ID}
+        - CLIENT_SECRET=${CLIENT_SECRET}
+        - BOT_TOKEN=${BOT_TOKEN}
+        - MONGO_CONNECTION=${MONGO_CONNECTION}
+        - WEBHOOK_SECRET=${WEBHOOK_SECRET}
     image: amina:latest
     container_name: amina
     # If a .env file exists in project root, load it
@@ -17,8 +23,6 @@ services:
       - CLIENT_SECRET=${CLIENT_SECRET}
       - BOT_TOKEN=${BOT_TOKEN}
       - MONGO_CONNECTION=${MONGO_CONNECTION}
-      - BASE_URL=${BASE_URL}
-      - SUPPORT_SERVER=${SUPPORT_SERVER}
       - WEBHOOK_SECRET=${WEBHOOK_SECRET}
       - HOST=0.0.0.0
       - PORT=4321

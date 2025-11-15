@@ -7,6 +7,7 @@ import type { SidebarSection } from '@/components/ui/dashboard/Sidebar.astro';
 import { GuildManager } from '@/lib/database/mongoose';
 import type { IGuild } from '@/lib/database/types/guild';
 import { getDiscordUserData } from '@/lib/data-utils';
+import LucideIcon from '@components/ui/icons/icon.astro';
 
 const { guildId } = Astro.params;
 
@@ -206,10 +207,14 @@ const sidebarSections: SidebarSection[] = [
                   <p class="text-lg font-medium text-white">
                     {
                       guild.server.setup_completed ? (
-                        <span class="text-discord-green">✅ Operational</span>
+                        <span class="text-discord-green inline-flex items-center gap-2">
+                          <LucideIcon name="check-circle" size={20} />
+                          Operational
+                        </span>
                       ) : (
-                        <span class="text-imperial-amber">
-                          ⚠️ Setup Required
+                        <span class="text-imperial-amber inline-flex items-center gap-2">
+                          <LucideIcon name="alert-triangle" size={20} />
+                          Setup Required
                         </span>
                       )
                     }
@@ -221,7 +226,11 @@ const sidebarSections: SidebarSection[] = [
                 !guild.server.setup_completed && (
                   <div class="mt-6 rounded-lg border border-imperial-amber/50 bg-imperial-amber/10 p-4">
                     <div class="flex gap-3">
-                      <span class="text-imperial-amber">⚠️</span>
+                      <LucideIcon
+                        name="alert-triangle"
+                        class="text-imperial-amber"
+                        size={24}
+                      />
                       <div>
                         <p class="font-medium text-imperial-amber">
                           Setup Incomplete
@@ -643,7 +652,7 @@ const sidebarSections: SidebarSection[] = [
                     x-model="guild.farewell.content"
                     rows="3"
                     class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
-                    placeholder="Goodbye {member:tag}! 👋"></textarea>
+                    placeholder="Goodbye {member:tag}!"></textarea>
                   <p class="text-xs text-gray-400 mt-1">
                     Variables: &#123;member:mention&#125;,
                     &#123;member:tag&#125;, &#123;server&#125;
@@ -709,7 +718,7 @@ const sidebarSections: SidebarSection[] = [
                     x-model="guild.stats.xp.message"
                     rows="3"
                     class="w-full px-3 py-2 border-2 border-night-steel rounded-lg focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue bg-night-black text-white transition-all"
-                    placeholder="{member:tag}, Yay! 🎉 You just leveled up to Level {level}! 🌟"
+                    placeholder="{member:tag}, Yay! You just leveled up to Level {level}!"
                   ></textarea>
                   <p class="text-xs text-gray-400 mt-1">
                     Variables: &#123;member:tag&#125;,

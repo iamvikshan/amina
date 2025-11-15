@@ -26,18 +26,13 @@ const getStatusMessage = (configured: boolean) => {
 };
 
 // Get the Discord OAuth2 URL for adding the bot (server runtime env)
-import { env } from '@/env';
-const CLIENT_ID = env.CLIENT_ID;
-const dashUrl = new URL(Astro.request.url).origin + '/auth/callback';
-const DISCORD_PERMISSIONS = '8'; // Administrator permissions
+import { getInviteUrl } from '@/config/permalinks';
 
-const addBotUrl = new URL('https://discord.com/api/oauth2/authorize');
-addBotUrl.searchParams.append('client_id', CLIENT_ID);
-addBotUrl.searchParams.append('permissions', DISCORD_PERMISSIONS);
-addBotUrl.searchParams.append('scope', 'bot applications.commands');
+// Build bot invite URL with guild pre-selection (inherit global permissions)
+const baseInviteUrl = getInviteUrl();
+const addBotUrl = new URL(baseInviteUrl);
+// Pre-select this guild
 addBotUrl.searchParams.append('guild_id', guild.id);
-addBotUrl.searchParams.append('response_type', 'code');
-addBotUrl.searchParams.append('redirect_uri', dashUrl);
 
 // Generate gradient colors based on server name
 const getGradient = (name: string) => {

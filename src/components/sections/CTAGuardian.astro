@@ -6,7 +6,9 @@
  */
 
 import { ImagePaths } from '@/utils/cdn';
+import { getInviteUrl } from '@/config/permalinks';
 import { getBotStats } from '@/lib/bot-stats';
+import LucideIcon from '@components/ui/icons/icon.astro';
 
 // Fetch real-time bot stats
 const botStats = await getBotStats();
@@ -118,7 +120,7 @@ const currentStatus = statusColors[botStats.status] || statusColors.online;
         <div
           class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-amina-crimson/30 text-amina-crimson"
         >
-          <span class="text-xl">[♥]</span>
+          <LucideIcon name="heart" class="text-amina-crimson" size={20} />
           <span class="text-sm font-heading font-bold tracking-wider uppercase"
             >Join the Night Guard</span
           >
@@ -174,7 +176,7 @@ const currentStatus = statusColors[botStats.status] || statusColors.online;
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row items-center gap-4 pt-4">
           <a
-            href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID"
+            href={getInviteUrl()}
             class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-amina-crimson to-rose-red text-white rounded-xl font-heading font-bold text-lg hover:scale-105 hover:shadow-glow-red transition-all duration-300"
           >
             <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">

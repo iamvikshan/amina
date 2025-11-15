@@ -1,12 +1,4 @@
 // @/lib/api-response.ts
-export interface APIResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    details?: unknown;
-  };
-}
 
 export function createResponse<T>(data: T, status = 200): Response {
   return new Response(

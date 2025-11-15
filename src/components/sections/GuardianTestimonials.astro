@@ -9,6 +9,7 @@
 import { ImagePaths } from '@/utils/cdn';
 import { getBotStats } from '@/lib/bot-stats';
 import { getUptimeStats } from '@/lib/uptime';
+import LucideIcon from '@components/ui/icons/icon.astro';
 
 interface Testimonial {
   name: string;
@@ -153,7 +154,7 @@ const testimonials: Testimonial[] = [
       <div
         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-cyber-blue/30 text-cyber-blue"
       >
-        <span class="text-xl">[📡]</span>
+        <LucideIcon name="radio" class="text-cyber-blue" size={20} />
         <span class="text-sm font-heading font-bold tracking-wider uppercase"
           >Guardian Field Reports</span
         >

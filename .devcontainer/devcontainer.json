@@ -32,13 +32,14 @@
         "ms-azuretools.vscode-docker",
         "WakaTime.vscode-wakatime",
         "mongodb.mongodb-vscode",
-        "jock.svg"
+        "jock.svg",
+        "Lakshmisankar.vscode-lucide-icons"
       ]
     }
   },
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bun update && docker --version",
+  "postCreateCommand": "cd workspaces/amina && bun update",
 
   // Set `remoteUser` to `root` to connect as root.
   "remoteUser": "root",

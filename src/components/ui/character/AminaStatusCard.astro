@@ -46,7 +46,7 @@ const statusConfig = {
 ---
 
 <div
-  class="amina-status-card group relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-cyber-blue/30 rounded-2xl p-6 transition-all duration-500 hover:border-cyber-blue/60 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,206,209,0.3)]"
+  class="amina-status-card group relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-cyber-blue/30 rounded-xl p-4 transition-all duration-500 hover:border-cyber-blue/60 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(0,206,209,0.3)]"
   data-status="loading"
 >
   <!-- Top accent line -->
@@ -55,13 +55,14 @@ const statusConfig = {
   >
   </div>
 
-  <!-- Portrait Container -->
-  <div class="flex justify-center mb-4">
-    <div class="relative">
+  <!-- Horizontal Layout: Portrait | Status & Message -->
+  <div class="flex items-center gap-4">
+    <!-- Portrait Container (Left) -->
+    <div class="relative flex-shrink-0">
       <!-- Portrait Image with glow -->
       <div
-        class="relative w-20 h-20 rounded-full border-2 transition-all duration-500 portrait-container"
-        style="border-color: #00CED1; box-shadow: 0 0 15px rgba(0, 206, 209, 0.4);"
+        class="relative w-16 h-16 rounded-full border-2 transition-all duration-500 portrait-container"
+        style="border-color: #00CED1; box-shadow: 0 0 12px rgba(0, 206, 209, 0.4);"
       >
         <img
           id="amina-portrait"
@@ -73,35 +74,39 @@ const statusConfig = {
       </div>
 
       <!-- Status Indicator (top-right corner) -->
-      <!-- TODO: Debug why status dot isn't showing/updating properly -->
-      <!-- TODO: Replace with Discord status icons (online/idle/dnd/offline) -->
       <div
-        class="absolute -top-1 -right-1 w-6 h-6 rounded-full border-2 border-night-shadow flex items-center justify-center status-dot"
+        class="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full border-2 border-night-shadow flex items-center justify-center status-dot"
       >
-        <div class="w-3 h-3 rounded-full animate-pulse" id="status-dot-inner">
+        <div
+          class="w-2.5 h-2.5 rounded-full animate-pulse"
+          id="status-dot-inner"
+        >
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Status Text -->
-  <div class="text-center mb-3">
-    <p
-      class="text-xs font-mono uppercase tracking-wider text-cyber-blue flex items-center justify-center gap-2 status-label"
-    >
-      <span class="status-kaomoji">[>]</span>
-      <span id="status-text">On Patrol</span>
-    </p>
-  </div>
+    <!-- Content (Right) -->
+    <div class="flex-1 min-w-0">
+      <!-- Status Text -->
+      <div class="mb-2">
+        <p
+          class="text-xs font-mono uppercase tracking-wider text-cyber-blue flex items-center gap-2 status-label"
+        >
+          <span class="status-kaomoji">[>]</span>
+          <span id="status-text">On Patrol</span>
+        </p>
+      </div>
 
-  <!-- Activity Message (Amina's dialogue) -->
-  <div class="mb-4">
-    <p
-      id="amina-message"
-      class="text-center text-xs text-neutral-400 italic leading-relaxed min-h-[32px] font-dialogue"
-    >
-      "Checking status..."
-    </p>
+      <!-- Activity Message (Amina's dialogue) -->
+      <div>
+        <p
+          id="amina-message"
+          class="text-xs text-neutral-400 italic leading-snug font-dialogue line-clamp-2"
+        >
+          "Checking status..."
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- Commented out for compact footer version - can be reused elsewhere -->
@@ -184,7 +189,7 @@ const statusConfig = {
 
   <!-- Bottom corner accent -->
   <div
-    class="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-amina-crimson/30 group-hover:border-amina-crimson/60 transition-colors duration-300"
+    class="absolute bottom-2 right-2 w-6 h-6 border-r-2 border-b-2 border-amina-crimson/30 group-hover:border-amina-crimson/60 transition-colors duration-300"
   >
   </div>
 </div>
@@ -323,60 +328,65 @@ const statusConfig = {
 
   // Update the UI with fetched data
   function updateUI(data: MetricsData) {
-    const card = document.querySelector('.amina-status-card');
-    const portrait = document.getElementById(
-      'amina-portrait'
-    ) as HTMLImageElement;
-    const statusText = document.getElementById('status-text');
-    const statusKaomoji = document.querySelector('.status-kaomoji');
-    const message = document.getElementById('amina-message');
-    const statusDot = document.getElementById('status-dot-inner');
-    const portraitContainer = document.querySelector(
-      '.portrait-container'
-    ) as HTMLElement;
-    const statusLabel = document.querySelector('.status-label') as HTMLElement;
+    // Get ALL status cards on the page (mobile + desktop)
+    const cards = document.querySelectorAll('.amina-status-card');
 
     const status = data.presence?.status || data.status || 'online';
     const config = STATUS_CONFIG[status];
 
-    // Update card status
-    card?.setAttribute('data-status', status);
+    // Update each card instance
+    cards.forEach((card, index) => {
+      const portrait = card.querySelector(
+        '#amina-portrait'
+      ) as HTMLImageElement;
+      const statusText = card.querySelector('#status-text');
+      const statusKaomoji = card.querySelector('.status-kaomoji');
+      const message = card.querySelector('#amina-message');
+      const statusDot = card.querySelector('#status-dot-inner');
+      const portraitContainer = card.querySelector(
+        '.portrait-container'
+      ) as HTMLElement;
+      const statusLabel = card.querySelector('.status-label') as HTMLElement;
 
-    // Update portrait
-    if (portrait) {
-      portrait.src = STATUS_PORTRAITS[status];
-      portrait.alt = `Amina - ${config.label}`;
-    }
+      // Update card status
+      card?.setAttribute('data-status', status);
 
-    // Update status text and kaomoji
-    if (statusText) statusText.textContent = config.label;
-    if (statusKaomoji) statusKaomoji.textContent = config.kaomoji;
+      // Update portrait
+      if (portrait) {
+        portrait.src = STATUS_PORTRAITS[status];
+        portrait.alt = `Amina - ${config.label}`;
+      }
 
-    // Update status label color
-    if (statusLabel) {
-      statusLabel.style.color = config.color;
-    }
+      // Update status text and kaomoji
+      if (statusText) statusText.textContent = config.label;
+      if (statusKaomoji) statusKaomoji.textContent = config.kaomoji;
 
-    // Update portrait border and glow
-    if (portraitContainer) {
-      portraitContainer.style.borderColor = config.color;
-      portraitContainer.style.boxShadow = `0 0 15px ${config.color}66`;
-    }
+      // Update status label color
+      if (statusLabel) {
+        statusLabel.style.color = config.color;
+      }
 
-    // Update status dot
-    if (statusDot) {
-      statusDot.className = `w-3 h-3 rounded-full animate-pulse ${config.dotColor}`;
-    }
+      // Update portrait border and glow
+      if (portraitContainer) {
+        portraitContainer.style.borderColor = config.color;
+        portraitContainer.style.boxShadow = `0 0 15px ${config.color}66`;
+      }
 
-    // Update activity message
-    if (message) {
-      const activityMessage = data.presence?.message
-        ? `"${data.presence.message}"`
-        : DEFAULT_MESSAGES[status];
-      message.textContent = activityMessage;
-    }
+      // Update status dot
+      if (statusDot) {
+        statusDot.className = `w-2.5 h-2.5 rounded-full animate-pulse ${config.dotColor}`;
+      }
 
-    // Update stats with animation
+      // Update activity message
+      if (message) {
+        const activityMessage = data.presence?.message
+          ? `"${data.presence.message}"`
+          : DEFAULT_MESSAGES[status];
+        message.textContent = activityMessage;
+      }
+    });
+
+    // Update stats with animation (commented out for compact footer)
     const updateStat = (id: string, value: string) => {
       const element = document.getElementById(id);
       if (element && element.textContent !== value) {
@@ -413,9 +423,14 @@ const statusConfig = {
     }
   }
 
-  // Initial fetch
-  fetchMetrics();
-
-  // Refresh every 60 seconds
-  setInterval(fetchMetrics, REFRESH_INTERVAL);
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchMetrics();
+      setInterval(fetchMetrics, REFRESH_INTERVAL);
+    });
+  } else {
+    fetchMetrics();
+    setInterval(fetchMetrics, REFRESH_INTERVAL);
+  }
 </script>

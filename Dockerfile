@@ -16,6 +16,13 @@ RUN bun install --frozen-lockfile --production
 # ============================================
 FROM oven/bun:alpine AS builder
 
+# Accept build args for environment variables needed during build
+ARG CLIENT_ID
+ARG CLIENT_SECRET
+ARG BOT_TOKEN
+ARG MONGO_CONNECTION
+ARG WEBHOOK_SECRET
+
 WORKDIR /app
 
 # Copy package files for dev dependencies and caching
@@ -30,6 +37,14 @@ COPY public/ ./public/
 COPY astro.config.mjs ./
 COPY tailwind.config.mjs ./
 COPY process-html.mjs ./
+COPY tsconfig.json ./
+
+# Make environment variables available to the build process
+ENV CLIENT_ID=${CLIENT_ID}
+ENV CLIENT_SECRET=${CLIENT_SECRET}
+ENV BOT_TOKEN=${BOT_TOKEN}
+ENV MONGO_CONNECTION=${MONGO_CONNECTION}
+ENV WEBHOOK_SECRET=${WEBHOOK_SECRET}
 
 # Build the application
 RUN bun run build

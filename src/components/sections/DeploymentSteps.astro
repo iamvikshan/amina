@@ -7,7 +7,9 @@
 
 import PrimaryBtn from '@components/ui/buttons/PrimaryBtn.astro';
 import TertiaryBtn from '@components/ui/buttons/TertiaryBtn.astro';
+import { getInviteUrl } from '@/config/permalinks';
 import { getBotStats, formatStatNumber } from '@/lib/bot-stats';
+import LucideIcon from '@components/ui/icons/icon.astro';
 
 // Fetch real bot stats
 const botStats = await getBotStats();
@@ -24,7 +26,7 @@ interface Step {
 const steps: Step[] = [
   {
     number: 1,
-    icon: '🔗',
+    icon: 'link',
     kaomoji: '[>_<]',
     title: 'Invite Amina',
     description:
@@ -33,7 +35,7 @@ const steps: Step[] = [
   },
   {
     number: 2,
-    icon: '⚙️',
+    icon: 'settings',
     kaomoji: '(｀･ω･´)',
     title: 'Configure Settings',
     description:
@@ -42,7 +44,7 @@ const steps: Step[] = [
   },
   {
     number: 3,
-    icon: '🚀',
+    icon: 'rocket',
     kaomoji: '(•̀ᴗ•́)و',
     title: 'Deploy & Relax',
     description:
@@ -135,9 +137,13 @@ const steps: Step[] = [
 
                 {/* Icon & Kaomoji */}
                 <div class="flex items-center justify-center gap-4 mb-6 mt-4">
-                  <span class="text-5xl transition-transform duration-300 group-hover:scale-110">
-                    {step.icon}
-                  </span>
+                  <div class="transition-transform duration-300 group-hover:scale-110">
+                    <LucideIcon
+                      name={step.icon}
+                      class="text-cyber-blue"
+                      size={48}
+                    />
+                  </div>
                   <span class="text-3xl text-cyber-blue animate-float">
                     {step.kaomoji}
                   </span>
@@ -205,11 +211,11 @@ const steps: Step[] = [
     >
       <div class="space-y-6">
         <div class="flex items-center justify-center gap-3">
-          <span class="text-4xl">⚡</span>
+          <LucideIcon name="zap" class="text-imperial-gold" size={36} />
           <h3 class="text-2xl md:text-3xl font-heading font-bold text-white">
             Ready to Deploy?
           </h3>
-          <span class="text-4xl">⚡</span>
+          <LucideIcon name="zap" class="text-imperial-gold" size={36} />
         </div>
 
         <p class="text-lg text-gray-300 max-w-2xl mx-auto">
@@ -222,7 +228,7 @@ const steps: Step[] = [
           class="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <PrimaryBtn
-            url="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID"
+            url={getInviteUrl()}
             text="Add Amina Now"
             icon="discord"
           />

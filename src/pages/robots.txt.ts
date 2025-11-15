@@ -22,7 +22,7 @@ Crawl-delay: 2
 User-agent: *
 Disallow: /
 
-Sitemap: ${new URL('sitemap-index.xml', import.meta.env.SITE).href}
+Sitemap: https://4mina.app/sitemap-index.xml
 `.trim();
 
 export const GET: APIRoute = () => {

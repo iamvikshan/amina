@@ -243,21 +243,28 @@ const statusPageUrl = 'https://status.vikshan.me/status/amina';
     const getStatusConfig = (payload: StatusPayload): StatusConfig => {
       const { uptime, downMonitors, totalMonitors } = payload;
 
-      if (downMonitors === 0 && uptime >= 99.5) {
+      // All services healthy and uptime good
+      if (downMonitors === 0 && uptime >= 95) {
         return STATUS_CONFIGS.operational;
       }
 
-      if (downMonitors === 1 || (uptime >= 97 && uptime < 99.5)) {
+      // One service down OR multiple services with reduced uptime
+      if (
+        downMonitors === 1 ||
+        (downMonitors === 0 && uptime >= 90 && uptime < 95)
+      ) {
         return STATUS_CONFIGS.degraded;
       }
 
+      // Multiple services down OR significant uptime issues
       if (
         (downMonitors >= 2 && downMonitors < totalMonitors / 2) ||
-        (uptime >= 90 && uptime < 97)
+        (downMonitors === 0 && uptime >= 80 && uptime < 90)
       ) {
         return STATUS_CONFIGS.partial;
       }
 
+      // Major outage
       return STATUS_CONFIGS.major;
     };
 

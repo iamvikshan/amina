@@ -16,6 +16,7 @@ import {
 import ThemeIcon from '@components/ThemeIcon.astro';
 import Avatar from '@components/ui/avatars/Avatar.astro';
 import type { DiscordUser } from '@/lib/data-utils';
+import { URLS } from '@/config/site';
 
 interface Props {
   userData: DiscordUser;
@@ -200,7 +201,7 @@ const {
 
         {/* Support */}
         <a
-          href={(await import('@/env')).env.SUPPORT_SERVER || '#'}
+          href={URLS.support}
           rel="noopener noreferrer"
           target="_blank"
           class="liquid-glass-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-200"

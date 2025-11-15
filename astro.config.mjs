@@ -6,21 +6,29 @@ import node from '@astrojs/node';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import react from '@astrojs/react';
+import icon from 'astro-icon';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Helper function to ensure proper URL format
-const getSiteURL = (val) => {
-  if (val && val !== '/') {
-    return val.startsWith('http') ? val : `https://${val}`;
-  }
-  return 'http://localhost:4321';
-};
+// Import site URL from centralized config
+import { SITE } from './src/config/site.ts';
 
 export default defineConfig({
-  site: getSiteURL(process.env.BASE_URL),
+  site: SITE.url,
   output: 'server',
   base: '/',
+  // Expose CLIENT_ID to the build process (public for bot invite URLs)
+  env: {
+    schema: {
+      CLIENT_ID: {
+        context: 'server',
+        access: 'public',
+        type: 'string',
+        optional: true,
+        default: '1035629678632915055', // amina fallback
+      },
+    },
+  },
   server: {
     port: process.env.PORT ? parseInt(process.env.PORT) : 4321,
     host: true,
@@ -34,6 +42,7 @@ export default defineConfig({
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   integrations: [
     react(),
+    icon(),
     tailwind(),
     sitemap(),
     compressor({ gzip: true, brotli: true }),
@@ -63,7 +72,7 @@ export default defineConfig({
         '@': path.resolve(__dirname, './src'),
         '@components': path.resolve(__dirname, './src/components'),
         '@content': path.resolve(__dirname, './src/content'),
-        '@data': path.resolve(__dirname, './src/data_files'),
+        '@config': path.resolve(__dirname, './src/config'),
         '@images': path.resolve(__dirname, './src/images'),
         '@scripts': path.resolve(__dirname, './src/assets/scripts'),
         '@styles': path.resolve(__dirname, './src/assets/styles'),

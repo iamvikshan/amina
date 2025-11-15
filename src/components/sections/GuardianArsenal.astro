@@ -6,6 +6,7 @@
  */
 
 import { Image } from 'astro:assets';
+import LucideIcon from '@components/ui/icons/icon.astro';
 
 interface Feature {
   icon: string;
@@ -72,7 +73,11 @@ const { features } = Astro.props;
             {/* Icon Container */}
             <div class="mb-6 relative">
               <div class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-cyber-blue/10 border border-cyber-blue/30 group-hover:bg-cyber-blue/20 transition-all duration-300">
-                <span class="text-4xl">{feature.icon}</span>
+                <LucideIcon
+                  name={feature.icon}
+                  class="text-cyber-blue"
+                  size={32}
+                />
               </div>
               {/* Kaomoji Badge */}
               <div class="absolute -top-2 -right-2 text-2xl animate-bounce-slow">

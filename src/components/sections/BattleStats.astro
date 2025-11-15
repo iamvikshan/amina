@@ -8,6 +8,7 @@
 
 import { getBotStats } from '@/lib/bot-stats';
 import { getUptimeStats } from '@/lib/uptime';
+import LucideIcon from '@components/ui/icons/icon.astro';
 
 interface Stat {
   icon: string;
@@ -48,7 +49,7 @@ try {
 
 const stats: Stat[] = [
   {
-    icon: '🛡️',
+    icon: 'shield',
     value: guildCount.toString(),
     suffix: '+',
     label: 'Protected Realms',
@@ -58,7 +59,7 @@ const stats: Stat[] = [
     dataStat: 'guilds',
   },
   {
-    icon: '⚔️',
+    icon: 'swords',
     value: '1000000',
     suffix: '+',
     label: 'Actions Moderated',
@@ -68,7 +69,7 @@ const stats: Stat[] = [
     dataStat: null,
   },
   {
-    icon: '👥',
+    icon: 'users',
     value: memberCount.toString(),
     suffix: '+',
     label: 'Members Protected',
@@ -78,7 +79,7 @@ const stats: Stat[] = [
     dataStat: 'members',
   },
   {
-    icon: '⚡',
+    icon: 'zap',
     value: uptime.toString(),
     suffix: '%',
     label: 'Uptime',
@@ -132,7 +133,7 @@ const stats: Stat[] = [
       <div
         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-amina-crimson/30 text-amina-crimson"
       >
-        <span class="text-xl">[⚡]</span>
+        <LucideIcon name="zap" class="text-amina-crimson" size={20} />
         <span class="text-sm font-heading font-bold tracking-wider uppercase"
           >Battle-Tested Performance</span
         >
@@ -180,8 +181,12 @@ const stats: Stat[] = [
 
               {/* Icon & Kaomoji */}
               <div class="flex items-center justify-between mb-6">
-                <div class="text-5xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12">
-                  {stat.icon}
+                <div class="transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12">
+                  <LucideIcon
+                    name={stat.icon}
+                    class="text-[var(--stat-color)]"
+                    size={48}
+                  />
                 </div>
                 <div class="text-2xl text-[var(--stat-color)] opacity-50 group-hover:opacity-100 transition-opacity duration-300">
                   {stat.kaomoji}

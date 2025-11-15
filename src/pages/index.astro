@@ -15,13 +15,13 @@ import HeaderSkeleton from '@/components/navigation/HeaderSkeleton.astro';
 import FooterSection from '@components/navigation/FooterSection.astro';
 
 // Import NEW Amina-branded sections
-import HeroAmina from '@components/sections/landing/HeroAmina.astro';
-import GuardianArsenal from '@components/sections/landing/GuardianArsenal.astro';
-import DeploymentSteps from '@components/sections/landing/DeploymentSteps.astro';
-import RankShowcase from '@components/sections/landing/RankShowcase.astro';
-import GuardianTestimonials from '@components/sections/landing/GuardianTestimonials.astro';
-import BattleStats from '@components/sections/landing/BattleStats.astro';
-import CTAGuardian from '@components/sections/landing/CTAGuardian.astro';
+import HeroAmina from '@components/sections/HeroAmina.astro';
+import GuardianArsenal from '@components/sections/GuardianArsenal.astro';
+import DeploymentSteps from '@components/sections/DeploymentSteps.astro';
+import RankShowcase from '@components/sections/RankShowcase.astro';
+import GuardianTestimonials from '@components/sections/GuardianTestimonials.astro';
+import BattleStats from '@components/sections/BattleStats.astro';
+import CTAGuardian from '@components/sections/CTAGuardian.astro';
 
 // Import feature assets for Guardian Arsenal
 import moderationImage from '@images/automated-tools.avif';
@@ -31,7 +31,7 @@ import analyticsImage from '@images/features-image.avif';
 // Feature data for Guardian Arsenal
 const guardianFeatures = [
   {
-    icon: '⚔️',
+    icon: 'swords',
     kaomoji: '[X]',
     title: 'Tactical Moderation',
     subtitle: 'AUTO-MOD SYSTEM',
@@ -41,7 +41,7 @@ const guardianFeatures = [
     learnMoreUrl: 'https://docs.4mina.app/moderation',
   },
   {
-    icon: '🎨',
+    icon: 'palette',
     kaomoji: '(≧▽≦)',
     title: 'Creative Command Center',
     subtitle: 'ENGAGEMENT TOOLS',
@@ -51,7 +51,7 @@ const guardianFeatures = [
     learnMoreUrl: 'https://docs.4mina.app/commands',
   },
   {
-    icon: '📊',
+    icon: 'bar-chart-3',
     kaomoji: '(｀･ω･´)',
     title: 'Realm Management',
     subtitle: 'ANALYTICS DASHBOARD',

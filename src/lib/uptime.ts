@@ -179,10 +179,3 @@ export async function getUptimeStats(): Promise<UptimeStats> {
     };
   }
 }
-
-/**
- * Clear the uptime cache (useful for testing or manual refresh)
- */
-export function clearUptimeCache(): void {
-  uptimeCache = null;
-}

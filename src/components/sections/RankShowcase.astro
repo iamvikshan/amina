@@ -6,6 +6,7 @@
  */
 
 import { ImagePaths } from '@/utils/cdn';
+import LucideIcon from '@components/ui/icons/icon.astro';
 
 interface Rank {
   id: number;
@@ -222,7 +223,9 @@ const ranks: Rank[] = [
       <div
         class="text-center p-6 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-xl"
       >
-        <div class="text-4xl mb-2">🏆</div>
+        <div class="flex justify-center mb-2">
+          <LucideIcon name="trophy" class="text-cyber-blue" size={40} />
+        </div>
         <div class="text-3xl font-heading font-bold text-white mb-1">
           6 Ranks
         </div>
@@ -232,7 +235,9 @@ const ranks: Rank[] = [
       <div
         class="text-center p-6 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-imperial-gold/30 rounded-xl"
       >
-        <div class="text-4xl mb-2">⭐</div>
+        <div class="flex justify-center mb-2">
+          <LucideIcon name="sparkles" class="text-imperial-gold" size={40} />
+        </div>
         <div class="text-3xl font-heading font-bold text-white mb-1">
           Pixel Art
         </div>
@@ -242,7 +247,9 @@ const ranks: Rank[] = [
       <div
         class="text-center p-6 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-amina-crimson/30 rounded-xl"
       >
-        <div class="text-4xl mb-2">🎖️</div>
+        <div class="flex justify-center mb-2">
+          <LucideIcon name="award" class="text-amina-crimson" size={40} />
+        </div>
         <div class="text-3xl font-heading font-bold text-white mb-1">
           Permanent
         </div>

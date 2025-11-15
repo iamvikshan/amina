@@ -6,9 +6,7 @@
 interface ImportMetaEnv {
   readonly CLIENT_ID: string;
   readonly CLIENT_SECRET: string;
-  readonly PUBLIC_BASE_URL: string;
   readonly MONGO_CONNECTION: string;
-  readonly SUPPORT_SERVER: string;
 }
 
 interface ImportMeta {
