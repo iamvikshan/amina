@@ -1,3 +1,13 @@
+# [v1.3.0](https://github.com/iamvikshan/amina/compare/v1.2.1...v1.3.0) (2025-11-16)
+
+
+
+## [1.3.0](https://github.com/iamvikshan/amina/compare/v1.2.1...v1.3.0) (2025-11-16)
+
+### Features
+
+* Implement Mina AI memory management commands and services ([036aa0e](https://github.com/iamvikshan/amina/commit/036aa0eea625c47c3297cb6b7cf4644dea3014c2))
+
 # [v1.2.1](https://github.com/iamvikshan/amina/compare/v1.2.0...v1.2.1) (2025-11-12)
 
 
