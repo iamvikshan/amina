@@ -4,6 +4,8 @@ import { getSettings } from '@schemas/Guild'
 import { getPresenceConfig, getDevCommandsConfig } from '@schemas/Dev'
 import { ApplicationCommandType } from 'discord.js'
 import type { BotClient } from '@src/structures'
+import { aiResponderService } from '@src/services/aiResponder'
+import { memoryService } from '@src/services/memoryService'
 
 /**
  * Client ready event handler
@@ -11,6 +13,24 @@ import type { BotClient } from '@src/structures'
  */
 export default async (client: BotClient): Promise<void> => {
   client.logger.success(`Logged in as ${client.user.tag}! (${client.user.id})`)
+
+  // Initialize AI Responder Service
+  await aiResponderService.initialize()
+  client.logger.success('AI Responder Service initialized')
+
+  // Initialize Memory Service
+  const { configCache } = await import('@src/config/aiResponder')
+  try {
+    const config = await configCache.getConfig()
+    if (config.geminiKey && config.upstashUrl && config.upstashToken) {
+      await memoryService.initialize(config.geminiKey, config.upstashUrl, config.upstashToken)
+      client.logger.success('Memory Service initialized')
+    } else {
+      client.logger.warn('Memory Service disabled - missing configuration')
+    }
+  } catch (error) {
+    client.logger.warn('Memory Service disabled - configuration error')
+  }
 
   // Initialize Music Manager
   if (client.config.MUSIC.ENABLED) {

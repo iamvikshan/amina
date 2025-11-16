@@ -4,6 +4,7 @@ import { getSettings } from '@schemas/Guild'
 import { getUser, removeAfk } from '@schemas/User'
 import { EmbedBuilder, Message } from 'discord.js'
 import type { BotClient } from '@src/structures'
+import { aiResponderService } from '@src/services/aiResponder'
 
 /**
  * Fetches pronouns for a user from PronounsDB API v2
@@ -98,6 +99,14 @@ function generateAfkMessage(params: {
  * @param {Message} message - The message that was created
  */
 export default async (client: BotClient, message: Message): Promise<void> => {
+  // AI Responder - check eligibility first (works for DMs and guilds)
+  const aiMode = await aiResponderService.shouldRespond(message)
+  if (aiMode) {
+    await aiResponderService.handleMessage(message, aiMode)
+    return // Exit early after AI response
+  }
+
+  // Guild-only features below
   if (!message.guild || message.author.bot) return
   const settings = await getSettings(message.guild)
 

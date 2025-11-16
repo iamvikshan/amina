@@ -39,7 +39,46 @@ const Schema = new mongoose.Schema(
         default: false,
       },
     },
-    // NEW: Bot statistics updated every 10 minutes by presence handler
+    AI_CONFIG: {
+      globallyEnabled: {
+        type: Boolean,
+        default: false,
+      },
+      model: {
+        type: String,
+        default: 'gemini-1.5-pro-latest',
+      },
+      maxTokens: {
+        type: Number,
+        default: 1024,
+      },
+      timeoutMs: {
+        type: Number,
+        default: 20000,
+      },
+      systemPrompt: {
+        type: String,
+        default:
+          'You are Amina, a helpful and friendly Discord bot assistant. Keep responses concise and engaging.',
+      },
+      temperature: {
+        type: Number,
+        default: 0.7,
+      },
+      dmEnabledGlobally: {
+        type: Boolean,
+        default: true,
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
+      updatedBy: {
+        type: String,
+        default: null,
+      },
+    },
+
     BOT_STATS: {
       guilds: {
         type: Number,
@@ -137,4 +176,26 @@ export async function getBotStats(): Promise<any> {
   const document = await Model.findOne()
   if (!document) return (await Model.create({})).BOT_STATS
   return document.BOT_STATS
+}
+
+// NEW: Get AI config
+export async function getAiConfig(): Promise<any> {
+  const document = await Model.findOne()
+  if (!document) return (await Model.create({})).AI_CONFIG
+  return document.AI_CONFIG
+}
+
+// NEW: Update AI config
+export async function updateAiConfig(update: any): Promise<any> {
+  const document = await Model.findOne()
+  if (!document) return await Model.create({ AI_CONFIG: update })
+
+  // Merge update into AI_CONFIG
+  for (const [key, value] of Object.entries(update)) {
+    document.AI_CONFIG[key] = value
+  }
+
+  document.AI_CONFIG.updatedAt = new Date()
+  await document.save()
+  return document.AI_CONFIG
 }

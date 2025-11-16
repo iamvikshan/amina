@@ -131,6 +131,14 @@ const Schema = new mongoose.Schema({
     approved_channel: String,
     rejected_channel: String,
   },
+  aiResponder: {
+    enabled: { type: Boolean, default: false },
+    freeWillChannelId: { type: String, default: null },
+    mentionOnly: { type: Boolean, default: true },
+    allowDMs: { type: Boolean, default: true },
+    updatedAt: { type: Date, default: Date.now },
+    updatedBy: { type: String, default: null },
+  },
 })
 
 const Model = mongoose.model('guild', Schema)

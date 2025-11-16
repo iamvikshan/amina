@@ -108,6 +108,14 @@ declare module '@schemas/Guild' {
       approved_channel?: string
       rejected_channel?: string
     }
+    aiResponder?: {
+      enabled: boolean
+      freeWillChannelId?: string
+      mentionOnly: boolean
+      allowDMs: boolean
+      updatedAt?: Date
+      updatedBy?: string
+    }
   }
 
   export function getSettings(guild: any): Promise<IGuildSettings>

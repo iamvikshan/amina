@@ -8,6 +8,16 @@ import execCommand from './sub/exec'
 import { addTod, delTod } from './sub/tod'
 import trigSettings from './sub/trigSettings'
 import reload from './sub/reload'
+import {
+  aiStatus,
+  toggleGlobal,
+  setModel,
+  setTokens,
+  setPrompt,
+  setTemperature,
+  toggleDm,
+  memoryStats,
+} from './sub/minaAi'
 import type { Command } from '@structures/Command'
 
 const command: Command = {
@@ -136,12 +146,162 @@ const command: Command = {
           },
         ],
       },
+      {
+        name: 'mina-ai',
+        description: 'Configure Amina AI (owner only)',
+        type: ApplicationCommandOptionType.SubcommandGroup,
+        options: [
+          {
+            name: 'status',
+            description: 'View current AI configuration',
+            type: ApplicationCommandOptionType.Subcommand,
+          },
+          {
+            name: 'toggle-global',
+            description: 'Enable or disable AI globally',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'enabled',
+                description: 'Enable or disable',
+                type: ApplicationCommandOptionType.Boolean,
+                required: true,
+              },
+            ],
+          },
+          {
+            name: 'set-model',
+            description: 'Set the Gemini model',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'model',
+                description: 'Model name (e.g., gemini-1.5-pro-latest)',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+              },
+            ],
+          },
+          {
+            name: 'set-tokens',
+            description: 'Set max tokens (100-4096)',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'tokens',
+                description: 'Max tokens',
+                type: ApplicationCommandOptionType.Integer,
+                required: true,
+                minValue: 100,
+                maxValue: 4096,
+              },
+            ],
+          },
+          {
+            name: 'set-prompt',
+            description: 'Update system prompt',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'prompt',
+                description: 'New system prompt',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+              },
+            ],
+          },
+          {
+            name: 'set-temperature',
+            description: 'Set temperature (0-2)',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'temperature',
+                description: 'Temperature value',
+                type: ApplicationCommandOptionType.Number,
+                required: true,
+                minValue: 0,
+                maxValue: 2,
+              },
+            ],
+          },
+          {
+            name: 'toggle-dm',
+            description: 'Enable or disable global DM support',
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+              {
+                name: 'enabled',
+                description: 'Enable or disable',
+                type: ApplicationCommandOptionType.Boolean,
+                required: true,
+              },
+            ],
+          },
+          {
+            name: 'memory-stats',
+            description: 'View memory system statistics',
+            type: ApplicationCommandOptionType.Subcommand,
+          },
+        ],
+      },
     ],
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
+    const subGroup = interaction.options.getSubcommandGroup(false)
     const sub = interaction.options.getSubcommand()
 
+    // Handle mina-ai subcommand group
+    if (subGroup === 'mina-ai') {
+      switch (sub) {
+        case 'status':
+          await aiStatus(interaction)
+          break
+        case 'toggle-global':
+          await toggleGlobal(
+            interaction,
+            interaction.options.getBoolean('enabled', true)
+          )
+          break
+        case 'set-model':
+          await setModel(
+            interaction,
+            interaction.options.getString('model', true)
+          )
+          break
+        case 'set-tokens':
+          await setTokens(
+            interaction,
+            interaction.options.getInteger('tokens', true)
+          )
+          break
+        case 'set-prompt':
+          await setPrompt(
+            interaction,
+            interaction.options.getString('prompt', true)
+          )
+          break
+        case 'set-temperature':
+          await setTemperature(
+            interaction,
+            interaction.options.getNumber('temperature', true)
+          )
+          break
+        case 'toggle-dm':
+          await toggleDm(
+            interaction,
+            interaction.options.getBoolean('enabled', true)
+          )
+          break
+        case 'memory-stats':
+          await memoryStats(interaction)
+          break
+      }
+      return
+    }
+
+    // Handle regular subcommands
     switch (sub) {
       case 'listservers':
         await listservers(interaction)
