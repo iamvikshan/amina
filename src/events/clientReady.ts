@@ -36,6 +36,11 @@ export default async (client: BotClient): Promise<void> => {
     client.logger.warn('Memory Service disabled - configuration error')
   }
 
+  // Register autocomplete providers
+  const { registerReloadAutocomplete } = await import('@handlers/dev/reload')
+  registerReloadAutocomplete()
+  client.logger.success('Autocomplete providers registered')
+
   // Initialize Music Manager
   if (client.config.MUSIC.ENABLED) {
     client.musicManager.init({ ...client.user, shards: 'auto' })
@@ -86,30 +91,48 @@ export default async (client: BotClient): Promise<void> => {
   if (client.config.INTERACTIONS.SLASH || client.config.INTERACTIONS.CONTEXT) {
     const devConfig = await getDevCommandsConfig()
 
-    if (!client.config.INTERACTIONS.GLOBAL) {
-      // Clear all global commands when GLOBAL is false
-      await client.application.commands.set([])
-      client.logger.success('Cleared all global commands (GLOBAL=false)')
+    // Register DM commands (always, independent of GLOBAL setting)
+    const dmCommands = client.slashCommands
+      .filter(cmd => cmd.dmCommand)
+      .map(cmd => ({
+        name: cmd.name,
+        description: cmd.description,
+        type: ApplicationCommandType.ChatInput,
+        options: cmd.slashCommand.options,
+        dm_permission: true, // Available in DMs
+      }))
+
+    if (dmCommands.length > 0) {
+      // Register DM commands globally (they'll be available in DMs)
+      await client.application.commands.set(dmCommands)
+      client.logger.success(
+        `Registered ${dmCommands.length} DM commands (available in DMs)`
+      )
     }
+
     // Register test guild commands
     const testGuild = client.guilds.cache.get(process.env.TEST_GUILD_ID)
     if (testGuild) {
       const testGuildCommands = client.slashCommands
         .filter(
           cmd =>
-            // Keep test and dev commands
+            // Commands with testGuildOnly flag
             cmd.testGuildOnly ||
+            // Dev commands if enabled
             (cmd.devOnly && devConfig.ENABLED) ||
-            // Only include regular commands if GLOBAL is true
-            (!cmd.testGuildOnly &&
+            // If GLOBAL is false, only register testGuildOnly commands in test guild
+            // If GLOBAL is true, also include regular commands (but exclude dmCommand-only commands)
+            (client.config.INTERACTIONS.GLOBAL &&
+              !cmd.testGuildOnly &&
               !cmd.devOnly &&
-              client.config.INTERACTIONS.GLOBAL)
+              !cmd.dmCommand)
         )
         .map(cmd => ({
           name: cmd.name,
           description: cmd.description,
           type: ApplicationCommandType.ChatInput,
           options: cmd.slashCommand.options,
+          dm_permission: cmd.dmCommand ?? false, // Respect dmCommand flag
         }))
 
       if (testGuildCommands.length > 0) {
@@ -120,21 +143,41 @@ export default async (client: BotClient): Promise<void> => {
       }
     }
 
-    // Register global commands
+    // Register global commands (only if GLOBAL is true)
     if (client.config.INTERACTIONS.GLOBAL) {
       const globalCommands = client.slashCommands
-        .filter(cmd => !cmd.testGuildOnly && !cmd.devOnly)
+        .filter(
+          cmd =>
+            // Exclude test-only, dev-only, and dmCommand-only commands
+            !cmd.testGuildOnly && !cmd.devOnly && !cmd.dmCommand
+        )
         .map(cmd => ({
           name: cmd.name,
           description: cmd.description,
           type: ApplicationCommandType.ChatInput,
           options: cmd.slashCommand.options,
+          dm_permission: false, // Guild-only commands
         }))
 
       if (globalCommands.length > 0) {
         await client.application.commands.set(globalCommands)
         client.logger.success(
           `Registered ${globalCommands.length} global commands`
+        )
+      }
+    } else {
+      // If GLOBAL is false, only keep DM commands globally
+      // (DM commands are already registered above, this ensures we don't have other commands)
+      if (dmCommands.length > 0) {
+        await client.application.commands.set(dmCommands)
+        client.logger.success(
+          `Cleared global commands (GLOBAL=false), kept ${dmCommands.length} DM commands`
+        )
+      } else {
+        // No DM commands, clear all
+        await client.application.commands.set([])
+        client.logger.success(
+          'Cleared all global commands (GLOBAL=false, no DM commands)'
         )
       }
     }

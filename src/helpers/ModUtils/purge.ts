@@ -59,9 +59,12 @@ export async function purgeMessages(
         break
       }
       case 'TOKEN': {
+        const tokenLower = argument?.toLowerCase() || ''
         messages = await channel.messages.fetch({ cache: false })
         messages = messages
-          .filter((message: any) => message.content.includes(argument))
+          .filter((message: any) =>
+            message.content.toLowerCase().includes(tokenLower)
+          )
           .first(amount)
         break
       }
@@ -101,7 +104,8 @@ export async function purgeMessages(
           toDelete.set(message.id, message)
         }
       } else if (type === 'TOKEN') {
-        if (message.content.includes(argument)) {
+        const tokenLower = argument?.toLowerCase() || ''
+        if (message.content.toLowerCase().includes(tokenLower)) {
           toDelete.set(message.id, message)
         }
       } else if (type === 'USER') {

@@ -1,12 +1,10 @@
 # [v1.3.1](https://github.com/iamvikshan/amina/compare/v1.3.0...v1.3.1) (2025-11-17)
 
-
-
 ## [1.3.1](https://github.com/iamvikshan/amina/compare/v1.3.0...v1.3.1) (2025-11-17)
 
 ### Bug Fixes
 
-* Update project configuration and clean up code ([d9543e1](https://github.com/iamvikshan/amina/commit/d9543e114e3d2d2d068ff8bb18348bac3b08581c))
+- Update project configuration and clean up code ([d9543e1](https://github.com/iamvikshan/amina/commit/d9543e114e3d2d2d068ff8bb18348bac3b08581c))
 
 # [v1.3.0](https://github.com/iamvikshan/amina/compare/v1.2.1...v1.3.0) (2025-11-16)
 

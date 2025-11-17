@@ -2,7 +2,7 @@
 
 ## 📊 Migration Progress Overview
 
-**Overall Status: 159 / 374 files converted (42.5%)**
+**Overall Status: 229 / 374 files converted (61.2%)**
 
 | Category          | Converted | Remaining | Total | Progress |
 | ----------------- | --------- | --------- | ----- | -------- |
@@ -12,11 +12,11 @@
 | **Database**      | 10        | 0         | 10    | ✅ 100%  |
 | **Handlers**      | 19        | 0         | 19    | ✅ 100%  |
 | **Events**        | 25        | 0         | 25    | ✅ 100%  |
-| **Commands**      | 30        | 184       | 214   | 14%      |
+| **Commands**      | 109       | 16        | 125   | 87%      |
 | **Contexts**      | 1         | 0         | 1     | ✅ 100%  |
 | **Services**      | 1         | 0         | 1     | ✅ 100%  |
 
-**Current Phase:** Phase 4 - Commands (30/214 done - 14%)
+**Current Phase:** Phase 4 - Commands (109/125 done - 87%)
 
 ---
 
@@ -45,28 +45,27 @@
 - ✅ webhook.js → webhook.ts
 - ✅ Command structure enhanced
 
-### Phase 4 🔄 IN PROGRESS - Commands (30/214 files - 14%)
+### Phase 4 🔄 IN PROGRESS - Commands (109/125 files - 87%)
 
 **✅ Completed Categories:**
 
 - ✅ Admin Commands (17/17 - 100%)
 - ✅ Bot Commands (2/2 - 100%)
 - ✅ Dev Commands (4/4 - 100%)
-- ⏳ Moderation Commands (11/16 - 69%)
+- ✅ Economy Commands (8/8 - 100%)
+- ✅ Fun Commands (13/13 - 100%)
+- ✅ Giveaways Commands (8/8 - 100%)
+- ✅ Moderation Commands (17/17 - 100%)
+- ✅ Info Commands (6/6 - 100%)
+- ✅ Social Commands (2/2 - 100%)
+- ✅ Stats Commands (4/4 - 100%)
+- ✅ Suggestions Commands (2/2 - 100%)
+- ✅ Utility Commands (10/10 - 100%)
 - ✅ Other: meme.ts, help.ts (2 files)
 
-**🔄 Remaining Categories (184 files):**
+**🔄 Remaining Categories (16 files):**
 
-- Info (6 files)
-- Social (2 files)
-- Stats (4 files)
-- Suggestions (2 files)
-- Moderation (5 remaining)
-- Economy (8 files)
-- Fun (13 files)
-- Utility (12 files)
-- Giveaways (8 files)
-- Music (17 files)
+- Music (16 files) - Save for last, most complex
 
 ---
 
@@ -180,7 +179,7 @@
 
 - [x] `src/services/health.ts`
 
-### Commands (30/214 - 14%)
+### Commands (109/125 - 87%)
 
 #### Admin (17/17 - ✅ 100%)
 
@@ -213,7 +212,7 @@
 - [x] `src/commands/dev/zzz.ts`
 - [x] `src/commands/dev/sub/` (6 sub-files)
 
-#### Moderation (11/16 - 69%)
+#### Moderation (17/17 - ✅ 100%)
 
 - [x] `src/commands/moderation/ban.ts`
 - [x] `src/commands/moderation/kick.ts`
@@ -226,93 +225,89 @@
 - [x] `src/commands/moderation/voice.ts`
 - [x] `src/commands/moderation/warn.ts`
 - [x] `src/commands/moderation/warnings.ts`
-- [x] `src/commands/moderation/message/` (6 sub-files)
+- [x] `src/commands/moderation/message/` (6 sub-files: disconnect, vmute, vunmute, undeafen, move, deafen)
 
-#### Other (2 files)
+#### Economy (8/8 - ✅ 100%)
+
+- [x] `src/commands/economy/bank.ts` + sub/ (4 files)
+- [x] `src/commands/economy/beg.ts`
+- [x] `src/commands/economy/daily.ts`
+- [x] `src/commands/economy/gamble.ts`
+
+#### Fun (13/13 - ✅ 100%)
 
 - [x] `src/commands/fun/meme.ts`
+- [x] `src/commands/fun/facts.ts`
+- [x] `src/commands/fun/filters.ts`
+- [x] `src/commands/fun/flip.ts`
+- [x] `src/commands/fun/generators.ts`
+- [x] `src/commands/fun/hack.ts`
+- [x] `src/commands/fun/hangman.ts`
+- [x] `src/commands/fun/image.ts`
+- [x] `src/commands/fun/love.ts`
+- [x] `src/commands/fun/overlay.ts`
+- [x] `src/commands/fun/react.ts`
+- [x] `src/commands/fun/tictactoe.ts`
+- [x] `src/commands/fun/tod.ts`
+- [x] `src/commands/fun/together.ts`
+
+#### Giveaways (8/8 - ✅ 100%)
+
+- [x] `src/commands/giveaways/giveaway.ts` + sub/ (7 files)
+
+#### Info (6/6 - ✅ 100%)
+
+- [x] `src/commands/info/info.ts`
+- [x] `src/commands/info/leaderboard.ts`
+- [x] `src/commands/info/shared/user.ts`
+- [x] `src/commands/info/shared/channel.ts`
+- [x] `src/commands/info/shared/guild.ts`
+- [x] `src/commands/info/shared/avatar.ts`
+- [x] `src/commands/info/shared/emoji.ts`
+
+#### Social (2/2 - ✅ 100%)
+
+- [x] `src/commands/social/invites.ts`
+- [x] `src/commands/social/reputation.ts`
+
+#### Stats (4/4 - ✅ 100%)
+
+- [x] `src/commands/stats/rank.ts`
+- [x] `src/commands/stats/stats.ts`
+- [x] `src/commands/stats/statstracking.ts`
+- [x] `src/commands/stats/xp.ts`
+
+#### Suggestions (2/2 - ✅ 100%)
+
+- [x] `src/commands/suggestions/suggest.ts`
+- [x] `src/commands/suggestions/suggestion.ts`
+
+#### Utility (10/10 - ✅ 100%)
+
+- [x] `src/commands/utility/afk.ts`
+- [x] `src/commands/utility/paste.ts`
+- [x] `src/commands/utility/profile.ts`
+- [x] `src/commands/utility/qrcode.ts`
+- [x] `src/commands/utility/redflag.ts`
+- [x] `src/commands/utility/report.ts`
+- [x] `src/commands/utility/urban.ts`
+- [x] `src/commands/utility/weather.ts`
 - [x] `src/commands/utility/help.ts`
+- [x] `src/commands/utility/minaAi.ts`
+
+#### Other (1 file)
+
+- [x] `src/commands/fun/meme.ts`
 
 ---
 
-## 📋 Remaining Files (184 JavaScript files)
+## 📋 Remaining Files (16 JavaScript files)
 
 ### Commands by Category
 
-**Info (6 files):**
+**Music (16 files) - Save for last, most complex:**
 
-- [ ] `src/commands/info/info.js`
-- [ ] `src/commands/info/leaderboard.js`
-- [ ] `src/commands/info/shared/` (4 files)
-
-**Social (2 files):**
-
-- [ ] `src/commands/social/invites.js`
-- [ ] `src/commands/social/reputation.js`
-
-**Stats (4 files):**
-
-- [ ] `src/commands/stats/rank.js`
-- [ ] `src/commands/stats/stats.js`
-- [ ] `src/commands/stats/statstracking.js`
-- [ ] `src/commands/stats/xp.js`
-
-**Suggestions (2 files):**
-
-- [ ] `src/commands/suggestions/suggest.js`
-- [ ] `src/commands/suggestions/suggestion.js`
-
-**Moderation Remaining (5 files):**
-
-- [ ] Additional moderation utilities and sub-commands
-
-**Economy (8 files):**
-
-- [ ] `src/commands/economy/bank.js`
-- [ ] `src/commands/economy/beg.js`
-- [ ] `src/commands/economy/daily.js`
-- [ ] `src/commands/economy/gamble.js`
-- [ ] `src/commands/economy/sub/` (4 files)
-
-**Fun (13 files):**
-
-- [ ] `src/commands/fun/facts.js`
-- [ ] `src/commands/fun/filters.js`
-- [ ] `src/commands/fun/flip.js`
-- [ ] `src/commands/fun/generators.js`
-- [ ] `src/commands/fun/hack.js`
-- [ ] `src/commands/fun/hangman.js`
-- [ ] `src/commands/fun/image.js`
-- [ ] `src/commands/fun/love.js`
-- [ ] `src/commands/fun/overlay.js`
-- [ ] `src/commands/fun/react.js`
-- [ ] `src/commands/fun/tictactoe.js`
-- [ ] `src/commands/fun/tod.js`
-- [ ] `src/commands/fun/together.js`
-
-**Utility (12 files):**
-
-- [ ] `src/commands/utility/afk.js`
-- [ ] `src/commands/utility/epicgames.js`
-- [ ] `src/commands/utility/github.js`
-- [ ] `src/commands/utility/paste.js`
-- [ ] `src/commands/utility/pokedex.js`
-- [ ] `src/commands/utility/profile.js`
-- [ ] `src/commands/utility/proxies.js`
-- [ ] `src/commands/utility/qrcode.js`
-- [ ] `src/commands/utility/redflag.js`
-- [ ] `src/commands/utility/report.js`
-- [ ] `src/commands/utility/urban.js`
-- [ ] `src/commands/utility/weather.js`
-
-**Giveaways (8 files):**
-
-- [ ] `src/commands/giveaways/giveaway.js`
-- [ ] `src/commands/giveaways/sub/` (7 files)
-
-**Music (17 files):**
-
-- [ ] `src/commands/music/autoplay.js`
+- [ ] `src/commands/music/autoplay.js` (16 files remaining)
 - [ ] `src/commands/music/bassboost.js`
 - [ ] `src/commands/music/leave.js`
 - [ ] `src/commands/music/loop.js`
@@ -328,6 +323,8 @@
 - [ ] `src/commands/music/skip.js`
 - [ ] `src/commands/music/stop.js`
 - [ ] `src/commands/music/volume.js`
+
+**Note:** All other command categories have been fully converted. Only Music commands remain.
 
 ---
 

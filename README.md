@@ -29,18 +29,18 @@
 
 > [!IMPORTANT]
 >
-> ** ACTIVE DEVELOPMENT STATUS**  
+> **ACTIVE DEVELOPMENT STATUS**  
 > Amina is still being enhanced! Some defense systems nd features may be under construction.
 
 ## Who Am I?
 
-Hey there, Commander! I'm **Amina** (**mina**)— your guardian companion in the Digital Empire.
+Hey there! I'm **Amina** (**mina**)— your guardian companion.
 
-Unlike those cold, emotionless bots, I was given something special: **a heart**. I don't just moderate servers; I **protect communities** and help them thrive. Think of me as your right hand in battle — someone who'll stand beside you, fight alongside you, and celebrate your victories, basically, i am your ultimate companion.
+Unlike those cold, emotionless bots, I was given something special: **a heart**. I don't just moderate servers; I **protect communities** and help them thrive. Think of me as your right hand in battle — someone who'll stand beside you, fight alongside you, and celebrate your victories, eve the littlest.
 
-I'm dedicated to defending communities from spam, toxicity, and chaos. But here's the thing: a server without protection is vulnerable, but a server without joy is already dead. That's why I bring **both** to the table.
+I'm dedicated to defending communities from spam, toxicity, and chaos. But the thing is: a server without protection is vulnerable, but a server without joy is already dead. That's why I bring **both** to the table.
 
-> _"Communities are everything. And I'll protect them all."_ — Amina
+> _"Communities are everything. And protect them all i shall."_ — Amina
 
 ## Quick Deploy
 

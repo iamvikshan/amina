@@ -82,9 +82,13 @@ export const handleSlashCommand = async (
     }
   }
 
-  // bot permissions
-  if (cmd.botPermissions && cmd.botPermissions.length > 0) {
-    if (!interaction.guild?.members.me?.permissions.has(cmd.botPermissions)) {
+  // bot permissions (skip in DMs - no guild permissions)
+  if (
+    cmd.botPermissions &&
+    cmd.botPermissions.length > 0 &&
+    interaction.guild
+  ) {
+    if (!interaction.guild.members.me?.permissions.has(cmd.botPermissions)) {
       await interaction.reply({
         content: `😳 I need ${Utils.parsePermissions(cmd.botPermissions)} for this command, please~!`,
         flags: MessageFlags.Ephemeral,
@@ -109,8 +113,10 @@ export const handleSlashCommand = async (
     // Add a property to commands that show modals
     const showsModal = (cmd as any).showsModal
     if (!showsModal) {
+      // Don't use ephemeral in DMs (it's just the user and bot)
+      const useEphemeral = cmd.slashCommand.ephemeral && interaction.guild
       await interaction.deferReply({
-        flags: cmd.slashCommand.ephemeral ? MessageFlags.Ephemeral : undefined,
+        flags: useEphemeral ? MessageFlags.Ephemeral : undefined,
       })
     }
 
@@ -125,7 +131,10 @@ export const handleSlashCommand = async (
       user_tag: interaction.user.tag,
     })
 
-    const settings = await getSettings(interaction.guild)
+    // Only get settings if in a guild (skip in DMs)
+    const settings = interaction.guild
+      ? await getSettings(interaction.guild)
+      : null
     await cmd.interactionRun(interaction, { settings })
   } catch (ex) {
     // Only follow up if we deferred

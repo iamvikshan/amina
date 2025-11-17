@@ -54,6 +54,7 @@ export default class BotClient extends Client {
   public database: typeof schemas
   public utils: any
   public discordTogether: any
+  public guildReminderTimeouts: Map<string, NodeJS.Timeout>
 
   constructor() {
     super({
@@ -88,6 +89,7 @@ export default class BotClient extends Client {
     this.slashCommands = new Collection()
     this.contextMenus = new Collection()
     this.counterUpdateQueue = []
+    this.guildReminderTimeouts = new Map()
 
     // Initialize webhook for join/leave logs if provided
     this.joinLeaveWebhook = process.env.LOGS_WEBHOOK

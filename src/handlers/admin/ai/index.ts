@@ -36,8 +36,6 @@ export async function showMinaAIMenu(
   const freeWillChannel = aiConfig.freeWillChannelId
     ? `<#${aiConfig.freeWillChannelId}>`
     : 'Not set'
-  const dmSupport = aiConfig.allowDMs ? '✅ Enabled' : '❌ Disabled'
-
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.BOT_EMBED)
     .setTitle('🤖 Mina AI Configuration')
@@ -46,8 +44,8 @@ export async function showMinaAIMenu(
         `**Server Status:** ${status}\n` +
         `**Global Status:** ${globalStatus}\n` +
         `**Mode:** ${mode}\n` +
-        `**Free-Will Channel:** ${freeWillChannel}\n` +
-        `**DM Support:** ${dmSupport}`
+        `**Free-Will Channel:** ${freeWillChannel}\n\n` +
+        `💡 **Note:** DM support is now controlled by users via \`/mina-ai\` → Settings. Only developers can disable DMs globally.`
     )
     .setFooter({ text: 'Select an action from the menu below' })
 
@@ -71,11 +69,6 @@ export async function showMinaAIMenu(
           .setDescription('Require @mentions or allow all messages')
           .setValue('mentiononly')
           .setEmoji('📢'),
-        new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle DM Support')
-          .setDescription('Allow members to DM the bot with AI chat')
-          .setValue('dms')
-          .setEmoji('📬'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Back to Main Menu')
           .setDescription('Return to admin hub')
@@ -198,34 +191,6 @@ export async function handleMinaAIMenu(
           newState
             ? "📢 Mention-only mode enabled! I'll only respond when @mentioned."
             : "🌊 Free-will mode enabled! I'll respond to all messages in the configured channel."
-        )
-      await interaction.editReply({
-        embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back',
-            label: 'Back to Admin Hub',
-            emoji: '◀️',
-          }),
-        ],
-      })
-      break
-    }
-    case 'dms': {
-      const newState = !settings.aiResponder?.allowDMs
-      await updateSettings(interaction.guild!.id, {
-        aiResponder: {
-          ...settings.aiResponder,
-          allowDMs: newState,
-          updatedBy: interaction.user.id,
-          updatedAt: new Date(),
-        },
-      })
-
-      const embed = new EmbedBuilder()
-        .setColor(newState ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-        .setDescription(
-          `📬 DM support **${newState ? 'enabled' : 'disabled'}** for server members!`
         )
       await interaction.editReply({
         embeds: [embed],

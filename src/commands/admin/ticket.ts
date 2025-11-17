@@ -8,7 +8,6 @@ const command: CommandData = {
   description: 'Manage ticket system with guided setup and runtime operations',
   category: 'TICKET',
   userPermissions: ['ManageGuild'],
-
   slashCommand: {
     enabled: TICKET.ENABLED,
     ephemeral: true,

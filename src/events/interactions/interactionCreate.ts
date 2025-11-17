@@ -1,5 +1,6 @@
 import { BaseInteraction, MessageFlags } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
+import { getUser } from '@schemas/User'
 import {
   adminHandler,
   commandHandler,
@@ -17,21 +18,65 @@ import {
   handleTicketOpen,
   handleTicketClose,
 } from '@handlers/ticket/shared/buttons'
+import { parseCustomIdState } from '@helpers/componentHelper'
 import type { BotClient } from '@src/structures'
 
 export default async (
   client: BotClient,
   interaction: BaseInteraction
 ): Promise<void> => {
+  // Allow /mina-ai command in DMs, block other commands
   if (!interaction.guild) {
-    if (interaction.isRepliable()) {
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName === 'mina-ai'
+    ) {
+      // Check ignoreMe preference for /mina-ai command
+      const userData = await getUser(interaction.user)
+      if (userData.minaAi?.ignoreMe) {
+        await interaction
+          .reply({
+            content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
+            flags: MessageFlags.Ephemeral,
+          })
+          .catch(() => {})
+        return
+      }
+      // Allow /mina-ai to proceed in DMs
+    } else if (interaction.isRepliable()) {
       await interaction
         .reply({
           content: 'Command can only be executed in a discord server',
           flags: MessageFlags.Ephemeral,
         })
         .catch(() => {})
+      return
+    } else {
+      return
     }
+  } else {
+    // In guild: Check ignoreMe for /mina-ai command
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName === 'mina-ai'
+    ) {
+      const userData = await getUser(interaction.user)
+      if (userData.minaAi?.ignoreMe) {
+        await interaction
+          .reply({
+            content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
+            flags: MessageFlags.Ephemeral,
+          })
+          .catch(() => {})
+        return
+      }
+    }
+  }
+
+  // Autocomplete
+  if (interaction.isAutocomplete()) {
+    const { handleAutocomplete } = await import('@handlers/autocomplete')
+    await handleAutocomplete(interaction)
     return
   }
 
@@ -64,6 +109,49 @@ export default async (
       const [, , action] = interaction.customId.split(':')
       if (action === 'back') {
         await adminHandler.handleAdminBackButton(interaction)
+        return
+      }
+    }
+
+    // Route minaai buttons
+    if (interaction.customId.startsWith('minaai:btn:')) {
+      // Use parseCustomIdState to extract base action (handles pipe-delimited state)
+      const { base } = parseCustomIdState(interaction.customId)
+      const [, , action] = base.split(':')
+
+      if (action === 'back') {
+        const { handleMinaAiBackButton } = await import('@handlers/minaai')
+        await handleMinaAiBackButton(interaction)
+        return
+      }
+      if (action === 'forget_confirm') {
+        const { handleForgetMeConfirm } = await import('@handlers/minaai')
+        await handleForgetMeConfirm(interaction)
+        return
+      }
+      if (action === 'forget_cancel') {
+        const { handleForgetMeCancel } = await import('@handlers/minaai')
+        await handleForgetMeCancel(interaction)
+        return
+      }
+      if (action === 'category') {
+        const { showCategoryDetailView } = await import('@handlers/minaai')
+        await showCategoryDetailView(interaction)
+        return
+      }
+      if (action === 'category_page') {
+        const { handleCategoryPage } = await import('@handlers/minaai')
+        await handleCategoryPage(interaction)
+        return
+      }
+      if (action === 'back_memories') {
+        const { handleBackToMemories } = await import('@handlers/minaai')
+        await handleBackToMemories(interaction)
+        return
+      }
+      if (action === 'dm_me' || action === 'dm_me_category') {
+        const { handleDmMe } = await import('@handlers/minaai')
+        await handleDmMe(interaction)
         return
       }
     }
@@ -130,6 +218,117 @@ export default async (
       }
     }
 
+    // Route purge buttons
+    if (interaction.customId.startsWith('purge:btn:')) {
+      // Use parseCustomIdState to extract base action (handles pipe-delimited state)
+      const { base } = parseCustomIdState(interaction.customId)
+      const [, , action] = base.split(':')
+
+      if (action === 'back') {
+        const { handlePurgeBackButton } = await import('@handlers/purge')
+        await handlePurgeBackButton(interaction)
+        return
+      }
+      if (action === 'confirm') {
+        const { handlePurgeConfirm } = await import('@handlers/purge')
+        await handlePurgeConfirm(interaction)
+        return
+      }
+      if (action === 'cancel') {
+        const { handlePurgeCancel } = await import('@handlers/purge')
+        await handlePurgeCancel(interaction)
+        return
+      }
+      if (action === 'use_current') {
+        const { handleUseCurrentChannel } = await import('@handlers/purge')
+        await handleUseCurrentChannel(interaction)
+        return
+      }
+      if (action === 'proceed_type') {
+        const { handleProceedType } = await import('@handlers/purge')
+        await handleProceedType(interaction)
+        return
+      }
+      if (action === 'proceed_amount') {
+        // Parse state from custom_id and proceed to channel selection
+        const customId = interaction.customId
+        const parts = customId.split('|')
+        const typePart = parts.find(p => p.startsWith('type:'))
+        const amountPart = parts.find(p => p.startsWith('amount:'))
+        const tokenPart = parts.find(p => p.startsWith('token:'))
+        const userPart = parts.find(p => p.startsWith('user:'))
+
+        const purgeType = typePart?.split(':')[1] as any
+        const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
+        const token = tokenPart
+          ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+          : undefined
+        const userId = userPart?.split(':')[1]
+
+        await interaction.deferUpdate()
+        const { showChannelSelect } = await import(
+          '@handlers/purge/parameters/channel-select'
+        )
+        await showChannelSelect(
+          interaction,
+          purgeType,
+          amount,
+          { token, userId },
+          false
+        ) // isManualSelection = false (default flow)
+        return
+      }
+      if (action === 'proceed_channel') {
+        const { handleProceedChannel } = await import('@handlers/purge')
+        await handleProceedChannel(interaction)
+        return
+      }
+    }
+
+    // Route dev buttons
+    if (interaction.customId.startsWith('dev:btn:')) {
+      const [, , action, ...rest] = interaction.customId.split(':')
+
+      if (action === 'back') {
+        const { handleDevBackButton } = await import('@handlers/dev')
+        await handleDevBackButton(interaction)
+        return
+      }
+      if (
+        action === 'back_tod' ||
+        action === 'back_reload' ||
+        action === 'back_trig' ||
+        action === 'back_listservers' ||
+        action === 'back_presence' ||
+        action === 'back_minaai'
+      ) {
+        const { handleDevBackButton } = await import('@handlers/dev')
+        await handleDevBackButton(interaction)
+        return
+      }
+      if (action === 'presence_start') {
+        const { showPresenceModal } = await import('@handlers/dev/presence')
+        await showPresenceModal(interaction)
+        return
+      }
+      if (action.startsWith('presence_confirm')) {
+        const { handlePresenceConfirm } = await import('@handlers/dev/presence')
+        await handlePresenceConfirm(interaction)
+        return
+      }
+      if (action === 'trig_confirm') {
+        const { handleTrigSettingsConfirm } = await import(
+          '@handlers/dev/trig-settings'
+        )
+        await handleTrigSettingsConfirm(interaction)
+        return
+      }
+      if (action === 'listservers_prev' || action === 'listservers_next') {
+        // Handled by listservers collector
+        return
+      }
+    }
+
     // Route ticket buttons
     if (interaction.customId.startsWith('ticket:btn:')) {
       const [, , action, ...rest] = interaction.customId.split(':')
@@ -174,7 +373,7 @@ export default async (
         await handleCloseAllCancel(interaction)
         return
       }
-      if (action === 'topic_remove_confirm') {
+      if (action?.startsWith('topic_remove_confirm')) {
         const { handleRemoveTopicConfirm } = await import(
           '@handlers/ticket/setup/topics'
         )
@@ -262,6 +461,21 @@ export default async (
       }
     }
 
+    // Route purge modals
+    if (interaction.customId.startsWith('purge:modal:')) {
+      const [, , action] = interaction.customId.split(':')
+      if (action === 'token') {
+        const { handleTokenModal } = await import('@handlers/purge')
+        await handleTokenModal(interaction)
+        return
+      }
+      if (action === 'amount') {
+        const { handleAmountModal } = await import('@handlers/purge')
+        await handleAmountModal(interaction)
+        return
+      }
+    }
+
     // Route roles modals
     if (interaction.customId.startsWith('roles:modal:')) {
       const [, , action] = interaction.customId.split(':')
@@ -273,6 +487,31 @@ export default async (
         await rolesHandler.handleCleanupModal(interaction)
       }
       return
+    }
+
+    // Route dev modals
+    if (interaction.customId.startsWith('dev:modal:')) {
+      const [, , action] = interaction.customId.split(':')
+      if (action === 'presence') {
+        const { handlePresenceModal } = await import('@handlers/dev/presence')
+        await handlePresenceModal(interaction)
+        return
+      }
+      if (action === 'tod_add') {
+        const { handleAddTodModal } = await import('@handlers/dev/tod')
+        await handleAddTodModal(interaction)
+        return
+      }
+      if (action === 'tod_remove') {
+        const { handleRemoveTodModal } = await import('@handlers/dev/tod')
+        await handleRemoveTodModal(interaction)
+        return
+      }
+      if (action.startsWith('minaai_')) {
+        const { handleMinaAiModal } = await import('@handlers/dev/minaai')
+        await handleMinaAiModal(interaction)
+        return
+      }
     }
 
     switch (interaction.customId) {
@@ -305,6 +544,66 @@ export default async (
 
   // Select menus
   if (interaction.isStringSelectMenu()) {
+    // Route dev component interactions
+    if (interaction.customId.startsWith('dev:menu:')) {
+      const [, , submenu] = interaction.customId.split(':')
+      if (submenu === 'category') {
+        const { handleCategoryMenu } = await import('@handlers/dev')
+        await handleCategoryMenu(interaction)
+        return
+      }
+      if (submenu === 'tod') {
+        const { handleTodMenu } = await import('@handlers/dev/tod')
+        await handleTodMenu(interaction)
+        return
+      }
+      if (submenu === 'reload_type') {
+        const { handleReloadType } = await import('@handlers/dev/reload')
+        await handleReloadType(interaction)
+        return
+      }
+      if (submenu === 'presence_type') {
+        const { handlePresenceTypeMenu } = await import(
+          '@handlers/dev/presence'
+        )
+        await handlePresenceTypeMenu(interaction)
+        return
+      }
+      if (submenu === 'presence_status') {
+        const { handlePresenceStatusMenu } = await import(
+          '@handlers/dev/presence'
+        )
+        await handlePresenceStatusMenu(interaction)
+        return
+      }
+      if (submenu === 'minaai') {
+        const { handleMinaAiMenu } = await import('@handlers/dev/minaai')
+        await handleMinaAiMenu(interaction)
+        return
+      }
+      if (submenu.startsWith('minaai_')) {
+        const operation = submenu.replace('minaai_', '')
+        const { handleMinaAiToggle } = await import('@handlers/dev/minaai')
+        await handleMinaAiToggle(interaction, operation)
+        return
+      }
+    }
+
+    // Route minaai component interactions
+    if (interaction.customId.startsWith('minaai:')) {
+      const [, type, submenu] = interaction.customId.split(':')
+      if (type === 'menu') {
+        if (submenu === 'operation') {
+          const { handleMinaAiOperationMenu } = await import('@handlers/minaai')
+          await handleMinaAiOperationMenu(interaction)
+        } else if (submenu === 'settings') {
+          const { handleSettingsMenu } = await import('@handlers/minaai')
+          await handleSettingsMenu(interaction)
+        }
+        return
+      }
+    }
+
     // Route ticket component interactions
     if (interaction.customId.startsWith('ticket:')) {
       const [, type, submenu] = interaction.customId.split(':')
@@ -358,6 +657,21 @@ export default async (
       }
     }
 
+    // Route purge component interactions
+    if (interaction.customId.startsWith('purge:')) {
+      const [, type, submenu] = interaction.customId.split(':')
+      if (type === 'menu') {
+        if (submenu === 'type') {
+          const { handlePurgeTypeMenu } = await import('@handlers/purge')
+          await handlePurgeTypeMenu(interaction)
+        } else if (submenu.startsWith('amount')) {
+          const { handleAmountSelect } = await import('@handlers/purge')
+          await handleAmountSelect(interaction)
+        }
+        return
+      }
+    }
+
     // Route roles component interactions
     if (interaction.customId.startsWith('roles:')) {
       const [, type, submenu] = interaction.customId.split(':')
@@ -384,6 +698,21 @@ export default async (
 
   // Channel select menus
   if (interaction.isChannelSelectMenu()) {
+    if (interaction.customId.startsWith('dev:channel:')) {
+      const [, , action] = interaction.customId.split(':')
+      if (action === 'trig_settings') {
+        const { handleTrigSettingsChannelSelect } = await import(
+          '@handlers/dev/trig-settings'
+        )
+        await handleTrigSettingsChannelSelect(interaction)
+        return
+      }
+    }
+    if (interaction.customId.startsWith('purge:channel:')) {
+      const { handleChannelSelect } = await import('@handlers/purge')
+      await handleChannelSelect(interaction)
+      return
+    }
     if (interaction.customId.startsWith('ticket:channel:')) {
       const [, , action] = interaction.customId.split(':')
       if (action === 'message') {
@@ -408,6 +737,11 @@ export default async (
 
   // User select menus
   if (interaction.isUserSelectMenu()) {
+    if (interaction.customId === 'purge:user:select') {
+      const { handleUserSelect } = await import('@handlers/purge')
+      await handleUserSelect(interaction)
+      return
+    }
     if (interaction.customId.startsWith('ticket:user:')) {
       const [, , action] = interaction.customId.split(':')
       if (action === 'add') {

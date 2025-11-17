@@ -1,0 +1,43 @@
+import { EmbedBuilder, User } from 'discord.js'
+import { getUser } from '@schemas/User'
+import { EMBED_COLORS, ECONOMY } from '@src/config'
+
+export default async function withdraw(
+  user: User,
+  coins: number
+): Promise<string | { embeds: EmbedBuilder[] }> {
+  if (isNaN(coins) || coins <= 0)
+    return 'Please enter a valid amount of coins to withdraw'
+  const userDb = await getUser(user)
+
+  if (coins > userDb.bank)
+    return `You only have ${userDb.bank}${ECONOMY.CURRENCY} coins in your bank`
+
+  userDb.bank -= coins
+  userDb.coins += coins
+  await userDb.save()
+
+  const embed = new EmbedBuilder()
+    .setColor(EMBED_COLORS.BOT_EMBED)
+    .setAuthor({ name: 'New Balance' })
+    .setThumbnail(user.displayAvatarURL())
+    .addFields(
+      {
+        name: 'Wallet',
+        value: `${userDb.coins}${ECONOMY.CURRENCY}`,
+        inline: true,
+      },
+      {
+        name: 'Bank',
+        value: `${userDb.bank}${ECONOMY.CURRENCY}`,
+        inline: true,
+      },
+      {
+        name: 'Net Worth',
+        value: `${userDb.coins + userDb.bank}${ECONOMY.CURRENCY}`,
+        inline: true,
+      }
+    )
+
+  return { embeds: [embed] }
+}

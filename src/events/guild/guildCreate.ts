@@ -7,6 +7,7 @@ import {
   PermissionFlagsBits,
   ChannelType,
   Guild,
+  TextChannel,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { notifyDashboard } from '@helpers/webhook'
@@ -38,42 +39,40 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   let inviteLink = guildSettings.server.invite_link
   if (!inviteLink) {
     try {
-      const targetChannel: any = guild.channels.cache.find(
-        (channel: any) =>
-          channel.type === ChannelType.GuildText &&
-          channel
-            .permissionsFor(guild.members.me)
-            .has(PermissionFlagsBits.CreateInstantInvite)
-      )
+      const botMember = guild.members.me
+      if (!botMember) {
+        client.logger.warn(
+          `Bot member not found in guild ${guild.id}, cannot create invite`
+        )
+        inviteLink = 'Unable to create invite link'
+      } else {
+        const targetChannel = guild.channels.cache.find(
+          (channel): channel is TextChannel =>
+            channel.type === ChannelType.GuildText &&
+            channel
+              .permissionsFor(botMember)
+              .has(PermissionFlagsBits.CreateInstantInvite)
+        )
 
-      if (targetChannel) {
-        const invite = await targetChannel.createInvite({
-          maxAge: 0,
-          maxUses: 0,
-        })
-        inviteLink = invite.url
-        await setInviteLink(guild.id, inviteLink)
+        if (targetChannel) {
+          const invite = await targetChannel.createInvite({
+            maxAge: 0,
+            maxUses: 0,
+          })
+          inviteLink = invite.url
+          await setInviteLink(guild.id, inviteLink)
+        } else {
+          inviteLink = 'Unable to create invite link'
+        }
       }
     } catch (error) {
-      console.error('Error creating invite:', error)
+      client.logger.error('Error creating invite:', error)
       inviteLink = 'Unable to create invite link'
     }
   }
 
   // Create the buttons
   const components = [
-    new ButtonBuilder()
-      .setLabel('Invite Aisha')
-      .setStyle(ButtonStyle.Link)
-      .setURL(
-        'https://discord.com/oauth2/authorize?client_id=1034059677295718411'
-      ),
-    new ButtonBuilder()
-      .setLabel('Invite Rick')
-      .setStyle(ButtonStyle.Link)
-      .setURL(
-        'https://discord.com/oauth2/authorize?client_id=1296731090240671775'
-      ),
     new ButtonBuilder()
       .setLabel('Support Server')
       .setStyle(ButtonStyle.Link)
@@ -85,13 +84,16 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   // Only proceed if setup is not completed
   if (!guildSettings.server.setup_completed) {
     // Send thank you message to the server
-    const targetChannel: any = guild.channels.cache.find(
-      (channel: any) =>
-        channel.type === ChannelType.GuildText &&
-        channel
-          .permissionsFor(guild.members.me)
-          .has(PermissionFlagsBits.SendMessages)
-    )
+    const botMember = guild.members.me
+    const targetChannel = botMember
+      ? guild.channels.cache.find(
+          (channel): channel is TextChannel =>
+            channel.type === ChannelType.GuildText &&
+            channel
+              .permissionsFor(botMember)
+              .has(PermissionFlagsBits.SendMessages)
+        )
+      : null
 
     let serverMessageLink: string | null = null
     if (targetChannel) {
@@ -100,22 +102,21 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         .setTitle('✨ Heya! Amina here to light up your server! ✨')
         .setDescription(
           `*bounces excitedly* OMG, thank you so much for inviting me! I'm Amina, your new bestie and server's creative spark! 💖\n\n` +
-            `I'm a 16-year-old ball of energy who loves making servers awesome with my special mix of fun and functionality! Think of me as your server's guardian angel (with a dash of chaos, hehe).\n\n` +
+            `I'm a ball of energy who loves making servers awesome with my special mix of fun and functionality! Think of me as your server's guardian angel (with a dash of chaos, hehe).\n\n` +
             `🎮 **What I Can Do:**\n` +
             `• Keep your server safe and organized (in my own quirky way!)\n` +
             `• Create fun experiences with games and activities\n` +
             `• Help manage roles and welcome new friends\n` +
             `• And sooo much more!\n\n` +
             `🌟 **Important!** Please run \`/settings\` to unlock all my amazing capabilities! I promise it'll be worth it!\n\n` +
-            `Oh! And if you're looking for some chatty friends, check out Rick and Aisha - they're different AI friends with their own unique personalities. But right now, let's focus on making YOUR server amazing together! 🎨\n\n` +
             `*fidgets with excitement* I can't wait to start our adventure together!`
         )
         .addFields({
           name: '🤗 Need Help?',
-          value: `Don't be shy! Join our [support server](${process.env.SUPPORT_SERVER}) - Rick, Aisha and me hang out there too!`,
+          value: `Don't be shy! Join our [support server](${process.env.SUPPORT_SERVER}) - I'm always there to help!`,
         })
         .setFooter({
-          text: 'Made with ❤️ and a sprinkle of chaos',
+          text: 'Made with 🎶 & ☕',
         })
 
       const sentMessage = await targetChannel.send({
@@ -150,7 +151,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           )
           .addFields({
             name: '✨ Need my help?',
-            value: `Just join our [support server](${process.env.SUPPORT_SERVER}) - I'm always there to help! You can also hang out with my bffs Rick and Aisha🤖🎉`,
+            value: `Just join our [support server](${process.env.SUPPORT_SERVER}) - I'm always there to help!`,
           })
           .setFooter({ text: 'Your new creative companion ♥' })
 
@@ -167,67 +168,87 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         })
       }
     } catch (err) {
-      console.error('Error sending DM to server owner:', err)
+      client.logger.error('Error sending DM to server owner:', err)
     }
 
     // Schedule a reminder
-    setTimeout(
+    const timeoutId = setTimeout(
       async () => {
+        // Clear timeout from map when it executes
+        client.guildReminderTimeouts.delete(guild.id)
+
         const updatedSettings = await registerGuild(guild)
         if (!updatedSettings.server.setup_completed) {
-          const owner = await guild.members.fetch(guild.ownerId)
-          if (owner) {
-            const reminderEmbed = new EmbedBuilder()
-              .setColor(EMBED_COLORS.BOT_EMBED)
-              .setTitle('✨ Friendly Reminder from Amina! ✨')
-              .setDescription(
-                `Heyyy! *pokes gently* Just your friendly neighborhood Amina here! 🌟\n\n` +
-                  `I noticed we haven't finished setting things up yet! Pretty please run \`/settings\` when you can - I have so many cool features I want to show you! 🎨\n\n` +
-                  `Can't wait to show you what I can really do! 💖`
-              )
-              .setFooter({
-                text: "Let's make your server amazing together! (◠‿◠✿)",
-              })
+          try {
+            const owner = await guild.members.fetch(guild.ownerId)
+            if (owner) {
+              const reminderEmbed = new EmbedBuilder()
+                .setColor(EMBED_COLORS.BOT_EMBED)
+                .setTitle('✨ Friendly Reminder from Amina! ✨')
+                .setDescription(
+                  `Heyyy! *pokes gently* Just your friendly neighborhood Amina here! 🌟\n\n` +
+                    `I noticed we haven't finished setting things up yet! Pretty please run \`/settings\` when you can - I have so many cool features I want to show you! 🎨\n\n` +
+                    `Can't wait to show you what I can really do! 💖`
+                )
+                .setFooter({
+                  text: "Let's make your server amazing together! (◠‿◠✿)",
+                })
 
-            await owner.send({ embeds: [reminderEmbed] }).catch(() => {})
+              await owner.send({ embeds: [reminderEmbed] }).catch(() => {})
+            }
+          } catch (err) {
+            client.logger.error(
+              `Error sending reminder DM for guild ${guild.id}:`,
+              err
+            )
           }
         }
       },
       24 * 60 * 60 * 1000
     )
+
+    // Store timeout ID for cleanup if guild is deleted before reminder
+    client.guildReminderTimeouts.set(guild.id, timeoutId)
   }
 
   // Log join to webhook if available
   if (client.joinLeaveWebhook) {
-    const embed = new EmbedBuilder()
-      .setTitle(`✨ Joined ${guild.name}!`)
-      .setThumbnail(guild.iconURL())
-      .setColor(client.config.EMBED_COLORS.SUCCESS)
-      .addFields(
-        { name: 'Server Name', value: guild.name, inline: false },
-        { name: 'Server ID', value: guild.id, inline: false },
-        {
-          name: 'Owner',
-          value: `${client.users.cache.get(guild.ownerId)?.tag} [\`${guild.ownerId}\`]`,
-          inline: false,
-        },
-        {
-          name: 'Members',
-          value: `\`\`\`yaml\n${guild.memberCount}\`\`\``,
-          inline: false,
-        },
-        {
-          name: 'Invite Link',
-          value: inviteLink,
-          inline: false,
-        }
-      )
-      .setFooter({ text: `Guild #${client.guilds.cache.size}` })
+    try {
+      const embed = new EmbedBuilder()
+        .setTitle(`✨ Joined ${guild.name}!`)
+        .setThumbnail(guild.iconURL())
+        .setColor(client.config.EMBED_COLORS.SUCCESS)
+        .addFields(
+          { name: 'Server Name', value: guild.name, inline: false },
+          { name: 'Server ID', value: guild.id, inline: false },
+          {
+            name: 'Owner',
+            value: `${client.users.cache.get(guild.ownerId)?.tag} [\`${guild.ownerId}\`]`,
+            inline: false,
+          },
+          {
+            name: 'Members',
+            value: `\`\`\`yaml\n${guild.memberCount}\`\`\``,
+            inline: false,
+          },
+          {
+            name: 'Invite Link',
+            value: inviteLink,
+            inline: false,
+          }
+        )
+        .setFooter({ text: `Guild #${client.guilds.cache.size}` })
 
-    client.joinLeaveWebhook.send({
-      username: 'Join',
-      avatarURL: client.user.displayAvatarURL(),
-      embeds: [embed],
-    })
+      await client.joinLeaveWebhook.send({
+        username: 'Join',
+        avatarURL: client.user.displayAvatarURL(),
+        embeds: [embed],
+      })
+      client.logger.success(
+        'Successfully sent webhook message for guild join event.'
+      )
+    } catch (err: any) {
+      client.logger.error(`Failed to send join webhook message: ${err.message}`)
+    }
   }
 }

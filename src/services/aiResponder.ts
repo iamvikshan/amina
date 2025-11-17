@@ -55,6 +55,21 @@ export class AiResponderService {
         return false
       }
 
+      // Check user ignoreMe preference (fail early)
+      const { getUser } = await import('@schemas/User')
+      const userData = await getUser(message.author)
+      if (userData.minaAi?.ignoreMe) {
+        // Send helpful message if they try to interact (DM or mention)
+        if (!message.guild || message.mentions.has(message.client.user!)) {
+          await message.channel
+            .send({
+              content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
+            })
+            .catch(() => {})
+        }
+        return false
+      }
+
       const config = await configCache.getConfig()
 
       // Check global toggle
@@ -64,10 +79,15 @@ export class AiResponderService {
 
       // DM handling
       if (!message.guild) {
-        if (config.dmEnabledGlobally) {
-          return 'dm'
+        // Check global DM enable (developer control)
+        if (!config.dmEnabledGlobally) {
+          return false
         }
-        return false
+        // Check user-level DM preference
+        if (!userData.minaAi?.allowDMs) {
+          return false
+        }
+        return 'dm'
       }
 
       // Guild channel handling
@@ -139,13 +159,21 @@ export class AiResponderService {
 
       const config = await configCache.getConfig()
 
-      // Recall relevant memories
+      // Get user preferences for memory recall
+      const { getUser } = await import('@schemas/User')
+      const userData = await getUser(message.author)
+
+      // Recall relevant memories with user preferences
       const guildId = message.guild?.id || null
       const memories = await memoryService.recallMemories(
         message.content,
         message.author.id,
         guildId,
-        5
+        5,
+        {
+          combineDmWithServer: userData.minaAi?.combineDmWithServer || false,
+          globalServerMemories: userData.minaAi?.globalServerMemories !== false, // default true
+        }
       )
 
       // Build enhanced prompt with memories

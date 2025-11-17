@@ -36,6 +36,8 @@ services:
     image: ghcr.io/lavalink-devs/lavalink:latest
     container_name: lavalink
     restart: unless-stopped
+    # Run as root initially to fix permissions, then switch to lavalink user in entrypoint
+    user: root
     env_file:
       - .env
     environment:
@@ -45,6 +47,9 @@ services:
     volumes:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - lavalink-plugins:/opt/Lavalink/plugins
+      # Mount entrypoint script to fix permissions (similar to how Amina handles logs)
+      - ./lavalink-entrypoint.sh:/lavalink-entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/lavalink-entrypoint.sh"]
     networks:
       - amina-network
     ports:

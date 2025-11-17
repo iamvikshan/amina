@@ -177,7 +177,11 @@ If nothing worth remembering, return: []`
     userMessage: string,
     userId: string,
     guildId: string | null,
-    limit = 5
+    limit = 5,
+    userPrefs?: {
+      combineDmWithServer?: boolean
+      globalServerMemories?: boolean
+    }
   ): Promise<RecalledMemory[]> {
     if (!this.upstashIndex || !this.genAI) return []
 
@@ -193,18 +197,65 @@ If nothing worth remembering, return: []`
       // Query Upstash for similar memories
       const results = await this.upstashIndex.query({
         vector: queryVector,
-        topK: limit * 2, // Get more to filter by user/guild
+        topK: limit * 3, // Get more to filter by user/guild/preferences
         includeMetadata: true,
       })
 
-      // Filter by user/guild and format
+      // STRICT filtering with user preferences
       const memories: RecalledMemory[] = results
         .filter(r => {
           const meta = r.metadata as any
-          return (
-            meta.userId === userId &&
-            (meta.guildId === (guildId || 'dm') || meta.guildId === 'dm')
-          )
+          // Must match user
+          if (meta.userId !== userId) return false
+
+          const memoryGuildId = meta.guildId
+          const isDmMemory = memoryGuildId === null || memoryGuildId === 'dm'
+          const isServerMemory =
+            memoryGuildId !== null && memoryGuildId !== 'dm'
+
+          if (guildId) {
+            // Server context
+            if (userPrefs?.combineDmWithServer) {
+              // Allow both server AND DM memories
+              if (isServerMemory) {
+                // Server memory: check global preference
+                if (userPrefs?.globalServerMemories !== false) {
+                  // Global: allow all server memories
+                  return true
+                } else {
+                  // Per-server: only current server
+                  return memoryGuildId === guildId
+                }
+              } else {
+                // DM memory: allow if combining
+                return true
+              }
+            } else {
+              // ONLY server memories (strict)
+              if (isServerMemory) {
+                // Server memory: check global preference
+                if (userPrefs?.globalServerMemories !== false) {
+                  // Global: allow all server memories
+                  return true
+                } else {
+                  // Per-server: only current server
+                  return memoryGuildId === guildId
+                }
+              } else {
+                // DM memory: reject (strict separation)
+                return false
+              }
+            }
+          } else {
+            // DM context
+            if (userPrefs?.combineDmWithServer) {
+              // Allow both DM AND server memories
+              return true
+            } else {
+              // ONLY DM memories (strict)
+              return isDmMemory
+            }
+          }
         })
         .slice(0, limit)
         .map(r => {
@@ -219,9 +270,19 @@ If nothing worth remembering, return: []`
         })
 
       // Update access tracking in MongoDB
+      // Use appropriate query based on preferences for MongoDB lookup
+      const mongoQueryGuildId =
+        userPrefs?.globalServerMemories !== false && guildId
+          ? null // Query all server memories
+          : guildId
+
       for (const memory of memories) {
         // Find MongoDB record by vectorId and update
-        const mongoMemory = await getUserMemories(userId, guildId, 100)
+        const mongoMemory = await getUserMemories(
+          userId,
+          mongoQueryGuildId,
+          100
+        )
         const match = mongoMemory.find(m => m.vectorId === memory.id)
         if (match) {
           await updateMemoryAccess(match._id.toString())

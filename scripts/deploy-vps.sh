@@ -37,6 +37,7 @@ DEFAULT_DEPLOY_PATH="amina"
 REQUIRED_FILES=(
     "docker-compose.prod.yml"
     "lavalink/application.yml"
+    "lavalink-entrypoint.sh"
 )
 
 
@@ -213,6 +214,12 @@ if [ ! -f "lavalink/application.yml" ]; then
 fi
 
 
+if [ ! -f "lavalink-entrypoint.sh" ]; then
+    echo "[ERROR] lavalink-entrypoint.sh not found in repository"
+    exit 1
+fi
+
+
 echo "[SUCCESS] All required files found"
 echo ""
 
@@ -264,6 +271,12 @@ fi
 # Copy lavalink/application.yml for Lavalink
 cp lavalink/application.yml ~/"$DEPLOY_PATH"/lavalink/application.yml
 echo "[SUCCESS] Copied lavalink/application.yml → lavalink/application.yml"
+
+
+# Copy lavalink-entrypoint.sh for Lavalink permission fix
+cp lavalink-entrypoint.sh ~/"$DEPLOY_PATH"/lavalink-entrypoint.sh
+chmod +x ~/"$DEPLOY_PATH"/lavalink-entrypoint.sh
+echo "[SUCCESS] Copied lavalink-entrypoint.sh → lavalink-entrypoint.sh (executable)"
 echo ""
 
 
@@ -290,6 +303,7 @@ echo "Directory structure:"
 echo "  ~/$DEPLOY_PATH/"
 echo "    ├── docker-compose.yml"
 echo "    ├── .env"
+echo "    ├── lavalink-entrypoint.sh"
 echo "    └── lavalink/"
 echo "        └── application.yml"
 echo ""

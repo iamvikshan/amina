@@ -62,6 +62,12 @@ const Schema = new mongoose.Schema(
       endTime: { type: Date, default: null },
     },
     profile: { type: ProfileSchema, default: () => ({}) },
+    minaAi: {
+      ignoreMe: { type: Boolean, default: false },
+      allowDMs: { type: Boolean, default: true },
+      combineDmWithServer: { type: Boolean, default: false },
+      globalServerMemories: { type: Boolean, default: true },
+    },
   },
   {
     timestamps: {
@@ -321,6 +327,22 @@ export async function getUsersWithBirthdayToday() {
   })
 }
 
+export async function getReputationLb(limit: number = 10): Promise<any[]> {
+  return Model.find({
+    'reputation.received': { $exists: true, $gt: 0 },
+  })
+    .limit(limit)
+    .sort({ 'reputation.received': -1 })
+    .select('_id reputation.received')
+    .lean()
+    .then(users =>
+      users.map(user => ({
+        member_id: user._id,
+        rep: user.reputation?.received || 0,
+      }))
+    )
+}
+
 // Default export for backwards compatibility
 export default {
   getUser,
@@ -336,4 +358,5 @@ export default {
   updateProfile,
   clearProfile,
   getUsersWithBirthdayToday,
+  getReputationLb,
 }

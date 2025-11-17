@@ -109,6 +109,7 @@ declare module '@structures/Command' {
     slashCommand: InteractionInfo
     devOnly?: boolean
     testGuildOnly?: boolean
+    dmCommand?: boolean
     showsModal?: boolean
     interactionRun: (
       interaction: ChatInputCommandInteraction,
