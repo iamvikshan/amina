@@ -1,7 +1,9 @@
 import { TextChannel, User, Guild } from 'discord.js'
-import ticketHandler from '@src/handlers/ticket'
-
-const { isTicketChannel, closeTicket, closeAllTickets } = ticketHandler
+import {
+  isTicketChannel,
+  closeTicket,
+  closeAllTickets,
+} from '@handlers/ticket/shared/utils'
 
 export async function close(
   interaction: { channel: TextChannel },

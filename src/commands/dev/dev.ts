@@ -176,7 +176,7 @@ const command: Command = {
             options: [
               {
                 name: 'model',
-                description: 'Model name (e.g., gemini-1.5-pro-latest)',
+                description: 'Model name (e.g., gemini-flash-latest)',
                 type: ApplicationCommandOptionType.String,
                 required: true,
               },

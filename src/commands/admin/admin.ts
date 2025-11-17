@@ -1,117 +1,71 @@
 import {
-  ApplicationCommandOptionType,
-  ChannelType,
   ChatInputCommandInteraction,
+  EmbedBuilder,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } from 'discord.js'
 import type { CommandData } from '@src/structures/Command'
-import statusHandler from './mina-ai/status'
-import configureHandler from './mina-ai/configure'
-import freewillHandler from './mina-ai/freewill'
-import mentionOnlyHandler from './mina-ai/mentiononly'
-import dmsHandler from './mina-ai/dms'
+import config from '@src/config'
 
 const command: CommandData = {
   name: 'admin',
-  description: 'Admin commands for Amina',
+  description: 'Admin hub - Configure server settings, Mina AI, and logging',
   category: 'ADMIN',
   userPermissions: ['ManageGuild'],
   slashCommand: {
     enabled: true,
     ephemeral: true,
-    options: [
-      {
-        name: 'mina-ai',
-        description: 'Configure Amina AI for your server',
-        type: ApplicationCommandOptionType.SubcommandGroup,
-        options: [
-          {
-            name: 'status',
-            description: 'View AI configuration for this server',
-            type: ApplicationCommandOptionType.Subcommand,
-          },
-          {
-            name: 'configure',
-            description: 'Enable or disable AI responses in this server',
-            type: ApplicationCommandOptionType.Subcommand,
-            options: [
-              {
-                name: 'enabled',
-                description: 'Enable or disable AI',
-                type: ApplicationCommandOptionType.Boolean,
-                required: true,
-              },
-            ],
-          },
-          {
-            name: 'freewill',
-            description: 'Set a channel where I respond to all messages',
-            type: ApplicationCommandOptionType.Subcommand,
-            options: [
-              {
-                name: 'channel',
-                description: 'The channel for free-will mode',
-                type: ApplicationCommandOptionType.Channel,
-                channelTypes: [ChannelType.GuildText],
-                required: true,
-              },
-            ],
-          },
-          {
-            name: 'mention-only',
-            description: 'Toggle mention-only mode (requires @mention to respond)',
-            type: ApplicationCommandOptionType.Subcommand,
-            options: [
-              {
-                name: 'enabled',
-                description: 'Enable or disable mention-only mode',
-                type: ApplicationCommandOptionType.Boolean,
-                required: true,
-              },
-            ],
-          },
-          {
-            name: 'dms',
-            description: 'Enable or disable DM support for your server members',
-            type: ApplicationCommandOptionType.Subcommand,
-            options: [
-              {
-                name: 'enabled',
-                description: 'Enable or disable',
-                type: ApplicationCommandOptionType.Boolean,
-                required: true,
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    options: [],
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction, data: any) {
-    const group = interaction.options.getSubcommandGroup()
-    const sub = interaction.options.getSubcommand()
+    // Show main admin hub menu
+    const embed = new EmbedBuilder()
+      .setColor(config.EMBED_COLORS.BOT_EMBED)
+      .setTitle('⚙️ Admin Hub')
+      .setDescription(
+        'Welcome to the Mina admin hub! Choose a category below to get started.\n\n' +
+          '**Server Settings** - Manage updates channel and staff roles\n' +
+          '**Mina AI** - Configure AI responses and behavior\n' +
+          '**Logging** - Set up moderation logs\n' +
+          '**Status** - View current configuration'
+      )
+      .setFooter({ text: 'Select a category from the menu below' })
 
-    if (group === 'mina-ai') {
-      switch (sub) {
-        case 'status':
-          await statusHandler(interaction, data.settings)
-          break
-        case 'configure':
-          await configureHandler(interaction, data.settings)
-          break
-        case 'freewill':
-          await freewillHandler(interaction, data.settings)
-          break
-        case 'mention-only':
-          await mentionOnlyHandler(interaction, data.settings)
-          break
-        case 'dms':
-          await dmsHandler(interaction, data.settings)
-          break
-        default:
-          await interaction.followUp('Invalid subcommand!')
-      }
-    }
+    const menuRow =
+      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('admin:menu:category')
+          .setPlaceholder('Choose an admin category')
+          .addOptions([
+            new StringSelectMenuOptionBuilder()
+              .setLabel('Server Settings')
+              .setDescription('Updates channel and staff roles')
+              .setValue('settings')
+              .setEmoji('🔧'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('Mina AI')
+              .setDescription('Configure AI responses')
+              .setValue('minaai')
+              .setEmoji('🤖'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('Logging')
+              .setDescription('Moderation logs configuration')
+              .setValue('logs')
+              .setEmoji('📋'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('View Status')
+              .setDescription('See all current settings')
+              .setValue('status')
+              .setEmoji('📊'),
+          ])
+      )
+
+    await interaction.followUp({
+      embeds: [embed],
+      components: [menuRow],
+    })
   },
 }
 

@@ -35,7 +35,11 @@ export class MemoryService {
   private genAI: GoogleGenerativeAI | null = null
   private embeddingModel = 'embedding-001'
 
-  async initialize(geminiKey: string, upstashUrl: string, upstashToken: string) {
+  async initialize(
+    geminiKey: string,
+    upstashUrl: string,
+    upstashToken: string
+  ) {
     try {
       // Initialize Upstash Vector
       this.upstashIndex = new Index({
@@ -48,7 +52,10 @@ export class MemoryService {
 
       logger.success('Memory Service initialized with Upstash Vector')
     } catch (error: any) {
-      logger.error(`Failed to initialize Memory Service: ${error.message}`, error)
+      logger.error(
+        `Failed to initialize Memory Service: ${error.message}`,
+        error
+      )
     }
   }
 
@@ -63,7 +70,9 @@ export class MemoryService {
     if (!this.genAI || conversationHistory.length < 3) return []
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-flash-latest' })
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-flash-latest',
+      })
 
       // Build conversation context
       const conversationText = conversationHistory

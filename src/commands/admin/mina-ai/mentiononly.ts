@@ -21,8 +21,8 @@ export default async function mentionOnlyHandler(
     .setColor(enabled ? EMBED_COLORS.WARNING : EMBED_COLORS.SUCCESS)
     .setDescription(
       enabled
-        ? '📢 Mention-only mode enabled! I\'ll only respond when @mentioned.'
-        : '🌊 Free-will mode enabled! I\'ll respond to all messages in the configured channel.'
+        ? "📢 Mention-only mode enabled! I'll only respond when @mentioned."
+        : "🌊 Free-will mode enabled! I'll respond to all messages in the configured channel."
     )
 
   await interaction.followUp({ embeds: [embed] })

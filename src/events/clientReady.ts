@@ -23,7 +23,11 @@ export default async (client: BotClient): Promise<void> => {
   try {
     const config = await configCache.getConfig()
     if (config.geminiKey && config.upstashUrl && config.upstashToken) {
-      await memoryService.initialize(config.geminiKey, config.upstashUrl, config.upstashToken)
+      await memoryService.initialize(
+        config.geminiKey,
+        config.upstashUrl,
+        config.upstashToken
+      )
       client.logger.success('Memory Service initialized')
     } else {
       client.logger.warn('Memory Service disabled - missing configuration')

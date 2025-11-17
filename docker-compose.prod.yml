@@ -2,7 +2,7 @@ services:
   # Amina Discord Bot
   amina:
     image: vikshan/amina:latest
-    container_name: amina-bot
+    container_name: amina
     restart: unless-stopped
     env_file:
       - .env

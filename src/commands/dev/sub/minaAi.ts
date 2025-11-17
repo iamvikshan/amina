@@ -194,11 +194,12 @@ export async function toggleDm(
 }
 
 export async function memoryStats(interaction: ChatInputCommandInteraction) {
-  const memoryService = (await import('@src/services/memoryService')).memoryService
-  
+  const memoryService = (await import('@src/services/memoryService'))
+    .memoryService
+
   try {
     const stats = await memoryService.getStats()
-    
+
     const embed = new EmbedBuilder()
       .setColor(EMBED_COLORS.BOT_EMBED)
       .setTitle('🧠 Memory System Statistics')
@@ -220,16 +221,22 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
         },
         {
           name: '📝 By Type',
-          value: Object.entries(stats.byType)
-            .map(([type, count]) => `${type}: ${count}`)
-            .join('\n') || 'No memories yet',
+          value:
+            Object.entries(stats.byType)
+              .map(([type, count]) => `${type}: ${count}`)
+              .join('\n') || 'No memories yet',
           inline: false,
         },
         {
           name: '🔝 Top Users',
-          value: stats.topUsers.length > 0
-            ? stats.topUsers.map((u, i) => `${i + 1}. <@${u.userId}> - ${u.count} memories`).join('\n')
-            : 'No users yet',
+          value:
+            stats.topUsers.length > 0
+              ? stats.topUsers
+                  .map(
+                    (u, i) => `${i + 1}. <@${u.userId}> - ${u.count} memories`
+                  )
+                  .join('\n')
+              : 'No users yet',
           inline: false,
         },
         {
@@ -245,13 +252,15 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
       )
       .setFooter({ text: 'Memory system powered by Upstash Vector + MongoDB' })
       .setTimestamp()
-    
+
     await interaction.followUp({ embeds: [embed] })
   } catch (error) {
     const errorEmbed = new EmbedBuilder()
       .setColor(EMBED_COLORS.ERROR)
-      .setDescription('❌ Failed to fetch memory statistics. Check logs for details.')
-    
+      .setDescription(
+        '❌ Failed to fetch memory statistics. Check logs for details.'
+      )
+
     await interaction.followUp({ embeds: [errorEmbed] })
   }
 }

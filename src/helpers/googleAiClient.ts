@@ -80,7 +80,9 @@ export class GoogleAiClient {
       const latency = Date.now() - startTime
       const errorMessage = error?.message || String(error)
       logger.error(`AI API error in generateResponse: ${errorMessage}`, error)
-      logger.debug(`Error details: ${JSON.stringify({status: error?.status, name: error?.name, message: error?.message})}`)
+      logger.debug(
+        `Error details: ${JSON.stringify({ status: error?.status, name: error?.name, message: error?.message })}`
+      )
       this.handleError(error || new Error('Unknown error'), latency)
       throw error
     }
@@ -93,10 +95,7 @@ export class GoogleAiClient {
     return Promise.race([
       promise,
       new Promise<T>((_, reject) =>
-        setTimeout(
-          () => reject(new Error('API timeout')),
-          timeoutMs
-        )
+        setTimeout(() => reject(new Error('API timeout')), timeoutMs)
       ),
     ])
   }
@@ -104,7 +103,7 @@ export class GoogleAiClient {
   private handleError(error: any, latency: number) {
     // Don't throw in handleError since we already throw in catch block
     // Just log appropriately
-    
+
     if (!error) {
       logger.error('Unknown error occurred')
       return
@@ -130,7 +129,9 @@ export class GoogleAiClient {
 
     // For unhandled errors, try to log what we can
     try {
-      logger.error(`Unhandled AI error - Type: ${typeof error}, Message: ${errorMessage}`)
+      logger.error(
+        `Unhandled AI error - Type: ${typeof error}, Message: ${errorMessage}`
+      )
       if (error.stack) logger.debug(`Stack: ${error.stack}`)
     } catch (logError) {
       logger.error('Failed to log AI error details')

@@ -28,9 +28,11 @@ export class AiResponderService {
   async initialize() {
     try {
       const config = await configCache.getConfig()
-      
-      logger.debug(`AI Config loaded - Enabled: ${config.globallyEnabled}, Model: ${config.model}, HasKey: ${!!config.geminiKey}`)
-      
+
+      logger.debug(
+        `AI Config loaded - Enabled: ${config.globallyEnabled}, Model: ${config.model}, HasKey: ${!!config.geminiKey}`
+      )
+
       if (config.globallyEnabled && config.geminiKey) {
         this.client = new GoogleAiClient(
           config.geminiKey,
@@ -123,18 +125,18 @@ export class AiResponderService {
 
       // Build conversation context
       const conversationId = this.getConversationId(message)
-      
+
       // Get history BEFORE appending current message
       let history = conversationBuffer.getHistory(conversationId)
-      
+
       // Validate: history must start with 'user' role (Google AI requirement)
       while (history.length > 0 && history[0].role !== 'user') {
         history.shift() // Remove leading 'model' messages
       }
-      
+
       // Append user message to buffer for next interaction
       conversationBuffer.append(conversationId, 'user', message.content)
-      
+
       const config = await configCache.getConfig()
 
       // Recall relevant memories
@@ -202,11 +204,13 @@ export class AiResponderService {
       }
 
       // Send fallback message
-      await message.reply(
-        "I'm having trouble thinking right now. Please try again in a moment."
-      ).catch(() => {
-        // Ignore if we can't send fallback
-      })
+      await message
+        .reply(
+          "I'm having trouble thinking right now. Please try again in a moment."
+        )
+        .catch(() => {
+          // Ignore if we can't send fallback
+        })
     }
   }
 
@@ -304,7 +308,12 @@ export class AiResponderService {
         .join(' | ')
 
       for (const fact of facts) {
-        await memoryService.storeMemory(fact, userId, guildId, conversationSnippet)
+        await memoryService.storeMemory(
+          fact,
+          userId,
+          guildId,
+          conversationSnippet
+        )
       }
 
       if (facts.length > 0) {

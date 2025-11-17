@@ -7,18 +7,11 @@
   "license": "ISC",
   "module": "commonjs",
   "engines": {
-    "node": ">=20.0.0",
-    "bun": ">=1.0.0"
+    "bun": ">=1.3.0"
   },
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
-    "start:node": "node dist/index.js",
-    "build": "tsc --project tsconfig.build.json",
-    "build:watch": "tsc --project tsconfig.build.json --watch",
-    "postbuild": "bash scripts/postbuild.sh",
-    "clean": "rm -rf dist",
-    "prebuild": "npm run clean",
     "f": "prettier --write .",
     "f:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
@@ -89,14 +82,5 @@
     "bot",
     "multipurpose",
     "multi-purpose-bot"
-  ],
-  "_moduleAliases": {
-    "@root": ".",
-    "@handlers": "src/handlers/",
-    "@helpers": "src/helpers/",
-    "@schemas": "src/database/schemas/",
-    "@src": "src/",
-    "@structures": "src/structures/",
-    "@commands": "src/commands/"
-  }
+  ]
 }

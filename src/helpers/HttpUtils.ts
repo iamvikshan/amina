@@ -93,6 +93,12 @@ export default class HttpUtils {
     content: string,
     title: string
   ): Promise<BinResponse | undefined> {
+    // Validate content before posting
+    if (!content || content.trim().length === 0) {
+      debug(`postToBin: Empty content provided for "${title}"`)
+      return undefined
+    }
+
     try {
       const response = await sourcebin.create(
         [
@@ -114,6 +120,7 @@ export default class HttpUtils {
       }
     } catch (ex) {
       error(`postToBin`, ex)
+      return undefined
     }
   }
 }

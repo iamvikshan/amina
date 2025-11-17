@@ -40,3 +40,5 @@ lavalink/plugins/*
 awscliv2.zip
 aws/
 *.pem
+
+docs/*

@@ -68,7 +68,12 @@ export default class BotClient extends Client {
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.DirectMessages, // AI DM support
       ],
-      partials: [Partials.User, Partials.Message, Partials.Reaction, Partials.Channel], // AI DM support
+      partials: [
+        Partials.User,
+        Partials.Message,
+        Partials.Reaction,
+        Partials.Channel,
+      ], // AI DM support
       allowedMentions: { repliedUser: false },
       restRequestTimeout: 20000,
     } as ClientOptions)

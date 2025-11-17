@@ -1,0 +1,300 @@
+import {
+  StringSelectMenuInteraction,
+  ChannelSelectMenuInteraction,
+  ModalSubmitInteraction,
+  ButtonInteraction,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ChannelSelectMenuBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  ButtonBuilder,
+  TextInputStyle,
+  ButtonStyle,
+  ChannelType,
+  TextChannel,
+  MessageFlags,
+} from 'discord.js'
+import { EMBED_COLORS } from '@src/config'
+import { createSecondaryBtn } from '@helpers/componentHelper'
+import { getSettings, updateSettings } from '@schemas/Guild'
+
+/**
+ * Show channel select for ticket message setup
+ */
+export async function showMessageChannelSelect(
+  interaction: StringSelectMenuInteraction
+): Promise<void> {
+  const embed = new EmbedBuilder()
+    .setColor(EMBED_COLORS.BOT_EMBED)
+    .setAuthor({ name: '📨 Setup Ticket Message' })
+    .setDescription(
+      'Please select the channel where you want to create the ticket message.\n\n' +
+        'Users will be able to click a button in this channel to create tickets.'
+    )
+    .setFooter({ text: 'Select a text channel below' })
+
+  const channelSelect =
+    new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+      new ChannelSelectMenuBuilder()
+        .setCustomId('ticket:channel:message')
+        .setPlaceholder('📝 Select a channel...')
+        .setChannelTypes(ChannelType.GuildText)
+    )
+
+  const backButton = createSecondaryBtn({
+    customId: 'ticket:btn:back_setup',
+    label: 'Back to Setup',
+    emoji: '◀️',
+  })
+
+  await interaction.update({
+    embeds: [embed],
+    components: [channelSelect, backButton],
+  })
+}
+
+/**
+ * Handle channel selection for ticket message
+ */
+export async function handleMessageChannelSelect(
+  interaction: ChannelSelectMenuInteraction
+): Promise<void> {
+  const channel = interaction.channels.first() as TextChannel
+
+  if (!channel) {
+    await interaction.reply({
+      content: '❌ Invalid channel selected',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  // Check bot permissions
+  if (
+    !channel.permissionsFor(interaction.guild!.members.me!)?.has('SendMessages')
+  ) {
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(EMBED_COLORS.ERROR)
+          .setDescription(
+            `Oops! I don't have permission to send messages in ${channel}. Could you please give me that permission? Pretty please? 🙏`
+          ),
+      ],
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  // Show modal for ticket message customization
+  await showTicketMessageModal(interaction, channel)
+}
+
+/**
+ * Show modal for ticket message customization
+ */
+async function showTicketMessageModal(
+  interaction: ChannelSelectMenuInteraction,
+  channel: TextChannel
+): Promise<void> {
+  const modal = new ModalBuilder()
+    .setCustomId(`ticket:modal:message|ch:${channel.id}`)
+    .setTitle('Ticket Message Setup')
+    .addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(
+        new TextInputBuilder()
+          .setCustomId('title')
+          .setLabel('Embed Title')
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder('Support Ticket')
+          .setRequired(false)
+          .setMaxLength(256)
+      ),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(
+        new TextInputBuilder()
+          .setCustomId('description')
+          .setLabel('Embed Description')
+          .setStyle(TextInputStyle.Paragraph)
+          .setPlaceholder('Please use the button below to create a ticket')
+          .setRequired(false)
+          .setMaxLength(2048)
+      ),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(
+        new TextInputBuilder()
+          .setCustomId('footer')
+          .setLabel('Embed Footer')
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder('You can only have 1 open ticket at a time!')
+          .setRequired(false)
+          .setMaxLength(2048)
+      )
+    )
+
+  await interaction.showModal(modal)
+}
+
+/**
+ * Handle ticket message modal submission
+ */
+export async function handleTicketMessageModal(
+  interaction: ModalSubmitInteraction
+): Promise<void> {
+  // Extract channel ID from custom_id
+  // Format: ticket:modal:message|ch:${channel.id}
+  const parts = interaction.customId.split('|')
+  const channelPart = parts[1] // Should be "ch:${channel.id}"
+  const channelId = channelPart?.split(':')[1]
+
+  if (!channelId) {
+    await interaction.reply({
+      content: '❌ Invalid channel data',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  const channel = interaction.guild!.channels.cache.get(
+    channelId
+  ) as TextChannel
+
+  if (!channel) {
+    await interaction.reply({
+      content: '❌ Channel not found',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral })
+
+  const title =
+    interaction.fields.getTextInputValue('title') || 'Support Ticket'
+  const description =
+    interaction.fields.getTextInputValue('description') ||
+    'Please use the button below to create a ticket'
+  const footer =
+    interaction.fields.getTextInputValue('footer') ||
+    'You can only have 1 open ticket at a time!'
+
+  // Get or create ticket category
+  const settings = await getSettings(interaction.guild!)
+  let ticketCategory = interaction.guild!.channels.cache.get(
+    settings.ticket.category || ''
+  )
+
+  if (!ticketCategory) {
+    try {
+      const staffRoles = settings.server.staff_roles || []
+      const categoryPerms: any[] = [
+        {
+          id: interaction.guild!.roles.everyone,
+          deny: ['ViewChannel'],
+        },
+        {
+          id: interaction.guild!.members.me!,
+          allow: [
+            'ViewChannel',
+            'SendMessages',
+            'ReadMessageHistory',
+            'ManageChannels',
+          ],
+        },
+        {
+          id: interaction.user.id,
+          allow: [
+            'ViewChannel',
+            'SendMessages',
+            'ReadMessageHistory',
+            'ManageChannels',
+          ],
+        },
+      ]
+
+      // Add staff roles to category
+      staffRoles.forEach((roleId: string) => {
+        const role = interaction.guild!.roles.cache.get(roleId)
+        if (role) {
+          categoryPerms.push({
+            id: role,
+            allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory'],
+          })
+        }
+      })
+
+      ticketCategory = await interaction.guild!.channels.create({
+        name: 'Tickets',
+        type: ChannelType.GuildCategory,
+        permissionOverwrites: categoryPerms,
+      })
+      settings.ticket.category = ticketCategory.id
+      settings.ticket.enabled = true
+      await updateSettings(interaction.guild!.id, settings)
+    } catch (error) {
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(EMBED_COLORS.ERROR)
+            .setDescription(
+              "Oops! I couldn't create the Tickets category. Please check my permissions! 😔"
+            ),
+        ],
+      })
+      return
+    }
+  }
+
+  // Create ticket message embed
+  const embed = new EmbedBuilder()
+    .setColor(EMBED_COLORS.BOT_EMBED)
+    .setAuthor({ name: title })
+    .setDescription(description)
+    .setFooter({ text: footer })
+
+  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setLabel('Open a ticket')
+      .setCustomId('TICKET_CREATE')
+      .setStyle(ButtonStyle.Success)
+      .setEmoji('🎫')
+  )
+
+  try {
+    const ticketMessage = await channel.send({
+      embeds: [embed],
+      components: [buttonRow],
+    })
+
+    // Update settings with message ID
+    ;(settings.ticket as any).setup_message_id = ticketMessage.id
+    await updateSettings(interaction.guild!.id, settings)
+
+    const successEmbed = new EmbedBuilder()
+      .setColor(EMBED_COLORS.SUCCESS)
+      .setDescription(
+        `Yay! Ticket message created successfully in ${channel}! 🎉\n\n` +
+          `Users can now click the button to create tickets.`
+      )
+
+    const backButton = createSecondaryBtn({
+      customId: 'ticket:btn:back_setup',
+      label: 'Back to Setup',
+      emoji: '◀️',
+    })
+
+    await interaction.editReply({
+      embeds: [successEmbed],
+      components: [backButton],
+    })
+  } catch (error) {
+    await interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(EMBED_COLORS.ERROR)
+          .setDescription(
+            `Failed to send ticket message to ${channel}. Please check my permissions! 😔`
+          ),
+      ],
+    })
+  }
+}

@@ -1,4 +1,12 @@
 import mongoose from 'mongoose'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+
+// Read the prompt.md file as the default system prompt
+const defaultSystemPrompt = readFileSync(
+  join(process.cwd(), 'src/data/prompt.md'),
+  'utf-8'
+).trim()
 
 const Schema = new mongoose.Schema(
   {
@@ -46,7 +54,7 @@ const Schema = new mongoose.Schema(
       },
       model: {
         type: String,
-        default: 'gemini-1.5-pro-latest',
+        default: 'gemini-flash-latest',
       },
       maxTokens: {
         type: Number,
@@ -58,8 +66,7 @@ const Schema = new mongoose.Schema(
       },
       systemPrompt: {
         type: String,
-        default:
-          'You are Amina, a helpful and friendly Discord bot assistant. Keep responses concise and engaging.',
+        default: defaultSystemPrompt,
       },
       temperature: {
         type: Number,

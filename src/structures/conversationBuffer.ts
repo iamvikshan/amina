@@ -85,9 +85,12 @@ export class ConversationBuffer {
   }
 
   private startCleanupDaemon() {
-    this.cleanupInterval = setInterval(() => {
-      this.pruneExpired()
-    }, 5 * 60 * 1000) // Every 5 minutes
+    this.cleanupInterval = setInterval(
+      () => {
+        this.pruneExpired()
+      },
+      5 * 60 * 1000
+    ) // Every 5 minutes
   }
 
   shutdown() {

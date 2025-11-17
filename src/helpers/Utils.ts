@@ -1,5 +1,5 @@
 // src/helpers/Utils.ts
-import { COLORS } from '@src/data.json'
+import { COLORS } from '@src/data/data.json'
 import { readdirSync, lstatSync } from 'fs'
 import { join, extname } from 'path'
 import permissions from './permissions'

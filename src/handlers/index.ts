@@ -2,13 +2,14 @@
 // Using dynamic imports to maintain compatibility with both .js and .ts files
 
 // Handlers with default exports - re-export the default
+export { default as adminHandler } from './admin'
 export { default as automodHandler } from './automod'
 export { default as greetingHandler } from './greeting'
 export { default as inviteHandler } from './invite'
 export { default as presenceHandler } from './presence'
 export { default as statsHandler } from './stats'
 export { default as suggestionHandler } from './suggestion'
-export { default as ticketHandler } from './ticket'
+export { default as ticketHandler } from './ticket/index'
 export { default as todHandler } from './tod'
 export { default as reportHandler } from './report'
 export { default as guildHandler } from './guild'

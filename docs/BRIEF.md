@@ -25,23 +25,29 @@
 Convert commands in order of size (smallest to largest for momentum):
 
 **1. Social Commands (2 files) - ~50-150 lines each**
+
 - `invites.js` - Invite tracking
 - `reputation.js` - Reputation system
 
 **2. Suggestions Commands (2 files) - ~100-200 lines each**
+
 - `suggest.js` - Submit suggestions
 - `suggestion.js` - Manage suggestions
 
 **3. Stats Commands (4 files) - ~100-250 lines each**
+
 - `rank.js`, `stats.js`, `statstracking.js`, `xp.js`
 
 **4. Info Commands (6 files) - ~100-200 lines each**
+
 - `info.js`, `leaderboard.js`, `shared/*` (4 files)
 
 **5. Moderation (5 remaining files)**
+
 - Complete the remaining moderation utilities
 
 **Later: Larger Categories**
+
 - Economy (8 files)
 - Fun (13 files)
 - Utility (12 files)
@@ -246,21 +252,25 @@ const client = interaction.client as BotClient
 ### Command Categories by Size
 
 **Extra Small (2-4 files):**
+
 - Social (2 files)
 - Suggestions (2 files)
 
 **Small (4-6 files):**
+
 - Stats (4 files)
 - Moderation remaining (5 files)
 - Info (6 files)
 
 **Medium (8-13 files):**
+
 - Economy (8 files)
 - Giveaways (8 files)
 - Utility (12 files)
 - Fun (13 files)
 
 **Large (17 files):**
+
 - Music (17 files) - Save for last
 
 ---
@@ -268,6 +278,7 @@ const client = interaction.client as BotClient
 ## 🎯 Success Criteria
 
 **For each category:**
+
 - ✅ All .js files converted to .ts
 - ✅ Bot starts without errors
 - ✅ Command count matches expected
@@ -275,6 +286,7 @@ const client = interaction.client as BotClient
 - ✅ Old .js files deleted
 
 **Overall Phase 4 Goal:**
+
 - Convert all 214 command files
 - Achieve 100% TypeScript migration
 - Maintain zero downtime

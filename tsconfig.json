@@ -23,7 +23,8 @@
       "@schemas/*": ["./src/database/schemas/*"],
       "@src/*": ["./src/*"],
       "@structures/*": ["./src/structures/*"],
-      "@commands/*": ["./src/commands/*"]
+      "@commands/*": ["./src/commands/*"],
+      "@types/*": ["./types/*"]
     },
 
     // Very loose type checking for gradual migration

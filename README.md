@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://stuff.vikshan.me/amina/logo/headshot-emoji.svg" alt="Amina - Your Guardian Companion" width="200" />
+  <img src="https://stuff.vikshan.me/amina/logo/headshot-emoji.png" alt="Amina - Your Guardian Companion" width="200" />
   
   <h1> AMINA </h1>
   <h3>Your Guardian Companion in the Digital Empire</h3>
@@ -177,7 +177,7 @@ Special thanks to our infrastructure partners who keep the Night Guard operation
 
 **[Recruit Amina Now](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** • **[Documentation](https://docs.vikshan.me)** • **[Support Server](https://discord.gg/uMgS9evnmv)**
 
-<sub>Forged by [vikshan](https://vikshan.me) with ⚔️ and 💻 | Licensed under MIT</sub>
+<sub>Forged by [vikshan](https://vikshan.me) with 🎶 and ☕ | Licensed under MIT</sub>
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=DC143C&height=100&section=footer" />
 

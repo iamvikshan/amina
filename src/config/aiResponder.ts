@@ -39,13 +39,17 @@ class ConfigCache {
     const config = {
       globallyEnabled: this.cache.globallyEnabled,
       model: process.env.GEMINI_MODEL || this.cache.model,
-      maxTokens:
-        Number(process.env.MAX_TOKENS) || this.cache.maxTokens || 1024,
+      maxTokens: Number(process.env.MAX_TOKENS) || this.cache.maxTokens || 1024,
       timeoutMs:
         Number(process.env.TIMEOUT_MS) || this.cache.timeoutMs || 20000,
       systemPrompt:
-        process.env.SYSTEM_PROMPT || this.cache.systemPrompt || 'You are Amina, a helpful Discord bot assistant.',
-      temperature: this.parseTemperature(process.env.TEMPERATURE) ?? this.cache.temperature ?? 0.7,
+        process.env.SYSTEM_PROMPT ||
+        this.cache.systemPrompt ||
+        'You are Amina, a helpful Discord bot assistant.',
+      temperature:
+        this.parseTemperature(process.env.TEMPERATURE) ??
+        this.cache.temperature ??
+        0.7,
       dmEnabledGlobally:
         process.env.DM_ENABLED_GLOBALLY === 'true' ||
         this.cache.dmEnabledGlobally,
@@ -57,7 +61,8 @@ class ConfigCache {
     // Validate config
     if (config.globallyEnabled) {
       if (!config.geminiKey) throw new Error('GEMINI_KEY is required')
-      if (!config.upstashToken) throw new Error('UPSTASH_VECTOR token is required')
+      if (!config.upstashToken)
+        throw new Error('UPSTASH_VECTOR token is required')
       if (!config.model) throw new Error('Model name is required')
       if (!config.systemPrompt) throw new Error('System prompt is required')
     }

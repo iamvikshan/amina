@@ -1,6 +1,6 @@
 const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js')
 const { getUser } = require('@schemas/User')
-const { EMBED_COLORS, ECONOMY } = require('@src/config.js')
+const { EMBED_COLORS, ECONOMY } = require('@src/config')
 const { getRandomInt } = require('@helpers/Utils')
 
 /**
@@ -105,7 +105,7 @@ async function gamble(user, betAmount) {
     )
     .setDescription(str)
     .setFooter({
-      text: `${result}\nUpdated Wallet balance: ${userDb?.coins}${ECONOMY.CURRENCY}`,
+      text: `${result}\nUpdated Wallet balance: ${userDb.coins}${ECONOMY.CURRENCY}`,
     })
 
   return { embeds: [embed] }

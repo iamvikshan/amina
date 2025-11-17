@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js')
 const { Hangman } = require('discord-gamecord')
-const { EMBED_COLORS } = require('@src/config.js')
+const { EMBED_COLORS } = require('@src/config')
 
 // Themes with Amina's creative touch
 const choices = [

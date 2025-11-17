@@ -3,6 +3,9 @@ import {
   ChatInputCommandInteraction,
   TextChannel,
   PermissionFlagsBits,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { updateSetupStatus, createSetupEmbed } from './setupEmbed'
@@ -22,7 +25,7 @@ export default async function updateChannel(
       .setDescription(
         "Oopsie! I don't have permission to send messages in that channel. Can you please give me the right permissions? Pretty please?"
       )
-    await interaction.followUp({ embeds: [embed] })
+    await interaction.editReply({ embeds: [embed] })
     return
   }
 
@@ -31,7 +34,19 @@ export default async function updateChannel(
   await settings.save()
 
   const setupEmbed = createSetupEmbed(settings)
-  await interaction.followUp({ embeds: [setupEmbed] })
+
+  const backButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId('admin:btn:back')
+      .setLabel('Back to Admin Hub')
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji('◀️')
+  )
+
+  await interaction.editReply({
+    embeds: [setupEmbed],
+    components: [backButton],
+  })
 
   const notificationEmbed = new EmbedBuilder()
     .setColor(EMBED_COLORS.BOT_EMBED)
