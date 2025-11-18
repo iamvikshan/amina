@@ -29,10 +29,13 @@ export default async function statusHandler(
         inline: true,
       },
       {
-        name: '📍 Free-Will Channel',
-        value: aiConfig.freeWillChannelId
-          ? `<#${aiConfig.freeWillChannelId}>`
-          : 'Not set',
+        name: '📍 Free-Will Channels',
+        value: (() => {
+          const channels = aiConfig.freeWillChannels || []
+          return channels.length > 0
+            ? channels.map(id => `<#${id}>`).join(', ')
+            : 'Not set'
+        })(),
         inline: true,
       },
       {

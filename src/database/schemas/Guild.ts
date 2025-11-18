@@ -132,8 +132,8 @@ const Schema = new mongoose.Schema({
     rejected_channel: String,
   },
   aiResponder: {
-    enabled: { type: Boolean, default: false },
-    freeWillChannelId: { type: String, default: null },
+    enabled: { type: Boolean, default: true },
+    freeWillChannels: { type: [String], default: [] }, // Array of channel IDs (max 2 for regular guilds, unlimited for test)
     mentionOnly: { type: Boolean, default: true },
     allowDMs: { type: Boolean, default: true },
     updatedAt: { type: Date, default: Date.now },
@@ -141,14 +141,42 @@ const Schema = new mongoose.Schema({
   },
 })
 
-const Model = mongoose.model('guild', Schema)
+export const Model = mongoose.model('guild', Schema)
+
+/**
+ * Get free-will channels from guild data
+ */
+function getFreeWillChannels(guildData: any): string[] {
+  if (!guildData?.aiResponder) return []
+  return guildData.aiResponder.freeWillChannels || []
+}
+
+/**
+ * Delete guild from cache
+ * FixedSizeMap doesn't have a delete method, but since it's an LRU cache,
+ * the entry will naturally be evicted when the cache fills up.
+ * The data is already deleted from the database, so the cache will become stale.
+ * @param guildId - The guild ID to remove from cache
+ */
+export function deleteGuildFromCache(guildId: string): void {
+  // FixedSizeMap is an LRU cache and doesn't have a delete method
+  // The cache entry will naturally become stale since the DB record is deleted
+  // and will be evicted when the cache fills up or replaced on next access
+  // Attempt to remove if method exists (for future compatibility)
+  if (typeof (cache as any).delete === 'function') {
+    ;(cache as any).delete(guildId)
+  }
+  // Otherwise, the LRU cache will handle eviction naturally
+}
 
 export async function getSettings(guild: any) {
   if (!guild) throw new Error('Guild is undefined')
   if (!guild.id) throw new Error('Guild Id is undefined')
 
   const cached = cache.get(guild.id)
-  if (cached) return cached
+  if (cached) {
+    return cached
+  }
 
   let guildData = await Model.findById(guild.id)
   if (!guildData) {
@@ -174,6 +202,7 @@ export async function getSettings(guild: any) {
 
     await guildData.save()
   }
+
   cache.add(guild.id, guildData)
   return guildData
 }

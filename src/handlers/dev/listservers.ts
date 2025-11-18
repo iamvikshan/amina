@@ -17,7 +17,7 @@ import { createSecondaryBtn } from '@helpers/componentHelper'
 export async function showListservers(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  await interaction.deferUpdate()
+  // Note: Interaction is already deferred by handleCategoryMenu
 
   const client = interaction.client as BotClient
   const servers = Array.from(client.guilds.cache.values())

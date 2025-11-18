@@ -1,12 +1,10 @@
 # [v2.1.0](https://github.com/iamvikshan/amina/compare/v2.0.0...v2.1.0) (2025-11-18)
 
-
-
 ## [2.1.0](https://github.com/iamvikshan/amina/compare/v2.0.0...v2.1.0) (2025-11-18)
 
 ### Features
 
-* fix mina-ai DM support and complete TypeScript migration ([e30302b](https://github.com/iamvikshan/amina/commit/e30302b225892ba5bf11aa6977f507314af31f1e))
+- fix mina-ai DM support and complete TypeScript migration ([e30302b](https://github.com/iamvikshan/amina/commit/e30302b225892ba5bf11aa6977f507314af31f1e))
 
 # [v2.0.0](https://github.com/iamvikshan/amina/compare/v1.3.1...v2.0.0) (2025-11-17)
 

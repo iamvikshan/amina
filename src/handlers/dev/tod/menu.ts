@@ -65,8 +65,6 @@ export async function handleTodMenu(
 ): Promise<void> {
   const operation = interaction.values[0]
 
-  await interaction.deferUpdate()
-
   switch (operation) {
     case 'add': {
       const { showAddTodModal } = await import('./add')
@@ -79,6 +77,7 @@ export async function handleTodMenu(
       break
     }
     default:
+      await interaction.deferUpdate()
       await interaction.followUp({
         content: '❌ Invalid operation selected',
         ephemeral: true,

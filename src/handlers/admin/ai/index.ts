@@ -24,7 +24,6 @@ export async function showMinaAIMenu(
   const aiConfig = settings.aiResponder || {
     enabled: false,
     mentionOnly: true,
-    freeWillChannelId: null,
     allowDMs: true,
   }
 
@@ -33,9 +32,17 @@ export async function showMinaAIMenu(
     ? '✅ Enabled'
     : '❌ Disabled'
   const mode = aiConfig.mentionOnly ? '📢 Mention Only' : '🌊 Free Will'
-  const freeWillChannel = aiConfig.freeWillChannelId
-    ? `<#${aiConfig.freeWillChannelId}>`
-    : 'Not set'
+
+  // Get free-will channels
+  const allChannels = aiConfig.freeWillChannels || []
+
+  const freeWillChannelList =
+    allChannels.length > 0
+      ? allChannels.map(id => `<#${id}>`).join(', ')
+      : 'Not set'
+
+  const isTestGuild = interaction.guild?.id === process.env.TEST_GUILD_ID
+  const channelLimit = isTestGuild ? 'Unlimited' : 'Max 2'
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.BOT_EMBED)
     .setTitle('🤖 Mina AI Configuration')
@@ -44,8 +51,8 @@ export async function showMinaAIMenu(
         `**Server Status:** ${status}\n` +
         `**Global Status:** ${globalStatus}\n` +
         `**Mode:** ${mode}\n` +
-        `**Free-Will Channel:** ${freeWillChannel}\n\n` +
-        `💡 **Note:** DM support is now controlled by users via \`/mina-ai\` → Settings. Only developers can disable DMs globally.`
+        `**Free-Will Channels:** ${freeWillChannelList} ${isTestGuild ? '(Test Guild - Unlimited)' : `(${channelLimit})`}\n\n` +
+        `💡 **Note:** DM support is now controlled by users via \`/mina-ai\` → Settings.`
     )
     .setFooter({ text: 'Select an action from the menu below' })
 
@@ -70,10 +77,10 @@ export async function showMinaAIMenu(
           .setValue('mentiononly')
           .setEmoji('📢'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Back to Main Menu')
-          .setDescription('Return to admin hub')
-          .setValue('back')
-          .setEmoji('◀️'),
+          .setLabel('Manage Free-Will Channels')
+          .setDescription('View and remove free-will channels')
+          .setValue('manage_channels')
+          .setEmoji('🗑️'),
       ])
   )
 
@@ -84,18 +91,97 @@ export async function showMinaAIMenu(
 }
 
 /**
+ * Handle remove free-will channel selection
+ */
+export async function handleRemoveFreeWillChannel(
+  interaction: StringSelectMenuInteraction
+): Promise<void> {
+  await interaction.deferUpdate()
+  const channelId = interaction.values[0]
+  const channel = interaction.guild?.channels.cache.get(channelId)
+
+  if (!channel) {
+    const embed = new EmbedBuilder()
+      .setColor(EMBED_COLORS.ERROR)
+      .setDescription('❌ **Channel Not Found**\n\nChannel no longer exists.')
+    await interaction.editReply({
+      embeds: [embed],
+      components: [
+        createSecondaryBtn({
+          customId: 'admin:btn:back_minaai',
+          label: 'Back to AI Menu',
+          emoji: '◀️',
+        }),
+      ],
+    })
+    return
+  }
+
+  const settings = await getSettings(interaction.guild)
+  const currentChannels = settings.aiResponder?.freeWillChannels || []
+
+  if (!currentChannels.includes(channelId)) {
+    const embed = new EmbedBuilder()
+      .setColor(EMBED_COLORS.ERROR)
+      .setDescription(
+        `❌ **Channel Not Found**\n\n` +
+          `${channel} is not in your free-will channels list.`
+      )
+    await interaction.editReply({
+      embeds: [embed],
+      components: [
+        createSecondaryBtn({
+          customId: 'admin:btn:back_minaai',
+          label: 'Back to AI Menu',
+          emoji: '◀️',
+        }),
+      ],
+    })
+    return
+  }
+
+  const newChannels = currentChannels.filter(id => id !== channelId)
+
+  await updateSettings(interaction.guild!.id, {
+    aiResponder: {
+      ...settings.aiResponder,
+      freeWillChannels: newChannels,
+      updatedBy: interaction.user.id,
+      updatedAt: new Date(),
+    },
+  })
+
+  const channelList =
+    newChannels.length > 0
+      ? newChannels.map(id => `<#${id}>`).join(', ')
+      : 'None'
+
+  const embed = new EmbedBuilder()
+    .setColor(EMBED_COLORS.SUCCESS)
+    .setDescription(
+      `🗑️ **Channel Removed!**\n\n` +
+        `Removed ${channel} from free-will channels.\n` +
+        `**Remaining channels:** ${channelList}`
+    )
+  await interaction.editReply({
+    embeds: [embed],
+    components: [
+      createSecondaryBtn({
+        customId: 'admin:btn:back_minaai',
+        label: 'Back to AI Menu',
+        emoji: '◀️',
+      }),
+    ],
+  })
+}
+
+/**
  * Handle Mina AI action selection
  */
 export async function handleMinaAIMenu(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
   const action = interaction.values[0]
-
-  if (action === 'back') {
-    await interaction.deferUpdate()
-    await handleAdminBackButton(interaction as any)
-    return
-  }
 
   await interaction.deferUpdate()
   const settings = await getSettings(interaction.guild)
@@ -115,8 +201,8 @@ export async function handleMinaAIMenu(
           embeds: [embed],
           components: [
             createSecondaryBtn({
-              customId: 'admin:btn:back',
-              label: 'Back to Admin Hub',
+              customId: 'admin:btn:back_minaai',
+              label: 'Back to AI Menu',
               emoji: '◀️',
             }),
           ],
@@ -142,8 +228,8 @@ export async function handleMinaAIMenu(
         embeds: [embed],
         components: [
           createSecondaryBtn({
-            customId: 'admin:btn:back',
-            label: 'Back to Admin Hub',
+            customId: 'admin:btn:back_minaai',
+            label: 'Back to AI Menu',
             emoji: '◀️',
           }),
         ],
@@ -196,11 +282,93 @@ export async function handleMinaAIMenu(
         embeds: [embed],
         components: [
           createSecondaryBtn({
-            customId: 'admin:btn:back',
-            label: 'Back to Admin Hub',
+            customId: 'admin:btn:back_minaai',
+            label: 'Back to AI Menu',
             emoji: '◀️',
           }),
         ],
+      })
+      break
+    }
+    case 'manage_channels': {
+      // Get free-will channels
+      const allChannels = settings.aiResponder?.freeWillChannels || []
+
+      const isTestGuild = interaction.guild?.id === process.env.TEST_GUILD_ID
+      const maxChannels = isTestGuild ? Infinity : 2
+      const canAddMore = allChannels.length < maxChannels
+
+      const embed = new EmbedBuilder()
+        .setColor(EMBED_COLORS.BOT_EMBED)
+        .setTitle('🌊 Manage Free-Will Channels')
+        .setDescription(
+          `**Current Channels:** ${allChannels.length > 0 ? allChannels.map(id => `<#${id}>`).join(', ') : 'None'}\n\n` +
+            `Use the dropdowns below to add or remove channels.${!isTestGuild ? ` (Max ${maxChannels})` : ''}`
+        )
+
+      const components: ActionRowBuilder<any>[] = []
+
+      // Add channel dropdown (only if we can add more)
+      if (canAddMore) {
+        const addChannelSelect =
+          new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+            new ChannelSelectMenuBuilder()
+              .setCustomId('admin:channel:add_freewill')
+              .setPlaceholder('➕ Add a channel')
+              .setChannelTypes([
+                ChannelType.GuildText,
+                ChannelType.GuildAnnouncement,
+              ])
+          )
+        components.push(addChannelSelect)
+      }
+
+      // Remove channel dropdown (only if we have channels) - use StringSelectMenu to show only configured channels
+      if (allChannels.length > 0) {
+        const removeChannelSelect =
+          new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+            new StringSelectMenuBuilder()
+              .setCustomId('admin:menu:remove_freewill')
+              .setPlaceholder('➖ Remove a channel')
+              .addOptions(
+                allChannels
+                  .map(channelId => {
+                    const channel =
+                      interaction.guild?.channels.cache.get(channelId)
+                    if (!channel) return null
+                    return new StringSelectMenuOptionBuilder()
+                      .setLabel(
+                        channel.name.length > 100
+                          ? channel.name.substring(0, 97) + '...'
+                          : channel.name
+                      )
+                      .setDescription(
+                        `Remove ${channel.name} from free-will channels`
+                      )
+                      .setValue(channelId)
+                      .setEmoji('🗑️')
+                  })
+                  .filter(
+                    (option): option is StringSelectMenuOptionBuilder =>
+                      option !== null
+                  )
+              )
+          )
+        components.push(removeChannelSelect)
+      }
+
+      // Back button
+      components.push(
+        createSecondaryBtn({
+          customId: 'admin:btn:back_minaai',
+          label: 'Back to AI Menu',
+          emoji: '◀️',
+        })
+      )
+
+      await interaction.editReply({
+        embeds: [embed],
+        components,
       })
       break
     }

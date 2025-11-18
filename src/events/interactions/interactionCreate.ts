@@ -79,6 +79,12 @@ export default async (
         await adminHandler.handleAdminBackButton(interaction)
         return
       }
+      if (action === 'back_minaai') {
+        const { showMinaAIMenu } = await import('@handlers/admin/ai')
+        await interaction.deferUpdate()
+        await showMinaAIMenu(interaction as any)
+        return
+      }
     }
 
     // Route minaai buttons
@@ -272,6 +278,12 @@ export default async (
       ) {
         const { handleDevBackButton } = await import('@handlers/dev')
         await handleDevBackButton(interaction)
+        return
+      }
+      if (action === 'back_minaai_menu') {
+        const { showMinaAiMenu } = await import('@handlers/dev/minaai')
+        await interaction.deferUpdate()
+        await showMinaAiMenu(interaction)
         return
       }
       if (action === 'presence_start') {
@@ -620,6 +632,11 @@ export default async (
             await adminHandler.handleMinaAIMenu(interaction)
           } else if (submenu === 'logs') {
             await adminHandler.handleLoggingMenu(interaction)
+          } else if (submenu === 'remove_freewill') {
+            const { handleRemoveFreeWillChannel } = await import(
+              '@handlers/admin/ai'
+            )
+            await handleRemoveFreeWillChannel(interaction)
           }
           return
       }

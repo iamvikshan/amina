@@ -7,7 +7,7 @@ const command: Command = {
   description: 'Manage your memories with Mina AI',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
-  dmCommand: true, // Available in DMs
+  dmCommand: true,
   slashCommand: {
     enabled: true,
     ephemeral: true,

@@ -24,6 +24,46 @@ export class AiResponderService {
   private readonly CHANNEL_COOLDOWN_MS = 1000 // 1 second per channel in free-will
   private readonly FAILURE_THRESHOLD = 5
   private readonly FAILURE_WINDOW_MS = 10 * 60 * 1000 // 10 minutes
+  private readonly MAX_FREEWILL_CHANNELS = 2 // Max channels for regular guilds (unlimited for test guild)
+
+  /**
+   * Check if a guild is the test guild
+   */
+  private isTestGuild(guildId: string | null): boolean {
+    if (!guildId) return false
+    return guildId === process.env.TEST_GUILD_ID
+  }
+
+  /**
+   * Get free-will channels from guild settings
+   */
+  private getFreeWillChannels(guildSettings: any): string[] {
+    if (!guildSettings?.aiResponder) return []
+    return guildSettings.aiResponder.freeWillChannels || []
+  }
+
+  /**
+   * Check if a message is a reply to the bot
+   * Fetches the referenced message and verifies it's from the bot
+   */
+  private async isReplyToBot(message: Message): Promise<boolean> {
+    if (!message.reference?.messageId || !message.client.user) {
+      return false
+    }
+
+    try {
+      const referencedMessage = await message.channel.messages.fetch(
+        message.reference.messageId
+      )
+      return referencedMessage.author.id === message.client.user.id
+    } catch (error) {
+      // If we can't fetch the message (deleted, no permissions, etc.), assume it's not a reply to bot
+      logger.debug(
+        `Could not fetch referenced message ${message.reference.messageId}: ${error}`
+      )
+      return false
+    }
+  }
 
   async initialize() {
     try {
@@ -102,19 +142,56 @@ export class AiResponderService {
         return false
       }
 
-      // Free-will channel
-      if (
-        guildSettings.aiResponder.freeWillChannelId === message.channel.id &&
-        !guildSettings.aiResponder.mentionOnly
-      ) {
+      const freeWillChannels = this.getFreeWillChannels(guildSettings)
+      const isTestGuild = this.isTestGuild(message.guild.id)
+      const isFreeWillChannel = freeWillChannels.includes(message.channel.id)
+
+      // Check for explicit @mentions
+      const hasExplicitMention = message.mentions.has(message.client.user!)
+
+      // Check if reply is to bot (async - only needed for mention-only mode)
+      const isReplyToBot = await this.isReplyToBot(message)
+
+      // For free-will channels, we check if mentioned/replied (for helpful tip), but respond to everything
+      // For mention-only mode, we need to verify it's actually targeting the bot
+      const isMentioned = hasExplicitMention || isReplyToBot
+
+      // Test guild: Allow both mention mode AND free-will simultaneously
+      if (isTestGuild) {
+        if (isFreeWillChannel && !guildSettings.aiResponder.mentionOnly) {
+          // If mentioned in free-will channel, show helpful message but still respond
+          if (isMentioned) {
+            // We'll handle the helpful message in handleMessage
+            return 'freeWill'
+          }
+          return 'freeWill'
+        }
+        if (guildSettings.aiResponder.mentionOnly && isMentioned) {
+          return 'mention'
+        }
+        // Test guild can have both modes active
+        if (!guildSettings.aiResponder.mentionOnly && isMentioned) {
+          return 'mention'
+        }
+        return false
+      }
+
+      // Regular guild: Mutually exclusive (mention-only OR free-will, not both)
+      if (isFreeWillChannel && !guildSettings.aiResponder.mentionOnly) {
+        // If mentioned in free-will channel, show helpful message
+        if (isMentioned) {
+          // We'll handle the helpful message in handleMessage
+          return 'freeWill'
+        }
         return 'freeWill'
       }
 
-      // Mention mode
+      // Mention mode (only if not in free-will channel or mentionOnly is true)
+      // Only respond if explicitly @mentioned OR replying to bot's message
       if (
         guildSettings.aiResponder.mentionOnly &&
-        (message.mentions.has(message.client.user!) ||
-          message.reference?.messageId)
+        isMentioned &&
+        !isFreeWillChannel
       ) {
         return 'mention'
       }
@@ -130,6 +207,30 @@ export class AiResponderService {
     if (!mode || !this.client) return
 
     try {
+      // Check if user @mentioned in a free-will channel and show helpful message
+      if (message.guild && mode === 'freeWill') {
+        const guildSettings = await getSettings(message.guild)
+        const freeWillChannels = this.getFreeWillChannels(guildSettings)
+        const isFreeWillChannel = freeWillChannels.includes(message.channel.id)
+
+        // Check if explicitly @mentioned or replying to bot (for helpful tip)
+        const hasExplicitMention = message.mentions.has(message.client.user!)
+        const isReplyToBot = await this.isReplyToBot(message)
+        const isMentioned = hasExplicitMention || isReplyToBot
+
+        if (isFreeWillChannel && isMentioned) {
+          // Show helpful message but still respond
+          const channelMentions = freeWillChannels
+            .map(id => `<#${id}>`)
+            .join(' or ')
+          await message.channel
+            .send({
+              content: `💡 **Tip:** I'm active in ${channelMentions}! You don't need to @mention me here - just send a message and I'll respond. You can also DM me anytime! ✨`,
+            })
+            .catch(() => {})
+        }
+      }
+
       // Rate limiting
       if (this.isRateLimited(message, mode)) {
         logger.debug(

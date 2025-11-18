@@ -38,7 +38,7 @@ const Schema = new mongoose.Schema(
   }
 )
 
-const Model = mongoose.model('member-stats', Schema)
+export const Model = mongoose.model('member-stats', Schema)
 
 export async function getMemberStats(
   guildId: string,

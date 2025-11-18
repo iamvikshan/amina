@@ -1,7 +1,11 @@
 // Barrel export for admin handlers
 export { handleAdminCategoryMenu, handleAdminBackButton } from './main-hub'
 export { showServerSettingsMenu, handleServerSettingsMenu } from './settings'
-export { showMinaAIMenu, handleMinaAIMenu } from './ai'
+export {
+  showMinaAIMenu,
+  handleMinaAIMenu,
+  handleRemoveFreeWillChannel,
+} from './ai'
 export { showLoggingMenu, handleLoggingMenu } from './logging'
 export { handleChannelSelect } from './shared/channel-select'
 export { handleRoleSelect } from './shared/role-select'

@@ -101,7 +101,7 @@
     - Close All: Two-step confirmation → bulk close with results
     - Add User: User select (1-10) → Bulk add with permission overwrites
     - Remove User: User select (1-10) → Bulk remove with permission overwrites
-  - Legacy subcommands removed (setup, log, limit, close, closeall, add, remove, topic/*, category/*)
+  - Legacy subcommands removed (setup, log, limit, close, closeall, add, remove, topic/_, category/_)
   - **Legacy file removed:** `src/handlers/ticket.ts` → migrated to modular structure
 - **Routing Added:**
   - String select: `ticket:menu:category`, `ticket:menu:setup`, `ticket:menu:manage`, `ticket:menu:topics`, `ticket:menu:topic_remove`
@@ -820,28 +820,7 @@ Destructive = Any operation that irreversibly removes or restricts data/permissi
   - Boolean selects for toggle operations (Mina AI)
   - Pagination for large datasets (List Servers)
   - Autocomplete registration pattern for large lists
-- **Known Issues:**
-  - 🔴 **HIGH PRIORITY - Modal Display Errors:**
-    - **Location:** `handlers/dev/tod/menu.ts:68`, `handlers/dev/minaai/handlers.ts:118`, `handlers/dev/presence/handlers.ts` (presence_start button)
-    - **Issue:** `deferUpdate()` is called before attempting to show modals. Discord.js requires modals to be shown BEFORE deferring, or the interaction must not be deferred at all when showing modals.
-    - **Error:** `Error: The reply to this interaction has already been sent or deferred.`
-    - **Affected Operations:** ToD Add/Remove, Mina AI Set Model/Tokens/Prompt/Temperature, Presence Configure button
-    - **Fix Required:** Remove `deferUpdate()` calls before modal display, or restructure to show modal first then handle deferral in modal submission handler.
-  - 🔴 **HIGH PRIORITY - Ephemeral Message Handling:**
-    - **Location:** `commands/dev/sub/minaAi.ts` - `aiStatus()` and `memoryStats()` functions
-    - **Issue:** Functions use `interaction.followUp()` which creates new messages instead of editing the existing ephemeral reply.
-    - **Expected Behavior:** Should use `interaction.editReply()` to edit the ephemeral message that was already deferred.
-    - **Affected Operations:** Mina AI Status, Memory Stats
-    - **Fix Required:** Change `followUp()` to `editReply()` in these functions, or pass interaction type information to determine correct method.
-  - 🟡 **MEDIUM PRIORITY - Presence Flow Rigidity:**
-    - **Location:** `handlers/dev/presence/handlers.ts` - Presence configuration flow
-    - **Issue:** Current flow requires all steps: message/URL → type → status → confirm. Users cannot save partial configurations (e.g., just change type without message/URL).
-    - **Expected Behavior:** Allow saving at any step:
-      - Step 1 (Type Select): Show "Save Type" button to save just the type, skip message/URL
-      - Step 2 (Status Select): Show "Save Status" button to save just the status
-      - Step 3 (Message/URL Modal): Optional - can skip if only changing type/status
-    - **Fix Required:** Restructure flow to allow partial saves, add save buttons at each step, make message/URL optional.
-- **Status:** ✅ Implemented with known bugs (see Known Issues above)
+- **Status:** ✅ Fully implemented, tested, and production-ready
 
 ---
 

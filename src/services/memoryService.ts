@@ -10,6 +10,9 @@ import {
   deleteUserMemories,
   getMemoryStats,
   pruneMemories,
+  getUserMemoryCount,
+  deleteOldestMemories,
+  Model,
 } from '../database/schemas/AiMemory'
 import type { Message } from '../structures/conversationBuffer'
 
@@ -34,6 +37,7 @@ export class MemoryService {
   private upstashIndex: Index | null = null
   private genAI: GoogleGenerativeAI | null = null
   private embeddingModel = 'embedding-001'
+  private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
 
   async initialize(
     geminiKey: string,
@@ -161,6 +165,30 @@ If nothing worth remembering, return: []`
         importance: fact.importance,
         vectorId,
       })
+
+      // Check memory limit and delete oldest if exceeded
+      const currentCount = await getUserMemoryCount(userId, guildId)
+      if (currentCount > this.MAX_MEMORIES_PER_USER) {
+        const { deletedCount, vectorIds } = await deleteOldestMemories(
+          userId,
+          guildId,
+          this.MAX_MEMORIES_PER_USER
+        )
+
+        // Delete from Upstash as well
+        if (vectorIds.length > 0 && this.upstashIndex) {
+          try {
+            await this.upstashIndex.delete(vectorIds)
+            logger.debug(
+              `Deleted ${deletedCount} oldest memories for user ${userId} (context: ${guildId || 'DM'})`
+            )
+          } catch (error: any) {
+            logger.warn(
+              `Failed to delete old memories from Upstash: ${error.message}`
+            )
+          }
+        }
+      }
 
       logger.debug(`Stored memory: ${fact.key} for user ${userId}`)
       return true
@@ -348,8 +376,56 @@ If nothing worth remembering, return: []`
     totalAccessCount: number
   }> {
     try {
-      const stats = await getMemoryStats()
-      return stats
+      const rawStats = await getMemoryStats()
+
+      // Transform byType from array to object
+      const byType: Record<string, number> = {}
+      if (rawStats.byType && Array.isArray(rawStats.byType)) {
+        for (const item of rawStats.byType) {
+          byType[item._id] = item.count
+        }
+      }
+
+      // Transform topUsers
+      const topUsers: Array<{ userId: string; count: number }> = []
+      if (rawStats.topUsers && Array.isArray(rawStats.topUsers)) {
+        for (const item of rawStats.topUsers) {
+          topUsers.push({
+            userId: item._id,
+            count: item.count,
+          })
+        }
+      }
+
+      // Get additional stats
+      const uniqueUsersResult = await Model.distinct('userId')
+      const uniqueGuildsResult = await Model.distinct('guildId').then(guilds =>
+        guilds.filter(g => g !== null)
+      )
+
+      // Get average importance and total access count
+      const importanceStats = await Model.aggregate([
+        {
+          $group: {
+            _id: null,
+            avgImportance: { $avg: '$importance' },
+            totalAccessCount: { $sum: '$accessCount' },
+          },
+        },
+      ])
+
+      const avgImportance = importanceStats[0]?.avgImportance || 0
+      const totalAccessCount = importanceStats[0]?.totalAccessCount || 0
+
+      return {
+        totalMemories: rawStats.total || 0,
+        uniqueUsers: uniqueUsersResult.length,
+        uniqueGuilds: uniqueGuildsResult.length,
+        byType,
+        topUsers,
+        avgImportance: Math.round(avgImportance * 100) / 100, // Round to 2 decimals
+        totalAccessCount,
+      }
     } catch (error: any) {
       logger.error(`Failed to get memory stats: ${error.message}`, error)
       return {

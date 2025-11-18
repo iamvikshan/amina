@@ -113,3 +113,17 @@ export async function removeReactionRole(
   })
   rrCache.delete(getKey(guildId, channelId, messageId))
 }
+
+/**
+ * Clear all reaction role cache entries for a guild
+ * @param guildId - The guild ID to clear from cache
+ */
+export function clearGuildReactionRoleCache(guildId: string): void {
+  const keysToDelete: string[] = []
+  for (const key of rrCache.keys()) {
+    if (key.startsWith(`${guildId}|`)) {
+      keysToDelete.push(key)
+    }
+  }
+  keysToDelete.forEach(key => rrCache.delete(key))
+}

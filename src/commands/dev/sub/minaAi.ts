@@ -64,7 +64,15 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
       }
     )
 
-  await interaction.followUp({ embeds: [embed] })
+  // Use editReply if available (hub context), otherwise followUp (command context)
+  if (
+    'editReply' in interaction &&
+    typeof interaction.editReply === 'function'
+  ) {
+    await interaction.editReply({ embeds: [embed] })
+  } else {
+    await interaction.followUp({ embeds: [embed] })
+  }
 }
 
 export async function toggleGlobal(
@@ -86,7 +94,15 @@ export async function toggleGlobal(
       `✨ AI has been globally **${enabled ? 'enabled' : 'disabled'}**${enabled ? '!' : ' 🌙'}`
     )
 
-  await interaction.followUp({ embeds: [embed] })
+  // Use editReply if available (hub context), otherwise followUp (command context)
+  if (
+    'editReply' in interaction &&
+    typeof interaction.editReply === 'function'
+  ) {
+    await interaction.editReply({ embeds: [embed] })
+  } else {
+    await interaction.followUp({ embeds: [embed] })
+  }
 }
 
 export async function setModel(
@@ -104,7 +120,15 @@ export async function setModel(
     .setColor(EMBED_COLORS.SUCCESS)
     .setDescription(`🧠 Model updated to \`${model}\``)
 
-  await interaction.followUp({ embeds: [embed] })
+  // Use editReply if available (hub context), otherwise followUp (command context)
+  if (
+    'editReply' in interaction &&
+    typeof interaction.editReply === 'function'
+  ) {
+    await interaction.editReply({ embeds: [embed] })
+  } else {
+    await interaction.followUp({ embeds: [embed] })
+  }
 }
 
 export async function setTokens(
@@ -115,7 +139,15 @@ export async function setTokens(
     const embed = new EmbedBuilder()
       .setColor(EMBED_COLORS.ERROR)
       .setDescription('❌ Tokens must be between 100 and 4096')
-    return interaction.followUp({ embeds: [embed] })
+    // Use editReply if available (hub context), otherwise followUp (command context)
+    if (
+      'editReply' in interaction &&
+      typeof interaction.editReply === 'function'
+    ) {
+      return interaction.editReply({ embeds: [embed] })
+    } else {
+      return interaction.followUp({ embeds: [embed] })
+    }
   }
 
   await updateAiConfig({
@@ -128,7 +160,15 @@ export async function setTokens(
     .setColor(EMBED_COLORS.SUCCESS)
     .setDescription(`📝 Max tokens set to ${tokens}`)
 
-  await interaction.followUp({ embeds: [embed] })
+  // Use editReply if available (hub context), otherwise followUp (command context)
+  if (
+    'editReply' in interaction &&
+    typeof interaction.editReply === 'function'
+  ) {
+    await interaction.editReply({ embeds: [embed] })
+  } else {
+    await interaction.followUp({ embeds: [embed] })
+  }
 }
 
 export async function setPrompt(
@@ -147,7 +187,15 @@ export async function setPrompt(
       `💬 System prompt updated!\n\n**New prompt:**\n${prompt.substring(0, 200)}${prompt.length > 200 ? '...' : ''}`
     )
 
-  await interaction.followUp({ embeds: [embed] })
+  // Use editReply if available (hub context), otherwise followUp (command context)
+  if (
+    'editReply' in interaction &&
+    typeof interaction.editReply === 'function'
+  ) {
+    await interaction.editReply({ embeds: [embed] })
+  } else {
+    await interaction.followUp({ embeds: [embed] })
+  }
 }
 
 export async function setTemperature(
@@ -158,7 +206,15 @@ export async function setTemperature(
     const embed = new EmbedBuilder()
       .setColor(EMBED_COLORS.ERROR)
       .setDescription('❌ Temperature must be between 0 and 2')
-    return interaction.followUp({ embeds: [embed] })
+    // Use editReply if available (hub context), otherwise followUp (command context)
+    if (
+      'editReply' in interaction &&
+      typeof interaction.editReply === 'function'
+    ) {
+      return interaction.editReply({ embeds: [embed] })
+    } else {
+      return interaction.followUp({ embeds: [embed] })
+    }
   }
 
   await updateAiConfig({
@@ -171,7 +227,15 @@ export async function setTemperature(
     .setColor(EMBED_COLORS.SUCCESS)
     .setDescription(`🌡️ Temperature set to ${temperature}`)
 
-  await interaction.followUp({ embeds: [embed] })
+  // Use editReply if available (hub context), otherwise followUp (command context)
+  if (
+    'editReply' in interaction &&
+    typeof interaction.editReply === 'function'
+  ) {
+    await interaction.editReply({ embeds: [embed] })
+  } else {
+    await interaction.followUp({ embeds: [embed] })
+  }
 }
 
 export async function toggleDm(
@@ -190,7 +254,15 @@ export async function toggleDm(
       `📬 Global DM support **${enabled ? 'enabled' : 'disabled'}**`
     )
 
-  await interaction.followUp({ embeds: [embed] })
+  // Use editReply if available (hub context), otherwise followUp (command context)
+  if (
+    'editReply' in interaction &&
+    typeof interaction.editReply === 'function'
+  ) {
+    await interaction.editReply({ embeds: [embed] })
+  } else {
+    await interaction.followUp({ embeds: [embed] })
+  }
 }
 
 export async function memoryStats(interaction: ChatInputCommandInteraction) {
@@ -253,7 +325,15 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
       .setFooter({ text: 'Memory system powered by Upstash Vector + MongoDB' })
       .setTimestamp()
 
-    await interaction.followUp({ embeds: [embed] })
+    // Use editReply if available (hub context), otherwise followUp (command context)
+    if (
+      'editReply' in interaction &&
+      typeof interaction.editReply === 'function'
+    ) {
+      await interaction.editReply({ embeds: [embed] })
+    } else {
+      await interaction.followUp({ embeds: [embed] })
+    }
   } catch (error) {
     const errorEmbed = new EmbedBuilder()
       .setColor(EMBED_COLORS.ERROR)
@@ -261,7 +341,15 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
         '❌ Failed to fetch memory statistics. Check logs for details.'
       )
 
-    await interaction.followUp({ embeds: [errorEmbed] })
+    // Use editReply if available (hub context), otherwise followUp (command context)
+    if (
+      'editReply' in interaction &&
+      typeof interaction.editReply === 'function'
+    ) {
+      await interaction.editReply({ embeds: [errorEmbed] })
+    } else {
+      await interaction.followUp({ embeds: [errorEmbed] })
+    }
   }
 }
 

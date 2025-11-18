@@ -24,7 +24,7 @@ const Schema = new mongoose.Schema(
   }
 )
 
-const Model = mongoose.model('automod-logs', Schema)
+export const Model = mongoose.model('automod-logs', Schema)
 
 export async function addAutoModLogToDb(
   member: GuildMember,

@@ -110,7 +110,7 @@ declare module '@schemas/Guild' {
     }
     aiResponder?: {
       enabled: boolean
-      freeWillChannelId?: string
+      freeWillChannels?: string[] // Array of channel IDs
       mentionOnly: boolean
       allowDMs: boolean
       updatedAt?: Date

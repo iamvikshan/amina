@@ -93,7 +93,6 @@ export interface CommandData {
   /** Whether the command is only registered in the test guild */
   testGuildOnly?: boolean
   /** Whether the command should be registered in DMs */
-  dmCommand?: boolean
   /** The category this command belongs to */
   category: CommandCategory
   /** Permissions required by the client to use the command */

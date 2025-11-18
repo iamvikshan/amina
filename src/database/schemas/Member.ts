@@ -32,7 +32,7 @@ const Schema = new mongoose.Schema(
   }
 )
 
-const Model = mongoose.model('members', Schema)
+export const Model = mongoose.model('members', Schema)
 
 export const getMember = async (guildId: string, memberId: string) => {
   const key = `${guildId}|${memberId}`

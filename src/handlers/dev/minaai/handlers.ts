@@ -12,7 +12,6 @@ import {
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import {
-  aiStatus,
   toggleGlobal,
   setModel,
   setTokens,
@@ -21,42 +20,104 @@ import {
   toggleDm,
   memoryStats,
 } from '@commands/dev/sub/minaAi'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { getAiConfig } from '@schemas/Dev'
+import { postToBin } from '@helpers/HttpUtils'
+import { createSecondaryBtn, createLinkBtn } from '@helpers/componentHelper'
 import type { ChatInputCommandInteraction } from 'discord.js'
 
 /**
- * Show Mina AI operations menu
+ * Show Mina AI operations menu with current settings
  */
 export async function showMinaAiMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
+  const config = await getAiConfig()
+
+  // Generate pastebin link for prompt if it exists
+  let promptField = 'Not set'
+  let promptLinkButton: ActionRowBuilder<any> | null = null
+
+  if (config.systemPrompt) {
+    const promptPreview =
+      config.systemPrompt.length > 200
+        ? `${config.systemPrompt.substring(0, 200)}...`
+        : config.systemPrompt
+    promptField = promptPreview
+
+    // Create pastebin link for full prompt
+    const binResponse = await postToBin(
+      config.systemPrompt,
+      'Amina AI System Prompt'
+    )
+    if (binResponse) {
+      promptLinkButton = createLinkBtn({
+        url: binResponse.url,
+        label: 'View Full Prompt',
+        emoji: '📄',
+      })
+    }
+  }
+
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.BOT_EMBED)
     .setTitle('🤖 Mina AI Configuration')
-    .setDescription(
-      'Configure Amina AI settings! 🤖\n\n' +
-        '**Select an operation:**\n' +
-        '📊 **Status** - View current AI configuration\n' +
-        '⚡ **Toggle Global** - Enable/disable AI globally\n' +
-        '🧠 **Set Model** - Change the Gemini model\n' +
-        '📝 **Set Tokens** - Set max tokens (100-4096)\n' +
-        '💬 **Set Prompt** - Update system prompt\n' +
-        '🌡️ **Set Temperature** - Set temperature (0-2)\n' +
-        '📬 **Toggle DM** - Enable/disable global DM support\n' +
-        '🧠 **Memory Stats** - View memory system statistics'
+    .setDescription('**Current Settings:**')
+    .addFields(
+      {
+        name: '⚡ Global Status',
+        value: config.globallyEnabled ? '✅ Enabled' : '❌ Disabled',
+        inline: true,
+      },
+      {
+        name: '🌐 DM Support',
+        value: config.dmEnabledGlobally ? '✅ Enabled' : '❌ Disabled',
+        inline: true,
+      },
+      {
+        name: '🧠 Model',
+        value: `\`${config.model || 'Not set'}\``,
+        inline: true,
+      },
+      {
+        name: '📝 Max Tokens',
+        value: `${config.maxTokens || 'Not set'}`,
+        inline: true,
+      },
+      {
+        name: '⏱️ Timeout',
+        value: `${config.timeoutMs || 'Not set'}ms`,
+        inline: true,
+      },
+      {
+        name: '🌡️ Temperature',
+        value: `${config.temperature || 'Not set'}`,
+        inline: true,
+      },
+      {
+        name: '💬 System Prompt',
+        value: promptField,
+        inline: false,
+      },
+      {
+        name: '📅 Last Updated',
+        value: config.updatedAt
+          ? `<t:${Math.floor(config.updatedAt.getTime() / 1000)}:R>`
+          : 'Never',
+        inline: true,
+      },
+      {
+        name: '👤 Updated By',
+        value: config.updatedBy ? `<@${config.updatedBy}>` : 'N/A',
+        inline: true,
+      }
     )
-    .setFooter({ text: 'Select an operation to begin' })
+    .setFooter({ text: 'Select an operation below to edit settings' })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:minaai')
-      .setPlaceholder('Select an operation...')
+      .setPlaceholder('Select an operation to edit...')
       .addOptions(
-        new StringSelectMenuOptionBuilder()
-          .setLabel('Status')
-          .setDescription('View current AI configuration')
-          .setValue('status')
-          .setEmoji('📊'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Toggle Global')
           .setDescription('Enable/disable AI globally')
@@ -101,9 +162,14 @@ export async function showMinaAiMenu(
     emoji: '◀️',
   })
 
+  const components: ActionRowBuilder<any>[] = [menu, backButton]
+  if (promptLinkButton) {
+    components.splice(1, 0, promptLinkButton) // Insert before back button
+  }
+
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components,
   })
 }
 
@@ -114,8 +180,6 @@ export async function handleMinaAiMenu(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
   const operation = interaction.values[0]
-
-  await interaction.deferUpdate()
 
   await handleMinaAiOperation(interaction, operation)
 }
@@ -145,15 +209,17 @@ export async function handleMinaAiOperation(
         return null
       },
     },
+    editReply: interaction.editReply.bind(interaction),
     followUp: interaction.followUp.bind(interaction),
     user: interaction.user,
   } as any
 
   switch (operation) {
-    case 'status':
-      await aiStatus(mockInteraction)
-      break
     case 'toggle-global': {
+      // Defer before showing new menu
+      if (interaction.isStringSelectMenu()) {
+        await interaction.deferUpdate()
+      }
       // Show boolean select menu
       await showBooleanSelect(
         interaction,
@@ -163,26 +229,30 @@ export async function handleMinaAiOperation(
       break
     }
     case 'set-model': {
-      // Show modal for model input
+      // Don't defer - modals must be shown before deferring
       await showModelModal(interaction)
       break
     }
     case 'set-tokens': {
-      // Show modal for tokens input
+      // Don't defer - modals must be shown before deferring
       await showTokensModal(interaction)
       break
     }
     case 'set-prompt': {
-      // Show modal for prompt input
+      // Don't defer - modals must be shown before deferring
       await showPromptModal(interaction)
       break
     }
     case 'set-temperature': {
-      // Show modal for temperature input
+      // Don't defer - modals must be shown before deferring
       await showTemperatureModal(interaction)
       break
     }
     case 'toggle-dm': {
+      // Defer before showing new menu
+      if (interaction.isStringSelectMenu()) {
+        await interaction.deferUpdate()
+      }
       // Show boolean select menu
       await showBooleanSelect(
         interaction,
@@ -191,14 +261,53 @@ export async function handleMinaAiOperation(
       )
       break
     }
-    case 'memory-stats':
-      await memoryStats(mockInteraction)
+    case 'memory-stats': {
+      // Defer for operations that edit the reply
+      if (interaction.isStringSelectMenu()) {
+        await interaction.deferUpdate()
+      }
+
+      // Create editReply that preserves embeds and adds back button
+      const backButton = createSecondaryBtn({
+        customId: 'dev:btn:back_minaai_menu',
+        label: 'Back to Mina AI Menu',
+        emoji: '◀️',
+      })
+
+      const statsMockInteraction = {
+        ...mockInteraction,
+        editReply: async (options: any) => {
+          // Merge components with back button
+          const components = options.components || []
+          if (
+            !components.some((row: any) =>
+              row.components?.some(
+                (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu'
+              )
+            )
+          ) {
+            components.push(backButton)
+          }
+          return interaction.editReply({
+            ...options,
+            components,
+          })
+        },
+      }
+
+      await memoryStats(statsMockInteraction as any)
       break
-    default:
+    }
+    default: {
+      // Defer before sending error message
+      if (interaction.isStringSelectMenu()) {
+        await interaction.deferUpdate()
+      }
       await interaction.followUp({
         content: '❌ Invalid operation selected',
         ephemeral: true,
       })
+    }
   }
 }
 
@@ -234,7 +343,7 @@ async function showBooleanSelect(
   )
 
   const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_minaai',
+    customId: 'dev:btn:back_minaai_menu',
     label: 'Back to Mina AI Menu',
     emoji: '◀️',
   })
@@ -256,10 +365,34 @@ export async function handleMinaAiToggle(
 
   const enabled = interaction.values[0] === 'true'
 
+  // Create editReply that preserves embeds and adds back button
+  const backButton = createSecondaryBtn({
+    customId: 'dev:btn:back_minaai_menu',
+    label: 'Back to Mina AI Menu',
+    emoji: '◀️',
+  })
+
   const mockInteraction = {
     ...interaction,
     options: {
       getBoolean: () => enabled,
+    },
+    editReply: async (options: any) => {
+      // Merge components with back button
+      const components = options.components || []
+      if (
+        !components.some((row: any) =>
+          row.components?.some(
+            (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu'
+          )
+        )
+      ) {
+        components.push(backButton)
+      }
+      return interaction.editReply({
+        ...options,
+        components,
+      })
     },
     followUp: interaction.followUp.bind(interaction),
     user: interaction.user,
@@ -270,16 +403,6 @@ export async function handleMinaAiToggle(
   } else if (operation === 'toggle-dm') {
     await toggleDm(mockInteraction, enabled)
   }
-
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_minaai',
-    label: 'Back to Mina AI Menu',
-    emoji: '◀️',
-  })
-
-  await interaction.editReply({
-    components: [backButton],
-  })
 }
 
 /**
@@ -400,6 +523,13 @@ export async function handleMinaAiModal(
 
   const customId = interaction.customId
 
+  // Create editReply that preserves embeds and adds back button
+  const backButton = createSecondaryBtn({
+    customId: 'dev:btn:back_minaai_menu',
+    label: 'Back to Mina AI Menu',
+    emoji: '◀️',
+  })
+
   const mockInteraction = {
     ...interaction,
     options: {
@@ -414,6 +544,23 @@ export async function handleMinaAiModal(
         const value = interaction.fields.getTextInputValue(name)
         return value ? parseFloat(value) : null
       },
+    },
+    editReply: async (options: any) => {
+      // Merge components with back button
+      const components = options.components || []
+      if (
+        !components.some((row: any) =>
+          row.components?.some(
+            (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu'
+          )
+        )
+      ) {
+        components.push(backButton)
+      }
+      return interaction.editReply({
+        ...options,
+        components,
+      })
     },
     followUp: interaction.followUp.bind(interaction),
     user: interaction.user,
@@ -434,14 +581,4 @@ export async function handleMinaAiModal(
     )
     await setTemperature(mockInteraction, temperature)
   }
-
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_minaai',
-    label: 'Back to Mina AI Menu',
-    emoji: '◀️',
-  })
-
-  await interaction.editReply({
-    components: [backButton],
-  })
 }

@@ -103,7 +103,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
   const aiMode = await aiResponderService.shouldRespond(message)
   if (aiMode) {
     await aiResponderService.handleMessage(message, aiMode)
-    return // Exit early after AI response
+    return // Exit early after AI response (prevents duplicate mention handling)
   }
 
   // Guild-only features below
@@ -197,17 +197,38 @@ export default async (client: BotClient, message: Message): Promise<void> => {
     }
   }
 
-  // Amina mentions handling
-  if (message.content.includes(`${client.user.id}`)) {
-    const responses = [
-      "*bounces in* Hi hi! ✨ I only respond to /commands now - they're way cooler! Try /help to see all my tricks!",
-      '*slides in dramatically* Prefix commands? Those are sooo last season! Use /commands instead! ✨',
-      "*appears in a puff of glitter* Psst! Want to see something cool? Try using /help! That's how you talk to me now! 🌟",
-      '*drops from the ceiling* HELLO! 👋 Just use / to see all the amazing things I can do!',
-    ]
-    ;(message.channel as any).send(
-      responses[Math.floor(Math.random() * responses.length)]
-    )
+  // Amina mentions handling (only if AI is not configured/responding)
+  if (
+    message.content.includes(`${client.user.id}`) ||
+    message.mentions.has(client.user!)
+  ) {
+    // Check if AI is enabled and configured for this guild
+    const aiEnabled = settings.aiResponder?.enabled
+    const hasFreeWillChannels =
+      (settings.aiResponder?.freeWillChannels?.length || 0) > 0
+    const mentionOnly = settings.aiResponder?.mentionOnly !== false // Default to true
+
+    // Only show this message if AI is not set up or not responding
+    if (!aiEnabled || (!hasFreeWillChannels && mentionOnly)) {
+      const helpMessage = aiEnabled
+        ? '💡 **Mina AI is enabled, but not configured for this channel!**\n\n' +
+          'To chat with me:\n' +
+          '• Ask a server admin to set up a free-will channel using `/admin` → Mina AI\n' +
+          '• Or they can enable mention-only mode so I respond when @mentioned\n' +
+          '• You can also DM me anytime! Just send a message in DMs.\n\n' +
+          'Want to see all my commands? Try `/help`! ✨'
+        : '💡 **Hi there!** 👋\n\n' +
+          "Mina AI isn't enabled in this server yet. To chat with me:\n" +
+          '• Ask a server admin to enable it using `/admin` → Mina AI\n' +
+          '• Or you can DM me directly! Just send a message in DMs.\n\n' +
+          'Want to see all my commands? Try `/help`! ✨'
+
+      // Send as reply (auto-deletes after 10 seconds to keep channels clean)
+      const reply = await message.reply(helpMessage).catch(() => null)
+      if (reply) {
+        setTimeout(() => reply.delete().catch(() => {}), 10000)
+      }
+    }
   }
 
   // Stats handling
