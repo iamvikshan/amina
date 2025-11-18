@@ -26,6 +26,7 @@ export type CommandCategory =
   | 'SUGGESTION'
   | 'TICKET'
   | 'UTILITY'
+  | 'MUSIC'
 
 /**
  * Validation for command execution

@@ -1,53 +1,51 @@
 # [v2.0.0](https://github.com/iamvikshan/amina/compare/v1.3.1...v2.0.0) (2025-11-17)
 
-
-
 ## [2.0.0](https://github.com/iamvikshan/amina/compare/v1.3.1...v2.0.0) (2025-11-17)
 
 ### ⚠ BREAKING CHANGES
 
-* Major architectural refactoring with TypeScript migration
+- Major architectural refactoring with TypeScript migration
 
-- Migrate 50+ command files from JavaScript to TypeScript across all categories:
-  * Economy commands (bank, beg, daily, gamble, balance, deposit, transfer, withdraw)
-  * Fun commands (facts, filters, flip, generators, hack, hangman, image, love, overlay, react, tictactoe, tod, together)
-  * Giveaway commands (giveaway, edit, end, list, pause, reroll, resume, start)
-  * Info commands (info, leaderboard, avatar, channel, emoji, guild, user)
-  * Social commands (invites, reputation)
-  * Stats commands (rank, stats, statstracking, xp)
-  * Suggestion commands (suggest, suggestion)
-  * Utility commands (afk, paste, profile, qrcode, redflag, report, urban, weather)
+* Migrate 50+ command files from JavaScript to TypeScript across all categories:
+  - Economy commands (bank, beg, daily, gamble, balance, deposit, transfer, withdraw)
+  - Fun commands (facts, filters, flip, generators, hack, hangman, image, love, overlay, react, tictactoe, tod, together)
+  - Giveaway commands (giveaway, edit, end, list, pause, reroll, resume, start)
+  - Info commands (info, leaderboard, avatar, channel, emoji, guild, user)
+  - Social commands (invites, reputation)
+  - Stats commands (rank, stats, statstracking, xp)
+  - Suggestion commands (suggest, suggestion)
+  - Utility commands (afk, paste, profile, qrcode, redflag, report, urban, weather)
 
-- Restructure handler architecture into modular structure:
-  * Create dev/ handler module with sub-handlers (main-hub, presence, minaai, tod, reload, trig-settings, listservers)
-  * Create minaai/ handler module (forget-me, memories, settings, main-hub)
-  * Create purge/ handler module with parameter handlers (amount-modal, amount-select, channel-select, token-modal, user-select, preview, execute)
-  * Move presence handler to dev/presence/ with init, update, and handlers modules
+* Restructure handler architecture into modular structure:
+  - Create dev/ handler module with sub-handlers (main-hub, presence, minaai, tod, reload, trig-settings, listservers)
+  - Create minaai/ handler module (forget-me, memories, settings, main-hub)
+  - Create purge/ handler module with parameter handlers (amount-modal, amount-select, channel-select, token-modal, user-select, preview, execute)
+  - Move presence handler to dev/presence/ with init, update, and handlers modules
 
-- Add new features:
-  * Implement autocomplete handler for command suggestions
-  * Add dev-leaveserver command for server management
-  * Enhance purge command with new interactive handler system
-  * Improve Mina AI integration with dedicated handler modules
+* Add new features:
+  - Implement autocomplete handler for command suggestions
+  - Add dev-leaveserver command for server management
+  - Enhance purge command with new interactive handler system
+  - Improve Mina AI integration with dedicated handler modules
 
-- Update core infrastructure:
-  * Enhance interaction handling in interactionCreate event
-  * Improve command handler with better type safety
-  * Update BotClient and Command structures
-  * Enhance database schemas (User schema updates)
-  * Update services (aiResponder, memoryService improvements)
+* Update core infrastructure:
+  - Enhance interaction handling in interactionCreate event
+  - Improve command handler with better type safety
+  - Update BotClient and Command structures
+  - Enhance database schemas (User schema updates)
+  - Update services (aiResponder, memoryService improvements)
 
-- Update deployment and configuration:
-  * Add lavalink-entrypoint.sh script
-  * Update docker-compose configurations
-  * Update deployment scripts (deploy-amina-local.sh, deploy-vps.sh)
-  * Update .gitignore to exclude .cursor and docs directories
+* Update deployment and configuration:
+  - Add lavalink-entrypoint.sh script
+  - Update docker-compose configurations
+  - Update deployment scripts (deploy-amina-local.sh, deploy-vps.sh)
+  - Update .gitignore to exclude .cursor and docs directories
 
 This migration improves type safety, code maintainability, and sets the foundation for future enhancements.
 
 ### Code Refactoring
 
-* migrate commands to TypeScript and restructure handler architecture ([bbd77fd](https://github.com/iamvikshan/amina/commit/bbd77fd41469fa4c6e2328177ea7b95a3fc2089a))
+- migrate commands to TypeScript and restructure handler architecture ([bbd77fd](https://github.com/iamvikshan/amina/commit/bbd77fd41469fa4c6e2328177ea7b95a3fc2089a))
 
 # [v1.3.1](https://github.com/iamvikshan/amina/compare/v1.3.0...v1.3.1) (2025-11-17)
 

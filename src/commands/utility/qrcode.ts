@@ -11,7 +11,6 @@ const command: Command = {
   description: 'Generate a QR code with the url that is provided',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,

@@ -80,6 +80,7 @@ declare module '@structures/Command' {
     | 'SUGGESTION'
     | 'TICKET'
     | 'UTILITY'
+    | 'MUSIC'
     | 'GIVEAWAY'
 
   interface InteractionInfo {

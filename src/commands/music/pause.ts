@@ -1,28 +1,29 @@
-const { musicValidations } = require('@helpers/BotUtils')
+import { ChatInputCommandInteraction } from 'discord.js'
+import { musicValidations } from '@helpers/BotUtils'
+import type { Command } from '@structures/Command'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'pause',
   description: 'Pause the music player',
   category: 'MUSIC',
   validations: musicValidations,
-
   slashCommand: {
     enabled: true,
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const response = await pause(interaction)
     await interaction.followUp(response)
   },
 }
 
-/**
- * @param {import("discord.js").CommandInteraction} interaction
- */
-async function pause({ client, guildId }) {
+async function pause({
+  client,
+  guildId,
+}: {
+  client: any
+  guildId: string
+}): Promise<string> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
@@ -36,3 +37,5 @@ async function pause({ client, guildId }) {
   player.pause()
   return '⏸️ Paused the music player'
 }
+
+export default command

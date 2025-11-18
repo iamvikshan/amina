@@ -343,6 +343,19 @@ export async function getReputationLb(limit: number = 10): Promise<any[]> {
     )
 }
 
+export async function updateUserMinaAiPreferences(
+  userId: string,
+  preferences: any
+) {
+  const user = await Model.findOneAndUpdate(
+    { _id: userId },
+    { $set: { minaAi: preferences } },
+    { new: true, upsert: true }
+  )
+  if (user) cache.add(userId, user)
+  return user
+}
+
 // Default export for backwards compatibility
 export default {
   getUser,
@@ -359,4 +372,5 @@ export default {
   clearProfile,
   getUsersWithBirthdayToday,
   getReputationLb,
+  updateUserMinaAiPreferences,
 }

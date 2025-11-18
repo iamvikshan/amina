@@ -34,8 +34,7 @@ export async function showMinaAiHub(
         (isDM
           ? `📖 **View DM Memories** - See what Mina remembers from your DMs\n`
           : `📖 **View Server Memories** - See what Mina remembers from this server\n`) +
-        `🧹 **Forget Me** - Delete all your memories\n` +
-        `⚙️ **Settings** - Configure your preferences\n\n` +
+        `⚙️ **Settings** - Configure your preferences (including Forget Me)\n\n` +
         (isDM
           ? `💡 To view server memories, use this command in a server.`
           : `💡 To view DM memories, use this command in DMs.`)
@@ -50,11 +49,6 @@ export async function showMinaAiHub(
       )
       .setValue(isDM ? 'memories_dm' : 'memories_server')
       .setEmoji(isDM ? '💬' : '🏠'),
-    new StringSelectMenuOptionBuilder()
-      .setLabel('Forget Me')
-      .setDescription('Delete all your memories')
-      .setValue('forget')
-      .setEmoji('🧹'),
     new StringSelectMenuOptionBuilder()
       .setLabel('Settings')
       .setDescription('Configure your preferences')
@@ -91,9 +85,6 @@ export async function handleMinaAiOperationMenu(
       break
     case 'memories_dm':
       await showMemoriesView(interaction, 'dm')
-      break
-    case 'forget':
-      await showForgetMeConfirmation(interaction)
       break
     case 'settings':
       await showSettings(interaction)

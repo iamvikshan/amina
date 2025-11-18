@@ -25,7 +25,6 @@ const command: Command = {
   description: 'configure suggestion system',
   category: 'SUGGESTION',
   userPermissions: ['ManageGuild'],
-  testGuildOnly: true,
   slashCommand: {
     enabled: SUGGESTIONS.ENABLED,
     ephemeral: true,

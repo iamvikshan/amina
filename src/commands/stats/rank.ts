@@ -15,7 +15,6 @@ const command: Command = {
   cooldown: 5,
   category: 'UTILITY',
   botPermissions: ['AttachFiles'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: STATS.ENABLED,

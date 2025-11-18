@@ -10,7 +10,6 @@ const command: Command = {
   description: 'enable or disable tracking stats in the server',
   category: 'UTILITY',
   userPermissions: ['ManageGuild'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: STATS.ENABLED,

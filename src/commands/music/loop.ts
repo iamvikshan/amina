@@ -1,10 +1,11 @@
-const { musicValidations } = require('@helpers/BotUtils')
-const { ApplicationCommandOptionType } = require('discord.js')
+import {
+  ChatInputCommandInteraction,
+  ApplicationCommandOptionType,
+} from 'discord.js'
+import { musicValidations } from '@helpers/BotUtils'
+import type { Command } from '@structures/Command'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'loop',
   description: 'loops the song or queue',
   category: 'MUSIC',
@@ -26,18 +27,23 @@ module.exports = {
     ],
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const type = interaction.options.getString('type') || 'track'
     const response = await toggleLoop(interaction, type)
     await interaction.followUp(response)
   },
 }
 
-/**
- * @param {import("discord.js").CommandInteraction|import("discord.js").Message} arg0
- * @param {"queue"|"track"|"off"} type
- */
-async function toggleLoop({ client, guildId }, type) {
+async function toggleLoop(
+  {
+    client,
+    guildId,
+  }: {
+    client: any
+    guildId: string
+  },
+  type: string
+): Promise<string> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
@@ -65,3 +71,5 @@ async function toggleLoop({ client, guildId }, type) {
       return 'Invalid loop type'
   }
 }
+
+export default command

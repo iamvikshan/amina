@@ -7,7 +7,6 @@ import {
   contextHandler,
   statsHandler,
   suggestionHandler,
-  ticketHandler,
   todHandler,
   reportHandler,
   guildHandler,
@@ -25,51 +24,20 @@ export default async (
   client: BotClient,
   interaction: BaseInteraction
 ): Promise<void> => {
-  // Allow /mina-ai command in DMs, block other commands
-  if (!interaction.guild) {
-    if (
-      interaction.isChatInputCommand() &&
-      interaction.commandName === 'mina-ai'
-    ) {
-      // Check ignoreMe preference for /mina-ai command
-      const userData = await getUser(interaction.user)
-      if (userData.minaAi?.ignoreMe) {
-        await interaction
-          .reply({
-            content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
-            flags: MessageFlags.Ephemeral,
-          })
-          .catch(() => {})
-        return
-      }
-      // Allow /mina-ai to proceed in DMs
-    } else if (interaction.isRepliable()) {
+  // Check ignoreMe preference for /mina-ai command (works in both DMs and guilds)
+  if (
+    interaction.isChatInputCommand() &&
+    interaction.commandName === 'mina-ai'
+  ) {
+    const userData = await getUser(interaction.user)
+    if (userData.minaAi?.ignoreMe) {
       await interaction
         .reply({
-          content: 'Command can only be executed in a discord server',
+          content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
           flags: MessageFlags.Ephemeral,
         })
         .catch(() => {})
       return
-    } else {
-      return
-    }
-  } else {
-    // In guild: Check ignoreMe for /mina-ai command
-    if (
-      interaction.isChatInputCommand() &&
-      interaction.commandName === 'mina-ai'
-    ) {
-      const userData = await getUser(interaction.user)
-      if (userData.minaAi?.ignoreMe) {
-        await interaction
-          .reply({
-            content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
-            flags: MessageFlags.Ephemeral,
-          })
-          .catch(() => {})
-        return
-      }
     }
   }
 
@@ -786,8 +754,8 @@ export default async (
     return
   }
 
-  // Track stats for all other interactions
-  if (interaction.isRepliable()) {
+  // Track stats for all other interactions (skip in DMs)
+  if (interaction.isRepliable() && interaction.guild) {
     const settings = await getSettings(interaction.guild)
     if (settings.stats.enabled) {
       statsHandler.trackInteractionStats(interaction as any).catch(() => {})

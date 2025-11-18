@@ -26,7 +26,6 @@ const command: Command = {
   description: 'Invite management system',
   category: 'INVITE',
   botPermissions: ['EmbedLinks', 'ManageGuild'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: INVITE.ENABLED,

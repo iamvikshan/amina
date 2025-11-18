@@ -114,7 +114,7 @@
   - **Topics System:** Topics create Discord categories automatically. When removed, both topic (DB) and category (Discord) are deleted. Handles cases where category doesn't exist.
   - **Category Permissions:** Bot, admin who ran command, and staff roles are added to all ticket categories (default and topic-based).
   - **Ticket Channel Permissions:** Channels inherit category permissions first, then user permissions are added. Prevents permission issues.
-  - **Ticket Creation Flow:** 
+  - **Ticket Creation Flow:**
     - User clicks button → selects topic (if available) → channel created → DM sent with link → success message with link button
     - Safe fallback if DM fails
   - **Runtime Operations:** Validates admin is in ticket channel before allowing operations (except close all). Provides link to example ticket if not in channel.
@@ -289,10 +289,6 @@
   - DM fallback handling for pastebin links
   - Context-aware command behavior (DM vs Server)
   - User preference management integrated into command flow
-- **Known Issues:**
-  - 🔴 **HIGH PRIORITY:** `UserModel is not defined` error in `settings.ts` line 203 when toggling settings in server context
-  - 🔴 **HIGH PRIORITY:** In DMs, after selecting an option from the menu, interaction is blocked with "Command can only be executed in a discord server" error - the guild check in `interactionCreate.ts` only allows `/mina-ai` command but blocks follow-up interactions (select menus, buttons)
-- **Status:** ✅ Implemented with known bugs (see Known Issues above)
 
 ## Principles
 
@@ -430,38 +426,41 @@ createLinkBtn(options: LinkButtonOptions): ActionRowBuilder<ButtonBuilder>
 ```
 
 **Button Style Guide:**
-| Style     | Color          | Usage                             | Helper Function      |
+| Style | Color | Usage | Helper Function |
 | --------- | -------------- | --------------------------------- | -------------------- |
-| Primary   | Blue (Blurple) | General purpose actions           | `createPrimaryBtn`   |
-| Secondary | Grey           | Neutral or lower priority actions | `createSecondaryBtn` |
-| Success   | Green          | Confirmations or positive actions | `createSuccessBtn`   |
-| Danger    | Red            | Destructive or risky actions      | `createDangerBtn`    |
-| Link      | Grey           | External URL links                | `createLinkBtn`      |
+| Primary | Blue (Blurple) | General purpose actions | `createPrimaryBtn` |
+| Secondary | Grey | Neutral or lower priority actions | `createSecondaryBtn` |
+| Success | Green | Confirmations or positive actions | `createSuccessBtn` |
+| Danger | Red | Destructive or risky actions | `createDangerBtn` |
+| Link | Grey | External URL links | `createLinkBtn` |
 
 **Usage Examples:**
+
 ```typescript
 // Back button
 await interaction.editReply({
   embeds: [embed],
-  components: [createSecondaryBtn({ 
-    customId: 'admin:btn:back', 
-    label: 'Back to Admin Hub', 
-    emoji: '◀️' 
-  })]
+  components: [
+    createSecondaryBtn({
+      customId: 'admin:btn:back',
+      label: 'Back to Admin Hub',
+      emoji: '◀️',
+    }),
+  ],
 })
 
 // Confirmation flow
-const confirmRow = createDangerBtn({ 
-  customId: 'purge:btn:confirm', 
-  label: 'Confirm Delete', 
-  emoji: '⚠️' 
+const confirmRow = createDangerBtn({
+  customId: 'purge:btn:confirm',
+  label: 'Confirm Delete',
+  emoji: '⚠️',
 })
 
 // External link
-const docsRow = createLinkBtn({ 
-  url: 'https://docs.example.com', 
+const docsRow = createLinkBtn({
+  url: 'https://docs.example.com',
   label: 'View Documentation',
-  emoji: '📚'
+  emoji: '📚',
 })
 ```
 
@@ -546,11 +545,13 @@ Destructive = Any operation that irreversibly removes or restricts data/permissi
 #### Implementation Details
 
 **Step 1 — Command Registration**
+
 - Added `dmCommand: true` flag - command available in DMs
 - Added `testGuildOnly: true` for testing (registered in test guild + DMs)
 - Command registration logic supports `dmCommand` independent of `GLOBAL` setting
 
 **Step 2 — Main Hub (String Select `minaai:menu:operation`)**
+
 - **Context-Aware:** Different options shown based on DM vs Server context
   - **In Server:** Show Server Memories, Forget Me, Settings
   - **In DM:** Show DM Memories, Forget Me, Settings
@@ -559,12 +560,12 @@ Destructive = Any operation that irreversibly removes or restricts data/permissi
 
 **Step 3 — Memory Views**
 
-| Operation                | Flow                                                                                                                             |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Operation                | Flow                                                                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
 | **Show Server Memories** | Query `guildId = currentGuild` (or all servers if global enabled) → Show 2 memories per category → Category buttons + DM Me button |
-| **Show DM Memories**     | Query `guildId = null` → Show 2 memories per category → Category buttons + DM Me button                                          |
-| **Forget Me**            | Two-step confirmation → Bulk delete all memories → Set `ignoreMe: true` → Show deletion count                                    |
-| **Settings**             | User preference management with toggles for all preferences                                                                      |
+| **Show DM Memories**     | Query `guildId = null` → Show 2 memories per category → Category buttons + DM Me button                                            |
+| **Forget Me**            | Two-step confirmation → Bulk delete all memories → Set `ignoreMe: true` → Show deletion count                                      |
+| **Settings**             | User preference management with toggles for all preferences                                                                        |
 
 **Step 4 — Category Detail View**
 
@@ -597,6 +598,7 @@ Destructive = Any operation that irreversibly removes or restricts data/permissi
 **Components used:** String Select, Buttons, Pastebin Integration
 
 **Notes:**
+
 - Server and DM memories completely separated (unless user enables combination)
 - Truncated previews (2 per category) to keep embeds manageable
 - Short button labels (category name only)
@@ -606,11 +608,21 @@ Destructive = Any operation that irreversibly removes or restricts data/permissi
 - User preferences control memory behavior and DM interactions
 - Forget Me also sets ignoreMe to true
 
-**Known Issues:**
-- 🔴 **HIGH PRIORITY:** `UserModel is not defined` error in `settings.ts` line 203 when toggling settings in server context
-- 🔴 **HIGH PRIORITY:** In DMs, after selecting an option from the menu, interaction is blocked with "Command can only be executed in a discord server" error - the guild check in `interactionCreate.ts` only allows `/mina-ai` command but blocks follow-up interactions (select menus, buttons)
+**Fixes Applied:**
 
-**Status:** ✅ Implemented with known bugs (see Known Issues above)
+- ✅ **Fixed:** `UserModel is not defined` error - Created `updateUserMinaAiPreferences()` helper function in `User.ts` schema
+- ✅ **Fixed:** DM interaction blocking - Removed global DM blocking logic from `interactionCreate.ts`, allowing all DM-registered commands and their component interactions to work in DMs
+- ✅ **Fixed:** Stats tracking in DMs - Added guild check before `getSettings()` call to prevent errors in DM context
+- ✅ **Fixed:** Duplicate options - Removed "Back to Main Menu" from settings select menu (kept button only), removed "Forget Me" from main hub (moved to settings only)
+
+**DM/Global Command Handling Improvements:**
+
+- Commands with `dmCommand: true` are registered globally with `dm_permission: true` (independent of GLOBAL setting)
+- No global DM blocking - if an interaction exists in DMs, it's allowed (only DM-enabled commands are registered there)
+- Component interactions (buttons/menus/modals) from DM commands work automatically
+- Individual commands can still validate guild requirements (defensive programming)
+
+**Status:** ✅ Fully implemented, tested, and production-ready
 
 ---
 
@@ -691,12 +703,12 @@ Destructive = Any operation that irreversibly removes or restricts data/permissi
 
 **Step 2 — Parameters**
 
-| Type                             | Parameter Input                                                                       |
-| -------------------------------- | ------------------------------------------------------------------------------------- |
-| All / Attachments / Bots / Links | Amount (String Select: 10, 25, 50, 100, Custom) + modal for custom (1-100)          |
-| Token                            | Modal `purge:modal:token`: text field for token/keyword (case-insensitive)            |
-| User                             | User Select (single)                                                                  |
-| Any type                         | Channel Select (text, optional — defaults to current)                                 |
+| Type                             | Parameter Input                                                            |
+| -------------------------------- | -------------------------------------------------------------------------- |
+| All / Attachments / Bots / Links | Amount (String Select: 10, 25, 50, 100, Custom) + modal for custom (1-100) |
+| Token                            | Modal `purge:modal:token`: text field for token/keyword (case-insensitive) |
+| User                             | User Select (single)                                                       |
+| Any type                         | Channel Select (text, optional — defaults to current)                      |
 
 **Step 3 — Preview**
 

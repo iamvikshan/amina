@@ -1,21 +1,19 @@
-const {
+import {
+  ChatInputCommandInteraction,
+  ApplicationCommandOptionType,
   EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
-  ApplicationCommandOptionType,
   ComponentType,
-} = require('discord.js')
-const { EMBED_COLORS, MUSIC } = require('@src/config')
+} from 'discord.js'
+import config from '@src/config'
+import type { Command } from '@structures/Command'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'search',
   description: 'search for matching songs on YouTube',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
-
   slashCommand: {
     enabled: true,
     options: [
@@ -28,19 +26,34 @@ module.exports = {
     ],
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const query = interaction.options.getString('query')
-    const response = await search(interaction, query)
+    if (!query) {
+      return await interaction.followUp('🚫 Please provide a search query')
+    }
+
+    const member = interaction.member as any
+    const guild = interaction.guild as any
+    const channel = interaction.channel as any
+
+    const response = await search({ member, guild, channel }, query)
     if (response) await interaction.followUp(response)
     else interaction.deleteReply()
   },
 }
 
-/**
- * @param {import("discord.js").CommandInteraction|import("discord.js").Message} interaction
- * @param {string} query
- */
-async function search({ member, guild, channel }, query) {
+async function search(
+  {
+    member,
+    guild,
+    channel,
+  }: {
+    member: any
+    guild: any
+    channel: any
+  },
+  query: string
+): Promise<string | { embeds: EmbedBuilder[] } | null> {
   if (!member.voice.channel) return '🚫 You need to join a voice channel first'
 
   let player = guild.client.musicManager.getPlayer(guild.id)
@@ -56,11 +69,18 @@ async function search({ member, guild, channel }, query) {
       textChannelId: channel.id,
       selfMute: false,
       selfDeaf: true,
-      volume: MUSIC.DEFAULT_VOLUME,
+      volume: config.MUSIC.DEFAULT_VOLUME,
     })
   }
 
-  if (!player.connected) await player.connect()
+  if (!player.connected) {
+    try {
+      await player.connect()
+    } catch (error: any) {
+      guild.client.logger?.error('Player Connect Error', error)
+      return '🚫 Failed to connect to voice channel'
+    }
+  }
 
   const res = await player.search({ query }, member.user)
 
@@ -68,22 +88,22 @@ async function search({ member, guild, channel }, query) {
     return {
       embeds: [
         new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
+          .setColor(config.EMBED_COLORS.ERROR)
           .setDescription(`No results found for \`${query}\``),
       ],
     }
   }
 
-  let maxResults = MUSIC.MAX_SEARCH_RESULTS
+  let maxResults = config.MUSIC.MAX_SEARCH_RESULTS
   if (res.tracks.length < maxResults) maxResults = res.tracks.length
 
   const results = res.tracks.slice(0, maxResults)
-  const options = results.map((track, index) => ({
+  const options = results.map((track: any, index: number) => ({
     label: track.info.title,
     value: index.toString(),
   }))
 
-  const menuRow = new ActionRowBuilder().addComponents(
+  const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('search-results')
       .setPlaceholder('Choose Search Results')
@@ -92,7 +112,7 @@ async function search({ member, guild, channel }, query) {
   )
 
   const searchEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+    .setColor(config.EMBED_COLORS.BOT_EMBED)
     .setAuthor({ name: 'Search Results' })
     .setDescription(`Select the song you wish to add to the queue`)
 
@@ -103,17 +123,29 @@ async function search({ member, guild, channel }, query) {
 
   try {
     const response = await channel.awaitMessageComponent({
-      filter: i => i.user.id === member.id && i.message.id === searchMessage.id,
+      filter: (i: any) =>
+        i.user.id === member.id && i.message.id === searchMessage.id,
       componentType: ComponentType.StringSelect,
       idle: 30 * 1000,
     })
 
-    if (response.customId !== 'search-results') return
+    if (response.customId !== 'search-results') {
+      await searchMessage.delete()
+      return null
+    }
 
     await searchMessage.delete()
-    if (!response) return '🚫 You took too long to select the songs'
 
-    const selectedTrack = results[response.values[0]]
+    const selectedIndex = parseInt(response.values[0])
+    if (
+      isNaN(selectedIndex) ||
+      selectedIndex < 0 ||
+      selectedIndex >= results.length
+    ) {
+      return '🚫 Invalid selection'
+    }
+
+    const selectedTrack = results[selectedIndex]
     player.queue.add(selectedTrack)
 
     const trackEmbed = new EmbedBuilder()
@@ -137,9 +169,11 @@ async function search({ member, guild, channel }, query) {
     }
 
     return { embeds: [trackEmbed] }
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error handling response:', err)
-    await searchMessage.delete()
+    await searchMessage.delete().catch(() => {})
     return '🚫 Failed to register your response'
   }
 }
+
+export default command

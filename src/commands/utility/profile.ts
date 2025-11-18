@@ -19,7 +19,6 @@ const command: Command = {
   description: 'express yourself and share your story with the world!',
   category: 'UTILITY',
   showsModal: true,
-  testGuildOnly: true,
   slashCommand: {
     enabled: true,
     options: [

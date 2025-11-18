@@ -1,15 +1,16 @@
-const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js')
-const { EMBED_COLORS, MUSIC } = require('@src/config')
+import {
+  ChatInputCommandInteraction,
+  ApplicationCommandOptionType,
+  EmbedBuilder,
+} from 'discord.js'
+import config from '@src/config'
+import type { Command } from '@structures/Command'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'play',
   description: 'Play or queue your favorite song!',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
-
   slashCommand: {
     enabled: true,
     options: [
@@ -22,18 +23,33 @@ module.exports = {
     ],
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const searchQuery = interaction.options.getString('query')
-    const response = await play(interaction, searchQuery)
+    if (!searchQuery) {
+      return await interaction.followUp('🚫 Please provide a song name or URL')
+    }
+
+    const member = interaction.member as any
+    const guild = interaction.guild as any
+    const channel = interaction.channel as any
+
+    const response = await play({ member, guild, channel }, searchQuery)
     await interaction.followUp(response)
   },
 }
 
-/**
- * @param {import("discord.js").CommandInteraction|import("discord.js").Message} arg0
- * @param {string} query
- */
-async function play({ member, guild, channel }, searchQuery) {
+async function play(
+  {
+    member,
+    guild,
+    channel,
+  }: {
+    member: any
+    guild: any
+    channel: any
+  },
+  searchQuery: string
+): Promise<string | { embeds: EmbedBuilder[] }> {
   if (!member.voice.channel) return '🚫 You need to join a voice channel first'
 
   let player = guild.client.musicManager.getPlayer(guild.id)
@@ -49,11 +65,18 @@ async function play({ member, guild, channel }, searchQuery) {
       textChannelId: channel.id,
       selfMute: false,
       selfDeaf: true,
-      volume: MUSIC.DEFAULT_VOLUME,
+      volume: config.MUSIC.DEFAULT_VOLUME,
     })
   }
 
-  if (!player.connected) await player.connect()
+  if (!player.connected) {
+    try {
+      await player.connect()
+    } catch (error: any) {
+      guild.client.logger?.error('Player Connect Error', error)
+      return '🚫 Failed to connect to voice channel'
+    }
+  }
 
   try {
     const res = await player.search({ query: searchQuery }, member.user)
@@ -64,7 +87,7 @@ async function play({ member, guild, channel }, searchQuery) {
 
     switch (res?.loadType) {
       case 'error':
-        guild.client.logger.error('Search Exception', res.exception)
+        guild.client.logger?.error('Search Exception', res.exception)
         return '🚫 There was an error while searching'
 
       case 'playlist':
@@ -73,7 +96,7 @@ async function play({ member, guild, channel }, searchQuery) {
         const playlistEmbed = new EmbedBuilder()
           .setAuthor({ name: 'Added Playlist to queue' })
           .setThumbnail(res.playlist.thumbnail)
-          .setColor(EMBED_COLORS.BOT_EMBED)
+          .setColor(config.EMBED_COLORS.BOT_EMBED)
           .setDescription(`[${res.playlist.name}](${res.playlist.uri})`)
           .addFields(
             {
@@ -87,8 +110,8 @@ async function play({ member, guild, channel }, searchQuery) {
                 '`' +
                 guild.client.utils.formatTime(
                   res.tracks
-                    .map(t => t.info.duration)
-                    .reduce((a, b) => a + b, 0)
+                    .map((t: any) => t.info.duration)
+                    .reduce((a: number, b: number) => a + b, 0)
                 ) +
                 '`',
               inline: true,
@@ -109,7 +132,7 @@ async function play({ member, guild, channel }, searchQuery) {
 
         const trackEmbed = new EmbedBuilder()
           .setAuthor({ name: 'Added Track to queue' })
-          .setColor(EMBED_COLORS.BOT_EMBED)
+          .setColor(config.EMBED_COLORS.BOT_EMBED)
           .setDescription(`[${track.info.title}](${track.info.uri})`)
           .setThumbnail(track.info.artworkUrl)
           .addFields({
@@ -136,11 +159,13 @@ async function play({ member, guild, channel }, searchQuery) {
       }
 
       default:
-        guild.client.logger.debug('Unknown loadType', res)
+        guild.client.logger?.debug('Unknown loadType', res)
         return '🚫 An error occurred while searching for the song'
     }
-  } catch (error) {
-    guild.client.logger.error('Search Exception', JSON.stringify(error))
+  } catch (error: any) {
+    guild.client.logger?.error('Search Exception', JSON.stringify(error))
     return '🚫 An error occurred while searching for the song'
   }
 }
+
+export default command

@@ -17,7 +17,6 @@ const command: Command = {
   description:
     'Help Mina make the community better! Report issues or share your thoughts~',
   category: 'UTILITY',
-  testGuildOnly: true,
 
   slashCommand: {
     ephemeral: true,

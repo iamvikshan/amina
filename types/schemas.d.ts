@@ -129,6 +129,12 @@ declare module '@schemas/User' {
     discriminator: string
     coins: number
     bank: number
+    minaAi: {
+      ignoreMe: boolean
+      allowDMs: boolean
+      combineDmWithServer: boolean
+      globalServerMemories: boolean
+    }
     reputation: {
       received: number
       given: number

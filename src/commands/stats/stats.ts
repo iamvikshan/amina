@@ -13,7 +13,6 @@ const command: Command = {
   name: 'stats',
   description: 'displays members stats in this server',
   category: 'UTILITY',
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: STATS.ENABLED,

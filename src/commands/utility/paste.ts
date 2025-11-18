@@ -11,7 +11,6 @@ const command: Command = {
   description: 'Paste something in sourceb.in',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,

@@ -25,7 +25,6 @@ const command: Command = {
   description: 'Manage red flags on users',
   cooldown: 5,
   category: 'UTILITY',
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,

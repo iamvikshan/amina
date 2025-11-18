@@ -1,11 +1,10 @@
-const { EMBED_COLORS } = require('@src/config')
-const { EmbedBuilder } = require('discord.js')
-const { splitBar } = require('string-progressbar')
+import { ChatInputCommandInteraction } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
+import { splitBar } from 'string-progressbar'
+import config from '@src/config'
+import type { Command } from '@structures/Command'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'np',
   description: 'Shows what track is currently being played',
   category: 'MUSIC',
@@ -14,16 +13,19 @@ module.exports = {
     enabled: true,
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const response = nowPlaying(interaction)
     await interaction.followUp(response)
   },
 }
 
-/**
- * @param {import("discord.js").CommandInteraction|import("discord.js").Message} arg0
- */
-function nowPlaying({ client, guildId }) {
+function nowPlaying({
+  client,
+  guildId,
+}: {
+  client: any
+  guildId: string
+}): string | { embeds: EmbedBuilder[] } {
   const player = client.musicManager.getPlayer(guildId)
   if (!player || !player.queue.current) {
     return '🚫 No music is being played!'
@@ -36,7 +38,7 @@ function nowPlaying({ client, guildId }) {
       : client.utils.formatTime(track.info.duration)
 
   const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+    .setColor(config.EMBED_COLORS.BOT_EMBED)
     .setAuthor({ name: 'Now Playing' })
     .setDescription(`[${track.info.title}](${track.info.uri})`)
     .addFields(
@@ -47,7 +49,7 @@ function nowPlaying({ client, guildId }) {
       },
       {
         name: 'Requested By',
-        value: track.requester.username || 'Unknown',
+        value: track.requester?.username || 'Unknown',
         inline: true,
       },
       {
@@ -70,3 +72,5 @@ function nowPlaying({ client, guildId }) {
 
   return { embeds: [embed] }
 }
+
+export default command

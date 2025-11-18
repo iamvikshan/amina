@@ -7,7 +7,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
-import { getUser } from '@schemas/User'
+import { getUser, updateUserMinaAiPreferences } from '@schemas/User'
 import { getAiConfig } from '@schemas/Dev'
 import { createSecondaryBtn } from '@helpers/componentHelper'
 import { showMinaAiHub } from './main-hub'
@@ -102,10 +102,10 @@ export async function showSettings(
           .setValue('toggle_global')
           .setEmoji('🌐'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Back to Main Menu')
-          .setDescription('Return to main hub')
-          .setValue('back')
-          .setEmoji('◀️'),
+          .setLabel('Forget Me')
+          .setDescription('Delete all your memories and set ignore me')
+          .setValue('forget')
+          .setEmoji('🧹'),
       ])
   )
 
@@ -129,9 +129,10 @@ export async function handleSettingsMenu(
 ): Promise<void> {
   const action = interaction.values[0]
 
-  if (action === 'back') {
+  if (action === 'forget') {
     await interaction.deferUpdate()
-    await showMinaAiHub(interaction)
+    const { showForgetMeConfirmation } = await import('./forget-me')
+    await showForgetMeConfirmation(interaction)
     return
   }
 
@@ -200,15 +201,7 @@ export async function handleSettingsMenu(
   }
 
   // Update user preferences
-  await UserModel.findOneAndUpdate(
-    { _id: interaction.user.id },
-    { $set: { minaAi: newPrefs } },
-    { new: true, upsert: true }
-  )
-
-  // Invalidate cache
-  const { cache } = await import('@schemas/User')
-  cache.delete(interaction.user.id)
+  await updateUserMinaAiPreferences(interaction.user.id, newPrefs)
 
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.SUCCESS)

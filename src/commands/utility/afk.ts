@@ -15,7 +15,6 @@ const command: Command = {
   description: 'Set your AFK status',
   category: 'UTILITY',
   botPermissions: ['SendMessages', 'EmbedLinks'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,

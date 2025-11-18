@@ -1,9 +1,8 @@
-const { musicValidations } = require('@helpers/BotUtils')
+import { ChatInputCommandInteraction } from 'discord.js'
+import { musicValidations } from '@helpers/BotUtils'
+import type { Command } from '@structures/Command'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'shuffle',
   description: 'shuffle the queue',
   category: 'MUSIC',
@@ -11,24 +10,26 @@ module.exports = {
   command: {
     enabled: false,
   },
-
   slashCommand: {
     enabled: true,
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const response = shuffle(interaction)
     await interaction.followUp(response)
   },
 }
 
-/**
- * @param {import("discord.js").CommandInteraction} interaction
- */
-function shuffle({ client, guildId }) {
+function shuffle({
+  client,
+  guildId,
+}: {
+  client: any
+  guildId: string
+}): string {
   const player = client.musicManager.getPlayer(guildId)
 
-  if (!player || !player.queue.curren) {
+  if (!player || !player.queue.current) {
     return "🚫 There's no music currently playing"
   }
 
@@ -39,3 +40,5 @@ function shuffle({ client, guildId }) {
   player.queue.shuffle()
   return '🎶 Queue has been shuffled'
 }
+
+export default command

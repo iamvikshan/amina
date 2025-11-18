@@ -14,7 +14,6 @@ const command: Command = {
   description: 'show various information',
   category: 'INFO',
   botPermissions: ['EmbedLinks'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,

@@ -8,7 +8,6 @@ const command: Command = {
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
   dmCommand: true, // Available in DMs
-  testGuildOnly: true, // Also register in test guild for testing
   slashCommand: {
     enabled: true,
     ephemeral: true,

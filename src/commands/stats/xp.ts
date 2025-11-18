@@ -12,7 +12,6 @@ const command: Command = {
   description: 'configure the levelling system',
   category: 'UTILITY',
   userPermissions: ['ManageGuild'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: STATS.ENABLED,

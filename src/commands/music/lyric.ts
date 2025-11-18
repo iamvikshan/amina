@@ -1,13 +1,15 @@
-const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js')
-const { getJson } = require('@helpers/HttpUtils')
-const { MESSAGES, EMBED_COLORS } = require('@src/config')
+import {
+  ChatInputCommandInteraction,
+  ApplicationCommandOptionType,
+  EmbedBuilder,
+} from 'discord.js'
+import { getJson } from '@helpers/HttpUtils'
+import config from '@src/config'
+import type { Command } from '@structures/Command'
 
 const BASE_URL = 'https://some-random-api.com/lyrics'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'lyric',
   description: 'find lyric of the song',
   category: 'MUSIC',
@@ -24,29 +26,44 @@ module.exports = {
     ],
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const choice = interaction.options.getString('query')
+    if (!choice) {
+      return await interaction.followUp('🚫 Please provide a song name')
+    }
     const response = await getLyric(interaction.user, choice)
     await interaction.followUp(response)
   },
 }
 
-async function getLyric(user, choice) {
+async function getLyric(
+  user: any,
+  choice: string
+): Promise<string | { embeds: EmbedBuilder[] }> {
   const lyric = await getJson(`${BASE_URL}?title=${choice}`)
-  if (!lyric.success) return MESSAGES.API_ERROR
+  if (!lyric.success) return config.MESSAGES.API_ERROR
 
-  const thumbnail = lyric.data?.thumbnail.genius
+  const thumbnail = lyric.data?.thumbnail?.genius
   const author = lyric.data?.author
   const lyrics = lyric.data?.lyrics
   const title = lyric.data?.title
 
+  if (!author || !lyrics || !title) {
+    return '🚫 Could not find lyrics for this song'
+  }
+
   const embed = new EmbedBuilder()
   embed
-    .setColor(EMBED_COLORS.BOT_EMBED)
+    .setColor(config.EMBED_COLORS.BOT_EMBED)
     .setTitle(`${author} - ${title}`)
-    .setThumbnail(thumbnail)
     .setDescription(lyrics)
     .setFooter({ text: `Request By: ${user.username}` })
 
+  if (thumbnail) {
+    embed.setThumbnail(thumbnail)
+  }
+
   return { embeds: [embed] }
 }
+
+export default command

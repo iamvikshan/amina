@@ -1,9 +1,8 @@
-const { musicValidations } = require('@helpers/BotUtils')
+import { ChatInputCommandInteraction } from 'discord.js'
+import { musicValidations } from '@helpers/BotUtils'
+import type { Command } from '@structures/Command'
 
-/**
- * @type {import("@structures/Command")}
- */
-module.exports = {
+const command: Command = {
   name: 'resume',
   description: 'Resumes the music player',
   category: 'MUSIC',
@@ -12,16 +11,19 @@ module.exports = {
     enabled: true,
   },
 
-  async interactionRun(interaction) {
+  async interactionRun(interaction: ChatInputCommandInteraction) {
     const response = await resumePlayer(interaction)
     await interaction.followUp(response)
   },
 }
 
-/**
- * @param {import("discord.js").CommandInteraction} interaction
- */
-async function resumePlayer({ client, guildId }) {
+async function resumePlayer({
+  client,
+  guildId,
+}: {
+  client: any
+  guildId: string
+}): Promise<string> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
@@ -33,3 +35,5 @@ async function resumePlayer({ client, guildId }) {
   player.resume()
   return '▶️ Resumed the music player'
 }
+
+export default command

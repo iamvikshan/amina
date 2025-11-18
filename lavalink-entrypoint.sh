@@ -10,7 +10,7 @@ if [ -d /opt/Lavalink/plugins ]; then
 fi
 
 # Switch to lavalink user and execute the original Lavalink entrypoint
-# Using su - to get a login shell with proper PATH, then run java
+# Using su without login shell flag to avoid sourcing login config files
 # Using full path to java to ensure it's found: /opt/java/openjdk/bin/java
-exec su - lavalink -c "cd /opt/Lavalink && exec /opt/java/openjdk/bin/java -jar Lavalink.jar"
+exec su lavalink -c "cd /opt/Lavalink && /opt/java/openjdk/bin/java -jar Lavalink.jar"
 

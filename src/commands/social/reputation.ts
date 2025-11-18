@@ -14,7 +14,6 @@ const command: Command = {
   description: 'give reputation to a user',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,

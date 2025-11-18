@@ -18,7 +18,6 @@ const command: Command = {
   description: 'submit a suggestion',
   category: 'SUGGESTION',
   cooldown: 20,
-  testGuildOnly: true,
   slashCommand: {
     enabled: SUGGESTIONS.ENABLED,
     options: [

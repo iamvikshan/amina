@@ -147,7 +147,6 @@ const command: Command = {
   description: 'display the XP, invite, and rep leaderboard',
   category: 'INFO',
   botPermissions: ['EmbedLinks'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,

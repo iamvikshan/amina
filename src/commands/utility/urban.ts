@@ -13,7 +13,6 @@ const command: Command = {
   description: 'searches the urban dictionary',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
-  testGuildOnly: true,
 
   slashCommand: {
     enabled: true,
