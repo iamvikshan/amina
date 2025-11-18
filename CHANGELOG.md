@@ -1,3 +1,13 @@
+# [v2.1.1](https://github.com/iamvikshan/amina/compare/v2.1.0...v2.1.1) (2025-11-18)
+
+
+
+## [2.1.1](https://github.com/iamvikshan/amina/compare/v2.1.0...v2.1.1) (2025-11-18)
+
+### Bug Fixes
+
+* **dev,database:** resolve interaction handling bugs and implement guild cleanup ([0e8522d](https://github.com/iamvikshan/amina/commit/0e8522d0f87bc314fb62ee359b1d0f2564f4b52a))
+
 # [v2.1.0](https://github.com/iamvikshan/amina/compare/v2.0.0...v2.1.0) (2025-11-18)
 
 ## [2.1.0](https://github.com/iamvikshan/amina/compare/v2.0.0...v2.1.0) (2025-11-18)
