@@ -1,3 +1,13 @@
+# [v2.1.2](https://github.com/iamvikshan/amina/compare/v2.1.1...v2.1.2) (2025-11-19)
+
+
+
+## [2.1.2](https://github.com/iamvikshan/amina/compare/v2.1.1...v2.1.2) (2025-11-19)
+
+### Bug Fixes
+
+* enhance command registration, loading, and reliability ([fdaf26d](https://github.com/iamvikshan/amina/commit/fdaf26d81db4802de190355cfd9f01e4e35436d7))
+
 # [v2.1.1](https://github.com/iamvikshan/amina/compare/v2.1.0...v2.1.1) (2025-11-18)
 
 
