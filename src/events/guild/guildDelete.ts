@@ -89,9 +89,6 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         avatarURL: client.user.displayAvatarURL(),
         embeds: [webhookEmbed],
       })
-      client.logger.success(
-        'Successfully sent webhook message for guild leave event.'
-      )
     } catch (err: any) {
       client.logger.error(`Failed to send webhook message: ${err.message}`)
     }
@@ -128,7 +125,8 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           `I just wanted to say goodbye and thank you for having me in your server. Even though things didn't work out, I had a lot of fun! 🎨\n\n` +
           `If I did something wrong, or if there's any way I could've been better, I'd really love to know. Your feedback helps me grow! And maybe... *looks hopeful* maybe we can be friends again someday?\n\n` +
           `*starts drawing a friendship bracelet, just in case*\n\n` +
-          `Stay creative and awesome! ✨`
+          `remember to say hi here sometime, i am great at conversations!\n` +
+          `Take care,\nAmina `
       )
       .setColor(client.config.EMBED_COLORS.ERROR)
       .setThumbnail(client.user.displayAvatarURL())
@@ -141,25 +139,18 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
 
     try {
       await wait(1000)
-      client.logger.log(`Attempting to send DM to owner: ${ownerId}`)
-
       await owner.send({
         embeds: [dmEmbed],
         components: [row],
       })
 
-      client.logger.success('Successfully sent goodbye DM to the server owner.')
     } catch (err: any) {
       client.logger.error(`Error sending DM: ${err.message}`)
       if (err.code === 50007) {
-        client.logger.error(
+        client.logger.warn(
           'Cannot send messages to this user. They may have DMs disabled or blocked the bot.'
         )
       }
     }
-  } else {
-    client.logger.warn(
-      'Unable to send DM to owner as owner information is not available.'
-    )
-  }
+  } 
 }

@@ -8,7 +8,6 @@ const command: Command = {
   description: 'Delete messages from a channel using guided flow',
   category: 'MODERATION',
   userPermissions: ['ManageMessages'],
-  testGuildOnly: true, // Remove after testing
 
   slashCommand: {
     enabled: MODERATION.ENABLED,
