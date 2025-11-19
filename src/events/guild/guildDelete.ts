@@ -23,17 +23,6 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
     `Guild Left: ${guild.name} (${guild.id}) Members: ${guild.memberCount}`
   )
 
-  // Clear any pending reminder timeout for this guild
-  const timeoutId = client.guildReminderTimeouts.get(guild.id)
-  if (timeoutId) {
-    clearTimeout(timeoutId)
-    client.guildReminderTimeouts.delete(guild.id)
-    client.logger.log(`Cleared reminder timeout for guild ${guild.id}`)
-  }
-
-  const settings = await getSettings(guild)
-  settings.server.leftAt = new Date()
-  await settings.save()
 
   // Notify dashboard to refresh guild data (fire-and-forget)
   notifyDashboard(client, guild.id, 'leave')

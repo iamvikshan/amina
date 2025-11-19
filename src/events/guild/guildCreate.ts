@@ -8,6 +8,7 @@ import {
   ChannelType,
   Guild,
   TextChannel,
+  ApplicationCommandType,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { notifyDashboard } from '@helpers/webhook'
@@ -25,6 +26,35 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   }
   client.logger.log(`Guild Joined: ${guild.name} Members: ${guild.memberCount}`)
   const guildSettings = await registerGuild(guild)
+
+  // Register commands immediately for the new guild (if global commands haven't propagated yet)
+  if (client.config.INTERACTIONS.GLOBAL) {
+    try {
+      const commandsToSet = client.slashCommands
+        .filter(cmd => !cmd.testGuildOnly && !cmd.devOnly)
+        .map(cmd => ({
+          name: cmd.name,
+          description: cmd.description,
+          type: ApplicationCommandType.ChatInput,
+          options: cmd.slashCommand.options,
+          dm_permission: cmd.dmCommand ?? false,
+        }))
+
+      if (commandsToSet.length > 0) {
+        client.logger.log(
+          `Registering ${commandsToSet.length} commands for new guild: ${guild.name}`
+        )
+        await guild.commands.set(commandsToSet)
+        client.logger.success(
+          `Successfully registered commands for ${guild.name}`
+        )
+      }
+    } catch (error: any) {
+      client.logger.error(
+        `Failed to register commands for new guild ${guild.name}: ${error.message}`
+      )
+    }
+  }
 
   // Ensure owner is set
   if (!guildSettings.server.owner) {
@@ -171,44 +201,8 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
       client.logger.error('Error sending DM to server owner:', err)
     }
 
-    // Schedule a reminder
-    const timeoutId = setTimeout(
-      async () => {
-        // Clear timeout from map when it executes
-        client.guildReminderTimeouts.delete(guild.id)
-
-        const updatedSettings = await registerGuild(guild)
-        if (!updatedSettings.server.setup_completed) {
-          try {
-            const owner = await guild.members.fetch(guild.ownerId)
-            if (owner) {
-              const reminderEmbed = new EmbedBuilder()
-                .setColor(EMBED_COLORS.BOT_EMBED)
-                .setTitle('✨ Friendly Reminder from Amina! ✨')
-                .setDescription(
-                  `Heyyy! *pokes gently* Just your friendly neighborhood Amina here! 🌟\n\n` +
-                    `I noticed we haven't finished setting things up yet! Pretty please run \`/settings\` when you can - I have so many cool features I want to show you! 🎨\n\n` +
-                    `Can't wait to show you what I can really do! 💖`
-                )
-                .setFooter({
-                  text: "Let's make your server amazing together! (◠‿◠✿)",
-                })
-
-              await owner.send({ embeds: [reminderEmbed] }).catch(() => {})
-            }
-          } catch (err) {
-            client.logger.error(
-              `Error sending reminder DM for guild ${guild.id}:`,
-              err
-            )
-          }
-        }
-      },
-      24 * 60 * 60 * 1000
-    )
-
-    // Store timeout ID for cleanup if guild is deleted before reminder
-    client.guildReminderTimeouts.set(guild.id, timeoutId)
+    // Schedule a reminder - Removed in-memory timeout to prevent leaks
+    // We will now handle this via a scheduled task checking db timestamps
   }
 
   // Log join to webhook if available

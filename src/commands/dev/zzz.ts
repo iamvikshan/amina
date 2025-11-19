@@ -43,7 +43,15 @@ const command: Command = {
     if (testGuild) {
       try {
         const commandsToSet = (client as BotClient).slashCommands
-          .filter(cmd => cmd.testGuildOnly || (cmd.devOnly && enabled))
+          .filter(
+            cmd =>
+              cmd.testGuildOnly ||
+              (cmd.devOnly && enabled) ||
+              // Also include regular commands if GLOBAL=true, so we don't wipe them from test guild
+              ((client as BotClient).config.INTERACTIONS.GLOBAL &&
+                !cmd.testGuildOnly &&
+                !cmd.devOnly)
+          )
           .map(cmd => ({
             name: cmd.name,
             description: cmd.description,

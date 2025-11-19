@@ -1,5 +1,6 @@
 import { counterHandler, inviteHandler, presenceHandler } from '@src/handlers'
 import { cleanupExpiredGuilds } from '@src/handlers/guildCleanup'
+import { checkGuildReminders } from '@src/handlers/reminderScheduler'
 import { cacheReactionRoles } from '@schemas/ReactionRoles'
 import { getSettings } from '@schemas/Guild'
 import { getPresenceConfig, getDevCommandsConfig } from '@schemas/Dev'
@@ -226,11 +227,6 @@ export default async (client: BotClient): Promise<void> => {
   }
 
   // Register Interactions
-  // NOTE: Discord has strict rate limits for command registration:
-  // - Global commands: 5 updates per hour per APPLICATION
-  // - Guild commands: 5 updates per hour per GUILD
-  // If you restart your bot multiple times in an hour, you'll hit these limits.
-  // Discord.js will internally queue requests, which can cause long delays (up to 1 hour).
   if (client.config.INTERACTIONS.SLASH || client.config.INTERACTIONS.CONTEXT) {
     const devConfig = await getDevCommandsConfig()
 
@@ -260,7 +256,7 @@ export default async (client: BotClient): Promise<void> => {
       }
     }
 
-    // Register test guild commands
+    // Register test guild commands (Wrapped in try-catch to prevent startup crash)
     const testGuild = client.guilds.cache.get(process.env.TEST_GUILD_ID)
     if (testGuild) {
       const testGuildCommands = client.slashCommands
@@ -283,18 +279,24 @@ export default async (client: BotClient): Promise<void> => {
         }))
 
       if (testGuildCommands.length > 0) {
-        await registerCommandsWithRetry(
-          testGuildCommands,
-          () => testGuild.commands.set(testGuildCommands),
-          'test guild'
-        )
+        try {
+          await registerCommandsWithRetry(
+            testGuildCommands,
+            () => testGuild.commands.set(testGuildCommands),
+            'test guild'
+          )
 
-        // Add delay between test guild and global command registration to avoid rate limits
-        // Discord allows 5 updates per hour per application/guild
-        client.logger.log(
-          'Waiting 2 seconds before registering global commands to avoid rate limits...'
-        )
-        await new Promise(resolve => setTimeout(resolve, 2000))
+          // Add delay between test guild and global command registration to avoid rate limits
+          // Discord allows 5 updates per hour per application/guild
+          client.logger.log(
+            'Waiting 2 seconds before registering global commands to avoid rate limits...'
+          )
+          await new Promise(resolve => setTimeout(resolve, 2000))
+        } catch (error: any) {
+          client.logger.error(
+            `Failed to register test guild commands: ${error.message}`
+          )
+        }
       }
     }
 
@@ -357,197 +359,61 @@ export default async (client: BotClient): Promise<void> => {
           }
         }
 
-        // Fallback: Smart per-guild registration strategy
+        // Fallback: Smart per-guild registration strategy (Runs in background to avoid blocking)
         if (!globalSuccess) {
-          const allGuilds = Array.from(client.guilds.cache.values()).filter(
-            g => g.id !== process.env.TEST_GUILD_ID
-          ) // Exclude test guild
+          (async () => {
+            const allGuilds = Array.from(client.guilds.cache.values()).filter(
+              g => g.id !== process.env.TEST_GUILD_ID
+            ) // Exclude test guild
 
-          if (allGuilds.length === 0) {
-            client.logger.warn(
-              'No guilds to register commands in (excluding test guild)'
-            )
-            // No guilds to register, skip fallback
-          } else {
-            // Calculate how many guilds we can register while waiting for rate limit reset
-            // Assuming ~3 seconds per guild (1s registration + 2s wait)
-            // Rate limit resets after 1 hour (3600 seconds)
-            // But we'll be conservative and use 3500 seconds to account for registration time
-            const RATE_LIMIT_RESET_TIME = 3600000 // 1 hour in milliseconds
-            const TIME_PER_GUILD = 3000 // 3 seconds per guild (1s registration + 2s wait)
-            const maxGuildsDuringWait = Math.floor(
-              (RATE_LIMIT_RESET_TIME - 20000) / TIME_PER_GUILD
-            ) // Subtract initial 20s timeout
+            if (allGuilds.length === 0) {
+              client.logger.warn(
+                'No guilds to register commands in (excluding test guild)'
+              )
+              return
+            }
 
             client.logger.log(
-              `Strategy: Can register ~${maxGuildsDuringWait} guilds while waiting for rate limit reset (1 hour)`
-            )
-            client.logger.log(
-              `Registering commands in ${allGuilds.length} guilds (fallback mode)`
+              `Registering commands in ${allGuilds.length} guilds (fallback mode) - Running in background`
             )
 
             let successCount = 0
             let failCount = 0
-            let registeredDuringWait = 0
-            const startTime = Date.now()
+            const BATCH_SIZE = 5 // Parallelize in batches of 5
 
-            // Phase 1: Register as many guilds as possible while waiting for rate limit reset
-            for (
-              let i = 0;
-              i < allGuilds.length && i < maxGuildsDuringWait;
-              i++
-            ) {
-              const guild = allGuilds[i]
-              try {
-                client.logger.log(
-                  `[Phase 1] Registering commands in guild: ${guild.name} (${guild.id})`
-                )
-
-                await guild.commands.set(globalCommands)
-                successCount++
-                registeredDuringWait++
-                client.logger.success(
-                  `✓ Registered ${globalCommands.length} commands in ${guild.name}`
-                )
-
-                // Wait 2 seconds between each guild to avoid rate limits
-                if (i < allGuilds.length - 1 && i < maxGuildsDuringWait - 1) {
-                  await new Promise(resolve => setTimeout(resolve, 2000))
-                }
-              } catch (error: any) {
-                failCount++
-                const isRateLimit =
-                  error instanceof RateLimitError ||
-                  error.code === 429 ||
-                  error.status === 429 ||
-                  error.message?.includes('rate limit')
-
-                if (isRateLimit) {
-                  client.logger.warn(
-                    `Rate limited in ${guild.name} - will retry after rate limit reset`
-                  )
-                } else {
-                  client.logger.error(
-                    `Failed to register commands in ${guild.name}: ${error.message || error}`
-                  )
-                }
-              }
-            }
-
-            // Calculate remaining wait time
-            const elapsed = Date.now() - startTime
-            const remainingWait = Math.max(0, RATE_LIMIT_RESET_TIME - elapsed)
-
-            if (remainingWait > 0 && registeredDuringWait < allGuilds.length) {
-              const remainingMinutes = Math.ceil(remainingWait / 60000)
-              client.logger.log(
-                `⏳ Waiting ${remainingMinutes} minutes for rate limit to reset before retrying global registration...`
-              )
-              client.logger.log(
-                `   (Registered ${registeredDuringWait}/${allGuilds.length} guilds so far)`
-              )
-
-              // Wait for rate limit to reset
-              await new Promise(resolve => setTimeout(resolve, remainingWait))
-            }
-
-            // Phase 2: Try global registration again after rate limit should have reset
-            if (registeredDuringWait < allGuilds.length) {
-              client.logger.log(
-                'Retrying global command registration after rate limit reset...'
-              )
-              try {
-                const globalRetryTimeout = new Promise((_, reject) => {
-                  setTimeout(() => {
-                    reject(
-                      new Error(
-                        'Global command registration timeout after 20 seconds (retry)'
-                      )
-                    )
-                  }, 20000)
-                })
-
-                const retryStartTime = Date.now()
-                await Promise.race([
-                  client.application.commands.set(globalCommands),
-                  globalRetryTimeout,
-                ])
-                const retryDuration = Date.now() - retryStartTime
-                client.logger.success(
-                  `Successfully registered ${globalCommands.length} global commands after retry (took ${retryDuration}ms)`
-                )
-                client.logger.log(
-                  `All commands are now registered globally! (Skipped per-guild registration for remaining ${allGuilds.length - registeredDuringWait} guilds)`
-                )
-                return // Success! No need to continue per-guild
-              } catch (error: any) {
-                const isTimeout = error.message?.includes('timeout')
-                if (isTimeout) {
-                  client.logger.warn(
-                    'Global registration still timed out after rate limit reset - continuing with per-guild registration'
-                  )
-                } else {
-                  client.logger.warn(
-                    `Global registration failed again: ${error.message || error} - continuing with per-guild`
-                  )
-                }
-              }
-            }
-
-            // Phase 3: Continue with remaining guilds if global still failed
-            const remainingGuilds = allGuilds.slice(registeredDuringWait)
-            if (remainingGuilds.length > 0) {
-              client.logger.log(
-                `[Phase 3] Registering remaining ${remainingGuilds.length} guilds...`
-              )
-
-              for (let i = 0; i < remainingGuilds.length; i++) {
-                const guild = remainingGuilds[i]
+            for (let i = 0; i < allGuilds.length; i += BATCH_SIZE) {
+              const batch = allGuilds.slice(i, i + BATCH_SIZE)
+              const promises = batch.map(async guild => {
                 try {
-                  client.logger.log(
-                    `Registering commands in guild: ${guild.name} (${guild.id})`
-                  )
-
                   await guild.commands.set(globalCommands)
-                  successCount++
                   client.logger.success(
-                    `✓ Registered ${globalCommands.length} commands in ${guild.name}`
+                    `✓ Registered commands in ${guild.name}`
                   )
-
-                  // Wait 2 seconds between each guild to avoid rate limits
-                  if (i < remainingGuilds.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 2000))
-                  }
+                  return true
                 } catch (error: any) {
-                  failCount++
-                  const isRateLimit =
-                    error instanceof RateLimitError ||
-                    error.code === 429 ||
-                    error.status === 429 ||
-                    error.message?.includes('rate limit')
-
-                  if (isRateLimit) {
-                    client.logger.warn(
-                      `Rate limited in ${guild.name} - skipping (will retry on next restart)`
-                    )
-                  } else {
-                    client.logger.error(
-                      `Failed to register commands in ${guild.name}: ${error.message || error}`
-                    )
-                  }
+                  client.logger.error(
+                    `Failed to register commands in ${guild.name}: ${error.message}`
+                  )
+                  return false
                 }
+              })
+
+              const results = await Promise.all(promises)
+              successCount += results.filter(r => r).length
+              failCount += results.filter(r => !r).length
+
+              // Small delay between batches
+              if (i + BATCH_SIZE < allGuilds.length) {
+                await new Promise(resolve => setTimeout(resolve, 1000))
               }
             }
 
             client.logger.log(
               `Per-guild registration complete: ${successCount} succeeded, ${failCount} failed`
             )
-            if (registeredDuringWait > 0) {
-              client.logger.log(
-                `   (${registeredDuringWait} registered during wait period, ${successCount - registeredDuringWait} registered after retry)`
-              )
-            }
-          }
+          })().catch(err => {
+            client.logger.error('Error in background registration fallback:', err)
+          })
         }
       } else {
         client.logger.warn(
@@ -587,4 +453,11 @@ export default async (client: BotClient): Promise<void> => {
 
   // Run initial cleanup on startup (after a short delay to let everything initialize)
   setTimeout(() => cleanupExpiredGuilds(client), 1 * 60 * 1000) // 1 minute after startup
+
+  // Run reminder scheduler every hour
+  // Checks for guilds that joined ~24 hours ago to send setup reminder
+  setInterval(() => checkGuildReminders(client), 60 * 60 * 1000)
+  
+  // Run initial reminder check after a short delay
+  setTimeout(() => checkGuildReminders(client), 2 * 60 * 1000)
 }

@@ -20,6 +20,7 @@ const Schema = new mongoose.Schema({
     staff_roles: [String],
     setup_completed: { type: Boolean, default: false },
     setup_message_id: { type: String, default: null },
+    did_setup_reminder: { type: Boolean, default: false }, // Flag to track if reminder was sent
     invite_link: { type: String, default: null },
   },
   stats: {

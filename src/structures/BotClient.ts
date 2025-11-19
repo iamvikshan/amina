@@ -54,7 +54,7 @@ export default class BotClient extends Client {
   public database: typeof schemas
   public utils: any
   public discordTogether: any
-  public guildReminderTimeouts: Map<string, NodeJS.Timeout>
+  // public guildReminderTimeouts: Map<string, NodeJS.Timeout>
 
   constructor() {
     super({
@@ -89,7 +89,7 @@ export default class BotClient extends Client {
     this.slashCommands = new Collection()
     this.contextMenus = new Collection()
     this.counterUpdateQueue = []
-    this.guildReminderTimeouts = new Map()
+    // this.guildReminderTimeouts = new Map()
 
     // Initialize webhook for join/leave logs if provided
     this.joinLeaveWebhook = process.env.LOGS_WEBHOOK
@@ -296,52 +296,6 @@ export default class BotClient extends Client {
 
     this.logger.success(`Loaded ${userContexts} USER contexts`)
     this.logger.success(`Loaded ${messageContexts} MESSAGE contexts`)
-  }
-
-  // Register interactions (slash commands and context menus) with Discord
-  async registerInteractions(guildId?: string): Promise<void> {
-    const toRegister: any[] = []
-
-    if (this.config.INTERACTIONS.SLASH) {
-      this.slashCommands.forEach(cmd => {
-        toRegister.push({
-          name: cmd.name,
-          description: cmd.description,
-          type: ApplicationCommandType.ChatInput,
-          options: cmd.slashCommand.options,
-        })
-      })
-    }
-
-    if (this.config.INTERACTIONS.CONTEXT) {
-      this.contextMenus.forEach(ctx => {
-        toRegister.push({
-          name: ctx.name,
-          type: ctx.type,
-        })
-      })
-    }
-
-    try {
-      if (!guildId) {
-        if (this.application) {
-          await this.application.commands.set(toRegister)
-        }
-      } else if (typeof guildId === 'string') {
-        const guild = this.guilds.cache.get(guildId)
-        if (!guild) {
-          throw new Error('No matching guild')
-        }
-        await guild.commands.set(toRegister)
-      } else {
-        throw new Error(
-          'Did you provide a valid guildId to register interactions'
-        )
-      }
-      this.logger.success('Successfully registered interactions')
-    } catch (error: any) {
-      this.logger.error(`Failed to register interactions: ${error.message}`)
-    }
   }
 
   // Resolve users based on a search string
