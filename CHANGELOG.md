@@ -1,3 +1,12 @@
+# [v2.1.3](https://github.com/iamvikshan/amina/compare/v2.1.2...v2.1.3) (2025-11-21)
+
+## 🐛 Bug Fixes
+- [`22610db`](https://github.com/iamvikshan/amina/commit/22610db)  fix: resolve type system issues, config refactoring, and improve code reliability 
+
+
+
+## [2.1.3](https://github.com/iamvikshan/amina/compare/v2.1.2...v2.1.3) (2025-11-21)
+
 # [v2.1.2](https://github.com/iamvikshan/amina/compare/v2.1.1...v2.1.2) (2025-11-19)
 
 ## [2.1.2](https://github.com/iamvikshan/amina/compare/v2.1.1...v2.1.2) (2025-11-19)
