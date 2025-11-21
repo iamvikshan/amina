@@ -48,7 +48,20 @@ module.exports = {
       },
     ],
 
-    ['@semantic-release/changelog'],
+    [
+      '@semantic-release/changelog',
+      {
+        changelogFile: 'CHANGELOG.md',
+      },
+    ],
+
+    [
+      '@semantic-release/exec',
+      {
+        prepareCmd:
+          "node -e \"const fs=require('fs');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));pkg.version='${nextRelease.version}';fs.writeFileSync('package.json',JSON.stringify(pkg,null,2)+'\\n')\"",
+      },
+    ],
 
     [
       '@semantic-release/github',

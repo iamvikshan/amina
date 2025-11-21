@@ -30,6 +30,7 @@ export async function showDevHub(
         '🔄 **Command Reload** - Reload commands, events, or contexts\n' +
         '⚡ **Trigger Settings** - Trigger server onboarding\n' +
         '📋 **List Servers** - View all servers the bot is in\n' +
+        '👋 **Leave Server** - Leave a server by ID\n' +
         '🤖 **Mina AI** - Configure Amina AI settings\n\n' +
         '⚠️ **Note:** All operations are developer-only.'
     )
@@ -66,6 +67,11 @@ export async function showDevHub(
           .setValue('listservers')
           .setEmoji('📋'),
         new StringSelectMenuOptionBuilder()
+          .setLabel('Leave Server')
+          .setDescription('Leave a server by ID')
+          .setValue('leaveserver')
+          .setEmoji('👋'),
+        new StringSelectMenuOptionBuilder()
           .setLabel('Mina AI')
           .setDescription('Configure Amina AI settings')
           .setValue('minaai')
@@ -87,6 +93,14 @@ export async function handleCategoryMenu(
 ): Promise<void> {
   const category = interaction.values[0]
 
+  // Handle modal actions BEFORE deferring (modals cannot be shown after defer)
+  if (category === 'leaveserver') {
+    const { showLeaveServerModal } = await import('./leaveserver')
+    await showLeaveServerModal(interaction)
+    return
+  }
+
+  // Defer for all other actions that will edit the reply
   await interaction.deferUpdate()
 
   // Route to appropriate category handler

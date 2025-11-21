@@ -3,11 +3,9 @@ import {
   AttachmentBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
-  User,
 } from 'discord.js'
 import { getBuffer } from '@helpers/HttpUtils'
-import { EMBED_COLORS, IMAGE } from '@src/config'
-import type { Command } from '@structures/Command'
+import { EMBED_COLORS, IMAGE, secret } from '@src/config'
 
 const availableOverlays = [
   'approved',
@@ -20,7 +18,7 @@ const availableOverlays = [
   'wasted',
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'overlay',
   description: 'transform your image with some creative chaos!',
   category: 'IMAGE',
@@ -69,7 +67,7 @@ const command: Command = {
     const url = getOverlay(filter, image)
     const response = await getBuffer(url, {
       headers: {
-        Authorization: `Bearer ${process.env.STRANGE_API_KEY}`,
+        Authorization: `Bearer ${secret.STRANGE_API_KEY || ''}`,
       },
     })
 
@@ -78,7 +76,7 @@ const command: Command = {
         'oops! something went wrong with the image magic'
       )
 
-    const attachment = new AttachmentBuilder(response.buffer, {
+    const attachment = new AttachmentBuilder(response.buffer!, {
       name: 'attachment.png',
     })
     const embed = new EmbedBuilder()
@@ -87,6 +85,7 @@ const command: Command = {
       .setFooter({ text: `sparkled up by ${author.username}` })
 
     await interaction.followUp({ embeds: [embed], files: [attachment] })
+    return
   },
 }
 

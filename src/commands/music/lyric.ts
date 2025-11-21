@@ -5,11 +5,10 @@ import {
 } from 'discord.js'
 import { getJson } from '@helpers/HttpUtils'
 import config from '@src/config'
-import type { Command } from '@structures/Command'
 
 const BASE_URL = 'https://some-random-api.com/lyrics'
 
-const command: Command = {
+const command: CommandData = {
   name: 'lyric',
   description: 'find lyric of the song',
   category: 'MUSIC',

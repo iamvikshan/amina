@@ -3,9 +3,8 @@ import {
   ChatInputCommandInteraction,
   TextChannel,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'say',
   description: 'Says a message as Mina to a channel you choose!',
   category: 'ADMIN',

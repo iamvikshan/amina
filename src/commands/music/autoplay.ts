@@ -1,9 +1,8 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
 import { autoplayFunction } from '@handlers/player'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'autoplay',
   description: 'Toggle autoplay feature for music player',
   category: 'MUSIC',

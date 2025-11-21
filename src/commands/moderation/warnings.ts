@@ -7,9 +7,8 @@ import {
 import { getWarningLogs, clearWarningLogs } from '@schemas/ModLog'
 import { getMember } from '@schemas/Member'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'warnings',
   description: 'list or clear user warnings',
   category: 'MODERATION',
@@ -79,6 +78,7 @@ const command: Command = {
     }
 
     await interaction.followUp(response)
+    return
   },
 }
 

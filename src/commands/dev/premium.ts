@@ -3,9 +3,8 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { getUser, updatePremium } from '@schemas/User'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'premium',
   description: 'Manage premium status for users',
   cooldown: 5,

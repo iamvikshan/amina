@@ -1,13 +1,13 @@
+import { getUser } from '@schemas/User'
+import { EMBED_COLORS } from '@src/config'
+
+import axios from 'axios'
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
+  EmbedBuilder,
   User,
 } from 'discord.js'
-import axios from 'axios'
-import { EMBED_COLORS } from '@src/config'
-import { getUser } from '@schemas/User'
-import type { Command } from '@structures/Command'
 
 const choices = [
   'bite',
@@ -33,13 +33,12 @@ interface PronounForms {
   possessive: string
 }
 
-const command: Command = {
+const command: CommandData = {
   name: 'react',
   description: 'express yourself with anime style!',
   category: 'ANIME',
   slashCommand: {
     enabled: true,
-    description: 'unleash your inner anime character!',
     options: [
       {
         name: 'reaction',
@@ -65,6 +64,7 @@ const command: Command = {
     }
     const embed = await genReaction(choice, interaction.user, target)
     await interaction.followUp({ embeds: [embed] })
+    return
   },
 }
 
@@ -105,10 +105,7 @@ async function getPronouns(user: User): Promise<PronounInfo> {
 
 function generatePronounForms(pronounString: string | null): PronounForms {
   // Convert pronoun string (e.g. "he/him" or "they/them") to useful forms
-  const [subject, object] = pronounString?.toLowerCase().split('/') || [
-    'they',
-    'them',
-  ]
+  const [subject] = pronounString?.toLowerCase().split('/') || ['they', 'them']
 
   // Handle common pronoun sets
   const pronounForms: Record<string, PronounForms> = {

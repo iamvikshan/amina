@@ -7,9 +7,8 @@ import {
 } from 'discord.js'
 import { diffHours, getRemainingTime } from '@helpers/Utils'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'rep',
   description: 'give reputation to a user',
   category: 'UTILITY',
@@ -69,6 +68,7 @@ const command: Command = {
     }
 
     await interaction.followUp(response)
+    return
   },
 }
 
@@ -117,7 +117,7 @@ async function giveReputation(user: User, target: User) {
     const lastRep = new Date(userData.reputation.timestamp)
     const diff = diffHours(new Date(), lastRep)
     if (diff < 24) {
-      const nextUsage = lastRep.setHours(lastRep.getHours() + 24)
+      const nextUsage = new Date(lastRep.setHours(lastRep.getHours() + 24))
       return `You can again run this command in \`${getRemainingTime(nextUsage)}\``
     }
   }

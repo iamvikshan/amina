@@ -1,8 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { showDevHub } from '@handlers/dev'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'dev',
   description: 'Developer-only commands',
   category: 'DEV',
@@ -11,7 +10,6 @@ const command: Command = {
   slashCommand: {
     enabled: true,
     ephemeral: true,
-    // No options - main command is executable directly
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {

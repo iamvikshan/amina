@@ -16,7 +16,7 @@ export default async (
   const response = await moveTarget(
     member as GuildMember,
     target,
-    reason,
+    reason || 'No reason provided',
     channel
   )
 

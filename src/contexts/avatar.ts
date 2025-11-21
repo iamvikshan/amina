@@ -1,6 +1,6 @@
 import { EmbedBuilder, ApplicationCommandType, type User } from 'discord.js'
 import config from '@src/config'
-import type { ContextData } from '@structures/BaseContext'
+// ContextData is now globally available - see types/contexts.d.ts
 
 const { EMBED_COLORS } = config
 

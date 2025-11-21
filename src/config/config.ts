@@ -1,116 +1,38 @@
 import type { ColorResolvable } from 'discord.js'
-
-interface LavalinkNode {
-  id?: string
-  host?: string
-  port: number
-  authorization?: string
-  secure: boolean
-  retryAmount: number
-  retryDelay: number
-}
-
-interface Config {
-  INTERACTIONS: {
-    SLASH: string
-    CONTEXT: string
-    GLOBAL: boolean
-  }
-  CACHE_SIZE: {
-    GUILDS: number
-    USERS: number
-    MEMBERS: number
-  }
-  MESSAGES: {
-    API_ERROR: string
-  }
-  FEEDBACK: {
-    ENABLED: boolean
-    URL?: string
-  }
-  AUTOMOD: {
-    ENABLED: boolean
-    LOG_EMBED: ColorResolvable
-    DM_EMBED: ColorResolvable
-  }
-  DASHBOARD: {
-    enabled: boolean
-    port: string
-  }
-  ECONOMY: {
-    ENABLED: boolean
-    CURRENCY: string
-    DAILY_COINS: number
-    MIN_BEG_AMOUNT: number
-    MAX_BEG_AMOUNT: number
-  }
-  MUSIC: {
-    ENABLED: boolean
-    IDLE_TIME: number
-    DEFAULT_VOLUME: number
-    MAX_SEARCH_RESULTS: number
-    DEFAULT_SOURCE: string
-    LAVALINK_NODES: LavalinkNode[]
-  }
-  GIVEAWAYS: {
-    ENABLED: boolean
-    REACTION: string
-    START_EMBED: ColorResolvable
-    END_EMBED: ColorResolvable
-  }
-  IMAGE: {
-    ENABLED: boolean
-    BASE_API: string
-  }
-  INVITE: {
-    ENABLED: boolean
-  }
-  EMBED_COLORS: {
-    BOT_EMBED: ColorResolvable
-    SUCCESS: ColorResolvable
-    ERROR: ColorResolvable
-    WARNING: ColorResolvable
-  }
-  MODERATION: {
-    ENABLED: boolean
-    EMBED_COLORS: {
-      TIMEOUT: ColorResolvable
-      UNTIMEOUT: ColorResolvable
-      KICK: ColorResolvable
-      SOFTBAN: ColorResolvable
-      BAN: ColorResolvable
-      UNBAN: ColorResolvable
-      VMUTE: ColorResolvable
-      VUNMUTE: ColorResolvable
-      DEAFEN: ColorResolvable
-      UNDEAFEN: ColorResolvable
-      DISCONNECT: ColorResolvable
-      MOVE: ColorResolvable
-    }
-  }
-  STATS: {
-    ENABLED: boolean
-    XP_COOLDOWN: number
-    DEFAULT_LVL_UP_MSG: string
-  }
-  SUGGESTIONS: {
-    ENABLED: boolean
-    EMOJI: {
-      UP_VOTE: string
-      DOWN_VOTE: string
-    }
-    DEFAULT_EMBED: ColorResolvable
-    APPROVED_EMBED: ColorResolvable
-    DENIED_EMBED: ColorResolvable
-  }
-  TICKET: {
-    ENABLED: boolean
-    CREATE_EMBED: ColorResolvable
-    CLOSE_EMBED: ColorResolvable
-  }
-}
+import { secret } from './secrets'
 
 const config: Config = {
+  BOT: {
+    DEV_IDS: ['929835843479302204'],
+    TEST_GUILD_ID: '1072214895598248030',
+    SUPPORT_SERVER: 'https://discord.gg/uMgS9evnmv',
+    DASHBOARD_URL: 'https://4mina.app',
+    DONATE_URL: 'https://ko-fi.com/vikshan',
+  },
+  AI: {
+    MODEL: process.env.GEMINI_MODEL || 'gemini-pro',
+    MAX_TOKENS: Number(process.env.MAX_TOKENS) || 1024,
+    TIMEOUT_MS: Number(process.env.TIMEOUT_MS) || 20000,
+    SYSTEM_PROMPT:
+      process.env.SYSTEM_PROMPT ||
+      'You are Amina, a helpful Discord bot assistant.',
+    TEMPERATURE: (() => {
+      const temp = process.env.TEMPERATURE
+      if (!temp) return 0.7
+      const num = Number(temp)
+      return isNaN(num) ? 0.7 : Math.max(0, Math.min(2, num))
+    })(),
+    DM_ENABLED_GLOBALLY: process.env.DM_ENABLED_GLOBALLY === 'true',
+    UPSTASH_URL: 'https://up-wolf-22896-us1-vector.upstash.io',
+  },
+  SERVER: {
+    HEALTH_PORT: 3000,
+  },
+  MONITORING: {
+    ENVIRONMENT:
+      process.env.NODE_ENV || process.env.DOPPLER_ENVIRONMENT || 'development',
+    REVISION: process.env.HONEYBADGER_REVISION || 'unknown',
+  },
   INTERACTIONS: {
     SLASH: 'true', // Should the interactions be enabled
     CONTEXT: 'true', // Should contexts be enabled
@@ -131,19 +53,13 @@ const config: Config = {
   // whether or not to enable feedback/report system
   FEEDBACK: {
     ENABLED: true,
-    URL: process.env.LOGS_WEBHOOK,
+    URL: secret.LOGS_WEBHOOK,
   },
 
   AUTOMOD: {
     ENABLED: true,
     LOG_EMBED: '#F1F1F1', // Light gray for a neutral tone
     DM_EMBED: '#FFB3D9', // Soft pastel pink for DM embeds
-  },
-
-  DASHBOARD: {
-    enabled:
-      process.env.DASH !== undefined ? process.env.DASH === 'true' : true,
-    port: process.env.PORT || '8080', // Port to run the dashboard on
   },
 
   ECONOMY: {
@@ -160,26 +76,17 @@ const config: Config = {
     DEFAULT_VOLUME: 60, // Default player volume 1-100
     MAX_SEARCH_RESULTS: 5,
     DEFAULT_SOURCE: 'scsearch', // ytsearch = Youtube, ytmsearch = Youtube Music, scsearch = SoundCloud, spsearch = Spotify
-    LAVALINK_NODES: [
-      {
-        id: process.env.LAVALINK_ID_1,
-        host: process.env.LAVALINK_HOST_1,
-        port: Number(process.env.LAVALINK_PORT_1),
-        authorization: process.env.LAVALINK_PASSWORD_1,
-        secure: process.env.LAVALINK_SECURE_1 === 'true',
-        retryAmount: 20,
-        retryDelay: 30000,
-      },
-      {
-        id: process.env.LAVALINK_ID_2,
-        host: process.env.LAVALINK_HOST_2,
-        port: Number(process.env.LAVALINK_PORT_2),
-        authorization: process.env.LAVALINK_PASSWORD_2,
-        secure: process.env.LAVALINK_SECURE_2 === 'true',
-        retryAmount: 20,
-        retryDelay: 30000,
-      },
-    ].filter(node => node.id && node.host), // Only include nodes that are defined
+    LAVALINK_RETRY_AMOUNT: 20,
+    LAVALINK_RETRY_DELAY: 30000,
+    LAVALINK_NODES: secret.LAVALINK_NODES.map(node => ({
+      id: node.id,
+      host: node.host,
+      port: node.port || 2333,
+      authorization: node.authorization,
+      secure: node.secure || false,
+      retryAmount: 20,
+      retryDelay: 30000,
+    })).filter(node => node.id && node.host), // Only include nodes that are defined
   },
 
   GIVEAWAYS: {
@@ -249,14 +156,20 @@ const config: Config = {
 // Export as default
 export default config
 
+// Export as named export for convenience
+export { config }
+
 // Named exports for destructured requires
 export const {
+  BOT,
+  AI,
+  SERVER,
+  MONITORING,
   INTERACTIONS,
   CACHE_SIZE,
   MESSAGES,
   FEEDBACK,
   AUTOMOD,
-  DASHBOARD,
   ECONOMY,
   MUSIC,
   GIVEAWAYS,

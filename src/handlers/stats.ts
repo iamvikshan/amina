@@ -29,7 +29,7 @@ export default {
    */
   async trackMessageStats(
     message: Message,
-    isCommand: boolean,
+    _isCommand: boolean,
     settings: any
   ): Promise<void> {
     if (!message.guildId || !message.member) return

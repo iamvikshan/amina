@@ -7,7 +7,6 @@ import {
 import { MESSAGES, EMBED_COLORS } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
 import axios from 'axios'
-import type { Command } from '@structures/Command'
 
 const BASE_URL = 'https://some-random-api.com/animal'
 
@@ -100,7 +99,7 @@ const AMINA_RESPONSES: Record<string, string[]> = {
   ],
 }
 
-const command: Command = {
+const command: CommandData = {
   name: 'image',
   description: 'Let Amina find you amazing pictures! 🎨✨',
   cooldown: 1,
@@ -166,6 +165,7 @@ const command: Command = {
     // Add reactions for all images
     await message.react('❤️').catch(() => {})
     await message.react('✨').catch(() => {})
+    return
   },
 }
 
@@ -174,7 +174,7 @@ async function getAnimalImage(
   choice: string
 ): Promise<{ content?: string; embeds?: EmbedBuilder[] }> {
   const response = await getJson(`${BASE_URL}/${choice}`)
-  if (!response.success) return MESSAGES.API_ERROR
+  if (!response.success) return { content: MESSAGES.API_ERROR }
 
   const imageUrl = response.data?.image
   const embed = new EmbedBuilder()

@@ -12,7 +12,6 @@ import {
 } from 'discord.js'
 import { getMember } from '@schemas/Member'
 import { stripIndent } from 'common-tags'
-import type { Command } from '@structures/Command'
 
 const {
   getEffectiveInvites,
@@ -21,7 +20,7 @@ const {
   resetInviteCache,
 } = inviteHandler
 
-const command: Command = {
+const command: CommandData = {
   name: 'invite',
   description: 'Invite management system',
   category: 'INVITE',
@@ -293,12 +292,16 @@ const command: Command = {
             }
             response = await addInviteRank(
               interaction.guild,
-              role,
+              role as Role,
               invites,
               settings
             )
           } else if (sub === 'remove') {
-            response = await removeInviteRank(interaction.guild, role, settings)
+            response = await removeInviteRank(
+              interaction.guild,
+              role as Role,
+              settings
+            )
           }
         }
       }
@@ -312,7 +315,7 @@ async function getInvites(guild: Guild, user: User, settings: any) {
   if (!settings.invite?.tracking)
     return `Invite tracking is disabled in this server`
 
-  const memberDb = await getMember(guild.id, user.id)
+  const memberDb = (await getMember(guild.id, user.id)) as any as IMember
   const inviteData = memberDb.invite_data
 
   if (!inviteData) {
@@ -370,7 +373,7 @@ async function getInviter(guild: Guild, user: User, settings: any) {
   if (!settings.invite?.tracking)
     return `Invite tracking is disabled in this server`
 
-  const memberDb = await getMember(guild.id, user.id)
+  const memberDb = (await getMember(guild.id, user.id)) as any as IMember
   const inviteData = memberDb.invite_data
 
   if (!inviteData || !inviteData.inviter) {
@@ -386,7 +389,10 @@ async function getInviter(guild: Guild, user: User, settings: any) {
     return `Cannot fetch inviter information for \`${user.username}\``
   }
 
-  const inviterDb = await getMember(guild.id, inviteData.inviter)
+  const inviterDb = (await getMember(
+    guild.id,
+    inviteData.inviter
+  )) as any as IMember
   const inviterData = inviterDb.invite_data
 
   const embed = new EmbedBuilder()
@@ -428,7 +434,7 @@ async function getInviteRanks(guild: Guild, settings: any) {
 async function addInvites(guild: Guild, user: User, amount: number) {
   if (user.bot) return 'Oops! You cannot add invites to bots'
 
-  const memberDb = await getMember(guild.id, user.id)
+  const memberDb = (await getMember(guild.id, user.id)) as any as IMember
   if (!memberDb.invite_data) {
     memberDb.invite_data = {
       tracked: 0,
@@ -453,7 +459,7 @@ async function addInvites(guild: Guild, user: User, amount: number) {
 }
 
 async function clearInvites(guild: Guild, user: User) {
-  const memberDb = await getMember(guild.id, user.id)
+  const memberDb = (await getMember(guild.id, user.id)) as any as IMember
   if (!memberDb.invite_data) {
     memberDb.invite_data = {
       tracked: 0,
@@ -487,7 +493,7 @@ async function importInvites(guild: Guild, user: User | null) {
   }
 
   for (const [userId, uses] of tempMap.entries()) {
-    const memberDb = await getMember(guild.id, userId)
+    const memberDb = (await getMember(guild.id, userId)) as any as IMember
     if (!memberDb.invite_data) {
       memberDb.invite_data = {
         tracked: 0,
@@ -594,7 +600,7 @@ async function setStatus(guild: Guild, input: string, settings: any) {
 
     await cacheGuildInvites(guild)
   } else {
-    resetInviteCache(guild.id)
+    resetInviteCache(guild)
   }
 
   settings.invite.tracking = status

@@ -2,7 +2,6 @@ import {
   StringSelectMenuInteraction,
   EmbedBuilder,
   TextChannel,
-  MessageFlags,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { createSecondaryBtn } from '@helpers/componentHelper'

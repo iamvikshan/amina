@@ -24,7 +24,7 @@ class MongooseGiveaways extends GiveawaysManager {
     return await Model.find().lean().exec()
   }
 
-  async saveGiveaway(messageId: string, giveawayData: any): Promise<boolean> {
+  async saveGiveaway(_messageId: string, giveawayData: any): Promise<boolean> {
     await Model.create(giveawayData)
     return true
   }

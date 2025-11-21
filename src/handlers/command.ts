@@ -11,7 +11,7 @@ import config from '@src/config'
 import Utils from '@helpers/Utils'
 import { getSettings } from '@schemas/Guild'
 import Honeybadger from '@helpers/Honeybadger'
-import type { CommandData } from '@structures/Command'
+// CommandData is now globally available - see types/commands.d.ts
 
 interface BotClient extends Client {
   slashCommands: Collection<string, CommandData>
@@ -61,7 +61,7 @@ export const handleSlashCommand = async (
   // DEV commands
   if (
     cmd.category === 'DEV' &&
-    !process.env.DEV_ID.includes(interaction.user.id)
+    !config.BOT.DEV_IDS.includes(interaction.user.id)
   ) {
     await interaction.reply({
       content: `💔 Oh no! Only my sweet developers can use this command~!`,

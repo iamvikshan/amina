@@ -5,9 +5,8 @@ import {
   ChatInputCommandInteraction,
   TextChannel,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'levelup',
   description: 'configure the levelling system',
   category: 'UTILITY',

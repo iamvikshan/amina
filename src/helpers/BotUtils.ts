@@ -2,7 +2,7 @@
 import HttpUtils from '@helpers/HttpUtils'
 import { success, warn, error } from '@helpers/Logger'
 import type { Message } from 'discord.js'
-import type { Validation } from '@structures/Command'
+// Validation is now globally available - see types/commands.d.ts
 
 /**
  * Bot utility class with helper methods for version checks, image extraction, etc.
@@ -13,7 +13,7 @@ export default class BotUtils {
    */
   static async checkForUpdates(): Promise<void> {
     const response = await HttpUtils.getJson(
-      'https://api.github.com/repos/saiteja-madha/discord-js-bot/releases/latest'
+      'https://api.github.com/repos/iamvikshan/amina/releases/latest'
     )
 
     if (!response.success) {
@@ -22,16 +22,30 @@ export default class BotUtils {
 
     if (response.data) {
       const packageJson = await import('@root/package.json')
-      const currentVersion = packageJson.default.version.replace(/[^0-9]/g, '')
-      const latestVersion = response.data.tag_name.replace(/[^0-9]/g, '')
+      const currentVersion = packageJson.default.version
+      const latestVersion = (response.data.tag_name as string).replace(/^v/, '')
 
-      if (currentVersion >= latestVersion) {
+      // Simple semver compare
+      const v1 = currentVersion.split('.').map(Number)
+      const v2 = latestVersion.split('.').map(Number)
+
+      let isUpdateAvailable = false
+      for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
+        const num1 = v1[i] || 0
+        const num2 = v2[i] || 0
+        if (num1 < num2) {
+          isUpdateAvailable = true
+          break
+        } else if (num1 > num2) {
+          break
+        }
+      }
+
+      if (!isUpdateAvailable) {
         success('VersionCheck: Your discord bot is up to date')
       } else {
         warn(`VersionCheck: ${response.data.tag_name} update is available`)
-        warn(
-          'download: https://github.com/saiteja-madha/discord-js-bot/releases/latest'
-        )
+        warn('download: https://github.com/iamvikshan/amina/releases/latest')
       }
     }
   }

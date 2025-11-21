@@ -67,9 +67,15 @@ export async function handleForgetMeConfirm(
 
     // Also set ignoreMe to true
     const userData = await getUser(interaction.user)
-    userData.minaAi = {
-      ...(userData.minaAi || {}),
-      ignoreMe: true,
+    if (!userData.minaAi) {
+      userData.minaAi = {
+        ignoreMe: true,
+        allowDMs: false,
+        combineDmWithServer: false,
+        globalServerMemories: false,
+      }
+    } else {
+      userData.minaAi.ignoreMe = true
     }
     await userData.save()
 

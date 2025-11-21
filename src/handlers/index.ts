@@ -13,7 +13,8 @@ export { default as ticketHandler } from './ticket/index'
 export { default as todHandler } from './tod'
 export { default as reportHandler } from './report'
 export { default as guildHandler } from './guild'
-export { default as profileHandler } from './profile'
+// Profile handler - now modular, import functions as needed
+// Legacy compatibility maintained through direct imports in interactionCreate.ts
 
 // Handlers with named exports - export namespace
 export * as commandHandler from './command'

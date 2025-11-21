@@ -3,9 +3,8 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { AUTOMOD } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'anti',
   description: 'Manage various automod settings for the server',
   category: 'AUTOMOD',

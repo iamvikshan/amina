@@ -1,19 +1,9 @@
 // @root/src/config/aiResponder.ts
 
+// AiConfig type is globally available from types/global.d.ts
 import { getAiConfig } from '../database/schemas/Dev'
-
-interface AiConfig {
-  globallyEnabled: boolean
-  model: string
-  maxTokens: number
-  timeoutMs: number
-  systemPrompt: string
-  temperature: number
-  dmEnabledGlobally: boolean
-  geminiKey: string
-  upstashUrl: string
-  upstashToken: string
-}
+import config from './config'
+import { secret } from './secrets'
 
 class ConfigCache {
   private cache: any = null
@@ -28,46 +18,44 @@ class ConfigCache {
       this.lastFetch = Date.now()
     }
 
-    // Merge with env vars (env takes precedence for secrets)
-    const geminiKey = process.env.GEMINI_KEY || ''
+    // Merge with config (config takes precedence, then DB cache)
+    const geminiKey = secret.GEMINI_KEY || ''
     if (!geminiKey && this.cache.globallyEnabled) {
       throw new Error(
         'GEMINI_KEY environment variable is required when AI is enabled'
       )
     }
 
-    const config = {
+    const aiConfig = {
       globallyEnabled: this.cache.globallyEnabled,
-      model: process.env.GEMINI_MODEL || this.cache.model,
-      maxTokens: Number(process.env.MAX_TOKENS) || this.cache.maxTokens || 1024,
-      timeoutMs:
-        Number(process.env.TIMEOUT_MS) || this.cache.timeoutMs || 20000,
+      model: config.AI.MODEL || this.cache.model,
+      maxTokens: config.AI.MAX_TOKENS || this.cache.maxTokens || 1024,
+      timeoutMs: config.AI.TIMEOUT_MS || this.cache.timeoutMs || 20000,
       systemPrompt:
-        process.env.SYSTEM_PROMPT ||
+        config.AI.SYSTEM_PROMPT ||
         this.cache.systemPrompt ||
         'You are Amina, a helpful Discord bot assistant.',
       temperature:
-        this.parseTemperature(process.env.TEMPERATURE) ??
+        this.parseTemperature(config.AI.TEMPERATURE.toString()) ??
         this.cache.temperature ??
         0.7,
       dmEnabledGlobally:
-        process.env.DM_ENABLED_GLOBALLY === 'true' ||
-        this.cache.dmEnabledGlobally,
+        config.AI.DM_ENABLED_GLOBALLY || this.cache.dmEnabledGlobally,
       geminiKey,
-      upstashUrl: 'https://up-wolf-22896-us1-vector.upstash.io',
-      upstashToken: process.env.UPSTASH_VECTOR || '',
+      upstashUrl: config.AI.UPSTASH_URL,
+      upstashToken: secret.UPSTASH_VECTOR || '',
     }
 
     // Validate config
-    if (config.globallyEnabled) {
-      if (!config.geminiKey) throw new Error('GEMINI_KEY is required')
-      if (!config.upstashToken)
+    if (aiConfig.globallyEnabled) {
+      if (!aiConfig.geminiKey) throw new Error('GEMINI_KEY is required')
+      if (!aiConfig.upstashToken)
         throw new Error('UPSTASH_VECTOR token is required')
-      if (!config.model) throw new Error('Model name is required')
-      if (!config.systemPrompt) throw new Error('System prompt is required')
+      if (!aiConfig.model) throw new Error('Model name is required')
+      if (!aiConfig.systemPrompt) throw new Error('System prompt is required')
     }
 
-    return config
+    return aiConfig
   }
 
   private parseTemperature(value: string | undefined): number | null {

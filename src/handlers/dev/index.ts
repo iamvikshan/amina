@@ -8,17 +8,14 @@ export {
   showRemoveTodModal,
   handleRemoveTodModal,
 } from './tod'
-export {
-  showReloadMenu,
-  handleReloadType,
-  registerReloadAutocomplete,
-} from './reload'
+export { showReloadMenu, handleReloadType } from './reload'
 export {
   showTrigSettings,
   handleTrigSettingsChannelSelect,
   handleTrigSettingsConfirm,
 } from './trig-settings'
-export { showListservers } from './listservers'
+export { showListservers, handleListserversPage } from './listservers'
+export { showLeaveServerModal, handleLeaveServerModal } from './leaveserver'
 export {
   showPresenceMenu,
   showPresenceModal,
@@ -55,6 +52,8 @@ import {
   handleMinaAiModal,
 } from './minaai'
 import { handleTodMenu, handleAddTodModal, handleRemoveTodModal } from './tod'
+import { handleListserversPage } from './listservers'
+import { handleLeaveServerModal } from './leaveserver'
 
 export default {
   showDevHub,
@@ -74,4 +73,6 @@ export default {
   handleTodMenu,
   handleAddTodModal,
   handleRemoveTodModal,
+  handleListserversPage,
+  handleLeaveServerModal,
 }

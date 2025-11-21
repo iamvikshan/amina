@@ -7,7 +7,11 @@ export default async (
   reason: string | null
 ): Promise<string> => {
   const { member } = interaction
-  const response = await unDeafenTarget(member as GuildMember, target, reason)
+  const response = await unDeafenTarget(
+    member as GuildMember,
+    target,
+    reason || 'No reason provided'
+  )
   if (typeof response === 'boolean') {
     return `${target.user.username} is undeafened in this server`
   }

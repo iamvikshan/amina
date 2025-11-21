@@ -1,9 +1,8 @@
 import { EmbedBuilder, ChatInputCommandInteraction, User } from 'discord.js'
 import { getUser } from '@schemas/User'
 import { EMBED_COLORS, ECONOMY } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'beg',
   description: 'beg from someone',
   category: 'ECONOMY',

@@ -5,9 +5,8 @@ import {
   GuildMember,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'nick',
   description: 'nickname commands',
   category: 'MODERATION',
@@ -70,6 +69,7 @@ const command: Command = {
 
     const response = await nickname(interaction, target, name)
     await interaction.followUp(response)
+    return
   },
 }
 

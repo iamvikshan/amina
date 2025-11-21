@@ -7,12 +7,13 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { timeformat } from '@helpers/Utils'
-import { EMBED_COLORS, DASHBOARD } from '@src/config'
+import { EMBED_COLORS, config, secret } from '@src/config'
 import botstats from './sub/botstats'
-import type { Command } from '@structures/Command'
-import type { BotClient } from '@structures/BotClient'
 
-const command: Command = {
+import type { BotClient } from '@structures/BotClient'
+import packageJson from '@root/package.json'
+
+const command: CommandData = {
   name: 'bot',
   description: 'bot related commands',
   category: 'INFO',
@@ -90,24 +91,26 @@ const command: Command = {
 
       // Buttons
       let components = []
-      components.push(
-        new ButtonBuilder()
-          .setLabel('Ko-fi')
-          .setURL(process.env.DONATE_URL)
-          .setStyle(ButtonStyle.Link)
-      )
+      if (config.BOT.DONATE_URL) {
+        components.push(
+          new ButtonBuilder()
+            .setLabel('Ko-fi')
+            .setURL(config.BOT.DONATE_URL)
+            .setStyle(ButtonStyle.Link)
+        )
+      }
 
       components.push(
         new ButtonBuilder()
           .setLabel('Github Sponsors')
-          .setURL(`https://github.com/sponsors/${process.env.GH_USERNAME}`)
+          .setURL(`https://github.com/sponsors/iamvikshan`)
           .setStyle(ButtonStyle.Link)
       )
 
       components.push(
         new ButtonBuilder()
           .setLabel('Patreon')
-          .setURL(process.env.PATREON_URL)
+          .setURL('https://patreon.com/vikshan')
           .setStyle(ButtonStyle.Link)
       )
 
@@ -146,7 +149,7 @@ const command: Command = {
       components.push(
         new ButtonBuilder()
           .setLabel('Documentation')
-          .setURL(process.env.DOCS_URL)
+          .setURL('https://docs.vikshan.me')
           .setStyle(ButtonStyle.Link)
       )
 
@@ -166,16 +169,24 @@ const command: Command = {
     // Changelog
     else if (sub === 'changelog') {
       try {
-        const githubToken = process.env.GH_TOKEN
+        const githubToken = secret.GH_TOKEN
         const octokitModule = await import('@octokit/rest')
         const Octokit = octokitModule.Octokit
         const octokitOptions = githubToken ? { auth: githubToken } : {}
 
         const octokit = new Octokit(octokitOptions)
+
+        // Parse owner and repo from package.json repository url
+        // Format: git+https://github.com/owner/repo.git
+        const repoUrl = packageJson.repository.url
+        const repoMatch = repoUrl.match(/github\.com\/([^/]+)\/([^/.]+)/)
+        const owner = repoMatch ? repoMatch[1] : 'iamvikshan'
+        const repo = repoMatch ? repoMatch[2] : 'amina'
+
         const response = await octokit.repos.getContent({
-          owner: process.env.GH_USERNAME,
-          repo: process.env.GH_REPO,
-          path: process.env.CHANGELOG_PATH,
+          owner,
+          repo,
+          path: 'CHANGELOG.md',
         })
 
         const changelogContent = Buffer.from(
@@ -185,7 +196,7 @@ const command: Command = {
 
         // Split the changelog into version blocks and get only the first two versions
         const versions = changelogContent
-          .split(/(?=# Amina v[0-9]+\.[0-9]+\.[0-9]+)/i)
+          .split(/(?=#\s*\[v?\d+\.\d+\.\d+\])/i)
           .filter(block => block.trim())
           .slice(0, 2)
           .map(version => {
@@ -208,7 +219,7 @@ const command: Command = {
           .setAuthor({ name: 'Latest Updates' })
           .setColor(EMBED_COLORS.BOT_EMBED)
           .setDescription(
-            `${latestUpdates}\n\n[**View full changelog**](https://github.com/${process.env.GH_USERNAME}/${process.env.GH_REPO}/blob/main/${process.env.CHANGELOG_PATH})`
+            `${latestUpdates}\n\n[**View full changelog**](https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md)`
           )
           .setFooter({
             text: 'Only showing the 2 most recent updates',
@@ -218,7 +229,7 @@ const command: Command = {
       } catch (error) {
         console.error('Error fetching changelog:', error)
         return interaction.followUp(
-          `Error fetching the changelog. Please try again later or view full changelog [here](https://github.com/${process.env.GH_USERNAME}/${process.env.GH_REPO}/blob/main/${process.env.CHANGELOG_PATH}).`
+          `Error fetching the changelog. Please try again later or view full changelog [here](https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md).`
         )
       }
     }
@@ -245,18 +256,18 @@ function botInvite(client: BotClient) {
       .setStyle(ButtonStyle.Link)
   )
 
-  if (process.env.SUPPORT_SERVER) {
+  if (config.BOT.SUPPORT_SERVER) {
     components.push(
       new ButtonBuilder()
         .setLabel('Support Server')
-        .setURL(process.env.SUPPORT_SERVER)
+        .setURL(config.BOT.SUPPORT_SERVER)
         .setStyle(ButtonStyle.Link)
     )
   }
-  if (DASHBOARD.enabled) {
-    const dashboardUrl = process.env.BASE_URL.startsWith('http')
-      ? process.env.BASE_URL
-      : `https://${process.env.BASE_URL}`
+  if (config.BOT.DASHBOARD_URL) {
+    const dashboardUrl = config.BOT.DASHBOARD_URL.startsWith('http')
+      ? config.BOT.DASHBOARD_URL
+      : `https://${config.BOT.DASHBOARD_URL}`
 
     components.push(
       new ButtonBuilder()

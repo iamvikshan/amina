@@ -10,7 +10,7 @@ import type { BotClient } from '@src/structures'
  * @param {GuildMember} newMember - The member after role changes
  */
 export default async (
-  client: BotClient,
+  _client: BotClient,
   oldMember: GuildMember,
   newMember: GuildMember
 ): Promise<void> => {

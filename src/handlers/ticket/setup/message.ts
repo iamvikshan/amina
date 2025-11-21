@@ -2,7 +2,6 @@ import {
   StringSelectMenuInteraction,
   ChannelSelectMenuInteraction,
   ModalSubmitInteraction,
-  ButtonInteraction,
   EmbedBuilder,
   ActionRowBuilder,
   ChannelSelectMenuBuilder,
@@ -98,38 +97,42 @@ async function showTicketMessageModal(
   interaction: ChannelSelectMenuInteraction,
   channel: TextChannel
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId(`ticket:modal:message|ch:${channel.id}`)
-    .setTitle('Ticket Message Setup')
-    .addComponents(
+  const modal = new ModalBuilder({
+    customId: `ticket:modal:message|ch:${channel.id}`,
+    title: 'Ticket Message Setup',
+    components: [
       new ActionRowBuilder<TextInputBuilder>().addComponents(
-        new TextInputBuilder()
-          .setCustomId('title')
-          .setLabel('Embed Title')
-          .setStyle(TextInputStyle.Short)
-          .setPlaceholder('Support Ticket')
-          .setRequired(false)
-          .setMaxLength(256)
+        new TextInputBuilder({
+          customId: 'title',
+          label: 'Embed Title',
+          style: TextInputStyle.Short,
+          placeholder: 'Support Ticket',
+          required: false,
+          maxLength: 256,
+        })
       ),
       new ActionRowBuilder<TextInputBuilder>().addComponents(
-        new TextInputBuilder()
-          .setCustomId('description')
-          .setLabel('Embed Description')
-          .setStyle(TextInputStyle.Paragraph)
-          .setPlaceholder('Please use the button below to create a ticket')
-          .setRequired(false)
-          .setMaxLength(2048)
+        new TextInputBuilder({
+          customId: 'description',
+          label: 'Embed Description',
+          style: TextInputStyle.Paragraph,
+          placeholder: 'Please use the button below to create a ticket',
+          required: false,
+          maxLength: 2048,
+        })
       ),
       new ActionRowBuilder<TextInputBuilder>().addComponents(
-        new TextInputBuilder()
-          .setCustomId('footer')
-          .setLabel('Embed Footer')
-          .setStyle(TextInputStyle.Short)
-          .setPlaceholder('You can only have 1 open ticket at a time!')
-          .setRequired(false)
-          .setMaxLength(2048)
-      )
-    )
+        new TextInputBuilder({
+          customId: 'footer',
+          label: 'Embed Footer',
+          style: TextInputStyle.Short,
+          placeholder: 'You can only have 1 open ticket at a time!',
+          required: false,
+          maxLength: 2048,
+        })
+      ),
+    ],
+  })
 
   await interaction.showModal(modal)
 }

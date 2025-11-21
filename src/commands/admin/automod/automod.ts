@@ -7,9 +7,8 @@ import {
 } from 'discord.js'
 import { EMBED_COLORS, AUTOMOD } from '@src/config'
 import { stripIndent } from 'common-tags'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'automod',
   description: 'Various automod configuration!',
   category: 'AUTOMOD',
@@ -165,6 +164,7 @@ const command: Command = {
     }
 
     await interaction.followUp(response)
+    return
   },
 }
 

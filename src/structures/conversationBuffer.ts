@@ -8,6 +8,10 @@ export interface Message {
   role: 'user' | 'model'
   content: string
   timestamp: number
+  // User attribution fields (optional for backward compatibility)
+  userId?: string // Discord user ID
+  username?: string // Display name for context
+  displayName?: string // Guild nickname or username
 }
 
 interface ConversationEntry {
@@ -27,14 +31,34 @@ export class ConversationBuffer {
     this.startCleanupDaemon()
   }
 
-  append(conversationId: string, role: 'user' | 'model', content: string) {
+  append(
+    conversationId: string,
+    role: 'user' | 'model',
+    content: string,
+    userId?: string,
+    username?: string,
+    displayName?: string
+  ) {
     const entry = this.cache.get(conversationId) || {
       messages: [],
       createdAt: Date.now(),
       lastActivityAt: Date.now(),
     }
 
-    entry.messages.push({ role, content, timestamp: Date.now() })
+    const message: Message = {
+      role,
+      content,
+      timestamp: Date.now(),
+    }
+
+    // Add user attribution for user messages
+    if (role === 'user' && userId) {
+      message.userId = userId
+      if (username) message.username = username
+      if (displayName) message.displayName = displayName
+    }
+
+    entry.messages.push(message)
 
     // Trim to max messages (ring buffer behavior)
     if (entry.messages.length > this.MAX_MESSAGES) {

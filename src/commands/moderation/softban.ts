@@ -5,9 +5,8 @@ import {
   GuildMember,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'softban',
   description: 'softban the specified member. Kicks and deletes messages',
   category: 'MODERATION',
@@ -60,6 +59,7 @@ const command: Command = {
       reason
     )
     await interaction.followUp(response)
+    return
   },
 }
 
@@ -68,7 +68,11 @@ async function softban(
   target: GuildMember,
   reason: string | null
 ): Promise<string> {
-  const response = await softbanTarget(issuer, target, reason)
+  const response = await softbanTarget(
+    issuer,
+    target,
+    reason || 'No reason provided'
+  )
   if (typeof response === 'boolean')
     return `${target.user.username} is soft-banned!`
   if (response === 'BOT_PERM')

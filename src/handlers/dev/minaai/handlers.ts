@@ -23,7 +23,6 @@ import {
 import { getAiConfig } from '@schemas/Dev'
 import { postToBin } from '@helpers/HttpUtils'
 import { createSecondaryBtn, createLinkBtn } from '@helpers/componentHelper'
-import type { ChatInputCommandInteraction } from 'discord.js'
 
 /**
  * Show Mina AI operations menu with current settings
@@ -191,28 +190,43 @@ export async function handleMinaAiOperation(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
   operation: string
 ): Promise<void> {
-  // Create a mock ChatInputCommandInteraction-like object for the existing functions
-  const mockInteraction = {
-    ...interaction,
+  // Define a partial interface for what we need from the interaction
+  interface MockInteraction
+    extends Pick<
+      ChatInputCommandInteraction,
+      'editReply' | 'followUp' | 'user' | 'guild' | 'client'
+    > {
     options: {
-      getBoolean: (name: string, required?: boolean) => {
-        // For toggle operations, we'll show a boolean select menu
-        return null
-      },
-      getString: (name: string, required?: boolean) => {
-        return null
-      },
-      getInteger: (name: string, required?: boolean) => {
-        return null
-      },
-      getNumber: (name: string, required?: boolean) => {
-        return null
-      },
-    },
+      getBoolean: (name: string, required?: boolean) => boolean | null
+      getString: (name: string, required?: boolean) => string | null
+      getInteger: (name: string, required?: boolean) => number | null
+      getNumber: (name: string, required?: boolean) => number | null
+    }
+  }
+
+  // Create a mock ChatInputCommandInteraction-like object for the existing functions
+  const mockInteraction: MockInteraction = {
     editReply: interaction.editReply.bind(interaction),
     followUp: interaction.followUp.bind(interaction),
     user: interaction.user,
-  } as any
+    guild: interaction.guild,
+    client: interaction.client,
+    options: {
+      getBoolean: (_name: string, _required?: boolean) => {
+        // For toggle operations, we'll show a boolean select menu
+        return null
+      },
+      getString: (_name: string, _required?: boolean) => {
+        return null
+      },
+      getInteger: (_name: string, _required?: boolean) => {
+        return null
+      },
+      getNumber: (_name: string, _required?: boolean) => {
+        return null
+      },
+    },
+  }
 
   switch (operation) {
     case 'toggle-global': {
@@ -411,23 +425,24 @@ export async function handleMinaAiToggle(
 async function showModelModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:minaai_model')
-    .setTitle('Set Gemini Model')
-
-  const modelInput = new TextInputBuilder()
-    .setCustomId('model')
-    .setLabel('Model Name')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g., gemini-flash-latest')
-    .setRequired(true)
-    .setMaxLength(100)
+  const modelInput = new TextInputBuilder({
+    customId: 'model',
+    label: 'Model Name',
+    style: TextInputStyle.Short,
+    placeholder: 'e.g., gemini-flash-latest',
+    required: true,
+    maxLength: 100,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     modelInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:minaai_model',
+    title: 'Set Gemini Model',
+    components: [firstRow],
+  })
 
   await interaction.showModal(modal)
 }
@@ -438,23 +453,24 @@ async function showModelModal(
 async function showTokensModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:minaai_tokens')
-    .setTitle('Set Max Tokens')
-
-  const tokensInput = new TextInputBuilder()
-    .setCustomId('tokens')
-    .setLabel('Max Tokens (100-4096)')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('2048')
-    .setRequired(true)
-    .setMaxLength(10)
+  const tokensInput = new TextInputBuilder({
+    customId: 'tokens',
+    label: 'Max Tokens (100-4096)',
+    style: TextInputStyle.Short,
+    placeholder: '2048',
+    required: true,
+    maxLength: 10,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     tokensInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:minaai_tokens',
+    title: 'Set Max Tokens',
+    components: [firstRow],
+  })
 
   await interaction.showModal(modal)
 }
@@ -465,23 +481,24 @@ async function showTokensModal(
 async function showPromptModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:minaai_prompt')
-    .setTitle('Set System Prompt')
-
-  const promptInput = new TextInputBuilder()
-    .setCustomId('prompt')
-    .setLabel('System Prompt')
-    .setStyle(TextInputStyle.Paragraph)
-    .setPlaceholder('Enter the system prompt...')
-    .setRequired(true)
-    .setMaxLength(4000)
+  const promptInput = new TextInputBuilder({
+    customId: 'prompt',
+    label: 'System Prompt',
+    style: TextInputStyle.Paragraph,
+    placeholder: 'Enter the system prompt...',
+    required: true,
+    maxLength: 4000,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     promptInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:minaai_prompt',
+    title: 'Set System Prompt',
+    components: [firstRow],
+  })
 
   await interaction.showModal(modal)
 }
@@ -492,23 +509,24 @@ async function showPromptModal(
 async function showTemperatureModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:minaai_temperature')
-    .setTitle('Set Temperature')
-
-  const temperatureInput = new TextInputBuilder()
-    .setCustomId('temperature')
-    .setLabel('Temperature (0-2)')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('0.7')
-    .setRequired(true)
-    .setMaxLength(10)
+  const temperatureInput = new TextInputBuilder({
+    customId: 'temperature',
+    label: 'Temperature (0-2)',
+    style: TextInputStyle.Short,
+    placeholder: '0.7',
+    required: true,
+    maxLength: 10,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     temperatureInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:minaai_temperature',
+    title: 'Set Temperature',
+    components: [firstRow],
+  })
 
   await interaction.showModal(modal)
 }

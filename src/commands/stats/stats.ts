@@ -7,9 +7,8 @@ import {
 import { getMemberStats } from '@schemas/MemberStats'
 import { EMBED_COLORS, STATS } from '@src/config'
 import { stripIndent } from 'common-tags'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'stats',
   description: 'displays members stats in this server',
   category: 'UTILITY',

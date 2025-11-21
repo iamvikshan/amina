@@ -68,9 +68,3 @@ export const getInvitesLb = async (guildId: string, limit = 10) =>
     { $sort: { invites: -1 } },
     { $limit: limit },
   ])
-
-// Default export for backwards compatibility
-export default {
-  getMember,
-  getInvitesLb,
-}

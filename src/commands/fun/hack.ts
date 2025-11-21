@@ -2,12 +2,10 @@ import {
   EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
-  User,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'hack',
   description:
     "Let Amina 'hack' into someone's life with her chaotic energy~! ✨",
@@ -116,6 +114,7 @@ const command: Command = {
         embeds: [resultsEmbed],
       })
     }
+    return
   },
 }
 

@@ -10,7 +10,6 @@ import {
   todHandler,
   reportHandler,
   guildHandler,
-  profileHandler,
 } from '@src/handlers'
 import rolesHandler from '@handlers/roles'
 import {
@@ -72,6 +71,28 @@ export default async (
 
   // Buttons
   if (interaction.isButton()) {
+    // Route profile button interactions
+    if (interaction.customId.startsWith('profile:btn:')) {
+      const [, , action] = interaction.customId.split(':')
+      if (action === 'back') {
+        const { handleProfileBackButton } = await import('@handlers/profile')
+        await handleProfileBackButton(interaction)
+        return
+      } else if (action === 'clear_confirm') {
+        const { handleClearConfirm } = await import('@handlers/profile')
+        await handleClearConfirm(interaction)
+        return
+      } else if (action === 'clear_cancel') {
+        const { handleClearCancel } = await import('@handlers/profile')
+        await handleClearCancel(interaction)
+        return
+      } else if (action === 'edit_from_view') {
+        const { showEditMenu } = await import('@handlers/profile')
+        await interaction.deferUpdate()
+        await showEditMenu(interaction)
+        return
+      }
+    }
     // Route admin buttons
     if (interaction.customId.startsWith('admin:btn:')) {
       const [, , action] = interaction.customId.split(':')
@@ -261,7 +282,7 @@ export default async (
 
     // Route dev buttons
     if (interaction.customId.startsWith('dev:btn:')) {
-      const [, , action, ...rest] = interaction.customId.split(':')
+      const [, , action] = interaction.customId.split(':')
 
       if (action === 'back') {
         const { handleDevBackButton } = await import('@handlers/dev')
@@ -273,6 +294,7 @@ export default async (
         action === 'back_reload' ||
         action === 'back_trig' ||
         action === 'back_listservers' ||
+        action === 'back_leaveserver' ||
         action === 'back_presence' ||
         action === 'back_minaai'
       ) {
@@ -303,15 +325,16 @@ export default async (
         await handleTrigSettingsConfirm(interaction)
         return
       }
-      if (action === 'listservers_prev' || action === 'listservers_next') {
-        // Handled by listservers collector
+      if (action.startsWith('listservers_page')) {
+        const { handleListserversPage } = await import('@handlers/dev')
+        await handleListserversPage(interaction)
         return
       }
     }
 
     // Route ticket buttons
     if (interaction.customId.startsWith('ticket:btn:')) {
-      const [, , action, ...rest] = interaction.customId.split(':')
+      const [, , action] = interaction.customId.split(':')
 
       if (action === 'back') {
         const { handleTicketBackButton } = await import(
@@ -487,6 +510,11 @@ export default async (
         await handleRemoveTodModal(interaction)
         return
       }
+      if (action === 'leaveserver') {
+        const { handleLeaveServerModal } = await import('@handlers/dev')
+        await handleLeaveServerModal(interaction)
+        return
+      }
       if (action.startsWith('minaai_')) {
         const { handleMinaAiModal } = await import('@handlers/dev/minaai')
         await handleMinaAiModal(interaction)
@@ -512,7 +540,8 @@ export default async (
         return
       case 'profile_set_basic_modal':
       case 'profile_set_misc_modal':
-        await profileHandler.handleProfileModal(interaction)
+        const { handleProfileModal } = await import('@handlers/profile')
+        await handleProfileModal(interaction)
         return
       default:
         if (interaction.customId.startsWith('report_modal_')) {
@@ -673,9 +702,31 @@ export default async (
       }
     }
 
+    // Route profile component interactions
+    if (interaction.customId.startsWith('profile:')) {
+      const [, type, submenu] = interaction.customId.split(':')
+      if (type === 'menu') {
+        if (submenu === 'operation') {
+          const { handleProfileOperationMenu } = await import(
+            '@handlers/profile'
+          )
+          await handleProfileOperationMenu(interaction)
+        } else if (submenu === 'edit') {
+          const { handleEditMenu } = await import('@handlers/profile')
+          await handleEditMenu(interaction)
+        } else if (submenu === 'privacy') {
+          const { handlePrivacyMenu } = await import('@handlers/profile')
+          await handlePrivacyMenu(interaction)
+        }
+        return
+      }
+    }
+
+    // Legacy profile clear (kept for backward compatibility)
     switch (interaction.customId) {
       case 'profile_clear_confirm':
-        await profileHandler.handleProfileClear(interaction)
+        const { handleProfileClearLegacy } = await import('@handlers/profile')
+        await handleProfileClearLegacy(interaction)
         return
     }
     return

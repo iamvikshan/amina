@@ -19,16 +19,6 @@
       "value": ""
     },
 
-    "CLIENT_SECRET": {
-      "description": "required for bot dashboard",
-      "required": true,
-      "value": ""
-    },
-    "SESSION_PASSWORD": {
-      "description": "required for dashboard",
-      "required": true,
-      "value": ""
-    },
     "WEATHERSTACK_KEY": {
       "description": "Required for Weather Command (https://weatherstack.com)",
       "required": false

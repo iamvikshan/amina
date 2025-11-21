@@ -5,7 +5,6 @@ import {
   User,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
 const NORMAL =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_,;.?!/\\'0123456789"
@@ -28,7 +27,7 @@ const waitingMessages = [
   '*can barely contain excitement* \nAlmost there! 💫',
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'flip',
   description: "Want to flip a coin or text? Let's play a fun game!",
   category: 'FUN',
@@ -81,6 +80,7 @@ const command: Command = {
         content: `*giggles* Here's your text, but make it ✨chaos✨:\n${response}`,
       })
     }
+    return
   },
 }
 

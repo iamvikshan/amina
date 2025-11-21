@@ -5,8 +5,9 @@ import {
   ButtonStyle,
   Guild,
 } from 'discord.js'
-import { getSettings } from '@schemas/Guild'
+import { getSettings, Model } from '@schemas/Guild'
 import { notifyDashboard } from '@helpers/webhook'
+import { config } from '@src/config'
 import type { BotClient } from '@src/structures'
 
 const wait = (ms: number): Promise<void> =>
@@ -23,6 +24,16 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
     `Guild Left: ${guild.name} (${guild.id}) Members: ${guild.memberCount}`
   )
 
+  const settings = await getSettings(guild)
+
+  // Update database directly
+  try {
+    await Model.findByIdAndUpdate(guild.id, {
+      'server.leftAt': new Date(),
+    })
+  } catch (err: any) {
+    client.logger.error(`Failed to update leftAt in DB: ${err.message}`)
+  }
 
   // Notify dashboard to refresh guild data (fire-and-forget)
   notifyDashboard(client, guild.id, 'leave')
@@ -75,7 +86,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
     try {
       await client.joinLeaveWebhook.send({
         username: 'Amina (Left)',
-        avatarURL: client.user.displayAvatarURL(),
+        avatarURL: client.user?.displayAvatarURL(),
         embeds: [webhookEmbed],
       })
     } catch (err: any) {
@@ -95,13 +106,11 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
       new ButtonBuilder()
         .setLabel('Support Server')
         .setStyle(ButtonStyle.Link)
-        .setURL(process.env.SUPPORT_SERVER as string),
+        .setURL(config.BOT.SUPPORT_SERVER as string),
       new ButtonBuilder()
         .setLabel('Leave Feedback')
         .setStyle(ButtonStyle.Link)
-        .setURL(
-          `https://github.com/${process.env.GH_USERNAME}/${process.env.GH_REPO}/issues/new/choose`
-        ),
+        .setURL(`https://github.com/iamvikshan/amina/issues/new/choose`),
     ]
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(components)
@@ -118,7 +127,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           `Take care,\nAmina `
       )
       .setColor(client.config.EMBED_COLORS.ERROR)
-      .setThumbnail(client.user.displayAvatarURL())
+      .setThumbnail(client.user?.displayAvatarURL() || '')
       .addFields({
         name: '✨ Want to try again?',
         value: 'I promise to do my very best to make your server amazing!',
@@ -132,7 +141,6 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         embeds: [dmEmbed],
         components: [row],
       })
-
     } catch (err: any) {
       client.logger.error(`Error sending DM: ${err.message}`)
       if (err.code === 50007) {
@@ -141,5 +149,5 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         )
       }
     }
-  } 
+  }
 }

@@ -1,9 +1,5 @@
-import {
-  GuildMember,
-  GuildTextBasedChannel,
-  User,
-  ChannelType,
-} from 'discord.js'
+import { GuildMember, User, ChannelType } from 'discord.js'
+import type { GuildTextBasedChannel } from 'discord.js'
 
 export default async function start(
   member: GuildMember,

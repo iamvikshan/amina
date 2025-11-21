@@ -6,7 +6,6 @@ import {
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
-import type { Command } from '@structures/Command'
 
 // Amina's enthusiastic animal descriptions
 const animalEmojis: Record<string, string> = {
@@ -43,7 +42,7 @@ const animals = [
 ]
 const BASE_URL = 'https://some-random-api.com/animal'
 
-const command: Command = {
+const command: CommandData = {
   name: 'facts',
   description:
     "Want to discover some super amazing animal facts? I've got tons to share!",
@@ -70,6 +69,7 @@ const command: Command = {
     }
     const response = await getFact(interaction.user, choice)
     await interaction.followUp(response)
+    return
   },
 }
 

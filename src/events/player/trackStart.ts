@@ -110,7 +110,7 @@ export default async (
     if (!int.isButton()) return
 
     await int.deferReply({ ephemeral: true })
-    let description: string
+    let description: string = ''
 
     switch (int.customId) {
       case 'previous':

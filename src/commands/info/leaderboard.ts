@@ -10,7 +10,6 @@ import { EMBED_COLORS } from '@src/config'
 import { getInvitesLb } from '@schemas/Member'
 import { getXpLb } from '@schemas/MemberStats'
 import { getReputationLb } from '@schemas/User'
-import type { Command } from '@structures/Command'
 
 const leaderboardTypes = ['xp', 'invite', 'rep']
 
@@ -142,7 +141,7 @@ async function getRepLeaderboard(author: User): Promise<any> {
   return { embeds: [embed] }
 }
 
-const command: Command = {
+const command: CommandData = {
   name: 'leaderboard',
   description: 'display the XP, invite, and rep leaderboard',
   category: 'INFO',
@@ -202,6 +201,7 @@ const command: Command = {
           'Invalid Leaderboard type. Choose either `xp`, `invite`, or `rep`'
     }
     await interaction.followUp(response)
+    return
   },
 }
 

@@ -12,7 +12,6 @@ import { getQuestions } from '@schemas/TruthOrDare'
 import { getUser } from '@schemas/User'
 import todHandler from '@handlers/tod'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
 // Helper function to create rating choices with Amina's style
 const getRatingChoices = () => [
@@ -26,19 +25,19 @@ const getRatingChoices = () => [
 const createSubcommandWithRating = (name: string, description: string) => ({
   name,
   description,
-  type: ApplicationCommandOptionType.Subcommand,
+  type: ApplicationCommandOptionType.Subcommand as const,
   options: [
     {
       name: 'rating',
       description: 'how spicy do you want this to get?',
-      type: ApplicationCommandOptionType.String,
+      type: ApplicationCommandOptionType.String as const,
       required: false,
       choices: getRatingChoices(),
     },
   ],
 })
 
-const command: Command = {
+const command: CommandData = {
   name: 'tod',
   description: "ready for some truth or dare chaos? let's go!",
   category: 'FUN',
@@ -204,7 +203,7 @@ async function sendQuestion(
       text: `type: ${category} | rating: ${question.rating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
     })
 
-  const buttons = new ActionRowBuilder().addComponents(
+  const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId('truthBtn')
       .setStyle(ButtonStyle.Primary)
@@ -257,7 +256,7 @@ async function sendRandomQuestion(
       text: `type: ${question.category} | rating: ${question.rating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
     })
 
-  const buttons = new ActionRowBuilder().addComponents(
+  const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId('truthBtn')
       .setStyle(ButtonStyle.Primary)

@@ -6,8 +6,8 @@ import {
   Partials,
   WebhookClient,
   ApplicationCommandType,
-  ClientOptions,
 } from 'discord.js'
+import type { ClientOptions } from 'discord.js'
 import path from 'path'
 import { table } from 'table'
 import Logger from '../helpers/Logger'
@@ -18,7 +18,7 @@ import CommandCategory from './CommandCategory'
 import Manager from '../handlers/manager'
 import giveawaysHandler from '../handlers/giveaway'
 import { DiscordTogether } from 'discord-together'
-import config from '@src/config'
+import { config, secret } from '@src/config'
 import Utils from '../helpers/Utils'
 
 const MAX_SLASH_COMMANDS = 100
@@ -92,8 +92,8 @@ export default class BotClient extends Client {
     // this.guildReminderTimeouts = new Map()
 
     // Initialize webhook for join/leave logs if provided
-    this.joinLeaveWebhook = process.env.LOGS_WEBHOOK
-      ? new WebhookClient({ url: process.env.LOGS_WEBHOOK })
+    this.joinLeaveWebhook = secret.LOGS_WEBHOOK
+      ? new WebhookClient({ url: secret.LOGS_WEBHOOK })
       : undefined
 
     // Music Player

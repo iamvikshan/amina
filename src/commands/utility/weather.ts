@@ -3,13 +3,10 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { MESSAGES, EMBED_COLORS } from '@src/config'
+import { MESSAGES, EMBED_COLORS, secret } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
-import type { Command } from '@structures/Command'
 
-const API_KEY = process.env.WEATHERSTACK_KEY
-
-const command: Command = {
+const command: CommandData = {
   name: 'weather',
   description: 'get weather information',
   cooldown: 5,
@@ -38,12 +35,12 @@ const command: Command = {
 async function weather(
   place: string
 ): Promise<{ embeds: EmbedBuilder[] } | string> {
-  if (!API_KEY) {
+  if (!secret.WEATHERSTACK_KEY) {
     return 'Weather API key is not configured.'
   }
 
   const response = await getJson(
-    `http://api.weatherstack.com/current?access_key=${API_KEY}&query=${encodeURIComponent(place)}`
+    `http://api.weatherstack.com/current?access_key=${secret.WEATHERSTACK_KEY}&query=${encodeURIComponent(place)}`
   )
   if (!response.success) return MESSAGES.API_ERROR
 

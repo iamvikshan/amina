@@ -57,7 +57,6 @@ export async function handleTicketOpen(
 
   // check topics
   let catName: string | null = null
-  let catPerms: string[] = []
   const topics = (settings as any).ticket.topics
   if (topics.length > 0) {
     const options: Array<{ label: string; value: string }> = []

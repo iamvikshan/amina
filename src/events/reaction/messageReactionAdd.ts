@@ -14,7 +14,7 @@ import type {
  * @param {User | PartialUser} user - The user who added the reaction
  */
 export default async (
-  client: BotClient,
+  _client: BotClient,
   reaction: MessageReaction | PartialMessageReaction,
   user: User | PartialUser
 ): Promise<void> => {

@@ -7,9 +7,8 @@ import {
 import setChannel from './logs/setChannel'
 import toggleSetting from './logs/toggleSetting'
 import toggleAll from './logs/toggleAll'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'logs',
   description: 'Configure moderation logs',
   category: 'ADMIN',
@@ -287,6 +286,7 @@ const command: Command = {
       const response = await toggleAll(status, data.settings)
       return interaction.followUp(response)
     }
+    return
   },
 }
 

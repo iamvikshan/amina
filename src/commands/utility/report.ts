@@ -10,9 +10,8 @@ import {
 } from 'discord.js'
 import { EMBED_COLORS, FEEDBACK } from '@src/config'
 import { Logger } from '@helpers/Logger'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'report',
   description:
     'Help Mina make the community better! Report issues or share your thoughts~',
@@ -62,8 +61,7 @@ const command: Command = {
       return
     }
 
-    const filter = (i: StringSelectMenuInteraction) =>
-      i.user.id === interaction.user.id
+    const filter = (i: any) => i.user.id === interaction.user.id
     const collector = interaction.channel.createMessageComponentCollector({
       filter,
       time: 30000,
@@ -90,76 +88,89 @@ async function showReportModal(
   interaction: StringSelectMenuInteraction,
   type: string
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId(`report_modal_${type}`)
-    .setTitle(
-      `${type === 'feedback' ? 'Share Your Thoughts with Mina!' : `Tell Mina About This ${type.charAt(0).toUpperCase() + type.slice(1)}!`}`
-    )
+  const titleInput = new TextInputBuilder({
+    customId: 'title',
+    label: 'Give it a catchy title!',
+    style: TextInputStyle.Short,
+    placeholder: "What's the scoop? 🍦",
+    required: true,
+  })
 
-  const titleInput = new TextInputBuilder()
-    .setCustomId('title')
-    .setLabel('Give it a catchy title!')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder("What's the scoop? 🍦")
-    .setRequired(true)
-
-  const descriptionInput = new TextInputBuilder()
-    .setCustomId('description')
-    .setLabel('Spill the tea! ☕')
-    .setStyle(TextInputStyle.Paragraph)
-    .setPlaceholder('Tell Mina all about it~')
-    .setRequired(true)
+  const descriptionInput = new TextInputBuilder({
+    customId: 'description',
+    label: 'Spill the tea! ☕',
+    style: TextInputStyle.Paragraph,
+    placeholder: 'Tell Mina all about it~',
+    required: true,
+  })
 
   const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     titleInput
   )
   const secondActionRow =
     new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput)
-  modal.addComponents(firstActionRow, secondActionRow)
+
+  const components: ActionRowBuilder<TextInputBuilder>[] = [
+    firstActionRow,
+    secondActionRow,
+  ]
 
   if (type === 'server' || type === 'user') {
-    const idInput = new TextInputBuilder()
-      .setCustomId(`${type}Id`)
-      .setLabel(`${type === 'server' ? 'Server' : 'User'}'s Secret Code`)
-      .setStyle(TextInputStyle.Short)
-      .setPlaceholder(`Enter the ${type} ID here!`)
-      .setRequired(true)
+    const idInput = new TextInputBuilder({
+      customId: `${type}Id`,
+      label: `${type === 'server' ? 'Server' : 'User'}'s Secret Code`,
+      style: TextInputStyle.Short,
+      placeholder: `Enter the ${type} ID here!`,
+      required: true,
+    })
     const thirdActionRow =
       new ActionRowBuilder<TextInputBuilder>().addComponents(idInput)
-    modal.addComponents(thirdActionRow)
+    components.push(thirdActionRow)
   } else if (type === 'tod') {
-    const questionIdInput = new TextInputBuilder()
-      .setCustomId('questionId')
-      .setLabel('Which question is it?')
-      .setStyle(TextInputStyle.Short)
-      .setPlaceholder('Type the question ID here!')
-      .setRequired(true)
+    const questionIdInput = new TextInputBuilder({
+      customId: 'questionId',
+      label: 'Which question is it?',
+      style: TextInputStyle.Short,
+      placeholder: 'Type the question ID here!',
+      required: true,
+    })
     const thirdActionRow =
       new ActionRowBuilder<TextInputBuilder>().addComponents(questionIdInput)
-    modal.addComponents(thirdActionRow)
+    components.push(thirdActionRow)
   } else if (type === 'bug') {
-    const reproStepsInput = new TextInputBuilder()
-      .setCustomId('reproSteps')
-      .setLabel('How to reproduce the bug? (Optional)')
-      .setStyle(TextInputStyle.Paragraph)
-      .setPlaceholder('Share the steps to recreate the bug, if you know them!')
-      .setRequired(false)
+    const reproStepsInput = new TextInputBuilder({
+      customId: 'reproSteps',
+      label: 'How to reproduce the bug? (Optional)',
+      style: TextInputStyle.Paragraph,
+      placeholder: 'Share the steps to recreate the bug, if you know them!',
+      required: false,
+    })
     const thirdActionRow =
       new ActionRowBuilder<TextInputBuilder>().addComponents(reproStepsInput)
-    modal.addComponents(thirdActionRow)
+    components.push(thirdActionRow)
   } else if (type === 'feedback') {
-    const additionalInfoInput = new TextInputBuilder()
-      .setCustomId('additionalInfo')
-      .setLabel('Any extra thoughts? (Optional)')
-      .setStyle(TextInputStyle.Paragraph)
-      .setPlaceholder('Share any additional ideas or suggestions here!')
-      .setRequired(false)
+    const additionalInfoInput = new TextInputBuilder({
+      customId: 'additionalInfo',
+      label: 'Any extra thoughts? (Optional)',
+      style: TextInputStyle.Paragraph,
+      placeholder: 'Share any additional ideas or suggestions here!',
+      required: false,
+    })
     const thirdActionRow =
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         additionalInfoInput
       )
-    modal.addComponents(thirdActionRow)
+    components.push(thirdActionRow)
   }
+
+  const modal = new ModalBuilder({
+    customId: `report_modal_${type}`,
+    title:
+      type === 'feedback'
+        ? 'Share Your Thoughts with Mina!'
+        : `Tell Mina About This ${type.charAt(0).toUpperCase() + type.slice(1)}!`,
+    components,
+  })
 
   await interaction.showModal(modal)
 }

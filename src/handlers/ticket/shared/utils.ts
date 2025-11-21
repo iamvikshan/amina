@@ -7,9 +7,9 @@ import {
   BaseGuildTextChannel,
   Guild,
   User,
-  Channel,
   Collection,
 } from 'discord.js'
+import type { Channel } from 'discord.js'
 import { TICKET } from '@src/config'
 
 // schemas

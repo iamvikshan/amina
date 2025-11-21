@@ -503,7 +503,7 @@ export async function handleDmMe(
 
     const binUrl = await postToBin(content, title)
 
-    if (!binUrl) {
+    if (!binUrl || !binUrl.short) {
       await interaction.followUp({
         content: 'Failed to generate pastebin link. Please try again later.',
         ephemeral: true,

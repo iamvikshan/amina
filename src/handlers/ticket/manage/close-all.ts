@@ -2,7 +2,6 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   EmbedBuilder,
-  MessageFlags,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { createDangerBtn, createSecondaryBtn } from '@helpers/componentHelper'

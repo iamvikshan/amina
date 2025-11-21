@@ -1,270 +1,187 @@
 import {
   EmbedBuilder,
   ActionRowBuilder,
-  StringSelectMenuBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
-  User,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { getUser } from '@schemas/User'
 import { Logger } from '@helpers/Logger'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'profile',
   description: 'express yourself and share your story with the world!',
   category: 'UTILITY',
-  showsModal: true,
+  dmCommand: true,
   slashCommand: {
     enabled: true,
+    ephemeral: true,
     options: [
       {
+        name: 'hub',
+        description: 'open the profile management hub',
+        type: ApplicationCommandOptionType.Subcommand,
+      },
+      {
         name: 'view',
-        description: "peek at your profile or discover someone else's story",
+        description: "view a profile (yours or someone else's)",
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'whose story do you want to explore?',
+            description:
+              'whose profile do you want to view? (leave empty for your own)',
             type: ApplicationCommandOptionType.User,
             required: false,
           },
         ],
-      },
-      {
-        name: 'set',
-        description: 'time to paint your digital portrait!',
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'category',
-            description: 'what part of your story are we crafting?',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-            choices: [
-              {
-                name: 'basic',
-                value: 'basic',
-              },
-              {
-                name: 'misc',
-                value: 'misc',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: 'privacy',
-        description: 'customize what parts of your story you want to share',
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'setting',
-            description: 'choose what to show or hide',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-            choices: [
-              { name: 'age', value: 'showAge' },
-              { name: 'region', value: 'showRegion' },
-              { name: 'birthdate', value: 'showBirthdate' },
-              { name: 'pronouns', value: 'showPronouns' },
-            ],
-          },
-          {
-            name: 'visible',
-            description: 'should this be visible to others?',
-            type: ApplicationCommandOptionType.Boolean,
-            required: true,
-          },
-        ],
-      },
-      {
-        name: 'clear',
-        description: 'start fresh with a blank canvas',
-        type: ApplicationCommandOptionType.Subcommand,
       },
     ],
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
+
     switch (sub) {
+      case 'hub':
+        const { showProfileHub } = await import('@handlers/profile')
+        // Don't reply here - let showProfileHub handle it
+        await showProfileHub(interaction)
+        return
       case 'view':
+        // Only for viewing OTHER users' profiles
         return handleView(interaction)
-      case 'set':
-        return handleSet(interaction)
-      case 'privacy':
-        return handlePrivacy(interaction)
-      case 'clear':
-        return handleClear(interaction)
+      default:
+        // Fallback: show hub for any other subcommand (backward compatibility)
+        const { showProfileHub: showHub } = await import('@handlers/profile')
+        await showHub(interaction)
     }
   },
 }
 
-function createBasicModal(): ModalBuilder {
-  const modal = new ModalBuilder()
-    .setCustomId('profile_set_basic_modal')
-    .setTitle("let's start with the basics!")
+export function createBasicModal(): ModalBuilder {
+  const birthdateInput = new TextInputBuilder({
+    customId: 'birthdate',
+    label: "when's your special day?",
+    style: TextInputStyle.Short,
+    placeholder: 'DD/MM/YYYY or MM/YYYY',
+    required: true,
+    maxLength: 10,
+  })
 
-  const birthdateInput = new TextInputBuilder()
-    .setCustomId('birthdate')
-    .setLabel("when's your special day?")
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('DD/MM/YYYY or MM/YYYY')
-    .setRequired(true)
-    .setMaxLength(10)
+  const pronounsInput = new TextInputBuilder({
+    customId: 'pronouns',
+    label: 'how should we refer to you?',
+    style: TextInputStyle.Short,
+    placeholder: 'they/them, she/her, he/him, or anything else!',
+    required: false,
+    maxLength: 50,
+  })
 
-  const pronounsInput = new TextInputBuilder()
-    .setCustomId('pronouns')
-    .setLabel('how should we refer to you?')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('they/them, she/her, he/him, or anything else!')
-    .setRequired(false)
-    .setMaxLength(50)
+  const regionInput = new TextInputBuilder({
+    customId: 'region',
+    label: 'where do you call home?',
+    style: TextInputStyle.Short,
+    placeholder: 'your corner of the world',
+    required: false,
+    maxLength: 100,
+  })
 
-  const regionInput = new TextInputBuilder()
-    .setCustomId('region')
-    .setLabel('where do you call home?')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('your corner of the world')
-    .setRequired(false)
-    .setMaxLength(100)
+  const languagesInput = new TextInputBuilder({
+    customId: 'languages',
+    label: 'what languages do you speak?',
+    style: TextInputStyle.Short,
+    placeholder: 'english, español, 日本語...',
+    required: false,
+    maxLength: 100,
+  })
 
-  const languagesInput = new TextInputBuilder()
-    .setCustomId('languages')
-    .setLabel('what languages do you speak?')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('english, español, 日本語...')
-    .setRequired(false)
-    .setMaxLength(100)
+  const timezoneInput = new TextInputBuilder({
+    customId: 'timezone',
+    label: "what's your timezone?",
+    style: TextInputStyle.Short,
+    placeholder: 'UTC+1, EST, GMT...',
+    required: false,
+    maxLength: 30,
+  })
 
-  const timezoneInput = new TextInputBuilder()
-    .setCustomId('timezone')
-    .setLabel("what's your timezone?")
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('UTC+1, EST, GMT...')
-    .setRequired(false)
-    .setMaxLength(30)
-
-  return modal.addComponents(
-    new ActionRowBuilder<TextInputBuilder>().addComponents(birthdateInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(pronounsInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(regionInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(languagesInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(timezoneInput)
-  )
+  return new ModalBuilder({
+    customId: 'profile_set_basic_modal',
+    title: "let's start with the basics!",
+    components: [
+      new ActionRowBuilder<TextInputBuilder>().addComponents(birthdateInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(pronounsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(regionInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(languagesInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(timezoneInput),
+    ],
+  })
 }
 
-function createMiscModal(): ModalBuilder {
-  const modal = new ModalBuilder()
-    .setCustomId('profile_set_misc_modal')
-    .setTitle('tell us your story!')
+export function createMiscModal(): ModalBuilder {
+  const bioInput = new TextInputBuilder({
+    customId: 'bio',
+    label: 'paint us a picture of who you are!',
+    style: TextInputStyle.Paragraph,
+    placeholder: 'your story, your way...',
+    required: false,
+    maxLength: 1000,
+  })
 
-  const bioInput = new TextInputBuilder()
-    .setCustomId('bio')
-    .setLabel('paint us a picture of who you are!')
-    .setStyle(TextInputStyle.Paragraph)
-    .setPlaceholder('your story, your way...')
-    .setRequired(false)
-    .setMaxLength(1000)
+  const interestsInput = new TextInputBuilder({
+    customId: 'interests',
+    label: 'what makes your heart skip a beat?',
+    style: TextInputStyle.Short,
+    placeholder: 'gaming, art, music...',
+    required: false,
+    maxLength: 200,
+  })
 
-  const interestsInput = new TextInputBuilder()
-    .setCustomId('interests')
-    .setLabel('what makes your heart skip a beat?')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('gaming, art, music...')
-    .setRequired(false)
-    .setMaxLength(200)
+  const socialsInput = new TextInputBuilder({
+    customId: 'socials',
+    label: 'where else can we find you?',
+    style: TextInputStyle.Short,
+    placeholder: 'twitter: @handle, instagram: @user...',
+    required: false,
+    maxLength: 200,
+  })
 
-  const socialsInput = new TextInputBuilder()
-    .setCustomId('socials')
-    .setLabel('where else can we find you?')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('twitter: @handle, instagram: @user...')
-    .setRequired(false)
-    .setMaxLength(200)
+  const favoritesInput = new TextInputBuilder({
+    customId: 'favorites',
+    label: 'what are your absolute favorites?',
+    style: TextInputStyle.Short,
+    placeholder: 'color: blue, food: pizza...',
+    required: false,
+    maxLength: 200,
+  })
 
-  const favoritesInput = new TextInputBuilder()
-    .setCustomId('favorites')
-    .setLabel('what are your absolute favorites?')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('color: blue, food: pizza...')
-    .setRequired(false)
-    .setMaxLength(200)
+  const goalsInput = new TextInputBuilder({
+    customId: 'goals',
+    label: 'what dreams are you chasing?',
+    style: TextInputStyle.Short,
+    placeholder: 'learning guitar, visiting japan...',
+    required: false,
+    maxLength: 200,
+  })
 
-  const goalsInput = new TextInputBuilder()
-    .setCustomId('goals')
-    .setLabel('what dreams are you chasing?')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('learning guitar, visiting japan...')
-    .setRequired(false)
-    .setMaxLength(200)
-
-  return modal.addComponents(
-    new ActionRowBuilder<TextInputBuilder>().addComponents(bioInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(interestsInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(socialsInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(favoritesInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(goalsInput)
-  )
+  return new ModalBuilder({
+    customId: 'profile_set_misc_modal',
+    title: 'tell us your story!',
+    components: [
+      new ActionRowBuilder<TextInputBuilder>().addComponents(bioInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(interestsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(socialsInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(favoritesInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(goalsInput),
+    ],
+  })
 }
 
-async function handleSet(
-  interaction: ChatInputCommandInteraction
-): Promise<void> {
-  const category = interaction.options.getString('category', true)
-  const modal = category === 'basic' ? createBasicModal() : createMiscModal()
-
-  try {
-    await interaction.showModal(modal)
-  } catch (error) {
-    Logger.error('Error showing profile modal', error)
-    if (!interaction.replied && !interaction.deferred) {
-      await interaction.reply({
-        content:
-          'oops! something went wrong with the profile setup. try again?',
-        ephemeral: true,
-      })
-    }
-  }
-}
-
-async function handlePrivacy(
-  interaction: ChatInputCommandInteraction
-): Promise<void> {
-  const setting = interaction.options.getString('setting', true)
-  const visible = interaction.options.getBoolean('visible', true)
-
-  try {
-    const user = await getUser(interaction.user)
-    if (!user.profile) user.profile = {} as any
-    if (!user.profile.privacy) user.profile.privacy = {} as any
-    ;(user.profile.privacy as any)[setting] = visible
-    await user.save()
-
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
-      .setDescription(
-        `updated your privacy settings! ${setting.replace('show', '')} is now ${visible ? 'visible' : 'hidden'}`
-      )
-
-    await interaction.reply({
-      embeds: [embed],
-      ephemeral: true,
-    })
-  } catch (ex) {
-    Logger.error('Error handling privacy settings', ex)
-    await interaction.reply({
-      content: 'An error occurred while updating privacy settings.',
-      ephemeral: true,
-    })
-  }
-}
+// handleSet, handlePrivacy, and handleClear are now handled in the hub
+// These functions are no longer needed as subcommands
 
 // Helper Functions
 function formatValue(value: any): string {
@@ -290,7 +207,9 @@ const SOCIAL_PLATFORMS: Record<
     `https://${platform}.com/${username}`,
 }
 
-function formatSocialLinks(socials: Map<string, string> | undefined): string {
+export function formatSocialLinks(
+  socials: Map<string, string> | undefined
+): string {
   if (!socials || socials.size === 0) return ''
 
   return (
@@ -306,7 +225,9 @@ function formatSocialLinks(socials: Map<string, string> | undefined): string {
   )
 }
 
-function formatFavorites(favorites: Map<string, string> | undefined): string {
+export function formatFavorites(
+  favorites: Map<string, string> | undefined
+): string {
   if (!favorites || favorites.size === 0) return ''
 
   return (
@@ -316,7 +237,7 @@ function formatFavorites(favorites: Map<string, string> | undefined): string {
   )
 }
 
-function hasContent(profile: any): boolean {
+export function hasContent(profile: any): boolean {
   if (!profile) return false
 
   const fields = [
@@ -356,9 +277,15 @@ async function handleView(
         .setDescription(
           `${isOwnProfile ? "You haven't" : "This user hasn't"} set up a profile yet!`
         )
-        .setFooter({ text: 'Use /profile set to create your profile!' })
+        .setFooter({ text: 'Use /profile hub to create your profile!' })
 
-      return interaction.reply({ embeds: [embed], ephemeral: true })
+      // Check if already deferred/replied (command handler may have deferred)
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [embed] })
+      } else {
+        await interaction.reply({ embeds: [embed], ephemeral: true })
+      }
+      return
     }
 
     const embed = new EmbedBuilder()
@@ -373,7 +300,12 @@ async function handleView(
     let hasVisibleContent = false
 
     // Basic Information Fields
-    const basicFields = [
+    const basicFields: Array<{
+      name: keyof typeof profile
+      label: string
+      privacyKey?: keyof NonNullable<typeof profile.privacy>
+      inline: boolean
+    }> = [
       {
         name: 'pronouns',
         label: 'Pronouns',
@@ -397,7 +329,7 @@ async function handleView(
         label: 'Timezone',
         inline: true,
       },
-    ] as const
+    ]
 
     // Add basic fields
     basicFields.forEach(field => {
@@ -493,7 +425,13 @@ async function handleView(
         .setColor(EMBED_COLORS.ERROR)
         .setDescription(`${target.username}'s profile is private.`)
 
-      return interaction.reply({ embeds: [privateEmbed], ephemeral: true })
+      // Check if already deferred/replied (command handler may have deferred)
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [privateEmbed] })
+      } else {
+        await interaction.reply({ embeds: [privateEmbed], ephemeral: true })
+      }
+      return
     }
 
     // Add Last Updated timestamp
@@ -519,51 +457,36 @@ async function handleView(
       }
     }
 
-    // Send the profile embed
-    await interaction.reply({
+    // Add edit button for own profile
+    const replyOptions: any = {
       embeds: [embed],
-      ephemeral: isOwnProfile,
-    })
+    }
+
+    if (isOwnProfile) {
+      const { createEditButton } = await import('@handlers/profile/view')
+      replyOptions.components = [createEditButton()]
+    }
+
+    // Send the profile embed
+    // Check if already deferred/replied (command handler may have deferred)
+    if (interaction.deferred || interaction.replied) {
+      await interaction.editReply(replyOptions)
+    } else {
+      replyOptions.ephemeral = isOwnProfile // Ephemeral for own profile, visible for others
+      await interaction.reply(replyOptions)
+    }
   } catch (error) {
     Logger.error('Error in handleView', error)
-    await interaction.reply({
-      content:
-        'There was an error while viewing the profile. Please try again later.',
-      ephemeral: true,
-    })
+    if (!interaction.replied && !interaction.deferred) {
+      await interaction.reply({
+        content:
+          'There was an error while viewing the profile. Please try again later.',
+        ephemeral: true,
+      })
+    }
   }
 }
 
-async function handleClear(
-  interaction: ChatInputCommandInteraction
-): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription('Are you sure you want to clear your entire profile?')
-
-  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-    new StringSelectMenuBuilder()
-      .setCustomId('profile_clear_confirm')
-      .setPlaceholder('Choose an option')
-      .addOptions([
-        {
-          label: 'Yes, clear my profile',
-          value: 'confirm',
-          emoji: '✅',
-        },
-        {
-          label: 'No, keep my profile',
-          value: 'cancel',
-          emoji: '❌',
-        },
-      ])
-  )
-
-  await interaction.reply({
-    embeds: [embed],
-    components: [row],
-    ephemeral: true,
-  })
-}
+// handleClear is now handled in the hub via showClearConfirmation
 
 export default command

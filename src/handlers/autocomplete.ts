@@ -1,5 +1,4 @@
 import type { AutocompleteInteraction } from 'discord.js'
-import type { BotClient } from '@structures/BotClient'
 
 /**
  * Centralized registry for autocomplete providers

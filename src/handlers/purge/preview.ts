@@ -7,7 +7,7 @@ import {
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { createDangerBtn, createSecondaryBtn } from '@helpers/componentHelper'
-import type { PurgeType } from './parameters/amount-select'
+// PurgeType is now globally available - see types/handlers.d.ts
 
 /**
  * Show purge preview with confirmation

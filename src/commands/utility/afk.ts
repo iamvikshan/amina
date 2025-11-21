@@ -8,9 +8,8 @@ import {
 import { getUser, setAfk, removeAfk } from '@schemas/User'
 import { EMBED_COLORS } from '@src/config'
 import { Logger } from '@helpers/Logger'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'afk',
   description: 'Set your AFK status',
   category: 'UTILITY',

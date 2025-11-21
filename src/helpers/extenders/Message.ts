@@ -36,7 +36,7 @@ Message.prototype.safeReply = async function (
     if (!seconds) return await this.reply(content)
     const reply = await this.reply(content)
     setTimeout(
-      () => reply.deletable && reply.delete().catch((ex: any) => {}),
+      () => reply.deletable && reply.delete().catch((_ex: any) => {}),
       seconds * 1000
     )
   } catch (ex) {

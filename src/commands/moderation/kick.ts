@@ -5,9 +5,8 @@ import {
   GuildMember,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'kick',
   description: 'Kicks the specified member',
   category: 'MODERATION',
@@ -59,6 +58,7 @@ const command: Command = {
       reason
     )
     await interaction.followUp(response)
+    return
   },
 }
 
@@ -67,7 +67,11 @@ async function kick(
   target: GuildMember,
   reason: string | null
 ): Promise<string> {
-  const response = await kickTarget(issuer, target, reason)
+  const response = await kickTarget(
+    issuer,
+    target,
+    reason || 'No reason provided'
+  )
   if (typeof response === 'boolean') return `${target.user.username} is kicked!`
   if (response === 'BOT_PERM')
     return `I do not have permission to kick ${target.user.username}`

@@ -1,11 +1,12 @@
 import config from '@src/config'
+import { secret } from '@src/config'
 import { EmbedBuilder, WebhookClient } from 'discord.js'
 import pino from 'pino'
 import Honeybadger from './Honeybadger'
 
-const webhookLogger = process.env.LOGS_WEBHOOK
+const webhookLogger = secret.LOGS_WEBHOOK
   ? new WebhookClient({
-      url: process.env.LOGS_WEBHOOK,
+      url: secret.LOGS_WEBHOOK,
     })
   : undefined
 

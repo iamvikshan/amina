@@ -3,11 +3,9 @@ import {
   AttachmentBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
-  User,
 } from 'discord.js'
 import { getBuffer } from '@helpers/HttpUtils'
-import { EMBED_COLORS, IMAGE } from '@src/config'
-import type { Command } from '@structures/Command'
+import { EMBED_COLORS, IMAGE, secret } from '@src/config'
 
 const filterDescriptions: Record<string, string> = {
   blur: "Let's add some dreamy mystique! ✨",
@@ -69,7 +67,7 @@ const creativeIntros = [
   '*giggling with creative inspiration*\nWatch this transformation! ',
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'filter',
   description:
     'Turn your images into amazing artwork! Time for some creative chaos!',
@@ -123,7 +121,7 @@ const command: Command = {
     const url = getFilter(filter, image)
     const response = await getBuffer(url, {
       headers: {
-        Authorization: `Bearer ${process.env.STRANGE_API_KEY}`,
+        Authorization: `Bearer ${secret.STRANGE_API_KEY || ''}`,
       },
     })
 
@@ -138,7 +136,7 @@ const command: Command = {
     const filterDesc =
       filterDescriptions[filter] || "Let's make some art magic! ✨"
 
-    const attachment = new AttachmentBuilder(response.buffer, {
+    const attachment = new AttachmentBuilder(response.buffer!, {
       name: 'attachment.png',
     })
     const embed = new EmbedBuilder()
@@ -150,6 +148,7 @@ const command: Command = {
       })
 
     await interaction.followUp({ embeds: [embed], files: [attachment] })
+    return
   },
 }
 

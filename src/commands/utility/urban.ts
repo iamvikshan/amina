@@ -6,9 +6,8 @@ import {
 import { MESSAGES, EMBED_COLORS } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
 import moment from 'moment'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'urban',
   description: 'searches the urban dictionary',
   category: 'UTILITY',

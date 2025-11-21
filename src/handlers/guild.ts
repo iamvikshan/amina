@@ -52,23 +52,21 @@ async function sendOnboardingMenu(channel: TextChannel): Promise<void> {
 async function handleSetupButton(
   interaction: ButtonInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('AMINA_SETUP_MODAL')
-    .setTitle('Mina Setup ♡')
+  const updatesChannelInput = new TextInputBuilder({
+    customId: 'UPDATES_CHANNEL',
+    label: 'Updates Channel Name',
+    style: TextInputStyle.Short,
+    placeholder: 'e.g., amina-updates',
+    required: true,
+  })
 
-  const updatesChannelInput = new TextInputBuilder()
-    .setCustomId('UPDATES_CHANNEL')
-    .setLabel('Updates Channel Name')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g., amina-updates')
-    .setRequired(true)
-
-  const staffRoleInput = new TextInputBuilder()
-    .setCustomId('STAFF_ROLES')
-    .setLabel('Staff Role Name')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g., Mina Staff')
-    .setRequired(true)
+  const staffRoleInput = new TextInputBuilder({
+    customId: 'STAFF_ROLES',
+    label: 'Staff Role Name',
+    style: TextInputStyle.Short,
+    placeholder: 'e.g., Mina Staff',
+    required: true,
+  })
 
   const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     updatesChannelInput
@@ -76,7 +74,11 @@ async function handleSetupButton(
   const secondActionRow =
     new ActionRowBuilder<TextInputBuilder>().addComponents(staffRoleInput)
 
-  modal.addComponents(firstActionRow, secondActionRow)
+  const modal = new ModalBuilder({
+    customId: 'AMINA_SETUP_MODAL',
+    title: 'Mina Setup ♡',
+    components: [firstActionRow, secondActionRow],
+  })
 
   await interaction.showModal(modal)
 }
@@ -182,21 +184,23 @@ async function handleSetupModal(
 async function handleRemindButton(
   interaction: ButtonInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('AMINA_REMIND_MODAL')
-    .setTitle('Set a Reminder ⏰')
-
-  const reminderTimeInput = new TextInputBuilder()
-    .setCustomId('REMINDER_TIME')
-    .setLabel('Remind me in (minutes)')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g., 30')
-    .setRequired(true)
+  const reminderTimeInput = new TextInputBuilder({
+    customId: 'REMINDER_TIME',
+    label: 'Remind me in (minutes)',
+    style: TextInputStyle.Short,
+    placeholder: 'e.g., 30',
+    required: true,
+  })
 
   const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     reminderTimeInput
   )
-  modal.addComponents(actionRow)
+
+  const modal = new ModalBuilder({
+    customId: 'AMINA_REMIND_MODAL',
+    title: 'Set a Reminder ⏰',
+    components: [actionRow],
+  })
 
   await interaction.showModal(modal)
 }

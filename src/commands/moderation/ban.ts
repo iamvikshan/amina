@@ -6,9 +6,8 @@ import {
   User,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'ban',
   description: 'bans the specified member',
   category: 'MODERATION',
@@ -48,6 +47,7 @@ const command: Command = {
       reason
     )
     await interaction.followUp(response)
+    return
   },
 }
 
@@ -56,7 +56,11 @@ async function ban(
   target: User,
   reason: string | null
 ): Promise<string> {
-  const response = await banTarget(issuer, target, reason)
+  const response = await banTarget(
+    issuer,
+    target,
+    reason || 'No reason provided'
+  )
   if (typeof response === 'boolean') return `${target.username} is banned!`
   if (response === 'BOT_PERM')
     return `I do not have permission to ban ${target.username}`

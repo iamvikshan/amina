@@ -2,13 +2,11 @@ import {
   ApplicationCommandOptionType,
   EmbedBuilder,
   ChatInputCommandInteraction,
-  User,
 } from 'discord.js'
 import { TicTacToe } from 'discord-gamecord'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'tictactoe',
   description: 'Challenge someone to an epic game of Tic Tac Toe!',
   cooldown: 1,
@@ -113,6 +111,7 @@ const command: Command = {
         interaction.followUp({ embeds: [embed] })
       }
     })
+    return
   },
 }
 

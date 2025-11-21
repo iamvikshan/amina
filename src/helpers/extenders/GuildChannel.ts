@@ -38,10 +38,11 @@ GuildChannel.prototype.safeSend = async function (
     if (!seconds) return await (this as any).send(content)
     const reply = await (this as any).send(content)
     setTimeout(
-      () => reply.deletable && reply.delete().catch((ex: any) => {}),
+      () => reply.deletable && reply.delete().catch((_ex: any) => {}),
       seconds * 1000
     )
   } catch (ex) {
     ;(this.client as any).logger.error(`safeSend`, ex)
+    // ex is used in logger.error
   }
 }

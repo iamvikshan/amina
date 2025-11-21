@@ -5,10 +5,10 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
+
 import config from '@src/config'
 
-const command: Command = {
+const command: CommandData = {
   name: 'roles',
   description: 'Manage roles in bulk - cleanup, create, and configure autorole',
   category: 'ADMIN',

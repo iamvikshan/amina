@@ -305,7 +305,7 @@ async function handleReportModal(
           type === 'feedback'
             ? "Yay! Mina received your feedback! You're the best for helping make our community super awesome~ 💖✨"
             : type === 'bug'
-              ? `Bzzt! Mina's bug detectors are tingling! Thanks for helping squash those pesky bugs! 🕷️💪\nYou can also add/check this to amina's [GitHub issues](https://github.com/${process.env.GH_USERNAME}/${process.env.GH_REPO}/issues/new) page.`
+              ? `Bzzt! Mina's bug detectors are tingling! Thanks for helping squash those pesky bugs! 🕷️💪\nYou can also add/check this to amina's [GitHub issues](https://github.com/iamvikshan/amina/issues/new/choose) page.`
               : "Yay! Mina received your report! You're the best for helping make our community super awesome~ 💖✨"
         )
         .addFields(

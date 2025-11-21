@@ -33,7 +33,7 @@ export default async function statusHandler(
         value: (() => {
           const channels = aiConfig.freeWillChannels || []
           return channels.length > 0
-            ? channels.map(id => `<#${id}>`).join(', ')
+            ? channels.map((id: string) => `<#${id}>`).join(', ')
             : 'Not set'
         })(),
         inline: true,

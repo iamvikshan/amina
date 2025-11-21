@@ -1,11 +1,9 @@
 import {
   ApplicationCommandOptionType,
-  EmbedBuilder,
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { Hangman } from 'discord-gamecord'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
 // Themes with Amina's creative touch
 const choices = [
@@ -19,7 +17,7 @@ const choices = [
   { name: 'pokemon', emoji: '⭐' },
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'hangman',
   description:
     "Time for a word-guessing adventure! Pick a theme and let's play! 🎮",
@@ -78,6 +76,7 @@ const command: Command = {
         Game.lose()
       }
     })
+    return
   },
 }
 

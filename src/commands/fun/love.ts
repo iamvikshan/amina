@@ -5,7 +5,6 @@ import {
   User,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
 // Amina's creative love responses
 const loveResponses = {
@@ -31,7 +30,7 @@ const loveResponses = {
   ],
 }
 
-const command: Command = {
+const command: CommandData = {
   name: 'love',
   description: 'Let me check the stars and see if love is in the air! ✨',
   category: 'FUN',
@@ -61,6 +60,7 @@ const command: Command = {
     }
     const response = await getUserLove(user1, user2, interaction.user)
     await interaction.followUp(response)
+    return
   },
 }
 

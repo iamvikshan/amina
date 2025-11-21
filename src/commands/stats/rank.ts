@@ -4,12 +4,11 @@ import {
   ChatInputCommandInteraction,
   GuildMember,
 } from 'discord.js'
-import { EMBED_COLORS, IMAGE, STATS } from '@src/config'
+import { EMBED_COLORS, IMAGE, STATS, secret } from '@src/config'
 import { getBuffer } from '@helpers/HttpUtils'
 import { getMemberStats, getXpLb } from '@schemas/MemberStats'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'rank',
   description: 'displays members rank in this server',
   cooldown: 5,
@@ -83,7 +82,7 @@ async function getRank(guild: any, member: GuildMember, settings: any) {
   url.searchParams.append('currentxp', memberStats.xp.toString())
   url.searchParams.append('reqxp', xpNeeded.toString())
   url.searchParams.append('level', memberStats.level.toString())
-  url.searchParams.append('barcolor', EMBED_COLORS.BOT_EMBED)
+  url.searchParams.append('barcolor', String(EMBED_COLORS.BOT_EMBED))
   url.searchParams.append(
     'status',
     member?.presence?.status?.toString() || 'idle'
@@ -92,7 +91,7 @@ async function getRank(guild: any, member: GuildMember, settings: any) {
 
   const response = await getBuffer(url.href, {
     headers: {
-      Authorization: `Bearer ${process.env.STRANGE_API_KEY}`,
+      Authorization: `Bearer ${secret.STRANGE_API_KEY || ''}`,
     },
   })
   if (!response.success || !response.buffer)

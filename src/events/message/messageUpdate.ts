@@ -1,4 +1,5 @@
-import { EmbedBuilder, Message, PartialMessage } from 'discord.js'
+import { EmbedBuilder, Message } from 'discord.js'
+import type { PartialMessage } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
 import { EMBED_COLORS } from '@src/config'
 import type { BotClient } from '@src/structures'
@@ -10,7 +11,7 @@ import type { BotClient } from '@src/structures'
  * @param {Message | PartialMessage} newMessage - The new message after update
  */
 export default async (
-  client: BotClient,
+  _client: BotClient,
   oldMessage: Message | PartialMessage,
   newMessage: Message | PartialMessage
 ): Promise<void> => {

@@ -1,50 +1,26 @@
 import CommandCategory from '@structures/CommandCategory'
 import * as permissions from './permissions'
 import config from '@src/config'
+import { secret, validateSecrets } from '@src/config'
 import { log, warn, error } from './Logger'
 import { ApplicationCommandType } from 'discord.js'
-import type { CommandData } from '@structures/Command'
-import type { ContextData } from '@structures/BaseContext'
+// CommandData and ContextData are now globally available - see types/commands.d.ts and types/contexts.d.ts
 
 export class Validator {
   static validateConfiguration(): void {
     log('Validating config file and environment variables')
 
-    // Bot Token
-    if (!process.env.BOT_TOKEN) {
-      error('env: BOT_TOKEN cannot be empty')
+    // Validate required secrets
+    try {
+      validateSecrets()
+    } catch (err: any) {
+      error(`env: ${err.message}`)
       process.exit(1)
-    }
-
-    // Validate Database Config
-    if (!process.env.MONGO_CONNECTION) {
-      error('env: MONGO_CONNECTION cannot be empty')
-      process.exit(1)
-    }
-
-    // Validate Dashboard Config
-    if (config.DASHBOARD.enabled) {
-      if (!process.env.CLIENT_SECRET) {
-        error('env: CLIENT_SECRET cannot be empty')
-        process.exit(1)
-      }
-      if (!process.env.SESSION_PASSWORD) {
-        error('env: SESSION_PASSWORD cannot be empty')
-        process.exit(1)
-      }
-      if (
-        !process.env.BASE_URL ||
-        !process.env.FAILURE_URL ||
-        !config.DASHBOARD.port
-      ) {
-        error('config.js: DASHBOARD details cannot be empty')
-        process.exit(1)
-      }
     }
 
     // Validate Feedback Config
     if (config.FEEDBACK.ENABLED) {
-      if (!process.env.LOGS_WEBHOOK) {
+      if (!secret.LOGS_WEBHOOK) {
         error('env: LOGS_WEBHOOK cannot be empty when FEEDBACK is enabled')
         process.exit(1)
       }
@@ -82,12 +58,13 @@ export class Validator {
     }
 
     // Warnings
-    if (process.env.DEV_ID?.length === 0) warn('config.js: DEV_ID are empty')
-    if (!process.env.SUPPORT_SERVER)
-      warn('config.js: SUPPORT_SERVER is not provided')
-    if (!process.env.WEATHERSTACK_KEY)
+    if (config.BOT.DEV_IDS.length === 0)
+      warn('config.js: BOT.DEV_IDS are empty')
+    if (!config.BOT.SUPPORT_SERVER)
+      warn('config.js: BOT.SUPPORT_SERVER is not provided')
+    if (!secret.WEATHERSTACK_KEY)
       warn("env: WEATHERSTACK_KEY is missing. Weather command won't work")
-    if (!process.env.STRANGE_API_KEY)
+    if (!secret.STRANGE_API_KEY)
       warn("env: STRANGE_API_KEY is missing. Image commands won't work")
   }
 

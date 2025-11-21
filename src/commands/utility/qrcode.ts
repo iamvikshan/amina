@@ -4,9 +4,8 @@ import {
   ChatInputCommandInteraction,
   Guild,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'qrcode',
   description: 'Generate a QR code with the url that is provided',
   category: 'UTILITY',
@@ -63,6 +62,7 @@ const command: Command = {
       .setTimestamp()
 
     await interaction.followUp({ embeds: [embedqr] })
+    return
   },
 }
 

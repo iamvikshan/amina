@@ -7,11 +7,10 @@ import {
   ChannelSelectMenuBuilder,
   ChannelType,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { EMBED_COLORS, config } from '@src/config'
 import { getSettings, updateSettings } from '@schemas/Guild'
 import { getAiConfig } from '@schemas/Dev'
 import { createSecondaryBtn } from '@helpers/componentHelper'
-import { handleAdminBackButton } from '../main-hub'
 
 /**
  * Show Mina AI Settings menu
@@ -41,7 +40,7 @@ export async function showMinaAIMenu(
       ? allChannels.map(id => `<#${id}>`).join(', ')
       : 'Not set'
 
-  const isTestGuild = interaction.guild?.id === process.env.TEST_GUILD_ID
+  const isTestGuild = interaction.guild?.id === config.BOT.TEST_GUILD_ID
   const channelLimit = isTestGuild ? 'Unlimited' : 'Max 2'
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.BOT_EMBED)
@@ -294,7 +293,7 @@ export async function handleMinaAIMenu(
       // Get free-will channels
       const allChannels = settings.aiResponder?.freeWillChannels || []
 
-      const isTestGuild = interaction.guild?.id === process.env.TEST_GUILD_ID
+      const isTestGuild = interaction.guild?.id === config.BOT.TEST_GUILD_ID
       const maxChannels = isTestGuild ? Infinity : 2
       const canAddMore = allChannels.length < maxChannels
 

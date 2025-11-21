@@ -29,7 +29,9 @@ export default async (client: BotClient, player: Player): Promise<void> => {
     await msg.delete().catch(() => {})
   }
 
-  const channel: any = guild.channels.cache.get(player.textChannelId)
+  const channel: any = player.textChannelId
+    ? guild.channels.cache.get(player.textChannelId)
+    : undefined
   if (channel) {
     await channel.safeSend(
       {

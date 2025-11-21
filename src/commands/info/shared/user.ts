@@ -2,8 +2,8 @@ import { EmbedBuilder, GuildMember } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 
 export default function user(member: GuildMember) {
-  let color = member.displayHexColor
-  if (color === '#000000') color = EMBED_COLORS.BOT_EMBED
+  let color: `#${string}` = member.displayHexColor as `#${string}`
+  if (color === '#000000') color = EMBED_COLORS.BOT_EMBED as `#${string}`
 
   let rolesString = member.roles.cache.map(r => r.name).join(', ')
   if (rolesString.length > 1024)
@@ -29,7 +29,7 @@ export default function user(member: GuildMember) {
       },
       {
         name: 'Guild Joined',
-        value: member.joinedAt.toUTCString(),
+        value: member.joinedAt?.toUTCString() || 'Unknown',
       },
       {
         name: 'Discord Registered',

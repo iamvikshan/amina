@@ -7,9 +7,8 @@ import deposit from './sub/deposit'
 import transfer from './sub/transfer'
 import withdraw from './sub/withdraw'
 import { ECONOMY } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'bank',
   description: 'access to bank operations',
   category: 'ECONOMY',

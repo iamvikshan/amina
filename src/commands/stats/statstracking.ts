@@ -3,9 +3,8 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'statstracking',
   description: 'enable or disable tracking stats in the server',
   category: 'UTILITY',

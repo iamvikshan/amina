@@ -6,9 +6,8 @@ import {
   GuildMember,
 } from 'discord.js'
 import ems from 'enhanced-ms'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'timeout',
   description: 'timeouts the specified member',
   category: 'MODERATION',
@@ -71,6 +70,7 @@ const command: Command = {
       reason
     )
     await interaction.followUp(response)
+    return
   },
 }
 
@@ -81,7 +81,12 @@ async function timeout(
   reason: string | null
 ): Promise<string> {
   if (isNaN(ms)) return 'Please provide a valid duration. Example: 1d/1h/1m/1s'
-  const response = await timeoutTarget(issuer, target, ms, reason)
+  const response = await timeoutTarget(
+    issuer,
+    target,
+    ms,
+    reason || 'No reason provided'
+  )
   if (typeof response === 'boolean')
     return `${target.user.username} is timed out!`
   if (response === 'BOT_PERM')

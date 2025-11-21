@@ -63,7 +63,8 @@ export default async function guildInfo(guild: Guild) {
   if (rolesString.length > 1024)
     rolesString = rolesString.substring(0, 1020) + '...'
 
-  let { verificationLevel } = guild
+  let verificationLevel: string | GuildVerificationLevel =
+    guild.verificationLevel
   switch (guild.verificationLevel) {
     case GuildVerificationLevel.VeryHigh:
       verificationLevel = '┻━┻ミヽ(ಠ益ಠ)ノ彡┻━┻'

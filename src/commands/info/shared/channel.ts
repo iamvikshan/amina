@@ -1,10 +1,16 @@
-import { EmbedBuilder, ChannelType, GuildChannel } from 'discord.js'
+import {
+  EmbedBuilder,
+  ChannelType,
+  GuildChannel,
+  ThreadChannel,
+} from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
 import { stripIndent } from 'common-tags'
 import channelTypes from '@helpers/channelTypes'
 
-export default function channelInfo(channel: GuildChannel) {
-  const { id, name, parent, position, type } = channel
+export default function channelInfo(channel: GuildChannel | ThreadChannel) {
+  const { id, name, parent, type } = channel
+  const position = 'position' in channel ? channel.position : undefined
 
   let desc = stripIndent`
       ❯ ID: **${id}**
@@ -26,18 +32,22 @@ export default function channelInfo(channel: GuildChannel) {
 
   if (
     type === ChannelType.GuildPublicThread ||
-    type === ChannelType.GuildPrivateThread
+    type === ChannelType.GuildPrivateThread ||
+    type === ChannelType.AnnouncementThread
   ) {
-    const threadChannel = channel as any
+    const threadChannel = channel as ThreadChannel
     const { ownerId, archived, locked } = threadChannel
     desc += stripIndent`
-      ❯ Owner Id: **${ownerId}**
+      ❯ Owner Id: **${ownerId || 'Unknown'}**
       ❯ Is Archived: **${archived ? '✓' : '✕'}**
       ❯ Is Locked: **${locked ? '✓' : '✕'}**\n
       `
   }
 
-  if (type === ChannelType.GuildNews || type === ChannelType.GuildNewsThread) {
+  if (
+    type === ChannelType.GuildAnnouncement ||
+    type === ChannelType.AnnouncementThread
+  ) {
     const newsChannel = channel as any
     const { nsfw } = newsChannel
     desc += stripIndent`

@@ -3,9 +3,8 @@ import {
   ApplicationCommandOptionType,
 } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'loop',
   description: 'loops the song or queue',
   category: 'MUSIC',

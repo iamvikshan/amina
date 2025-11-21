@@ -4,9 +4,8 @@ import {
 } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
 import { EQList } from 'lavalink-client'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'bassboost',
   description: 'Set bassboost level',
   category: 'MUSIC',

@@ -19,7 +19,7 @@ const command: CommandData = {
     options: [],
   },
 
-  async interactionRun(interaction: ChatInputCommandInteraction, data: any) {
+  async interactionRun(interaction: ChatInputCommandInteraction, _data: any) {
     // Show main admin hub menu
     const embed = new EmbedBuilder()
       .setColor(config.EMBED_COLORS.BOT_EMBED)

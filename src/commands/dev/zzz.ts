@@ -4,12 +4,12 @@ import {
   EmbedBuilder,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { EMBED_COLORS, config } from '@src/config'
 import { setDevCommands } from '@schemas/Dev'
-import type { Command } from '@structures/Command'
+
 import type { BotClient } from '@structures/BotClient'
 
-const command: Command = {
+const command: CommandData = {
   name: 'zzz',
   description: 'Toggle dev commands on/off',
   category: 'DEV',
@@ -38,7 +38,7 @@ const command: Command = {
 
     // Register/Unregister commands in test guild
     const testGuild = client.guilds.cache.get(
-      process.env.TEST_GUILD_ID as string
+      config.BOT.TEST_GUILD_ID as string
     )
     if (testGuild) {
       try {

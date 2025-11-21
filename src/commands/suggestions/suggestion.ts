@@ -8,11 +8,11 @@ import {
   TextChannel,
   GuildMember,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
+import type { PermissionResolvable } from 'discord.js'
 
 const { approveSuggestion, rejectSuggestion } = suggestionHandler
 
-const CHANNEL_PERMS = [
+const CHANNEL_PERMS: PermissionResolvable[] = [
   'ViewChannel',
   'SendMessages',
   'EmbedLinks',
@@ -20,7 +20,7 @@ const CHANNEL_PERMS = [
   'ReadMessageHistory',
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'suggestion',
   description: 'configure suggestion system',
   category: 'SUGGESTION',

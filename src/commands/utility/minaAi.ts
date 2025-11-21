@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction } from 'discord.js'
-import type { Command } from '@structures/Command'
+
 import { showMinaAiHub } from '@handlers/minaai'
 
-const command: Command = {
+const command: CommandData = {
   name: 'mina-ai',
   description: 'Manage your memories with Mina AI',
   category: 'UTILITY',

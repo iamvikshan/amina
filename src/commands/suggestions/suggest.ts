@@ -11,9 +11,8 @@ import {
 import { SUGGESTIONS } from '@src/config'
 import { addSuggestion } from '@schemas/Suggestions'
 import { stripIndent } from 'common-tags'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'suggest',
   description: 'submit a suggestion',
   category: 'SUGGESTION',

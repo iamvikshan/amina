@@ -94,7 +94,7 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
     }
     if (
       v.name === 'Developer' &&
-      !process.env.DEV_ID.split(',').includes(guildMember.user.id)
+      !config.BOT.DEV_IDS.includes(guildMember.user.id)
     )
       continue
 
@@ -141,7 +141,7 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
         `Hello I am ${guild?.members.me?.displayName}!\n` +
         'A cool multipurpose discord bot which can serve all your needs\n\n' +
         `**Invite Me:** [Here](${(botClient as any).getInvite()})\n` +
-        `**Support Server:** [Join](${process.env.SUPPORT_SERVER})`
+        `**Support Server:** [Join](${config.BOT.SUPPORT_SERVER})`
     )
 
   return {

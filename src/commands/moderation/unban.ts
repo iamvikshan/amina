@@ -11,9 +11,8 @@ import {
   User,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'unban',
   description: 'unbans the specified member',
   category: 'MODERATION',
@@ -52,6 +51,7 @@ const command: Command = {
     const sent = await interaction.followUp(response as any)
     if (typeof response !== 'string')
       await waitForBan(interaction.member as GuildMember, reason, sent)
+    return
   },
 }
 
@@ -115,7 +115,11 @@ async function waitForBan(
     const userId = response.values[0]
     const user = await issuer.client.users.fetch(userId, { cache: true })
 
-    const status = await unBanTarget(issuer, user, reason)
+    const status = await unBanTarget(
+      issuer,
+      user,
+      reason || 'No reason provided'
+    )
     if (typeof status === 'boolean')
       return sent.edit({
         content: `${user.username} is un-banned!`,
@@ -132,7 +136,9 @@ async function waitForBan(
   collector.on('end', async collected => {
     if (collected.size === 0)
       return sent.edit('Oops! Timed out. Try again later.')
+    return
   })
+  return
 }
 
 export default command

@@ -7,9 +7,8 @@ import {
 import { getUser } from '@schemas/User'
 import { EMBED_COLORS, ECONOMY } from '@src/config'
 import { getRandomInt } from '@helpers/Utils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'gamble',
   description: 'try your luck by gambling',
   category: 'ECONOMY',

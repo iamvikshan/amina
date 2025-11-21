@@ -6,7 +6,7 @@ import {
   TextInputStyle,
   ModalBuilder,
 } from 'discord.js'
-import type { PurgeType } from './amount-select'
+// PurgeType is now globally available - see types/handlers.d.ts
 
 /**
  * Show custom amount modal
@@ -37,7 +37,7 @@ export async function showAmountModal(
   const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
     amountInput
   )
-  modal.addComponents(row)
+  modal.addComponents([row])
 
   await interaction.showModal(modal)
 }

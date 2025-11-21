@@ -3,11 +3,9 @@ import {
   AttachmentBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
-  User,
 } from 'discord.js'
 import { getBuffer } from '@helpers/HttpUtils'
-import { EMBED_COLORS, IMAGE } from '@src/config'
-import type { Command } from '@structures/Command'
+import { EMBED_COLORS, IMAGE, secret } from '@src/config'
 
 // Amina's favorite meme reactions
 const memeReactions: Record<string, string> = {
@@ -65,7 +63,7 @@ const availableGenerators = [
   'worthless',
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'generator',
   description: 'Transform images into memes! ✨',
   cooldown: 1,
@@ -114,7 +112,7 @@ const command: Command = {
     const url = getGenerator(generator, image)
     const response = await getBuffer(url, {
       headers: {
-        Authorization: `Bearer ${process.env.STRANGE_API_KEY}`,
+        Authorization: `Bearer ${secret.STRANGE_API_KEY || ''}`,
       },
     })
 
@@ -124,7 +122,7 @@ const command: Command = {
       )
     }
 
-    const attachment = new AttachmentBuilder(response.buffer, {
+    const attachment = new AttachmentBuilder(response.buffer!, {
       name: 'attachment.png',
     })
     const embed = new EmbedBuilder()
@@ -134,6 +132,7 @@ const command: Command = {
       .setFooter({ text: `${author.username}'s meme creation! 🎨` })
 
     await interaction.followUp({ embeds: [embed], files: [attachment] })
+    return
   },
 }
 

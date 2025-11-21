@@ -35,4 +35,5 @@ export default async function configureHandler(
     )
 
   await interaction.followUp({ embeds: [embed] })
+  return
 }

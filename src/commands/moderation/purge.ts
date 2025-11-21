@@ -1,9 +1,9 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
+
 import { showPurgeHub } from '@handlers/purge'
 
-const command: Command = {
+const command: CommandData = {
   name: 'purge',
   description: 'Delete messages from a channel using guided flow',
   category: 'MODERATION',
@@ -17,6 +17,7 @@ const command: Command = {
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     await showPurgeHub(interaction)
+    return
   },
 }
 

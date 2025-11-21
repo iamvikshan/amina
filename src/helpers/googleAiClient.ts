@@ -5,16 +5,9 @@ import Logger from './Logger'
 
 const logger = Logger
 
-export interface AiResponse {
-  text: string
-  tokensUsed: number
-  latency: number
-}
-
-export interface ConversationMessage {
-  role: 'user' | 'model'
-  content: string
-}
+// AiResponse and ConversationMessage are now globally available - see types/services.d.ts
+// These are still exported for runtime use, but types are global
+export type { AiResponse, ConversationMessage }
 
 export class GoogleAiClient {
   private genAI: GoogleGenerativeAI
@@ -29,11 +22,11 @@ export class GoogleAiClient {
 
   async generateResponse(
     systemPrompt: string,
-    conversationHistory: ConversationMessage[],
+    conversationHistory: globalThis.ConversationMessage[],
     userMessage: string,
     maxTokens: number,
     temperature: number
-  ): Promise<AiResponse> {
+  ): Promise<globalThis.AiResponse> {
     const startTime = Date.now()
 
     try {

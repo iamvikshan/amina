@@ -1,4 +1,5 @@
 import * as http from 'http'
+import config from '@src/config'
 
 const server = http.createServer((req, res) => {
   if (req.url === '/health' && req.method === 'GET') {
@@ -16,7 +17,7 @@ const server = http.createServer((req, res) => {
   }
 })
 
-const PORT = process.env.HEALTH_PORT || 3000
+const PORT = config.SERVER.HEALTH_PORT
 
 server.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {

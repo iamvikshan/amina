@@ -1,7 +1,7 @@
 import { parsePermissions, timeformat } from '@helpers/Utils'
 import Honeybadger from '@helpers/Honeybadger'
 import type { ContextMenuCommandInteraction } from 'discord.js'
-import type { ContextData } from '@structures/BaseContext'
+// ContextData is now globally available - see types/contexts.d.ts
 
 const cooldownCache = new Map<string, number>()
 

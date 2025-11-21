@@ -1,8 +1,9 @@
-// Type definitions for Mongoose schemas used in the application
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// Database schema type definitions
 
-import type { Document, Model } from 'mongoose'
+import type { Document } from 'mongoose'
 
-declare module '@schemas/Guild' {
+declare global {
   interface IGuildSettings extends Document {
     _id: string
     server: {
@@ -17,6 +18,7 @@ declare module '@schemas/Guild' {
       setup_completed: boolean
       setup_message_id?: string
       invite_link?: string
+      did_setup_reminder?: boolean
     }
     stats: {
       enabled: boolean
@@ -110,7 +112,7 @@ declare module '@schemas/Guild' {
     }
     aiResponder?: {
       enabled: boolean
-      freeWillChannels?: string[] // Array of channel IDs
+      freeWillChannels?: string[]
       mentionOnly: boolean
       allowDMs: boolean
       updatedAt?: Date
@@ -118,11 +120,6 @@ declare module '@schemas/Guild' {
     }
   }
 
-  export function getSettings(guild: any): Promise<IGuildSettings>
-  export const Guild: Model<IGuildSettings>
-}
-
-declare module '@schemas/User' {
   interface IUser extends Document {
     _id: string
     username: string
@@ -150,10 +147,61 @@ declare module '@schemas/User' {
       giver_id: string
       timestamp: Date
     }>
+    flags: Array<{
+      _id: string
+      reason: string
+      flaggedBy: string
+      flaggedAt: Date
+      serverId: string
+      serverName: string
+    }>
+    afk: {
+      enabled: boolean
+      reason: string | null
+      since: Date | null
+      endTime: Date | null
+    }
+    profile: {
+      pronouns: string | null
+      birthdate: Date | null
+      age: number | null
+      region: string | null
+      languages: string[]
+      timezone: string | null
+      bio: string | null
+      interests: string[]
+      socials: Map<string, string>
+      favorites: Map<string, string>
+      goals: string[]
+      privacy: {
+        showAge: boolean
+        showRegion: boolean
+        showBirthdate: boolean
+        showPronouns: boolean
+      }
+      lastUpdated: Date
+      createdAt: Date
+    }
   }
 
-  export function getUser(user: any): Promise<IUser>
-  export const User: Model<IUser>
+  interface IMember extends Document {
+    _id: string
+    guild_id: string
+    member_id: string
+    strikes: number
+    warnings: number
+    invite_data?: {
+      inviter?: string
+      code?: string
+      tracked: number
+      fake: number
+      left: number
+      added: number
+    }
+    created_at?: Date
+    updated_at?: Date
+  }
 }
 
 export {}
+

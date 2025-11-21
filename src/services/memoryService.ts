@@ -18,20 +18,7 @@ import type { Message } from '../structures/conversationBuffer'
 
 const logger = Logger
 
-interface MemoryFact {
-  key: string
-  value: string
-  importance: number
-  memoryType?: 'user' | 'guild' | 'topic'
-}
-
-interface RecalledMemory {
-  id: string | number
-  key: string
-  value: string
-  score: number
-  context: string
-}
+// MemoryFact and RecalledMemory are now globally available - see types/services.d.ts
 
 export class MemoryService {
   private upstashIndex: Index | null = null
@@ -68,8 +55,8 @@ export class MemoryService {
    */
   async extractMemories(
     conversationHistory: Message[],
-    userId: string,
-    guildId: string | null
+    _userId: string,
+    _guildId: string | null
   ): Promise<MemoryFact[]> {
     if (!this.genAI || conversationHistory.length < 3) return []
 
@@ -78,10 +65,20 @@ export class MemoryService {
         model: 'gemini-flash-latest',
       })
 
-      // Build conversation context
+      // Build conversation context with speaker attribution
       const conversationText = conversationHistory
         .slice(-10) // Last 10 messages
-        .map(m => `${m.role}: ${m.content}`)
+        .map(m => {
+          if (m.role === 'model') {
+            return `model: ${m.content}`
+          }
+          // User message with attribution if available
+          if (m.userId && m.displayName) {
+            return `${m.displayName}: ${m.content}`
+          }
+          // Fallback for old messages without attribution
+          return `user: ${m.content}`
+        })
         .join('\n')
 
       const extractionPrompt = `Analyze this conversation and extract 0-3 important facts worth remembering long-term.

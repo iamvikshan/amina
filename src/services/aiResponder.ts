@@ -4,17 +4,18 @@ import type { Message } from 'discord.js'
 import { getSettings } from '../database/schemas/Guild'
 import { configCache } from '../config/aiResponder'
 import { GoogleAiClient } from '../helpers/googleAiClient'
-import { conversationBuffer } from '../structures/conversationBuffer'
+// ConversationMessage is now globally available - see types/services.d.ts
+import {
+  conversationBuffer,
+  type Message as BufferMessage,
+} from '../structures/conversationBuffer'
 import { memoryService } from './memoryService'
 import Logger from '../helpers/Logger'
+import { config } from '../config'
 
 const logger = Logger
 
-type ResponseMode = 'dm' | 'mention' | 'freeWill' | false
-
-interface RateLimitEntry {
-  timestamp: number
-}
+// ResponseMode and RateLimitEntry are now globally available - see types/services.d.ts
 
 export class AiResponderService {
   private client: GoogleAiClient | null = null
@@ -24,14 +25,14 @@ export class AiResponderService {
   private readonly CHANNEL_COOLDOWN_MS = 1000 // 1 second per channel in free-will
   private readonly FAILURE_THRESHOLD = 5
   private readonly FAILURE_WINDOW_MS = 10 * 60 * 1000 // 10 minutes
-  private readonly MAX_FREEWILL_CHANNELS = 2 // Max channels for regular guilds (unlimited for test guild)
+  // private readonly MAX_FREEWILL_CHANNELS = 2 // Max channels for regular guilds (unlimited for test guild)
 
   /**
    * Check if a guild is the test guild
    */
   private isTestGuild(guildId: string | null): boolean {
     if (!guildId) return false
-    return guildId === process.env.TEST_GUILD_ID
+    return guildId === config.BOT.TEST_GUILD_ID
   }
 
   /**
@@ -101,11 +102,13 @@ export class AiResponderService {
       if (userData.minaAi?.ignoreMe) {
         // Send helpful message if they try to interact (DM or mention)
         if (!message.guild || message.mentions.has(message.client.user!)) {
-          await message.channel
-            .send({
-              content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
-            })
-            .catch(() => {})
+          if ('send' in message.channel) {
+            await message.channel
+              .send({
+                content: `I've been set to ignore you. You can change this in \`/mina-ai\` → Settings → Toggle "Ignore Me" off.`,
+              })
+              .catch(() => {})
+          }
         }
         return false
       }
@@ -158,19 +161,12 @@ export class AiResponderService {
 
       // Test guild: Allow both mention mode AND free-will simultaneously
       if (isTestGuild) {
-        if (isFreeWillChannel && !guildSettings.aiResponder.mentionOnly) {
-          // If mentioned in free-will channel, show helpful message but still respond
-          if (isMentioned) {
-            // We'll handle the helpful message in handleMessage
-            return 'freeWill'
-          }
+        // Free will channels always work (no mention needed)
+        if (isFreeWillChannel) {
           return 'freeWill'
         }
-        if (guildSettings.aiResponder.mentionOnly && isMentioned) {
-          return 'mention'
-        }
-        // Test guild can have both modes active
-        if (!guildSettings.aiResponder.mentionOnly && isMentioned) {
+        // Mentions work in any channel (even when mentionOnly is false)
+        if (isMentioned) {
           return 'mention'
         }
         return false
@@ -207,27 +203,23 @@ export class AiResponderService {
     if (!mode || !this.client) return
 
     try {
-      // Check if user @mentioned in a free-will channel and show helpful message
-      if (message.guild && mode === 'freeWill') {
+      // Check if user @mentioned in a non-free-will channel and show helpful tip about free will channels
+      if (message.guild && mode === 'mention') {
         const guildSettings = await getSettings(message.guild)
         const freeWillChannels = this.getFreeWillChannels(guildSettings)
-        const isFreeWillChannel = freeWillChannels.includes(message.channel.id)
 
-        // Check if explicitly @mentioned or replying to bot (for helpful tip)
-        const hasExplicitMention = message.mentions.has(message.client.user!)
-        const isReplyToBot = await this.isReplyToBot(message)
-        const isMentioned = hasExplicitMention || isReplyToBot
-
-        if (isFreeWillChannel && isMentioned) {
-          // Show helpful message but still respond
+        // Only show tip if there are free will channels configured
+        if (freeWillChannels.length > 0) {
           const channelMentions = freeWillChannels
             .map(id => `<#${id}>`)
             .join(' or ')
-          await message.channel
-            .send({
-              content: `💡 **Tip:** I'm active in ${channelMentions}! You don't need to @mention me here - just send a message and I'll respond. You can also DM me anytime! ✨`,
-            })
-            .catch(() => {})
+          if ('send' in message.channel) {
+            await message.channel
+              .send({
+                content: `💡 **Tip:** I'm also active in ${channelMentions}! You don't need to @mention me there - just send a message and I'll respond. You can also DM me anytime! ✨`,
+              })
+              .catch(() => {})
+          }
         }
       }
 
@@ -256,7 +248,14 @@ export class AiResponderService {
       }
 
       // Append user message to buffer for next interaction
-      conversationBuffer.append(conversationId, 'user', message.content)
+      conversationBuffer.append(
+        conversationId,
+        'user',
+        message.content,
+        message.author.id,
+        message.author.username,
+        message.member?.displayName || message.author.username
+      )
 
       const config = await configCache.getConfig()
 
@@ -264,39 +263,150 @@ export class AiResponderService {
       const { getUser } = await import('@schemas/User')
       const userData = await getUser(message.author)
 
-      // Recall relevant memories with user preferences
-      const guildId = message.guild?.id || null
-      const memories = await memoryService.recallMemories(
-        message.content,
-        message.author.id,
-        guildId,
-        5,
-        {
-          combineDmWithServer: userData.minaAi?.combineDmWithServer || false,
-          globalServerMemories: userData.minaAi?.globalServerMemories !== false, // default true
-        }
+      // Get active participants (hybrid: message count + time window)
+      const participants = this.getActiveParticipants(
+        history,
+        message.author.id
       )
+      const participantIds = Array.from(participants)
 
-      // Build enhanced prompt with memories
-      let enhancedPrompt = config.systemPrompt
-      if (memories.length > 0) {
-        const memoryContext = memories
-          .map(m => `- ${m.key}: ${m.value}`)
-          .join('\n')
-        enhancedPrompt += `\n\n**Context about this user:**\n${memoryContext}`
+      // Fetch profiles for all participants
+      const participantProfiles =
+        await this.getParticipantProfiles(participantIds)
+
+      // Build participant context section
+      let participantContext = ''
+      if (participantIds.length > 1) {
+        // Only show context if there are multiple participants
+        participantContext = '\n\n**Conversation Participants:**\n'
+
+        for (const userId of participantIds) {
+          const profile = participantProfiles.get(userId)
+          if (!profile) continue
+
+          try {
+            // Fetch Discord user for display name
+            const user = await message.client.users
+              .fetch(userId)
+              .catch(() => null)
+            if (!user) continue
+
+            const name =
+              message.guild?.members.cache.get(userId)?.displayName ||
+              user.username
+            participantContext += `\n**${name}** (${user.username}):\n`
+
+            // Respect privacy settings
+            if (profile.privacy?.showPronouns && profile.pronouns) {
+              participantContext += `- Pronouns: ${profile.pronouns}\n`
+            }
+            if (profile.bio) {
+              participantContext += `- Bio: ${profile.bio.substring(0, 200)}\n`
+            }
+            if (profile.interests?.length > 0) {
+              participantContext += `- Interests: ${profile.interests.join(', ')}\n`
+            }
+            if (profile.privacy?.showRegion && profile.region) {
+              participantContext += `- Region: ${profile.region}\n`
+            }
+            if (profile.timezone) {
+              participantContext += `- Timezone: ${profile.timezone}\n`
+            }
+          } catch (error: any) {
+            logger.debug(
+              `Failed to fetch Discord user ${userId}: ${error.message}`
+            )
+          }
+        }
       }
 
+      // Recall relevant memories for all active participants
+      const guildId = message.guild?.id || null
+      const allMemories = new Map<string, any[]>() // userId -> RecalledMemory[]
+
+      // Recall memories for each participant
+      for (const userId of participantIds) {
+        try {
+          // Get user preferences for this participant
+          const participantUser = { id: userId } as any
+          const participantUserData = await getUser(participantUser)
+
+          const userMemories = await memoryService.recallMemories(
+            message.content, // Use current message for relevance
+            userId,
+            guildId,
+            3, // Fewer per user to avoid token bloat
+            {
+              combineDmWithServer:
+                participantUserData.minaAi?.combineDmWithServer || false,
+              globalServerMemories:
+                participantUserData.minaAi?.globalServerMemories !== false,
+            }
+          )
+
+          if (userMemories.length > 0) {
+            allMemories.set(userId, userMemories)
+          }
+        } catch (error: any) {
+          logger.debug(
+            `Failed to recall memories for user ${userId}: ${error.message}`
+          )
+        }
+      }
+
+      // Build memory context grouped by user
+      let memoryContext = ''
+      if (allMemories.size > 0) {
+        memoryContext = '\n\n**Relevant Memories by Participant:**\n'
+        for (const [userId, memories] of allMemories.entries()) {
+          if (memories.length === 0) continue
+
+          try {
+            const user = await message.client.users
+              .fetch(userId)
+              .catch(() => null)
+            if (!user) continue
+
+            const name =
+              message.guild?.members.cache.get(userId)?.displayName ||
+              user.username
+            memoryContext += `\n**${name}:**\n`
+            memories.forEach(m => {
+              memoryContext += `- ${m.key}: ${m.value}\n`
+            })
+          } catch (error: any) {
+            logger.debug(`Failed to fetch user ${userId} for memory context`)
+          }
+        }
+      }
+
+      // Build enhanced prompt with memories and participant context
+      let enhancedPrompt = config.systemPrompt
+      if (memoryContext) {
+        enhancedPrompt += memoryContext
+      }
+      if (participantContext) {
+        enhancedPrompt += participantContext
+      }
+
+      const totalMemories = Array.from(allMemories.values()).reduce(
+        (sum, mems) => sum + mems.length,
+        0
+      )
       logger.debug(
-        `Generating AI response - Model: ${config.model}, Memories: ${memories.length}, History: ${history.length} messages`
+        `Generating AI response - Model: ${config.model}, Participants: ${participantIds.length}, Total Memories: ${totalMemories}, History: ${history.length} messages`
       )
 
       // Log what we're sending to help debug
       logger.debug(`User message: ${message.content.substring(0, 100)}`)
 
+      // Format history with speaker attribution for AI
+      const formattedHistory = this.formatHistoryForAI(history)
+
       // Generate response
       const result = await this.client.generateResponse(
         enhancedPrompt,
-        history,
+        formattedHistory,
         message.content,
         config.maxTokens,
         config.temperature
@@ -410,6 +520,112 @@ export class AiResponderService {
 
   private isGuildDisabled(guildId: string): boolean {
     return this.getRecentFailures(guildId) >= this.FAILURE_THRESHOLD
+  }
+
+  /**
+   * Format conversation history with speaker attribution for AI
+   * Adds display names to user messages so AI can track who said what
+   */
+  private formatHistoryForAI(
+    history: BufferMessage[]
+  ): globalThis.ConversationMessage[] {
+    return history.map(msg => {
+      if (msg.role === 'model') {
+        return { role: 'model', content: msg.content }
+      }
+
+      // User message with attribution
+      if (msg.userId && msg.displayName) {
+        // Format: "Alice: I like pizza"
+        const attributedContent = `${msg.displayName}: ${msg.content}`
+        return { role: 'user', content: attributedContent }
+      }
+
+      // Fallback for old messages without attribution
+      return { role: 'user', content: msg.content }
+    })
+  }
+
+  /**
+   * Get active participants using hybrid approach:
+   * - Users from last N messages (conversation thread context)
+   * - Users who spoke within time window (recent activity)
+   * This handles both active conversations and prevents stale participants
+   */
+  private getActiveParticipants(
+    history: BufferMessage[],
+    currentUserId: string,
+    timeWindowMs: number = 10 * 60 * 1000, // 10 minutes default
+    maxMessageLookback: number = 15 // Last 15 messages default
+  ): Set<string> {
+    const participants = new Set<string>()
+    const now = Date.now()
+
+    // Always include current message author
+    participants.add(currentUserId)
+
+    // Get users from last N messages (conversation thread)
+    const recentMessages = history.slice(-maxMessageLookback)
+    for (const msg of recentMessages) {
+      if (msg.role === 'user' && msg.userId) {
+        participants.add(msg.userId)
+      }
+    }
+
+    // Also include users who spoke within time window (recent activity)
+    for (const msg of history) {
+      if (msg.role === 'user' && msg.userId) {
+        const messageAge = now - msg.timestamp
+        if (messageAge <= timeWindowMs) {
+          participants.add(msg.userId)
+        }
+      }
+    }
+
+    logger.debug(
+      `Active participants detected: ${participants.size} users (from ${history.length} messages)`
+    )
+
+    return participants
+  }
+
+  /**
+   * Fetch profiles for all participants
+   * Respects privacy settings and caches results
+   */
+  private async getParticipantProfiles(
+    userIds: string[]
+  ): Promise<Map<string, any>> {
+    const profiles = new Map<string, any>()
+
+    // Batch fetch user data
+    const { getUser } = await import('@schemas/User')
+    const fetchPromises = userIds.map(async userId => {
+      try {
+        // Create a minimal user object for getUser (it only needs id)
+        const user = { id: userId } as any
+        const userData = await getUser(user)
+        return { userId, userData }
+      } catch (error: any) {
+        logger.warn(
+          `Failed to fetch profile for user ${userId}: ${error.message}`
+        )
+        return { userId, userData: null }
+      }
+    })
+
+    const results = await Promise.all(fetchPromises)
+
+    for (const { userId, userData } of results) {
+      if (userData?.profile) {
+        profiles.set(userId, userData.profile)
+      }
+    }
+
+    logger.debug(
+      `Fetched profiles for ${profiles.size}/${userIds.length} participants`
+    )
+    return profiles
   }
 
   private async extractAndStoreMemories(

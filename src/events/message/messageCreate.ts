@@ -199,7 +199,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
 
   // Amina mentions handling (only if AI is not configured/responding)
   if (
-    message.content.includes(`${client.user.id}`) ||
+    message.content.includes(`${client.user?.id}`) ||
     message.mentions.has(client.user!)
   ) {
     // Check if AI is enabled and configured for this guild

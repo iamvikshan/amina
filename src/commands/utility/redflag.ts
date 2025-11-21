@@ -8,7 +8,6 @@ import {
 } from 'discord.js'
 import { getUser, addFlag, removeFlag, removeAllFlags } from '@schemas/User'
 import { Logger } from '@helpers/Logger'
-import type { Command } from '@structures/Command'
 
 const MAX_FLAGS = 5
 
@@ -20,7 +19,7 @@ const DANGER_RATINGS: Record<number, { label: string; color: number }> = {
   5: { label: 'Extremely Dangerous ⚠️⚠️⚠️⚠️⚠️', color: 0xff0000 },
 }
 
-const command: Command = {
+const command: CommandData = {
   name: 'redflag',
   description: 'Manage red flags on users',
   cooldown: 5,
@@ -119,6 +118,7 @@ const command: Command = {
       member
     )
     await interaction.followUp(response)
+    return
   },
 }
 

@@ -9,7 +9,7 @@ import type { MessageReaction, PartialMessageReaction, User } from 'discord.js'
  * @param {User} user - The user who removed the reaction
  */
 export default async (
-  client: BotClient,
+  _client: BotClient,
   reaction: MessageReaction | PartialMessageReaction,
   user: User
 ): Promise<void> => {

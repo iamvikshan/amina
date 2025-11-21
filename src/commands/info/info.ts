@@ -7,9 +7,8 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'info',
   description: 'show various information',
   category: 'INFO',
@@ -146,6 +145,7 @@ const command: Command = {
     }
 
     await interaction.followUp(response)
+    return
   },
 }
 

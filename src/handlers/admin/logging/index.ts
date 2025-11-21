@@ -192,8 +192,8 @@ export async function handleLoggingMenu(
 
         // Navigate to the setting
         for (const part of parts) {
-          if (!currentValue[part]) currentValue[part] = {}
-          currentValue = currentValue[part]
+          if (!(currentValue as any)[part]) (currentValue as any)[part] = {}
+          currentValue = (currentValue as any)[part]
         }
 
         // Get current boolean value

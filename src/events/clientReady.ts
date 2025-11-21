@@ -8,13 +8,16 @@ import { ApplicationCommandType, RateLimitError } from 'discord.js'
 import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/aiResponder'
 import { memoryService } from '@src/services/memoryService'
+import { config } from '@src/config'
 
 /**
  * Client ready event handler
  * @param client - The bot client instance
  */
 export default async (client: BotClient): Promise<void> => {
-  client.logger.success(`Logged in as ${client.user.tag}! (${client.user.id})`)
+  client.logger.success(
+    `Logged in as ${client.user?.tag}! (${client.user?.id})`
+  )
 
   // Initialize AI Responder Service
   await aiResponderService.initialize()
@@ -40,7 +43,7 @@ export default async (client: BotClient): Promise<void> => {
 
   // Initialize Music Manager
   if (client.config.MUSIC.ENABLED) {
-    client.musicManager.init({ ...client.user, shards: 'auto' })
+    client.musicManager.init({ ...client.user!, shards: 'auto' })
     client.logger.success('Music Manager initialized')
   }
 
@@ -233,7 +236,7 @@ export default async (client: BotClient): Promise<void> => {
     if (!client.config.INTERACTIONS.GLOBAL) {
       // Clear all global commands when GLOBAL is false
       try {
-        await client.application.commands.set([])
+        await client.application?.commands.set([])
         client.logger.success('Cleared all global commands (GLOBAL=false)')
       } catch (error: any) {
         const isRateLimit =
@@ -257,7 +260,7 @@ export default async (client: BotClient): Promise<void> => {
     }
 
     // Register test guild commands (Wrapped in try-catch to prevent startup crash)
-    const testGuild = client.guilds.cache.get(process.env.TEST_GUILD_ID)
+    const testGuild = client.guilds.cache.get(config.BOT.TEST_GUILD_ID || '')
     if (testGuild) {
       const testGuildCommands = client.slashCommands
         .filter(
@@ -332,7 +335,7 @@ export default async (client: BotClient): Promise<void> => {
 
           const startTime = Date.now()
           await Promise.race([
-            client.application.commands.set(globalCommands),
+            client.application?.commands.set(globalCommands),
             globalTimeoutPromise,
           ])
           const duration = Date.now() - startTime
@@ -361,9 +364,9 @@ export default async (client: BotClient): Promise<void> => {
 
         // Fallback: Smart per-guild registration strategy (Runs in background to avoid blocking)
         if (!globalSuccess) {
-          (async () => {
+          ;(async () => {
             const allGuilds = Array.from(client.guilds.cache.values()).filter(
-              g => g.id !== process.env.TEST_GUILD_ID
+              g => g.id !== config.BOT.TEST_GUILD_ID
             ) // Exclude test guild
 
             if (allGuilds.length === 0) {
@@ -412,7 +415,10 @@ export default async (client: BotClient): Promise<void> => {
               `Per-guild registration complete: ${successCount} succeeded, ${failCount} failed`
             )
           })().catch(err => {
-            client.logger.error('Error in background registration fallback:', err)
+            client.logger.error(
+              'Error in background registration fallback:',
+              err
+            )
           })
         }
       } else {
@@ -457,7 +463,7 @@ export default async (client: BotClient): Promise<void> => {
   // Run reminder scheduler every hour
   // Checks for guilds that joined ~24 hours ago to send setup reminder
   setInterval(() => checkGuildReminders(client), 60 * 60 * 1000)
-  
+
   // Run initial reminder check after a short delay
   setTimeout(() => checkGuildReminders(client), 2 * 60 * 1000)
 }

@@ -1,10 +1,10 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
 import { updateSettings } from '@schemas/Guild'
-import { EMBED_COLORS } from '@src/config'
+import { EMBED_COLORS, config } from '@src/config'
 
 function isTestGuild(guildId: string | null): boolean {
   if (!guildId) return false
-  return guildId === process.env.TEST_GUILD_ID
+  return guildId === config.BOT.TEST_GUILD_ID
 }
 
 function getFreeWillChannels(settings: any): string[] {

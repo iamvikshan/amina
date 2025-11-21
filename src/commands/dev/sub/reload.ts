@@ -1,6 +1,7 @@
 import { EmbedBuilder } from 'discord.js'
 import { BotClient } from '@structures/BotClient'
 import type { ChatInputCommandInteraction } from 'discord.js'
+import { config } from '@src/config'
 
 export default async function reload(
   interaction: ChatInputCommandInteraction
@@ -10,10 +11,14 @@ export default async function reload(
 
   // Helper to register commands to test guild
   const registerCommands = async () => {
-    const testGuild = client.guilds.cache.get(process.env.TEST_GUILD_ID as string)
+    const testGuild = client.guilds.cache.get(
+      config.BOT.TEST_GUILD_ID as string
+    )
     if (testGuild) {
-      const devConfig = await import('@schemas/Dev').then(m => m.getDevCommandsConfig())
-      
+      const devConfig = await import('@schemas/Dev').then(m =>
+        m.getDevCommandsConfig()
+      )
+
       const commandsToSet = client.slashCommands
         .filter(
           cmd =>

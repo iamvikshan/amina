@@ -1,12 +1,10 @@
 // src/helpers/Honeybadger.ts
 import Honeybadger from '@honeybadger-io/js'
+import config from '@src/config'
+import { secret } from '@src/config'
 
 // Determine environment from multiple sources
-const environment =
-  process.env.HONEYBADGER_ENV ||
-  process.env.NODE_ENV ||
-  process.env.DOPPLER_ENVIRONMENT ||
-  'development'
+const environment = config.MONITORING.ENVIRONMENT
 
 const isDevelopment = ['development', 'dev', 'test'].includes(
   environment.toLowerCase()
@@ -14,16 +12,12 @@ const isDevelopment = ['development', 'dev', 'test'].includes(
 
 // Configure Honeybadger
 Honeybadger.configure({
-  apiKey: process.env.HONEYBADGER_API_KEY || '',
+  apiKey: secret.HONEYBADGER_API_KEY || '',
   environment,
-  revision: process.env.HONEYBADGER_REVISION || 'unknown',
+  revision: config.MONITORING.REVISION,
 
   // Enable or disable based on environment - disable in dev
-  reportData: isDevelopment
-    ? false
-    : process.env.HONEYBADGER_API_KEY
-      ? true
-      : false,
+  reportData: isDevelopment ? false : secret.HONEYBADGER_API_KEY ? true : false,
 
   // Development settings
   developmentEnvironments: ['development', 'dev', 'test'],

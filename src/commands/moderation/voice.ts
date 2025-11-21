@@ -12,9 +12,8 @@ import {
   StageChannel,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'voice',
   description: 'voice moderation commands',
   category: 'MODERATION',

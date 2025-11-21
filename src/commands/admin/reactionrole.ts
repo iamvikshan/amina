@@ -11,10 +11,9 @@ import {
   Guild,
   TextChannel,
   Role,
-  PermissionResolvable,
 } from 'discord.js'
+import type { PermissionResolvable } from 'discord.js'
 import { parsePermissions } from '@helpers/Utils'
-import type { Command } from '@structures/Command'
 
 const channelPerms: PermissionResolvable[] = [
   'EmbedLinks',
@@ -24,7 +23,7 @@ const channelPerms: PermissionResolvable[] = [
   'ManageMessages',
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'reactionrole',
   description: 'Manage reaction roles for the specified message!',
   category: 'ADMIN',

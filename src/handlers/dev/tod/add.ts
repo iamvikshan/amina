@@ -55,7 +55,7 @@ export async function showAddTodModal(
     ratingInput
   )
 
-  modal.addComponents(firstRow, secondRow, thirdRow)
+  modal.addComponents([firstRow, secondRow, thirdRow])
 
   await interaction.showModal(modal)
 }

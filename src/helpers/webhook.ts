@@ -1,4 +1,6 @@
 import type { BotClient } from '@src/structures'
+import config from '@src/config'
+import { secret } from '@src/config'
 
 /**
  * Notify the dashboard to refresh guild data
@@ -12,7 +14,7 @@ export async function notifyDashboard(
   guildId: string,
   eventType: string = 'refresh'
 ): Promise<void> {
-  if (!process.env.BASE_URL?.trim() || !process.env.WEBHOOK_SECRET?.trim()) {
+  if (!config.BOT.DASHBOARD_URL?.trim() || !secret.WEBHOOK_SECRET?.trim()) {
     return
   }
 
@@ -21,15 +23,18 @@ export async function notifyDashboard(
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-    const response = await fetch(`${process.env.BASE_URL}/api/guild/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
-      },
-      body: JSON.stringify({ guildId }),
-      signal: controller.signal,
-    })
+    const response = await fetch(
+      `${config.BOT.DASHBOARD_URL}/api/guild/refresh`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${secret.WEBHOOK_SECRET}`,
+        },
+        body: JSON.stringify({ guildId }),
+        signal: controller.signal,
+      }
+    )
 
     clearTimeout(timeoutId)
 

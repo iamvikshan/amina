@@ -4,9 +4,8 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { postToBin } from '@helpers/HttpUtils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'paste',
   description: 'Paste something in sourceb.in',
   category: 'UTILITY',
@@ -35,11 +34,13 @@ const command: Command = {
     const content = interaction.options.getString('content', true)
 
     if (!title || !content) {
-      return interaction.followUp('Please provide both title and content.')
+      await interaction.followUp('Please provide both title and content.')
+      return
     }
 
     const response = await paste(content, title)
     await interaction.followUp(response)
+    return
   },
 }
 

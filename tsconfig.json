@@ -7,14 +7,15 @@
     "moduleResolution": "bundler",
     "types": ["bun-types"],
 
-    // Allow JavaScript files to be compiled
+    // Allow JavaScript files to be compiled (for config files)
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
 
     // Emit settings - we don't need to emit since Bun runs TS natively
     "noEmit": true,
+    "isolatedModules": true,
 
-    // Path mapping (same as jsconfig.json)
+    // Path mapping
     "baseUrl": "./",
     "paths": {
       "@root/*": ["./*"],
@@ -27,43 +28,38 @@
       "@types/*": ["./types/*"]
     },
 
-    // Very loose type checking for gradual migration
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": false,
-    "alwaysStrict": false,
+    // Strict type checking
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
 
-    // Additional relaxed settings
+    // Additional helpful checks
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
 
     // Allow CommonJS interop
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
 
     // Source map for debugging
     "sourceMap": true,
     "inlineSources": true,
 
-    // Experimental decorators (useful for Discord.js applications)
+    // Experimental decorators (useful for Discord.js)
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
   "include": ["src/**/*", "types/**/*"],
-  "exclude": ["node_modules", "**/node_modules/*", "dist", "build", "logs"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  }
+  "exclude": ["node_modules", "**/node_modules/*", "dist", "build", "logs"]
 }

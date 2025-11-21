@@ -1,5 +1,5 @@
 import { ChannelSelectMenuInteraction, EmbedBuilder } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { EMBED_COLORS, config } from '@src/config'
 import { getSettings, updateSettings } from '@schemas/Guild'
 import { createSecondaryBtn } from '@helpers/componentHelper'
 import updateChannel from '@commands/admin/settings/updateChannel'
@@ -10,7 +10,7 @@ import setChannel from '@commands/admin/logs/setChannel'
  */
 function isTestGuild(guildId: string | null): boolean {
   if (!guildId) return false
-  return guildId === process.env.TEST_GUILD_ID
+  return guildId === config.BOT.TEST_GUILD_ID
 }
 
 /**

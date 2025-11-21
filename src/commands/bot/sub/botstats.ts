@@ -4,7 +4,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS, DASHBOARD } from '@src/config'
+import { EMBED_COLORS, config } from '@src/config'
 import { timeformat } from '@helpers/Utils'
 import { updateBotStats } from '@schemas/Dev'
 import os from 'os'
@@ -121,19 +121,19 @@ export default function botstats(client: BotClient) {
       .setStyle(ButtonStyle.Link)
   )
 
-  if (process.env.SUPPORT_SERVER) {
+  if (config.BOT.SUPPORT_SERVER) {
     components.push(
       new ButtonBuilder()
         .setLabel('Support Server')
-        .setURL(process.env.SUPPORT_SERVER)
+        .setURL(config.BOT.SUPPORT_SERVER)
         .setStyle(ButtonStyle.Link)
     )
   }
 
-  if (DASHBOARD.enabled) {
-    const dashboardUrl = process.env.BASE_URL.startsWith('http')
-      ? process.env.BASE_URL
-      : `https://${process.env.BASE_URL}`
+  if (config.BOT.DASHBOARD_URL) {
+    const dashboardUrl = config.BOT.DASHBOARD_URL.startsWith('http')
+      ? config.BOT.DASHBOARD_URL
+      : `https://${config.BOT.DASHBOARD_URL}`
 
     components.push(
       new ButtonBuilder()

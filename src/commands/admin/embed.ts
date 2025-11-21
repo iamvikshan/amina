@@ -11,13 +11,12 @@ import {
   EmbedBuilder,
   ChatInputCommandInteraction,
   GuildMember,
-  TextBasedChannel,
   Message,
 } from 'discord.js'
+import type { TextBasedChannel } from 'discord.js'
 import { isValidColor, isHex } from '@helpers/Utils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'embed',
   description: 'Send a beautiful embed message!',
   category: 'ADMIN',
@@ -50,6 +49,7 @@ const command: Command = {
       channel as TextBasedChannel,
       interaction.member as GuildMember
     )
+    return
   },
 }
 
@@ -138,9 +138,9 @@ async function embedSetup(
       time: 1 * 60 * 1000,
       filter: m =>
         m.customId === 'EMBED_MODAL' &&
-        m.member &&
+        !!m.member &&
         (m.member as GuildMember).id === member.id &&
-        m.message.id === sentMsg.id,
+        m.message?.id === sentMsg.id,
     })
     .catch(_ex => undefined)
 

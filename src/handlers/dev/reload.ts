@@ -6,50 +6,9 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { EMBED_COLORS, config } from '@src/config'
 import type { BotClient } from '@src/structures'
-import { createSecondaryBtn, createSuccessBtn } from '@helpers/componentHelper'
-import { registerAutocomplete } from '@handlers/autocomplete'
-import type { AutocompleteInteraction } from 'discord.js'
-
-/**
- * Register autocomplete for reload command
- */
-export function registerReloadAutocomplete(): void {
-  registerAutocomplete(
-    'dev',
-    'command',
-    async (interaction: AutocompleteInteraction) => {
-      const client = interaction.client as BotClient
-      const focused = interaction.options.getFocused().toLowerCase()
-
-      // Get all commands and contexts
-      const allItems: Array<{ name: string; type: string }> = []
-
-      // Add commands
-      client.slashCommands.forEach((cmd: any) => {
-        allItems.push({ name: cmd.name, type: 'command' })
-      })
-
-      // Add contexts
-      client.contextMenus.forEach((ctx: any) => {
-        allItems.push({ name: ctx.name, type: 'context' })
-      })
-
-      // Filter by focused value
-      const filtered = allItems
-        .filter(item => item.name.toLowerCase().includes(focused))
-        .slice(0, 25) // Discord limit
-
-      await interaction.respond(
-        filtered.map(item => ({
-          name: `${item.name} (${item.type})`,
-          value: item.name,
-        }))
-      )
-    }
-  )
-}
+import { createSecondaryBtn } from '@helpers/componentHelper'
 
 /**
  * Show reload menu
@@ -125,11 +84,15 @@ export async function handleReloadType(
 
   // Helper to register commands to test guild
   const registerCommands = async () => {
-    const testGuild = client.guilds.cache.get(process.env.TEST_GUILD_ID as string)
+    const testGuild = client.guilds.cache.get(
+      config.BOT.TEST_GUILD_ID as string
+    )
     if (testGuild) {
       // We only reload to test guild to avoid global rate limits
-      const devConfig = await import('@schemas/Dev').then(m => m.getDevCommandsConfig())
-      
+      const devConfig = await import('@schemas/Dev').then(m =>
+        m.getDevCommandsConfig()
+      )
+
       const commandsToSet = client.slashCommands
         .filter(
           cmd =>

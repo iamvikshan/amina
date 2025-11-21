@@ -5,7 +5,6 @@ import {
   GuildMember,
 } from 'discord.js'
 import { EMBED_COLORS } from '@src/config'
-import type { Command } from '@structures/Command'
 
 const discordTogether = [
   'askaway',
@@ -32,7 +31,7 @@ const discordTogether = [
   'youtubedev',
 ]
 
-const command: Command = {
+const command: CommandData = {
   name: 'together',
   description: "let's start an adventure together in a voice channel!",
   category: 'FUN',
@@ -61,6 +60,7 @@ const command: Command = {
     }
     const response = await getTogetherInvite(member, choice)
     await interaction.followUp(response)
+    return
   },
 }
 

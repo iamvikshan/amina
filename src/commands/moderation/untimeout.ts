@@ -5,9 +5,8 @@ import {
   ChatInputCommandInteraction,
   GuildMember,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'untimeout',
   description: 'remove timeout from a member',
   category: 'MODERATION',
@@ -56,6 +55,7 @@ const command: Command = {
       reason
     )
     await interaction.followUp(response)
+    return
   },
 }
 
@@ -64,7 +64,11 @@ async function untimeout(
   target: GuildMember,
   reason: string | null
 ): Promise<string> {
-  const response = await unTimeoutTarget(issuer, target, reason)
+  const response = await unTimeoutTarget(
+    issuer,
+    target,
+    reason || 'No reason provided'
+  )
   if (typeof response === 'boolean')
     return `Timeout of ${target.user.username} is removed!`
   if (response === 'BOT_PERM')

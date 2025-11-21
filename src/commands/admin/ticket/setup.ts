@@ -108,7 +108,7 @@ export async function ticketModalSetup(
       filter: m =>
         m.customId === 'ticket-modalSetup' &&
         m.member?.user.id === member.id &&
-        m.message.id === sentMsg.id,
+        m.message?.id === sentMsg.id,
     })
     .catch(() => null)
 

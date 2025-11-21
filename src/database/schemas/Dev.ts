@@ -131,7 +131,9 @@ export async function updatePresenceConfig(update: any): Promise<any> {
   if (!document) return await Model.create(update)
 
   for (const [key, value] of Object.entries(update.PRESENCE)) {
-    document.PRESENCE[key] = value
+    if (document.PRESENCE) {
+      ;(document.PRESENCE as any)[key] = value
+    }
   }
 
   return await document.save()
@@ -149,7 +151,9 @@ export async function setDevCommands(enabled: boolean): Promise<any> {
     return (await Model.create({ DEV_COMMANDS: { ENABLED: enabled } }))
       .DEV_COMMANDS
 
-  document.DEV_COMMANDS.ENABLED = enabled
+  if (document.DEV_COMMANDS) {
+    document.DEV_COMMANDS.ENABLED = enabled
+  }
   await document.save()
   return document.DEV_COMMANDS
 }
@@ -199,10 +203,14 @@ export async function updateAiConfig(update: any): Promise<any> {
 
   // Merge update into AI_CONFIG
   for (const [key, value] of Object.entries(update)) {
-    document.AI_CONFIG[key] = value
+    if (document.AI_CONFIG) {
+      ;(document.AI_CONFIG as any)[key] = value
+    }
   }
 
-  document.AI_CONFIG.updatedAt = new Date()
+  if (document.AI_CONFIG) {
+    document.AI_CONFIG.updatedAt = new Date()
+  }
   await document.save()
   return document.AI_CONFIG
 }

@@ -26,7 +26,7 @@ export async function showTokenModal(
     .setMaxLength(100)
 
   const row = new ActionRowBuilder<TextInputBuilder>().addComponents(tokenInput)
-  modal.addComponents(row)
+  modal.addComponents([row])
 
   await interaction.showModal(modal)
 }

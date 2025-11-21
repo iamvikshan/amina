@@ -3,9 +3,8 @@ import {
   ChatInputCommandInteraction,
   Guild,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'maxwarn',
   description: 'Set max warnings configuration!',
   category: 'ADMIN',

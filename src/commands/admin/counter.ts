@@ -4,9 +4,8 @@ import {
   ChatInputCommandInteraction,
   Guild,
 } from 'discord.js'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'counter',
   description: 'Set up a counter channel in the guild!',
   category: 'ADMIN',

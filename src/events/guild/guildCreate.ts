@@ -10,7 +10,7 @@ import {
   TextChannel,
   ApplicationCommandType,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { EMBED_COLORS, config } from '@src/config'
 import { notifyDashboard } from '@helpers/webhook'
 import type { BotClient } from '@src/structures'
 
@@ -106,7 +106,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
     new ButtonBuilder()
       .setLabel('Support Server')
       .setStyle(ButtonStyle.Link)
-      .setURL(process.env.SUPPORT_SERVER as string),
+      .setURL(config.BOT.SUPPORT_SERVER as string),
   ]
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(components)
@@ -143,7 +143,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         )
         .addFields({
           name: '🤗 Need Help?',
-          value: `Don't be shy! Join our [support server](${process.env.SUPPORT_SERVER}) - I'm always there to help!`,
+          value: `Don't be shy! Join our [support server](${config.BOT.SUPPORT_SERVER}) - I'm always there to help!`,
         })
         .setFooter({
           text: 'Made with 🎶 & ☕',
@@ -181,7 +181,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           )
           .addFields({
             name: '✨ Need my help?',
-            value: `Just join our [support server](${process.env.SUPPORT_SERVER}) - I'm always there to help!`,
+            value: `Just join our [support server](${config.BOT.SUPPORT_SERVER}) - I'm always there to help!`,
           })
           .setFooter({ text: 'Your new creative companion ♥' })
 
@@ -235,7 +235,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
 
       await client.joinLeaveWebhook.send({
         username: 'Join',
-        avatarURL: client.user.displayAvatarURL(),
+        avatarURL: client.user?.displayAvatarURL(),
         embeds: [embed],
       })
       client.logger.success(

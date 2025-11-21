@@ -1,8 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'stop',
   description: 'Stop the music player',
   category: 'MUSIC',

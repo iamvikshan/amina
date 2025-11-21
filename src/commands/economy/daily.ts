@@ -2,9 +2,8 @@ import { EmbedBuilder, ChatInputCommandInteraction, User } from 'discord.js'
 import { getUser } from '@schemas/User'
 import { EMBED_COLORS, ECONOMY } from '@src/config'
 import { diffHours, getRemainingTime } from '@helpers/Utils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'daily',
   description: 'receive a daily bonus',
   category: 'ECONOMY',
@@ -27,7 +26,9 @@ async function daily(user: User) {
     const lastUpdated = new Date(userDb.daily.timestamp)
     const difference = diffHours(new Date(), lastUpdated)
     if (difference < 24) {
-      const nextUsage = lastUpdated.setHours(lastUpdated.getHours() + 24)
+      const nextUsage = new Date(
+        lastUpdated.setHours(lastUpdated.getHours() + 24)
+      )
       return `You can again run this command in \`${getRemainingTime(nextUsage)}\``
     }
     streak = userDb.daily.streak || streak

@@ -50,5 +50,5 @@ export async function handleUserSelect(
 
   // Proceed to amount selection
   const { showAmountSelect } = await import('./amount-select')
-  await showAmountSelect(interaction, 'user', { userId })
+  await showAmountSelect(interaction as any, 'user', { userId })
 }

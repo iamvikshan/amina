@@ -145,14 +145,6 @@ const Schema = new mongoose.Schema({
 export const Model = mongoose.model('guild', Schema)
 
 /**
- * Get free-will channels from guild data
- */
-function getFreeWillChannels(guildData: any): string[] {
-  if (!guildData?.aiResponder) return []
-  return guildData.aiResponder.freeWillChannels || []
-}
-
-/**
  * Delete guild from cache
  * FixedSizeMap doesn't have a delete method, but since it's an LRU cache,
  * the entry will naturally be evicted when the cache fills up.

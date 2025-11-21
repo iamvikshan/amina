@@ -23,7 +23,7 @@ export async function removeTicketCategory(guild: Guild): Promise<string> {
     return "Oh no! 😮 There's no ticket category set right now. Nothing to remove!"
   }
 
-  settings.ticket.category = null
+  settings.ticket.category = ''
   settings.ticket.enabled = false
   await updateSettings(guild.id, settings)
 

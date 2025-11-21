@@ -1,8 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'leave',
   description: 'Disconnects the bot from the voice channel',
   category: 'MUSIC',

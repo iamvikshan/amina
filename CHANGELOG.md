@@ -1,22 +1,18 @@
 # [v2.1.2](https://github.com/iamvikshan/amina/compare/v2.1.1...v2.1.2) (2025-11-19)
 
-
-
 ## [2.1.2](https://github.com/iamvikshan/amina/compare/v2.1.1...v2.1.2) (2025-11-19)
 
 ### Bug Fixes
 
-* enhance command registration, loading, and reliability ([fdaf26d](https://github.com/iamvikshan/amina/commit/fdaf26d81db4802de190355cfd9f01e4e35436d7))
+- enhance command registration, loading, and reliability ([fdaf26d](https://github.com/iamvikshan/amina/commit/fdaf26d81db4802de190355cfd9f01e4e35436d7))
 
 # [v2.1.1](https://github.com/iamvikshan/amina/compare/v2.1.0...v2.1.1) (2025-11-18)
-
-
 
 ## [2.1.1](https://github.com/iamvikshan/amina/compare/v2.1.0...v2.1.1) (2025-11-18)
 
 ### Bug Fixes
 
-* **dev,database:** resolve interaction handling bugs and implement guild cleanup ([0e8522d](https://github.com/iamvikshan/amina/commit/0e8522d0f87bc314fb62ee359b1d0f2564f4b52a))
+- **dev,database:** resolve interaction handling bugs and implement guild cleanup ([0e8522d](https://github.com/iamvikshan/amina/commit/0e8522d0f87bc314fb62ee359b1d0f2564f4b52a))
 
 # [v2.1.0](https://github.com/iamvikshan/amina/compare/v2.0.0...v2.1.0) (2025-11-18)
 

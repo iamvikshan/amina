@@ -2,9 +2,8 @@ import { ChatInputCommandInteraction } from 'discord.js'
 import { EmbedBuilder } from 'discord.js'
 import { splitBar } from 'string-progressbar'
 import config from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'np',
   description: 'Shows what track is currently being played',
   category: 'MUSIC',

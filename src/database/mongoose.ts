@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import { log, success, error } from '../helpers/Logger'
+import { secret } from '@src/config'
 
 mongoose.set('strictQuery', true)
 
@@ -9,12 +10,7 @@ export async function initializeMongoose(): Promise<
   log(`Connecting to MongoDb...`)
 
   try {
-    const mongoConnection = process.env.MONGO_CONNECTION
-    if (!mongoConnection) {
-      throw new Error('MONGO_CONNECTION environment variable is not set')
-    }
-
-    await mongoose.connect(mongoConnection)
+    await mongoose.connect(secret.MONGO_CONNECTION)
 
     success('Mongoose: Database connection established')
 

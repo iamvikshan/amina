@@ -7,9 +7,8 @@ import {
   ComponentType,
 } from 'discord.js'
 import config from '@src/config'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'search',
   description: 'search for matching songs on YouTube',
   category: 'MUSIC',

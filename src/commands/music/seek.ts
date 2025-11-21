@@ -3,9 +3,8 @@ import {
   ApplicationCommandOptionType,
 } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
-import type { Command } from '@structures/Command'
 
-const command: Command = {
+const command: CommandData = {
   name: 'seek',
   description: 'Sets the position of the current track',
   category: 'MUSIC',
@@ -30,7 +29,7 @@ const command: Command = {
       )
     }
 
-    const time = interaction.client.utils.parseTime(timeString)
+    const time = (interaction.client as any).utils.parseTime(timeString)
     if (!time) {
       return await interaction.followUp(
         'Invalid time format. Use 10s, 1m 50s, 1h'

@@ -10,13 +10,7 @@ import {
 import { EMBED_COLORS } from '@src/config'
 import { createSecondaryBtn, createPrimaryBtn } from '@helpers/componentHelper'
 
-export type PurgeType =
-  | 'all'
-  | 'attachments'
-  | 'bots'
-  | 'links'
-  | 'token'
-  | 'user'
+// PurgeType is now globally available - see types/handlers.d.ts
 
 /**
  * Show amount selection menu

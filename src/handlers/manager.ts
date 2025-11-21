@@ -7,7 +7,7 @@ const { MUSIC } = config
 export default class Manager extends LavalinkManager {
   constructor(client: BotClient) {
     super({
-      nodes: MUSIC.LAVALINK_NODES,
+      nodes: MUSIC.LAVALINK_NODES as any,
       sendToShard: (guildId, payload) =>
         client.guilds.cache.get(guildId)?.shard?.send(payload),
       emitNewSongsOnly: false,

@@ -10,14 +10,14 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   GuildMember,
-  GuildTextBasedChannel,
   TextChannel,
   Guild,
 } from 'discord.js'
+import type { GuildTextBasedChannel, PermissionResolvable } from 'discord.js'
 import { parsePermissions } from '@helpers/Utils'
 import ems from 'enhanced-ms'
 import { GIVEAWAYS } from '@src/config'
-import type { Command } from '@structures/Command'
+
 import start from './sub/start'
 import pause from './sub/pause'
 import resume from './sub/resume'
@@ -26,7 +26,7 @@ import reroll from './sub/reroll'
 import list from './sub/list'
 import edit from './sub/edit'
 
-const command: Command = {
+const command: CommandData = {
   name: 'giveaway',
   description: 'giveaway commands',
   category: 'GIVEAWAY',
@@ -205,7 +205,7 @@ const command: Command = {
       if (!messageId) {
         return interaction.followUp('Please provide a message ID!')
       }
-      const addDur = interaction.options.getInteger('add_duration')
+      const addDur = interaction.options.getString('add_duration')
       let addDurationMs: number | null = null
       if (addDur !== null) {
         const parsed = ems(addDur)
@@ -248,7 +248,11 @@ async function runModalSetup(
     return channel.safeSend('Missing required information!')
   }
 
-  const SETUP_PERMS = ['ViewChannel', 'SendMessages', 'EmbedLinks']
+  const SETUP_PERMS: PermissionResolvable[] = [
+    'ViewChannel',
+    'SendMessages',
+    'EmbedLinks',
+  ]
 
   // validate channel perms
   if (!targetCh) {
@@ -268,7 +272,7 @@ async function runModalSetup(
     )
   }
 
-  const buttonRow = new ActionRowBuilder().addComponents(
+  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId('giveaway_btnSetup')
       .setLabel('Setup Giveaway')
@@ -287,7 +291,7 @@ async function runModalSetup(
       componentType: ComponentType.Button,
       filter: i =>
         i.customId === 'giveaway_btnSetup' &&
-        i.member?.id === member.id &&
+        (i.member as GuildMember)?.id === member.id &&
         i.message.id === sentMsg.id,
       time: 20000,
     })
@@ -306,45 +310,50 @@ async function runModalSetup(
       customId: 'giveaway-modalSetup',
       title: 'Giveaway Setup',
       components: [
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('duration')
-            .setLabel('What is the duration?')
-            .setPlaceholder('1h / 1d / 1w')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true)
+        new ActionRowBuilder<TextInputBuilder>().addComponents(
+          new TextInputBuilder({
+            customId: 'duration',
+            label: 'What is the duration?',
+            placeholder: '1h / 1d / 1w',
+            style: TextInputStyle.Short,
+            required: true,
+          })
         ),
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('prize')
-            .setLabel('What is the prize?')
-            .setPlaceholder('Nitro / Steam Gift Card / etc')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true)
+        new ActionRowBuilder<TextInputBuilder>().addComponents(
+          new TextInputBuilder({
+            customId: 'prize',
+            label: 'What is the prize?',
+            placeholder: 'Nitro / Steam Gift Card / etc',
+            style: TextInputStyle.Short,
+            required: true,
+          })
         ),
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('winners')
-            .setLabel('Number of winners?')
-            .setPlaceholder('1, 20')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true)
+        new ActionRowBuilder<TextInputBuilder>().addComponents(
+          new TextInputBuilder({
+            customId: 'winners',
+            label: 'Number of winners?',
+            placeholder: '1, 20',
+            style: TextInputStyle.Short,
+            required: true,
+          })
         ),
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('roles')
-            .setLabel("RoleId's that can take part in the giveaway")
-            .setPlaceholder('1161271489446809611, 1167163232117600256')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+        new ActionRowBuilder<TextInputBuilder>().addComponents(
+          new TextInputBuilder({
+            customId: 'roles',
+            label: "RoleId's that can take part in the giveaway",
+            placeholder: '1161271489446809611, 1167163232117600256',
+            style: TextInputStyle.Short,
+            required: false,
+          })
         ),
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('host')
-            .setLabel('User Id hosting the giveaway')
-            .setPlaceholder('929835843479302204')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+        new ActionRowBuilder<TextInputBuilder>().addComponents(
+          new TextInputBuilder({
+            customId: 'host',
+            label: 'User Id hosting the giveaway',
+            placeholder: '929835843479302204',
+            style: TextInputStyle.Short,
+            required: false,
+          })
         ),
       ],
     })
@@ -356,7 +365,7 @@ async function runModalSetup(
       time: 1 * 60 * 1000,
       filter: m =>
         m.customId === 'giveaway-modalSetup' &&
-        m.member?.id === member.id &&
+        (m.member as GuildMember)?.id === member.id &&
         m.message?.id === sentMsg.id,
     })
     .catch(() => null)
@@ -372,23 +381,25 @@ async function runModalSetup(
   await modal.reply('Setting up giveaway...')
 
   // duration
-  const duration = ems(modal.fields.getTextInputValue('duration'))
-  if (isNaN(duration)) {
+  const durationValue = ems(modal.fields.getTextInputValue('duration'))
+  if (typeof durationValue !== 'number' || isNaN(durationValue)) {
     return modal.editReply(
       'Setup has been cancelled. You did not specify a valid duration'
     )
   }
+  const duration = durationValue
 
   // prize
   const prize = modal.fields.getTextInputValue('prize')
 
   // winner count
-  const winners = parseInt(modal.fields.getTextInputValue('winners'))
-  if (isNaN(winners)) {
+  const winnersValue = parseInt(modal.fields.getTextInputValue('winners'))
+  if (typeof winnersValue !== 'number' || isNaN(winnersValue)) {
     return modal.editReply(
       'Setup has been cancelled. You did not specify a valid winner count'
     )
   }
+  const winners = winnersValue
 
   // roles
   const allowedRoles =

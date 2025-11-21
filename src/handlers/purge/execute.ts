@@ -132,11 +132,9 @@ export async function handlePurgeConfirm(
 
   // Handle result
   let resultEmbed: EmbedBuilder
-  let success = false
 
   if (typeof result === 'number') {
     // Success
-    success = true
     resultEmbed = new EmbedBuilder()
       .setColor(EMBED_COLORS.SUCCESS)
       .setTitle('✅ Purge Complete')

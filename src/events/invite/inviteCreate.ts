@@ -9,7 +9,7 @@ const { getInviteCache, cacheInvite } = inviteHandler
  * @param {BotClient} client - The bot client instance
  * @param {Invite} invite - The created invite
  */
-export default async (client: BotClient, invite: Invite): Promise<void> => {
+export default async (_client: BotClient, invite: Invite): Promise<void> => {
   const cachedInvites = getInviteCache(invite?.guild as any)
 
   // Check if cache for the guild exists and then add it to cache

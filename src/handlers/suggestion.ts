@@ -12,10 +12,10 @@ import {
   TextInputStyle,
   Message,
   GuildMember,
-  TextBasedChannel,
   ButtonInteraction,
   ModalSubmitInteraction,
 } from 'discord.js'
+import type { TextBasedChannel } from 'discord.js'
 import { stripIndents } from 'common-tags'
 
 const getStats = (message: Message): [number, number] => {

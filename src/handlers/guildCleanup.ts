@@ -60,10 +60,7 @@ export async function cleanupExpiredGuilds(client: BotClient): Promise<{
 
       // Double-check: Don't delete if bot is still in the guild
       if (client.guilds.cache.has(guildId)) {
-        guildsSkipped++
-        client.logger.warn(
-          `Skipping cleanup for guild ${guildId} - bot is still in guild`
-        )
+        guildsSkipped
         continue
       }
 
