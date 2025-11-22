@@ -1,3 +1,13 @@
+# [v2.2.0](https://github.com/iamvikshan/amina/compare/v2.1.3...v2.2.0) (2025-11-22)
+
+
+
+## [2.2.0](https://github.com/iamvikshan/amina/compare/v2.1.3...v2.2.0) (2025-11-22)
+
+### Features
+
+* Implement AI command registry and media extraction, and optimize AI responder initialization and data fetching. ([ee45d95](https://github.com/iamvikshan/amina/commit/ee45d95157e70c5aa3e686d39807db0831758d81))
+
 # [v2.1.3](https://github.com/iamvikshan/amina/compare/v2.1.2...v2.1.3) (2025-11-21)
 
 ## 🐛 Bug Fixes
