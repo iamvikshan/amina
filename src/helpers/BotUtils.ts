@@ -128,6 +128,66 @@ export default class BotUtils {
       },
     ]
   }
+
+  /**
+   * Check if two commands are different
+   * @param existing - The existing command from Discord
+   * @param local - The local command definition
+   */
+  static areCommandsDifferent(existing: any, local: any): boolean {
+    // Check description
+    if (existing.description !== local.description) return true
+
+    // Check options
+    const existingOptions = existing.options || []
+    const localOptions = local.options || []
+
+    if (existingOptions.length !== localOptions.length) return true
+
+    // Helper to compare options recursively
+    const compareOptions = (existingOpt: any, localOpt: any): boolean => {
+      if (existingOpt.name !== localOpt.name) return true
+      if (existingOpt.description !== localOpt.description) return true
+      if (existingOpt.type !== localOpt.type) return true
+      if (existingOpt.required !== localOpt.required && localOpt.required)
+        return true // Discord defaults required to false
+      if ((existingOpt.required ?? false) !== (localOpt.required ?? false))
+        return true
+
+      // Check choices
+      const existingChoices = existingOpt.choices || []
+      const localChoices = localOpt.choices || []
+      if (existingChoices.length !== localChoices.length) return true
+      for (let i = 0; i < existingChoices.length; i++) {
+        if (existingChoices[i].name !== localChoices[i].name) return true
+        if (existingChoices[i].value !== localChoices[i].value) return true
+      }
+
+      // Check sub-options (for subcommands)
+      const existingSubOptions = existingOpt.options || []
+      const localSubOptions = localOpt.options || []
+      if (existingSubOptions.length !== localSubOptions.length) return true
+
+      for (let i = 0; i < existingSubOptions.length; i++) {
+        const found = localSubOptions.find(
+          (o: any) => o.name === existingSubOptions[i].name
+        )
+        if (!found || compareOptions(existingSubOptions[i], found)) return true
+      }
+
+      return false
+    }
+
+    for (const localOpt of localOptions) {
+      const existingOpt = existingOptions.find(
+        (o: any) => o.name === localOpt.name
+      )
+      if (!existingOpt) return true
+      if (compareOptions(existingOpt, localOpt)) return true
+    }
+
+    return false
+  }
 }
 
 // Named exports for backward compatibility with require() destructuring

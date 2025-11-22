@@ -24,9 +24,9 @@ declare global {
     }
     AI: {
       MODEL: string
+      VISION_MODEL: string
       MAX_TOKENS: number
       TIMEOUT_MS: number
-      SYSTEM_PROMPT: string
       TEMPERATURE: number
       DM_ENABLED_GLOBALLY: boolean
       UPSTASH_URL: string

@@ -1,12 +1,8 @@
 import mongoose from 'mongoose'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { loadDefaultPrompt } from '../../helpers/promptLoader'
 
-// Read the prompt.md file as the default system prompt
-const defaultSystemPrompt = readFileSync(
-  join(process.cwd(), 'src/data/prompt.md'),
-  'utf-8'
-).trim()
+// Read the prompt.md file as the default system prompt (with error handling)
+const defaultSystemPrompt = loadDefaultPrompt()
 
 const Schema = new mongoose.Schema(
   {
@@ -55,6 +51,10 @@ const Schema = new mongoose.Schema(
       model: {
         type: String,
         default: 'gemini-flash-latest',
+      },
+      visionModel: {
+        type: String,
+        default: 'gemini-3-pro-preview',
       },
       maxTokens: {
         type: Number,

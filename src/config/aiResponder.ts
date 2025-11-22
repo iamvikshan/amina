@@ -4,6 +4,7 @@
 import { getAiConfig } from '../database/schemas/Dev'
 import config from './config'
 import { secret } from './secrets'
+import { loadDefaultPrompt } from '../helpers/promptLoader'
 
 class ConfigCache {
   private cache: any = null
@@ -18,7 +19,7 @@ class ConfigCache {
       this.lastFetch = Date.now()
     }
 
-    // Merge with config (config takes precedence, then DB cache)
+    // Merge with config (DB takes precedence, then config.ts for model/tokens/timeout, then defaults)
     const geminiKey = secret.GEMINI_KEY || ''
     if (!geminiKey && this.cache.globallyEnabled) {
       throw new Error(
@@ -26,21 +27,25 @@ class ConfigCache {
       )
     }
 
+    // Priority: DB > defaults (config.ts only for model/tokens/timeout fallback)
+    const defaultPrompt = loadDefaultPrompt()
     const aiConfig = {
-      globallyEnabled: this.cache.globallyEnabled,
-      model: config.AI.MODEL || this.cache.model,
-      maxTokens: config.AI.MAX_TOKENS || this.cache.maxTokens || 1024,
-      timeoutMs: config.AI.TIMEOUT_MS || this.cache.timeoutMs || 20000,
-      systemPrompt:
-        config.AI.SYSTEM_PROMPT ||
-        this.cache.systemPrompt ||
-        'You are Amina, a helpful Discord bot assistant.',
+      globallyEnabled:
+        this.cache.globallyEnabled !== undefined
+          ? this.cache.globallyEnabled
+          : false,
+      model: this.cache.model || config.AI.MODEL || 'gemini-flash-latest',
+      maxTokens: this.cache.maxTokens || config.AI.MAX_TOKENS || 1024,
+      timeoutMs: this.cache.timeoutMs || config.AI.TIMEOUT_MS || 20000,
+      systemPrompt: this.cache.systemPrompt || defaultPrompt,
       temperature:
-        this.parseTemperature(config.AI.TEMPERATURE.toString()) ??
-        this.cache.temperature ??
-        0.7,
+        this.cache.temperature !== undefined
+          ? this.cache.temperature
+          : (this.parseTemperature(config.AI.TEMPERATURE.toString()) ?? 0.7),
       dmEnabledGlobally:
-        config.AI.DM_ENABLED_GLOBALLY || this.cache.dmEnabledGlobally,
+        this.cache.dmEnabledGlobally !== undefined
+          ? this.cache.dmEnabledGlobally
+          : (config.AI.DM_ENABLED_GLOBALLY ?? true),
       geminiKey,
       upstashUrl: config.AI.UPSTASH_URL,
       upstashToken: secret.UPSTASH_VECTOR || '',
@@ -68,6 +73,17 @@ class ConfigCache {
   invalidate() {
     this.cache = null
     this.lastFetch = 0
+  }
+
+  /**
+   * Force immediate refresh of config from database
+   * Bypasses TTL and fetches fresh data
+   */
+  async forceRefresh(): Promise<void> {
+    this.cache = null
+    this.lastFetch = 0
+    // Pre-fetch to warm cache
+    await this.getConfig()
   }
 }
 

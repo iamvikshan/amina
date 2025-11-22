@@ -9,6 +9,7 @@ import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/aiResponder'
 import { memoryService } from '@src/services/memoryService'
 import { config } from '@src/config'
+import BotUtils from '../helpers/BotUtils'
 
 /**
  * Client ready event handler
@@ -108,8 +109,6 @@ export default async (client: BotClient): Promise<void> => {
         const startTime = Date.now()
 
         // Add timeout to detect if Discord.js is hanging (waiting for rate limit)
-        // Discord allows 5 updates/hour per application/guild, so max wait could be up to 1 hour
-        // But we'll set a reasonable timeout of 30 seconds to detect issues
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => {
             reject(
@@ -128,7 +127,7 @@ export default async (client: BotClient): Promise<void> => {
           `Registered ${commands.length} ${commandType} commands (took ${duration}ms)`
         )
 
-        // Check if result contains rate limit info (sometimes Discord.js includes it even on success)
+        // Check if result contains rate limit info
         if (result && typeof result === 'object') {
           if (result.rateLimitData) {
             client.logger.log(
@@ -160,12 +159,6 @@ export default async (client: BotClient): Promise<void> => {
             client.logger.error(
               `This usually means Discord.js is internally queuing due to rate limits.`
             )
-            client.logger.error(
-              `Discord allows only 5 command updates per hour per application/guild.`
-            )
-            client.logger.error(
-              `If you've restarted your bot multiple times, you've likely hit this limit.`
-            )
           }
 
           const retryAfter =
@@ -182,24 +175,6 @@ export default async (client: BotClient): Promise<void> => {
           client.logger.warn(
             `Rate limit info: Retry after ${retryAfterSeconds}s (${retryAfterMinutes} minutes)`
           )
-
-          // Log full error details for debugging
-          client.logger.warn(`Error code: ${error.code || 'N/A'}`)
-          client.logger.warn(`Error status: ${error.status || 'N/A'}`)
-          client.logger.warn(`Error message: ${error.message || 'N/A'}`)
-
-          if (error.rateLimitData) {
-            client.logger.warn(
-              `Rate limit details: Limit=${error.rateLimitData.limit}, Remaining=${error.rateLimitData.remaining}, Reset=${new Date(error.rateLimitData.reset).toISOString()}`
-            )
-          }
-
-          // Check for global rate limit
-          if (error.global || error.headers?.['x-ratelimit-global']) {
-            client.logger.error(
-              '⚠️ GLOBAL RATE LIMIT HIT - All requests are rate limited!'
-            )
-          }
 
           if (attempt < maxRetries) {
             const waitTime = retryAfter || Math.pow(2, attempt) * 1000 // Exponential backoff fallback
@@ -218,16 +193,38 @@ export default async (client: BotClient): Promise<void> => {
           client.logger.error(
             `❌ Failed to register ${commandType} commands: ${error.message || error}`
           )
-          client.logger.error(`Error code: ${error.code || 'N/A'}`)
-          client.logger.error(`Error status: ${error.status || 'N/A'}`)
-          if (error.stack) {
-            client.logger.error(error.stack)
-          }
           throw error
         }
       }
     }
   }
+
+  // Helper to check if commands need update
+  const shouldUpdateCommands = async (
+    localCommands: any[],
+    fetchFn: () => Promise<any>
+  ): Promise<boolean> => {
+    try {
+      const existingCommands = await fetchFn()
+      if (existingCommands.size !== localCommands.length) return true
+
+      for (const localCmd of localCommands) {
+        const existingCmd = existingCommands.find(
+          (c: any) => c.name === localCmd.name
+        )
+        if (!existingCmd) return true
+        if (BotUtils.areCommandsDifferent(existingCmd, localCmd)) return true
+      }
+
+      return false
+    } catch (error) {
+      client.logger.warn(
+        `Failed to fetch existing commands for diffing: ${error}`
+      )
+      return true // Force update on error
+    }
+  }
+
 
   // Register Interactions
   if (client.config.INTERACTIONS.SLASH || client.config.INTERACTIONS.CONTEXT) {
@@ -283,24 +280,35 @@ export default async (client: BotClient): Promise<void> => {
 
       if (testGuildCommands.length > 0) {
         try {
-          await registerCommandsWithRetry(
+          const needsUpdate = await shouldUpdateCommands(
             testGuildCommands,
-            () => testGuild.commands.set(testGuildCommands),
-            'test guild'
+            () => testGuild.commands.fetch()
           )
 
-          // Add delay between test guild and global command registration to avoid rate limits
-          // Discord allows 5 updates per hour per application/guild
-          client.logger.log(
-            'Waiting 2 seconds before registering global commands to avoid rate limits...'
-          )
-          await new Promise(resolve => setTimeout(resolve, 2000))
+          if (needsUpdate) {
+            await registerCommandsWithRetry(
+              testGuildCommands,
+              () => testGuild.commands.set(testGuildCommands),
+              'test guild'
+            )
+
+            // Add delay between test guild and global command registration to avoid rate limits
+            client.logger.log(
+              'Waiting 2 seconds before registering global commands to avoid rate limits...'
+            )
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          } else {
+            client.logger.success(
+              'Test guild commands are up to date. Skipping registration.'
+            )
+          }
         } catch (error: any) {
           client.logger.error(
             `Failed to register test guild commands: ${error.message}`
           )
         }
       }
+
     }
 
     // Register global commands
@@ -323,27 +331,38 @@ export default async (client: BotClient): Promise<void> => {
         // Try global registration with shorter timeout (20s)
         let globalSuccess = false
         try {
-          const globalTimeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => {
-              reject(
-                new Error(
-                  'Global command registration timeout after 20 seconds'
-                )
-              )
-            }, 20000)
-          })
-
-          const startTime = Date.now()
-          await Promise.race([
-            client.application?.commands.set(globalCommands),
-            globalTimeoutPromise,
-          ])
-          const duration = Date.now() - startTime
-          client.logger.success(
-            `Registered ${globalCommands.length} global commands (took ${duration}ms)`
+          const needsUpdate = await shouldUpdateCommands(globalCommands, () =>
+            client.application!.commands.fetch()
           )
+
+          if (needsUpdate) {
+            const globalTimeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => {
+                reject(
+                  new Error(
+                    'Global command registration timeout after 30 seconds'
+                  )
+                )
+              }, 30000)
+            })
+
+            const startTime = Date.now()
+            await Promise.race([
+              client.application?.commands.set(globalCommands),
+              globalTimeoutPromise,
+            ])
+            const duration = Date.now() - startTime
+            client.logger.success(
+              `Registered ${globalCommands.length} global commands (took ${duration}ms)`
+            )
+          } else {
+            client.logger.success(
+              'Global commands are up to date. Skipping registration.'
+            )
+          }
           globalSuccess = true
         } catch (error: any) {
+
           const isTimeout = error.message?.includes('timeout')
 
           if (isTimeout) {
@@ -364,7 +383,7 @@ export default async (client: BotClient): Promise<void> => {
 
         // Fallback: Smart per-guild registration strategy (Runs in background to avoid blocking)
         if (!globalSuccess) {
-          ;(async () => {
+          ; (async () => {
             const allGuilds = Array.from(client.guilds.cache.values()).filter(
               g => g.id !== config.BOT.TEST_GUILD_ID
             ) // Exclude test guild
@@ -380,36 +399,22 @@ export default async (client: BotClient): Promise<void> => {
               `Registering commands in ${allGuilds.length} guilds (fallback mode) - Running in background`
             )
 
-            let successCount = 0
-            let failCount = 0
-            const BATCH_SIZE = 5 // Parallelize in batches of 5
-
-            for (let i = 0; i < allGuilds.length; i += BATCH_SIZE) {
-              const batch = allGuilds.slice(i, i + BATCH_SIZE)
-              const promises = batch.map(async guild => {
-                try {
-                  await guild.commands.set(globalCommands)
-                  client.logger.success(
-                    `✓ Registered commands in ${guild.name}`
-                  )
-                  return true
-                } catch (error: any) {
-                  client.logger.error(
-                    `Failed to register commands in ${guild.name}: ${error.message}`
-                  )
-                  return false
-                }
-              })
-
-              const results = await Promise.all(promises)
-              successCount += results.filter(r => r).length
-              failCount += results.filter(r => !r).length
-
-              // Small delay between batches
-              if (i + BATCH_SIZE < allGuilds.length) {
-                await new Promise(resolve => setTimeout(resolve, 1000))
+            const promises = allGuilds.map(async guild => {
+              try {
+                await guild.commands.set(globalCommands)
+                client.logger.success(`✓ Registered commands in ${guild.name}`)
+                return true
+              } catch (error: any) {
+                client.logger.error(
+                  `Failed to register commands in ${guild.name}: ${error.message}`
+                )
+                return false
               }
-            }
+            })
+
+            const results = await Promise.all(promises)
+            const successCount = results.filter(r => r).length
+            const failCount = results.filter(r => !r).length
 
             client.logger.log(
               `Per-guild registration complete: ${successCount} succeeded, ${failCount} failed`

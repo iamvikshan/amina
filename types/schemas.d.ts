@@ -118,6 +118,11 @@ declare global {
       updatedAt?: Date
       updatedBy?: string
     }
+    colors: Array<{
+      name: string
+      hex: string
+      roleId: string
+    }>
   }
 
   interface IUser extends Document {
@@ -203,5 +208,5 @@ declare global {
   }
 }
 
-export {}
+export { }
 

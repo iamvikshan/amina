@@ -7,22 +7,31 @@ import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/aiResponder'
 
 /**
- * Fetches pronouns for a user from PronounsDB API v2
- * @param {string} userId Discord user ID
- * @returns {Promise<string>} Returns pronouns in subject/object format
+ * Fetches pronouns for multiple users from PronounsDB API v2 (batched)
+ * @param {string[]} userIds Discord user IDs
+ * @returns {Promise<Map<string, string>>} Returns map of userId -> pronouns
  */
-async function fetchPronouns(userId: string): Promise<string> {
+async function fetchPronounsBatch(
+  userIds: string[]
+): Promise<Map<string, string>> {
+  const pronounsMap = new Map<string, string>()
+  if (userIds.length === 0) return pronounsMap
+
   try {
+    const idsParam = userIds.join(',')
     const response = await fetch(
-      `https://pronoundb.org/api/v2/lookup?platform=discord&ids=${userId}`
+      `https://pronoundb.org/api/v2/lookup?platform=discord&ids=${idsParam}`
     )
-    if (!response.ok) return 'they/them'
+    if (!response.ok) {
+      // Fallback: set all to default
+      userIds.forEach(id => pronounsMap.set(id, 'they/them'))
+      return pronounsMap
+    }
 
     const data: any = await response.json()
-    const userPronouns = data[userId]?.sets?.en?.[0]
 
     // Map the v2 API single pronouns to subject/object pairs
-    const pronounsMap: Record<string, string> = {
+    const pronounsMapping: Record<string, string> = {
       he: 'he/him',
       she: 'she/her',
       they: 'they/them',
@@ -32,11 +41,28 @@ async function fetchPronouns(userId: string): Promise<string> {
       avoid: 'they/them', // Default to neutral for "avoid"
     }
 
-    return pronounsMap[userPronouns] || 'they/them'
+    userIds.forEach(userId => {
+      const userPronouns = data[userId]?.sets?.en?.[0]
+      pronounsMap.set(userId, pronounsMapping[userPronouns] || 'they/them')
+    })
+
+    return pronounsMap
   } catch (error) {
     console.error('Error fetching pronouns:', error)
-    return 'they/them' // Fallback to gender-neutral pronouns
+    // Fallback: set all to default
+    userIds.forEach(id => pronounsMap.set(id, 'they/them'))
+    return pronounsMap
   }
+}
+
+/**
+ * Fetches pronouns for a single user (backwards compatibility)
+ * @param {string} userId Discord user ID
+ * @returns {Promise<string>} Returns pronouns in subject/object format
+ */
+async function fetchPronouns(userId: string): Promise<string> {
+  const map = await fetchPronounsBatch([userId])
+  return map.get(userId) || 'they/them'
 }
 
 /**
@@ -108,11 +134,15 @@ export default async (client: BotClient, message: Message): Promise<void> => {
 
   // Guild-only features below
   if (!message.guild || message.author.bot) return
-  const settings = await getSettings(message.guild)
+
+  // Parallelize fetching settings and author data
+  const [settings, authorData] = await Promise.all([
+    getSettings(message.guild),
+    getUser(message.author),
+  ])
 
   // Check if message author is AFK and remove their AFK status
-  const authorData: any = await getUser(message.author)
-  if (authorData.afk?.enabled) {
+  if ((authorData as any).afk?.enabled) {
     const authorPronouns = await fetchPronouns(message.author.id)
     const [subject] = authorPronouns.split('/')
     const Subject = subject.charAt(0).toUpperCase() + subject.slice(1)
@@ -133,67 +163,82 @@ export default async (client: BotClient, message: Message): Promise<void> => {
 
   // Check for mentioned users who are AFK
   if (message.mentions.users.size > 0) {
-    const mentions = [...message.mentions.users.values()]
-    const afkMentions: any[] = []
+    const mentions = [...message.mentions.users.values()].filter(
+      u => u.id !== message.author.id
+    )
 
-    for (const mentionedUser of mentions) {
-      if (mentionedUser.id === message.author.id) continue
+    if (mentions.length > 0) {
+      // Parallelize fetching user data and pronouns for all mentions
+      const [usersData, pronounsMap] = await Promise.all([
+        Promise.all(mentions.map(u => getUser(u))),
+        fetchPronounsBatch(mentions.map(u => u.id)),
+      ])
 
-      const userData: any = await getUser(mentionedUser)
-      if (userData.afk?.enabled) {
-        const userPronouns = await fetchPronouns(mentionedUser.id)
-        const minutes = userData.afk.since
-          ? Math.round((Date.now() - userData.afk.since.getTime()) / 1000 / 60)
-          : 0
+      const afkMentions: any[] = []
 
-        const statusIntro = generateAfkMessage({
-          pronouns: userPronouns,
-          minutes,
-        })
+      for (let i = 0; i < mentions.length; i++) {
+        const mentionedUser = mentions[i]
+        const userData: any = usersData[i]
+        const userPronouns = pronounsMap.get(mentionedUser.id) || 'they/them'
 
-        let timePassed = ''
-        if (userData.afk.since) {
-          timePassed = `\n⏰ Been gone for: ${minutes} minutes *gasp*`
-        }
+        if (userData.afk?.enabled) {
+          const minutes = userData.afk.since
+            ? Math.round(
+                (Date.now() - userData.afk.since.getTime()) / 1000 / 60
+              )
+            : 0
 
-        let endTime = ''
-        if (userData.afk.endTime && userData.afk.endTime > new Date()) {
-          const minutesLeft = Math.round(
-            (userData.afk.endTime.getTime() - new Date().getTime()) / 1000 / 60
-          )
-          const [subject] = userPronouns.split('/')
-          const verb = getVerbConjugation(subject)
-          endTime = `\n⌛ ${subject} should be back in: ${minutesLeft} minutes (unless ${subject}${verb} lost in a parallel dimension~)`
-        }
+          const statusIntro = generateAfkMessage({
+            pronouns: userPronouns,
+            minutes,
+          })
 
-        afkMentions.push({
-          user: mentionedUser.toString(),
-          intro: statusIntro,
-          reason:
-            userData.afk.reason || '*shrugs mysteriously* No reason given!',
-          timePassed,
-          endTime,
-        })
-      }
-    }
+          let timePassed = ''
+          if (userData.afk.since) {
+            timePassed = `\n⏰ Been gone for: ${minutes} minutes *gasp*`
+          }
 
-    if (afkMentions.length > 0) {
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setTitle('🌟 AFK Alert! 🌟')
-        .setDescription(
-          afkMentions
-            .map(
-              (mention: any) =>
-                `${mention.intro}\n${mention.user} is away: ${mention.reason}${mention.timePassed}${mention.endTime}`
+          let endTime = ''
+          if (userData.afk.endTime && userData.afk.endTime > new Date()) {
+            const minutesLeft = Math.round(
+              (userData.afk.endTime.getTime() - new Date().getTime()) /
+                1000 /
+                60
             )
-            .join('\n\n')
-        )
+            const [subject] = userPronouns.split('/')
+            const verb = getVerbConjugation(subject)
+            endTime = `\n⌛ ${subject} should be back in: ${minutesLeft} minutes (unless ${subject}${verb} lost in a parallel dimension~)`
+          }
 
-      const response: any = await (message.channel as any).send({
-        embeds: [embed],
-      })
-      setTimeout(() => response.delete().catch(() => {}), 10000)
+          afkMentions.push({
+            user: mentionedUser.toString(),
+            intro: statusIntro,
+            reason:
+              userData.afk.reason || '*shrugs mysteriously* No reason given!',
+            timePassed,
+            endTime,
+          })
+        }
+      }
+
+      if (afkMentions.length > 0) {
+        const embed = new EmbedBuilder()
+          .setColor(EMBED_COLORS.ERROR)
+          .setTitle('🌟 AFK Alert! 🌟')
+          .setDescription(
+            afkMentions
+              .map(
+                (mention: any) =>
+                  `${mention.intro}\n${mention.user} is away: ${mention.reason}${mention.timePassed}${mention.endTime}`
+              )
+              .join('\n\n')
+          )
+
+        const response: any = await (message.channel as any).send({
+          embeds: [embed],
+        })
+        setTimeout(() => response.delete().catch(() => {}), 10000)
+      }
     }
   }
 

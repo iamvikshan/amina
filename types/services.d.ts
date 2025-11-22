@@ -27,6 +27,7 @@ declare global {
     text: string
     tokensUsed: number
     latency: number
+    functionCalls?: { name: string; args: any }[]
   }
 
   interface ConversationMessage {
@@ -35,5 +36,5 @@ declare global {
   }
 }
 
-export {}
+export { }
 

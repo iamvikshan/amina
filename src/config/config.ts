@@ -10,19 +10,14 @@ const config: Config = {
     DONATE_URL: 'https://ko-fi.com/vikshan',
   },
   AI: {
-    MODEL: process.env.GEMINI_MODEL || 'gemini-pro',
-    MAX_TOKENS: Number(process.env.MAX_TOKENS) || 1024,
-    TIMEOUT_MS: Number(process.env.TIMEOUT_MS) || 20000,
-    SYSTEM_PROMPT:
-      process.env.SYSTEM_PROMPT ||
-      'You are Amina, a helpful Discord bot assistant.',
-    TEMPERATURE: (() => {
-      const temp = process.env.TEMPERATURE
-      if (!temp) return 0.7
-      const num = Number(temp)
-      return isNaN(num) ? 0.7 : Math.max(0, Math.min(2, num))
-    })(),
-    DM_ENABLED_GLOBALLY: process.env.DM_ENABLED_GLOBALLY === 'true',
+    MODEL: 'gemini-flash-latest',
+    VISION_MODEL: 'gemini-3-pro-preview', // Used for images/videos/gifs
+    MAX_TOKENS: 1024,
+    TIMEOUT_MS: 20000,
+    // System prompt is loaded from src/data/prompt.md via promptLoader helper
+    // To modify the system prompt, edit src/data/prompt.md instead
+    TEMPERATURE: 0.7,
+    DM_ENABLED_GLOBALLY: true,
     UPSTASH_URL: 'https://up-wolf-22896-us1-vector.upstash.io',
   },
   SERVER: {

@@ -12,6 +12,10 @@ import {
 import { memoryService } from './memoryService'
 import Logger from '../helpers/Logger'
 import { config } from '../config'
+import { extractMediaFromMessage } from '../helpers/mediaExtractor'
+import { aiCommandRegistry } from './aiCommandRegistry'
+import { VirtualInteraction } from '../structures/VirtualInteraction'
+import { BotClient } from '../structures'
 
 const logger = Logger
 
@@ -25,6 +29,12 @@ export class AiResponderService {
   private readonly CHANNEL_COOLDOWN_MS = 1000 // 1 second per channel in free-will
   private readonly FAILURE_THRESHOLD = 5
   private readonly FAILURE_WINDOW_MS = 10 * 60 * 1000 // 10 minutes
+  // Track current client config to avoid unnecessary recreation
+  private currentClientConfig: {
+    model: string
+    timeoutMs: number
+    geminiKey: string
+  } | null = null
   // private readonly MAX_FREEWILL_CHANNELS = 2 // Max channels for regular guilds (unlimited for test guild)
 
   /**
@@ -75,14 +85,39 @@ export class AiResponderService {
       )
 
       if (config.globallyEnabled && config.geminiKey) {
-        this.client = new GoogleAiClient(
-          config.geminiKey,
-          config.model,
-          config.timeoutMs
-        )
-        logger.success(`AI Responder initialized - Model: ${config.model}`)
+        // Only recreate client if model, timeout, or key changed
+        const needsClientRecreation =
+          !this.currentClientConfig ||
+          this.currentClientConfig.model !== config.model ||
+          this.currentClientConfig.timeoutMs !== config.timeoutMs ||
+          this.currentClientConfig.geminiKey !== config.geminiKey
+
+        if (needsClientRecreation) {
+          this.client = new GoogleAiClient(
+            config.geminiKey,
+            config.model,
+            config.timeoutMs
+          )
+          this.currentClientConfig = {
+            model: config.model,
+            timeoutMs: config.timeoutMs,
+            geminiKey: config.geminiKey,
+          }
+          logger.success(
+            `AI Responder initialized - Model: ${config.model}, Timeout: ${config.timeoutMs}ms`
+          )
+        } else {
+          logger.debug(
+            'AI Responder config unchanged, skipping client recreation'
+          )
+        }
       } else {
-        logger.log('AI Responder disabled (global toggle off or no key)')
+        // Disable client if globally disabled or no key
+        if (this.client) {
+          this.client = null
+          this.currentClientConfig = null
+          logger.log('AI Responder disabled (global toggle off or no key)')
+        }
       }
     } catch (error: any) {
       logger.error(`Failed to initialize AI Responder: ${error.message}`, error)
@@ -96,9 +131,14 @@ export class AiResponderService {
         return false
       }
 
-      // Check user ignoreMe preference (fail early)
+      // Parallelize initial fetches: User Data and Config
       const { getUser } = await import('@schemas/User')
-      const userData = await getUser(message.author)
+      const [userData, config] = await Promise.all([
+        getUser(message.author),
+        configCache.getConfig(),
+      ])
+
+      // Check user ignoreMe preference (fail early)
       if (userData.minaAi?.ignoreMe) {
         // Send helpful message if they try to interact (DM or mention)
         if (!message.guild || message.mentions.has(message.client.user!)) {
@@ -112,8 +152,6 @@ export class AiResponderService {
         }
         return false
       }
-
-      const config = await configCache.getConfig()
 
       // Check global toggle
       if (!config.globallyEnabled || !this.client) {
@@ -134,7 +172,11 @@ export class AiResponderService {
       }
 
       // Guild channel handling
-      const guildSettings = await getSettings(message.guild)
+      // Parallelize guild settings and reply check
+      const [guildSettings, isReplyToBot] = await Promise.all([
+        getSettings(message.guild),
+        this.isReplyToBot(message),
+      ])
 
       if (!guildSettings.aiResponder?.enabled) {
         return false
@@ -151,9 +193,6 @@ export class AiResponderService {
 
       // Check for explicit @mentions
       const hasExplicitMention = message.mentions.has(message.client.user!)
-
-      // Check if reply is to bot (async - only needed for mention-only mode)
-      const isReplyToBot = await this.isReplyToBot(message)
 
       // For free-will channels, we check if mentioned/replied (for helpful tip), but respond to everything
       // For mention-only mode, we need to verify it's actually targeting the bot
@@ -203,6 +242,9 @@ export class AiResponderService {
     if (!mode || !this.client) return
 
     try {
+      // Initialize registry if needed (lazy init)
+      aiCommandRegistry.initialize(message.client as BotClient)
+
       // Check if user @mentioned in a non-free-will channel and show helpful tip about free will channels
       if (message.guild && mode === 'mention') {
         const guildSettings = await getSettings(message.guild)
@@ -259,10 +301,6 @@ export class AiResponderService {
 
       const config = await configCache.getConfig()
 
-      // Get user preferences for memory recall
-      const { getUser } = await import('@schemas/User')
-      const userData = await getUser(message.author)
-
       // Get active participants (hybrid: message count + time window)
       const participants = this.getActiveParticipants(
         history,
@@ -270,62 +308,70 @@ export class AiResponderService {
       )
       const participantIds = Array.from(participants)
 
-      // Fetch profiles for all participants
+      // Fetch profiles for all participants (parallel)
       const participantProfiles =
         await this.getParticipantProfiles(participantIds)
 
-      // Build participant context section
+      // Build participant context section (parallelize user fetches)
       let participantContext = ''
       if (participantIds.length > 1) {
         // Only show context if there are multiple participants
         participantContext = '\n\n**Conversation Participants:**\n'
 
-        for (const userId of participantIds) {
+        // Parallelize Discord user fetches
+        const userFetchPromises = participantIds.map(async userId => {
           const profile = participantProfiles.get(userId)
-          if (!profile) continue
+          if (!profile) return null
 
           try {
-            // Fetch Discord user for display name
             const user = await message.client.users
               .fetch(userId)
               .catch(() => null)
-            if (!user) continue
+            if (!user) return null
 
             const name =
               message.guild?.members.cache.get(userId)?.displayName ||
               user.username
-            participantContext += `\n**${name}** (${user.username}):\n`
+
+            let context = `\n**${name}** (${user.username}):\n`
 
             // Respect privacy settings
             if (profile.privacy?.showPronouns && profile.pronouns) {
-              participantContext += `- Pronouns: ${profile.pronouns}\n`
+              context += `- Pronouns: ${profile.pronouns}\n`
             }
             if (profile.bio) {
-              participantContext += `- Bio: ${profile.bio.substring(0, 200)}\n`
+              context += `- Bio: ${profile.bio.substring(0, 200)}\n`
             }
             if (profile.interests?.length > 0) {
-              participantContext += `- Interests: ${profile.interests.join(', ')}\n`
+              context += `- Interests: ${profile.interests.join(', ')}\n`
             }
             if (profile.privacy?.showRegion && profile.region) {
-              participantContext += `- Region: ${profile.region}\n`
+              context += `- Region: ${profile.region}\n`
             }
             if (profile.timezone) {
-              participantContext += `- Timezone: ${profile.timezone}\n`
+              context += `- Timezone: ${profile.timezone}\n`
             }
+
+            return context
           } catch (error: any) {
             logger.debug(
               `Failed to fetch Discord user ${userId}: ${error.message}`
             )
+            return null
           }
-        }
+        })
+
+        const userContexts = await Promise.all(userFetchPromises)
+        participantContext += userContexts.filter(ctx => ctx !== null).join('')
       }
 
-      // Recall relevant memories for all active participants
+      // Recall relevant memories for all active participants (parallelized)
       const guildId = message.guild?.id || null
       const allMemories = new Map<string, any[]>() // userId -> RecalledMemory[]
 
-      // Recall memories for each participant
-      for (const userId of participantIds) {
+      // Parallelize memory recall for all participants
+      const { getUser } = await import('@schemas/User')
+      const memoryRecallPromises = participantIds.map(async userId => {
         try {
           // Get user preferences for this participant
           const participantUser = { id: userId } as any
@@ -344,40 +390,56 @@ export class AiResponderService {
             }
           )
 
-          if (userMemories.length > 0) {
-            allMemories.set(userId, userMemories)
-          }
+          return { userId, memories: userMemories }
         } catch (error: any) {
           logger.debug(
             `Failed to recall memories for user ${userId}: ${error.message}`
           )
+          return { userId, memories: [] }
+        }
+      })
+
+      const memoryResults = await Promise.all(memoryRecallPromises)
+      for (const { userId, memories } of memoryResults) {
+        if (memories.length > 0) {
+          allMemories.set(userId, memories)
         }
       }
 
-      // Build memory context grouped by user
+      // Build memory context grouped by user (parallelize user fetches)
       let memoryContext = ''
       if (allMemories.size > 0) {
         memoryContext = '\n\n**Relevant Memories by Participant:**\n'
-        for (const [userId, memories] of allMemories.entries()) {
-          if (memories.length === 0) continue
 
-          try {
-            const user = await message.client.users
-              .fetch(userId)
-              .catch(() => null)
-            if (!user) continue
+        // Parallelize Discord user fetches for memory context
+        const memoryContextPromises = Array.from(allMemories.entries()).map(
+          async ([userId, memories]) => {
+            if (memories.length === 0) return null
 
-            const name =
-              message.guild?.members.cache.get(userId)?.displayName ||
-              user.username
-            memoryContext += `\n**${name}:**\n`
-            memories.forEach(m => {
-              memoryContext += `- ${m.key}: ${m.value}\n`
-            })
-          } catch (error: any) {
-            logger.debug(`Failed to fetch user ${userId} for memory context`)
+            try {
+              const user = await message.client.users
+                .fetch(userId)
+                .catch(() => null)
+              if (!user) return null
+
+              const name =
+                message.guild?.members.cache.get(userId)?.displayName ||
+                user.username
+
+              let context = `\n**${name}:**\n`
+              memories.forEach(m => {
+                context += `- ${m.key}: ${m.value}\n`
+              })
+              return context
+            } catch (error: any) {
+              logger.debug(`Failed to fetch user ${userId} for memory context`)
+              return null
+            }
           }
-        }
+        )
+
+        const contexts = await Promise.all(memoryContextPromises)
+        memoryContext += contexts.filter(ctx => ctx !== null).join('')
       }
 
       // Build enhanced prompt with memories and participant context
@@ -393,30 +455,125 @@ export class AiResponderService {
         (sum, mems) => sum + mems.length,
         0
       )
+      // Note: Model will be logged after media detection
       logger.debug(
-        `Generating AI response - Model: ${config.model}, Participants: ${participantIds.length}, Total Memories: ${totalMemories}, History: ${history.length} messages`
+        `💬 Generating AI response - Participants: ${participantIds.length}, Total Memories: ${totalMemories}, History: ${history.length} messages`
       )
 
       // Log what we're sending to help debug
       logger.debug(`User message: ${message.content.substring(0, 100)}`)
 
+      // Extract media from message (images, videos, GIFs)
+      const mediaItems = extractMediaFromMessage(message)
+      const hasMediaContent = mediaItems.length > 0
+
+      if (!this.client) {
+        logger.warn('No AI client available for response')
+        return
+      }
+
+      // Log media detection for debugging
+      if (hasMediaContent) {
+        console.log(
+          `📸 Media detected: ${mediaItems.length} item(s) - ${mediaItems.map(m => `${m.mimeType}${m.isVideo ? ' (video)' : m.isGif ? ' (gif)' : ''}`).join(', ')}`
+        )
+      }
+
       // Format history with speaker attribution for AI
       const formattedHistory = this.formatHistoryForAI(history)
 
-      // Generate response
+      // Get tools from registry
+      const tools = aiCommandRegistry.getTools()
+
+      // Generate response with media if present (gemini-flash-latest supports multimodal)
       const result = await this.client.generateResponse(
         enhancedPrompt,
         formattedHistory,
-        message.content,
+        message.content ||
+          (hasMediaContent ? 'What do you see in this image?' : ''),
         config.maxTokens,
-        config.temperature
+        config.temperature,
+        hasMediaContent ? mediaItems : undefined,
+        tools
       )
 
-      // Send reply
-      await message.reply(result.text)
+      // Handle function calls
+      if (result.functionCalls && result.functionCalls.length > 0) {
+        for (const call of result.functionCalls) {
+          const commandName = call.name
+          const args = call.args
 
-      // Append bot response to conversation buffer
-      conversationBuffer.append(conversationId, 'model', result.text)
+          logger.debug(`🤖 AI triggering command: /${commandName}`, args)
+
+          // 1. Append function call to history so AI remembers it tried to run this
+          conversationBuffer.append(
+            conversationId,
+            'model',
+            `[System: Executing command /${commandName} with args: ${JSON.stringify(args)}]`
+          )
+
+          const command = aiCommandRegistry.getCommand(commandName)
+          if (command) {
+            const virtualInteraction = new VirtualInteraction(
+              message.client,
+              message,
+              commandName,
+              args
+            )
+
+            try {
+              await command.interactionRun(virtualInteraction as any, {
+                settings: message.guild
+                  ? await getSettings(message.guild)
+                  : undefined,
+              })
+
+              // 2. Capture output and feed back to AI
+              const output = virtualInteraction.getOutput()
+              if (output) {
+                conversationBuffer.append(
+                  conversationId,
+                  'user', // Using 'user' role to simulate system feedback in the next turn
+                  `[System: Command /${commandName} executed. Output: ${output}]`
+                )
+              } else {
+                conversationBuffer.append(
+                  conversationId,
+                  'user',
+                  `[System: Command /${commandName} executed successfully (no output captured)]`
+                )
+              }
+            } catch (err: any) {
+              logger.error(
+                `Failed to execute AI command ${commandName}: ${err.message}`
+              )
+              // 3. Feed error back to AI
+              conversationBuffer.append(
+                conversationId,
+                'user',
+                `[System: Command /${commandName} failed. Error: ${err.message}]`
+              )
+
+              await message.reply(
+                `I tried to run \`/${commandName}\` but something went wrong! 😣`
+              )
+            }
+          } else {
+            conversationBuffer.append(
+              conversationId,
+              'user',
+              `[System: Command /${commandName} not found]`
+            )
+          }
+        }
+      }
+
+      // Send text reply if present
+      if (result.text) {
+        await message.reply(result.text)
+        // Append bot response to conversation buffer
+        conversationBuffer.append(conversationId, 'model', result.text)
+      }
 
       // Extract and store memories (async, don't block)
       this.extractAndStoreMemories(message, history).catch(err =>

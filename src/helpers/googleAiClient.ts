@@ -2,6 +2,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import Logger from './Logger'
+import type { MediaItem } from './mediaExtractor'
 
 const logger = Logger
 
@@ -20,19 +21,85 @@ export class GoogleAiClient {
     this.timeout = timeout
   }
 
+  /**
+   * Fetch image data from URL and convert to base64
+   */
+  private async fetchImageAsBase64(url: string): Promise<string> {
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`)
+      }
+      const arrayBuffer = await response.arrayBuffer()
+      const base64 = Buffer.from(arrayBuffer).toString('base64')
+      return base64
+    } catch (error: any) {
+      logger.warn(`Failed to fetch image from ${url}: ${error.message}`)
+      throw error
+    }
+  }
+
+  /**
+   * Convert media items to Gemini API format
+   */
+  private async convertMediaToParts(mediaItems: MediaItem[]): Promise<any[]> {
+    const parts: any[] = []
+
+    for (const media of mediaItems) {
+      try {
+        // Fetch and convert to base64
+        const base64Data = await this.fetchImageAsBase64(media.url)
+
+        // Determine MIME type
+        let mimeType = media.mimeType
+        if (!mimeType || mimeType === 'image/jpeg') {
+          // Try to infer from URL
+          if (media.url.toLowerCase().endsWith('.png')) {
+            mimeType = 'image/png'
+          } else if (media.url.toLowerCase().endsWith('.gif')) {
+            mimeType = 'image/gif'
+          } else if (media.url.toLowerCase().endsWith('.webp')) {
+            mimeType = 'image/webp'
+          } else {
+            mimeType = 'image/jpeg'
+          }
+        }
+
+        parts.push({
+          inlineData: {
+            data: base64Data,
+            mimeType,
+          },
+        })
+      } catch (error: any) {
+        logger.warn(`Failed to process media ${media.url}: ${error.message}`)
+        // Continue with other media items
+      }
+    }
+
+    return parts
+  }
+
   async generateResponse(
     systemPrompt: string,
     conversationHistory: globalThis.ConversationMessage[],
     userMessage: string,
     maxTokens: number,
-    temperature: number
+    temperature: number,
+    mediaItems?: MediaItem[],
+    tools?: any[]
   ): Promise<globalThis.AiResponse> {
     const startTime = Date.now()
 
     try {
+      console.log(
+        `🔧 GoogleAiClient.generateResponse - Model: ${this.model}, MediaItems: ${mediaItems?.length || 0}, TextLength: ${userMessage.length}, Tools: ${tools?.length || 0}`
+      )
+
       const model = this.genAI.getGenerativeModel({
         model: this.model,
         systemInstruction: systemPrompt,
+        tools: tools ? [{ functionDeclarations: tools }] : undefined,
       })
 
       // Build chat history from conversation buffer
@@ -50,25 +117,48 @@ export class GoogleAiClient {
         },
       })
 
+      // Build message parts
+      const messageParts: any[] = []
+
+      // Add text if present
+      if (userMessage.trim()) {
+        messageParts.push({ text: userMessage })
+      }
+
+      // Add media if present
+      if (mediaItems && mediaItems.length > 0) {
+        const mediaParts = await this.convertMediaToParts(mediaItems)
+        messageParts.push(...mediaParts)
+      }
+
       // Send message with timeout
       const result = await this.withTimeout(
-        chat.sendMessage(userMessage),
+        chat.sendMessage(messageParts),
         this.timeout
       )
 
       const response = await result.response
       const text = response.text()
+
+      // Check for function calls
+      const functionCalls = response.functionCalls()
+
       const latency = Date.now() - startTime
 
       // Note: Google AI doesn't return token counts in the same way as OpenAI
       // We'll estimate or leave as 0 for now
       const tokensUsed = 0
 
-      logger.debug(
-        `AI response generated in ${latency}ms, ${text.length} chars`
+      console.log(
+        `AI response generated in ${latency}ms, ${text.length} chars, Model: ${this.model}, Media: ${mediaItems?.length || 0} items, FunctionCalls: ${functionCalls?.length || 0}`
       )
 
-      return { text, tokensUsed, latency }
+      return {
+        text,
+        tokensUsed,
+        latency,
+        functionCalls: functionCalls ? functionCalls : undefined,
+      }
     } catch (error: any) {
       const latency = Date.now() - startTime
       const errorMessage = error?.message || String(error)

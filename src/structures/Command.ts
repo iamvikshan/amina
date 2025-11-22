@@ -1,8 +1,4 @@
 // src/structures/Command.ts
-import { ChatInputCommandInteraction } from 'discord.js'
-
-// All types are now globally available - see types/commands.d.ts
-// This file only exports the runtime command template
 
 /**
  * Default command template

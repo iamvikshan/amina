@@ -83,9 +83,9 @@ export async function toggleGlobal(
     globallyEnabled: enabled,
     updatedBy: interaction.user.id,
   })
-  configCache.invalidate()
+  await configCache.forceRefresh()
 
-  // Re-initialize service
+  // Re-initialize service (needed for globallyEnabled change)
   await aiResponderService.initialize()
 
   const embed = new EmbedBuilder()
@@ -113,7 +113,9 @@ export async function setModel(
     model,
     updatedBy: interaction.user.id,
   })
-  configCache.invalidate()
+  await configCache.forceRefresh()
+
+  // Re-initialize service (needed for model change)
   await aiResponderService.initialize()
 
   const embed = new EmbedBuilder()
@@ -154,7 +156,8 @@ export async function setTokens(
     maxTokens: tokens,
     updatedBy: interaction.user.id,
   })
-  configCache.invalidate()
+  await configCache.forceRefresh()
+  // No re-initialization needed - maxTokens is used per-request
 
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.SUCCESS)
@@ -179,7 +182,8 @@ export async function setPrompt(
     systemPrompt: prompt,
     updatedBy: interaction.user.id,
   })
-  configCache.invalidate()
+  await configCache.forceRefresh()
+  // No re-initialization needed - systemPrompt is passed per-request
 
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.SUCCESS)
@@ -221,7 +225,8 @@ export async function setTemperature(
     temperature,
     updatedBy: interaction.user.id,
   })
-  configCache.invalidate()
+  await configCache.forceRefresh()
+  // No re-initialization needed - temperature is used per-request
 
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.SUCCESS)
@@ -246,7 +251,8 @@ export async function toggleDm(
     dmEnabledGlobally: enabled,
     updatedBy: interaction.user.id,
   })
-  configCache.invalidate()
+  await configCache.forceRefresh()
+  // No re-initialization needed - dmEnabledGlobally is checked per-request
 
   const embed = new EmbedBuilder()
     .setColor(enabled ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)

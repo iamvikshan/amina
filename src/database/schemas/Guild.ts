@@ -132,6 +132,14 @@ const Schema = new mongoose.Schema({
     approved_channel: String,
     rejected_channel: String,
   },
+  colors: [
+    {
+      _id: false,
+      name: String,
+      hex: String,
+      roleId: String,
+    },
+  ],
   aiResponder: {
     enabled: { type: Boolean, default: true },
     freeWillChannels: { type: [String], default: [] }, // Array of channel IDs (max 2 for regular guilds, unlimited for test)
