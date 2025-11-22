@@ -14,8 +14,7 @@
     "f": "prettier --write .",
     "f:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "typecheck:watch": "tsc --noEmit --watch",
-    "prepare": "husky"
+    "typecheck:watch": "tsc --noEmit --watch"
   },
   "homepage": "https://github.com/iamvikshan/amina#readme",
   "repository": {
@@ -40,7 +39,7 @@
     "discord.js": "^14.25.1",
     "enhanced-ms": "^4.1.0",
     "fixedsize-map": "^1.1.0",
-    "lavalink-client": "^2.6.7",
+    "lavalink-client": "^2.7.0",
     "module-alias": "^2.2.3",
     "moment": "^2.30.1",
     "mongoose": "^8.20.1",
