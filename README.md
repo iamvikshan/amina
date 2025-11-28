@@ -21,7 +21,7 @@
 
 [⚡ Quick Deploy](#-mission-briefing-quick-deploy) • [🗡️ Arsenal](#-guardian-arsenal-features) •
 [📦 Installation](#-battle-preparation-installation) • [💬 Support](#-join-the-alliance) •
-[🤝 Contributing](#-become-a-guardian)
+[🤝 Contributing](#-become-a-guardian) • [📚 Wiki](https://github.com/iamvikshan/amina/wiki)
 
 </div>
 
@@ -107,7 +107,7 @@ _Track your rank (and secret achievements) in the [Command Center Dashboard](htt
 
 Want to deploy me on your own infra? Respect. Here's how:
 
-👉 **[Self-Hosting Guide](https://docs.vikshan.me/selfhost/start/)** — Complete deployment instructions
+👉 **[Self-Hosting Guide](https://github.com/iamvikshan/amina/wiki/Quick-Start-Self-Hosting)** — Complete deployment instructions
 
 > **Note:** Self-hosting requires technical knowledge. For most users, I recommend using the [official hosted version](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950) — it's easier and always up-to-date!
 
@@ -128,6 +128,8 @@ We're a community of server owners, developers, and guardians helping each other
 ## Contributing
 
 Want to join the Night Guard development team? Hell yeah! Here's how:
+
+> 📚 **Developer Guide:** Check out the [Wiki](https://github.com/iamvikshan/amina/wiki) for architecture overviews and coding guides.
 
 1. **[Fork the Repository](https://github.com/iamvikshan/amina/fork)** — Make it yours
 2. **Create Your Feature Branch** — `git checkout -b feature/EpicNewFeature`

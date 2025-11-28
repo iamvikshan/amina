@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
 ################################################################################
-# Amina Discord Bot Deployment Script (Local VPS)
+# Amina Discord Bot Deployment Script
 #
 # Usage:
-#   ./deploy-amina-local.sh [deployment_path]
+#   ./local.sh [deployment_path]
 #
 # Example:
-#   ./deploy-amina-local.sh
-#   ./deploy-amina-local.sh ~/custom-path
+#   ./local.sh
+#   ./local.sh ~/custom-path
 #
 # Description:
-#   Deploys Amina Discord bot with Lavalink and Uptime Kuma to the local VPS
-#   using Docker Compose. Clones required files and sets up proper directory
-#   structure on the current server.
+#   Deploys Amina Discord bot with Lavalink and Uptime Kuma.
+#   - Installs Git and Docker if missing (Debian/Ubuntu only).
+#   - Sets up directory structure and configuration.
+#   - Deploys using Docker Compose.
 ################################################################################
 
 set -e  # Exit immediately on error
@@ -80,32 +81,71 @@ EOF
 }
 
 ################################################################################
-# Validation Functions
+# Validation & Installation Functions
 ################################################################################
 
-validate_prerequisites() {
-    log_info "Step 1/8: Checking prerequisites..."
+check_command() {
+    command -v "$1" &> /dev/null
+}
+
+ensure_prerequisites() {
+    log_info "Step 1/8: Checking and installing prerequisites..."
     
-    local missing_tools=()
-    
-    if ! command -v git &> /dev/null; then
-        missing_tools+=("git")
+    # Check if we are on a Debian/Ubuntu based system for auto-install
+    local CAN_INSTALL=false
+    if check_command apt-get; then
+        CAN_INSTALL=true
+    fi
+
+    # 1. Check/Install Git
+    if ! check_command git; then
+        if [ "$CAN_INSTALL" = true ]; then
+            log_warning "Git not found. Installing..."
+            sudo apt-get update && sudo apt-get install -y git
+            log_success "Git installed successfully."
+        else
+            log_error "Git is missing and this is not a Debian/Ubuntu system. Please install Git manually."
+            exit 1
+        fi
+    else
+        log_success "Git is already installed."
     fi
     
-    if ! command -v docker &> /dev/null; then
-        missing_tools+=("docker")
+    # 2. Check/Install Docker
+    if ! check_command docker; then
+        if [ "$CAN_INSTALL" = true ]; then
+            log_warning "Docker not found. Installing..."
+            # Use the official convenience script
+            curl -fsSL https://get.docker.com | sh
+            log_success "Docker installed successfully."
+        else
+            log_error "Docker is missing and this is not a Debian/Ubuntu system. Please install Docker manually."
+            exit 1
+        fi
+    else
+        log_success "Docker is already installed."
+    fi
+
+    # 3. Check Docker Permissions
+    if ! docker ps &> /dev/null; then
+        log_warning "Cannot run docker commands without sudo."
+        
+        # Check if user is in docker group
+        if groups "$USER" | grep &>/dev/null '\bdocker\b'; then
+            log_warning "User is in docker group but session not updated."
+            log_error "Please log out and log back in to apply docker group permissions."
+            exit 1
+        else
+            log_warning "Adding user $USER to docker group..."
+            sudo usermod -aG docker "$USER"
+            log_success "User added to docker group."
+            log_error "Please log out and log back in to apply docker group permissions, then run this script again."
+            exit 1
+        fi
+    else
+        log_success "Docker permissions are correct."
     fi
     
-    if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-        missing_tools+=("docker-compose")
-    fi
-    
-    if [ ${#missing_tools[@]} -gt 0 ]; then
-        log_error "The following tools are not installed: ${missing_tools[*]}"
-        exit 1
-    fi
-    
-    log_success "Prerequisites check passed"
     echo ""
 }
 
@@ -120,7 +160,7 @@ deploy() {
     log_info "Deployment path: ${DEPLOY_PATH}"
     echo ""
     
-    validate_prerequisites
+    ensure_prerequisites
     
     # Step 2/8: Cleanup old temporary directory
     log_info "Step 2/8: Cleaning up old temporary directory if exists..."
@@ -275,13 +315,13 @@ deploy() {
     echo ""
     echo "4. Start the services:"
     echo "   cd ${DEPLOY_PATH}"
-    echo "   sudo docker-compose up -d"
+    echo "   docker compose up -d"
     echo ""
     echo "5. Check container status:"
-    echo "   sudo docker-compose ps"
+    echo "   docker compose ps"
     echo ""
     echo "6. View logs:"
-    echo "   sudo docker-compose logs -f"
+    echo "   docker compose logs -f"
     echo ""
     echo "7. Access Uptime Kuma:"
     echo "   http://localhost:3001"

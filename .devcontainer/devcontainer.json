@@ -26,7 +26,6 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "astro-build.astro-vscode",
-        "GitHub.copilot",
         "unifiedjs.vscode-mdx",
         "bradlc.vscode-tailwindcss",
         "esbenp.prettier-vscode",
