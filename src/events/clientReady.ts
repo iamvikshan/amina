@@ -225,7 +225,6 @@ export default async (client: BotClient): Promise<void> => {
     }
   }
 
-
   // Register Interactions
   if (client.config.INTERACTIONS.SLASH || client.config.INTERACTIONS.CONTEXT) {
     const devConfig = await getDevCommandsConfig()
@@ -308,7 +307,6 @@ export default async (client: BotClient): Promise<void> => {
           )
         }
       }
-
     }
 
     // Register global commands
@@ -362,7 +360,6 @@ export default async (client: BotClient): Promise<void> => {
           }
           globalSuccess = true
         } catch (error: any) {
-
           const isTimeout = error.message?.includes('timeout')
 
           if (isTimeout) {
@@ -383,7 +380,7 @@ export default async (client: BotClient): Promise<void> => {
 
         // Fallback: Smart per-guild registration strategy (Runs in background to avoid blocking)
         if (!globalSuccess) {
-          ; (async () => {
+          ;(async () => {
             const allGuilds = Array.from(client.guilds.cache.values()).filter(
               g => g.id !== config.BOT.TEST_GUILD_ID
             ) // Exclude test guild

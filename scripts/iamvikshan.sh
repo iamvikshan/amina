@@ -167,6 +167,79 @@ git config --global commit.gpgsign true
 echo "✓ Git configured for SSH signing"
 echo ""
 
+# Step 3.6: Configure Git Remote and Credentials
+echo "Step 3.6: Configuring Git Remote and Credentials..."
+
+# Configure git to use GitHub CLI as credential helper
+echo "Configuring git credential helper to use gh CLI..."
+gh auth setup-git
+
+# Ensure remote is set correctly
+echo "Ensuring git remote 'origin' is configured..."
+# Check if we are in a git repo
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    # Set remote to HTTPS URL for iamvikshan/amina
+    # We use HTTPS because we just set up the credential helper
+    TARGET_REPO="https://github.com/iamvikshan/amina.git"
+    
+    if git remote | grep -q "^origin$"; then
+        CURRENT_URL=$(git remote get-url origin)
+        if [ "$CURRENT_URL" != "$TARGET_REPO" ]; then
+            echo "Updating existing 'origin' remote from $CURRENT_URL to $TARGET_REPO..."
+            git remote set-url origin "$TARGET_REPO"
+        else
+            echo "Remote 'origin' is already set to $TARGET_REPO"
+        fi
+    else
+        echo "Adding 'origin' remote..."
+        git remote add origin "$TARGET_REPO"
+    fi
+    echo "✓ Remote 'origin' configured"
+else
+    echo "⚠️  Not inside a git repository. Skipping remote configuration."
+fi
+echo ""
+
+# Step 3.7: Configure Wiki Repository
+echo "Step 3.7: Configuring Wiki Repository..."
+WIKI_DIR="docs/wiki"
+WIKI_REPO="https://github.com/iamvikshan/amina.wiki.git"
+
+# Clone if missing
+if [ ! -d "$WIKI_DIR" ]; then
+    echo "Wiki directory not found. Cloning wiki repository..."
+    mkdir -p docs
+    if git clone "$WIKI_REPO" "$WIKI_DIR"; then
+        echo "✓ Wiki repository cloned to $WIKI_DIR"
+    else
+        echo "⚠️  Failed to clone wiki repository. It might not exist yet."
+    fi
+fi
+
+# Configure if present
+if [ -d "$WIKI_DIR/.git" ]; then
+    # We need to run these commands inside the wiki directory
+    (
+        cd "$WIKI_DIR"
+        echo "Configuring Wiki git user..."
+        git config user.name "$GIT_USER"
+        git config user.email "$GIT_EMAIL"
+        git config user.signingkey "$SIGNING_KEY_PUB"
+        git config commit.gpgsign true
+        
+        echo "Ensuring Wiki remote is correct..."
+        if git remote | grep -q "^origin$"; then
+            git remote set-url origin "$WIKI_REPO"
+        else
+            git remote add origin "$WIKI_REPO"
+        fi
+        echo "✓ Wiki repository configured"
+    )
+else
+    echo "Wiki repository not found or not a git repo. Skipping configuration."
+fi
+echo ""
+
 # Step 4: Update ~/.bashrc
 echo "Step 4: Updating ~/.bashrc..."
 
