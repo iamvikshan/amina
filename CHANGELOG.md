@@ -1,3 +1,13 @@
+# [v2.2.1](https://github.com/iamvikshan/amina/compare/v2.2.0...v2.2.1) (2025-11-29)
+
+
+
+## [2.2.1](https://github.com/iamvikshan/amina/compare/v2.2.0...v2.2.1) (2025-11-29)
+
+### Bug Fixes
+
+* add todRating field to User schema and implement AI command registry with permission models ([8f83550](https://github.com/iamvikshan/amina/commit/8f83550891030df79a6e84cfff0bcea8ee8fd42d))
+
 # [v2.2.0](https://github.com/iamvikshan/amina/compare/v2.1.3...v2.2.0) (2025-11-22)
 
 ## [2.2.0](https://github.com/iamvikshan/amina/compare/v2.1.3...v2.2.0) (2025-11-22)
