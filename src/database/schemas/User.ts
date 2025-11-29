@@ -68,6 +68,7 @@ const Schema = new mongoose.Schema(
       combineDmWithServer: { type: Boolean, default: false },
       globalServerMemories: { type: Boolean, default: true },
     },
+    todRating: { type: String, enum: ['PG', 'PG-16', 'R'], default: null },
   },
   {
     timestamps: {

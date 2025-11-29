@@ -92,10 +92,6 @@ export class GoogleAiClient {
     const startTime = Date.now()
 
     try {
-      console.log(
-        `🔧 GoogleAiClient.generateResponse - Model: ${this.model}, MediaItems: ${mediaItems?.length || 0}, TextLength: ${userMessage.length}, Tools: ${tools?.length || 0}`
-      )
-
       const model = this.genAI.getGenerativeModel({
         model: this.model,
         systemInstruction: systemPrompt,
@@ -148,10 +144,6 @@ export class GoogleAiClient {
       // Note: Google AI doesn't return token counts in the same way as OpenAI
       // We'll estimate or leave as 0 for now
       const tokensUsed = 0
-
-      console.log(
-        `AI response generated in ${latency}ms, ${text.length} chars, Model: ${this.model}, Media: ${mediaItems?.length || 0} items, FunctionCalls: ${functionCalls?.length || 0}`
-      )
 
       return {
         text,
@@ -216,7 +208,7 @@ export class GoogleAiClient {
         `Unhandled AI error - Type: ${typeof error}, Message: ${errorMessage}`
       )
       if (error.stack) logger.debug(`Stack: ${error.stack}`)
-    } catch (logError) {
+    } catch (_logError) {
       logger.error('Failed to log AI error details')
     }
   }

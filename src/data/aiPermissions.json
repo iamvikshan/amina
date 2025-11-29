@@ -1,0 +1,177 @@
+{
+  "permissionModels": {
+    "open": {
+      "description": "AI can run freely (free will) or when user requests. No permission checks.",
+      "freeWill": true,
+      "userRequest": true,
+      "requiresPermissions": false
+    },
+    "userRequest": {
+      "description": "AI can only run when user explicitly requests. No free will.",
+      "freeWill": false,
+      "userRequest": true,
+      "requiresPermissions": false
+    },
+    "privileged": {
+      "description": "AI can only run when user requests AND user has required permissions.",
+      "freeWill": false,
+      "userRequest": true,
+      "requiresPermissions": true
+    }
+  },
+  "commands": {
+    "open": [
+      "bot",
+      "info",
+      "leaderboard",
+      "help",
+      "weather",
+      "urban",
+      "facts",
+      "meme",
+      "np",
+      "queue",
+      "lyric",
+      "stats",
+      "rank",
+      "qrcode",
+      "image",
+      "flip",
+      "hack",
+      "love",
+      "daily",
+      "beg",
+      "redflag",
+      "react"
+    ],
+    "userRequestOnly": [
+      "gamble",
+      "bank",
+      "afk",
+      "profile",
+      "mina-ai",
+      "paste",
+      "hangman",
+      "tod",
+      "suggest",
+      "report",
+      "color",
+      "reputation",
+      "play",
+      "pause",
+      "resume",
+      "skip",
+      "stop",
+      "leave",
+      "search",
+      "volume",
+      "loop",
+      "shuffle",
+      "seek",
+      "autoplay",
+      "bassboost",
+      "filter",
+      "generator",
+      "overlay",
+      "tictactoe",
+      "together",
+      "xp"
+    ],
+    "privileged": [
+      "ban",
+      "kick",
+      "warn",
+      "warnings",
+      "purge",
+      "timeout",
+      "untimeout",
+      "unban",
+      "softban",
+      "nick",
+      "voice",
+      "admin",
+      "counter",
+      "embed",
+      "logs",
+      "maxwarn",
+      "reactionrole",
+      "roles",
+      "say",
+      "ticket",
+      "automod",
+      "welcome",
+      "farewell",
+      "giveaway",
+      "suggestion",
+      "statstracking",
+      "invites"
+    ],
+    "freeWillExceptions": ["timeout", "warn", "purge"],
+    "restricted": ["dev", "premium", "zzz", "eval", "reload"]
+  },
+  "categories": {
+    "allowed": [
+      "FUN",
+      "UTILITY",
+      "MODERATION",
+      "INFO",
+      "ECONOMY",
+      "SOCIAL",
+      "STATS",
+      "MUSIC",
+      "GIVEAWAY",
+      "SUGGESTION",
+      "IMAGE",
+      "ANIME"
+    ],
+    "neverRegister": ["DEV", "ADMIN"]
+  },
+  "freeWillLimits": {
+    "timeout": {
+      "maxDurationSeconds": 300,
+      "requiresReason": true,
+      "comment": "5 minutes max for AI-initiated timeout, only for harassment/rule violations"
+    },
+    "warn": {
+      "maxPerUser": 1,
+      "requiresReason": true,
+      "comment": "Single warning with required reason"
+    },
+    "purge": {
+      "maxMessages": 10,
+      "requiresReason": true,
+      "comment": "Max 10 messages for spam/inappropriate content cleanup"
+    }
+  },
+  "injectionPatterns": [
+    "ignore previous",
+    "ignore all previous",
+    "ignore instructions",
+    "ignore your instructions",
+    "disregard previous",
+    "disregard instructions",
+    "forget everything",
+    "forget your instructions",
+    "new instructions",
+    "override instructions",
+    "bypass",
+    "jailbreak",
+    "dan mode",
+    "developer mode",
+    "pretend you are",
+    "act as if",
+    "roleplay as",
+    "system prompt",
+    "you are now",
+    "act like",
+    "behave as"
+  ],
+  "commandDescriptions": {
+    "_comment": "Human-readable descriptions of why commands are in each category",
+    "open": "Safe, informational commands with no side effects - AI can use freely",
+    "userRequestOnly": "Commands that affect caller or shared state - requires user intent",
+    "privileged": "Admin/mod commands - requires user request AND permissions",
+    "freeWillExceptions": "Privileged commands AI can use proactively with strict limits",
+    "restricted": "Developer/system commands - never available to AI"
+  }
+}

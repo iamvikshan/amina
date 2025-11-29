@@ -1,6 +1,6 @@
 // @root/src/services/aiResponder.ts
 
-import type { Message } from 'discord.js'
+import type { GuildMember, Message } from 'discord.js'
 import { getSettings } from '../database/schemas/Guild'
 import { configCache } from '../config/aiResponder'
 import { GoogleAiClient } from '../helpers/googleAiClient'
@@ -15,7 +15,7 @@ import { config } from '../config'
 import { extractMediaFromMessage } from '../helpers/mediaExtractor'
 import { aiCommandRegistry } from './aiCommandRegistry'
 import { VirtualInteraction } from '../structures/VirtualInteraction'
-import { BotClient } from '../structures'
+import aiPermissions from '../data/aiPermissions.json'
 
 const logger = Logger
 
@@ -80,7 +80,7 @@ export class AiResponderService {
     try {
       const config = await configCache.getConfig()
 
-      logger.debug(
+      logger.log(
         `AI Config loaded - Enabled: ${config.globallyEnabled}, Model: ${config.model}, HasKey: ${!!config.geminiKey}`
       )
 
@@ -141,7 +141,10 @@ export class AiResponderService {
       // Check user ignoreMe preference (fail early)
       if (userData.minaAi?.ignoreMe) {
         // Send helpful message if they try to interact (DM or mention)
-        if (!message.guild || message.mentions.has(message.client.user!)) {
+        if (
+          !message.guild ||
+          (message.client.user && message.mentions.has(message.client.user))
+        ) {
           if ('send' in message.channel) {
             await message.channel
               .send({
@@ -192,7 +195,9 @@ export class AiResponderService {
       const isFreeWillChannel = freeWillChannels.includes(message.channel.id)
 
       // Check for explicit @mentions
-      const hasExplicitMention = message.mentions.has(message.client.user!)
+      const hasExplicitMention = message.client.user
+        ? message.mentions.has(message.client.user)
+        : false
 
       // For free-will channels, we check if mentioned/replied (for helpful tip), but respond to everything
       // For mention-only mode, we need to verify it's actually targeting the bot
@@ -242,9 +247,6 @@ export class AiResponderService {
     if (!mode || !this.client) return
 
     try {
-      // Initialize registry if needed (lazy init)
-      aiCommandRegistry.initialize(message.client as BotClient)
-
       // Check if user @mentioned in a non-free-will channel and show helpful tip about free will channels
       if (message.guild && mode === 'mention') {
         const guildSettings = await getSettings(message.guild)
@@ -353,10 +355,8 @@ export class AiResponderService {
             }
 
             return context
-          } catch (error: any) {
-            logger.debug(
-              `Failed to fetch Discord user ${userId}: ${error.message}`
-            )
+          } catch (_error: any) {
+            logger.debug(`Failed to fetch Discord user ${userId}`)
             return null
           }
         })
@@ -431,7 +431,7 @@ export class AiResponderService {
                 context += `- ${m.key}: ${m.value}\n`
               })
               return context
-            } catch (error: any) {
+            } catch (_error: any) {
               logger.debug(`Failed to fetch user ${userId} for memory context`)
               return null
             }
@@ -451,18 +451,6 @@ export class AiResponderService {
         enhancedPrompt += participantContext
       }
 
-      const totalMemories = Array.from(allMemories.values()).reduce(
-        (sum, mems) => sum + mems.length,
-        0
-      )
-      // Note: Model will be logged after media detection
-      logger.debug(
-        `💬 Generating AI response - Participants: ${participantIds.length}, Total Memories: ${totalMemories}, History: ${history.length} messages`
-      )
-
-      // Log what we're sending to help debug
-      logger.debug(`User message: ${message.content.substring(0, 100)}`)
-
       // Extract media from message (images, videos, GIFs)
       const mediaItems = extractMediaFromMessage(message)
       const hasMediaContent = mediaItems.length > 0
@@ -472,13 +460,6 @@ export class AiResponderService {
         return
       }
 
-      // Log media detection for debugging
-      if (hasMediaContent) {
-        console.log(
-          `📸 Media detected: ${mediaItems.length} item(s) - ${mediaItems.map(m => `${m.mimeType}${m.isVideo ? ' (video)' : m.isGif ? ' (gif)' : ''}`).join(', ')}`
-        )
-      }
-
       // Format history with speaker attribution for AI
       const formattedHistory = this.formatHistoryForAI(history)
 
@@ -486,7 +467,7 @@ export class AiResponderService {
       const tools = aiCommandRegistry.getTools()
 
       // Generate response with media if present (gemini-flash-latest supports multimodal)
-      const result = await this.client.generateResponse(
+      let result = await this.client.generateResponse(
         enhancedPrompt,
         formattedHistory,
         message.content ||
@@ -497,92 +478,156 @@ export class AiResponderService {
         tools
       )
 
-      // Handle function calls
-      if (result.functionCalls && result.functionCalls.length > 0) {
+      // ReAct Loop: Allow AI to call functions and see results
+      const MAX_ITERATIONS = 5 // Safety limit to prevent infinite loops
+      let iteration = 0
+      let currentHistory = [...formattedHistory]
+
+      while (
+        result.functionCalls &&
+        result.functionCalls.length > 0 &&
+        iteration < MAX_ITERATIONS
+      ) {
+        iteration++
+
+        // Skip sending intermediate text - we'll let AI comment after seeing the result
+        // This keeps chat cleaner: command output → AI commentary
+        // TODO!: might want to send intermediate text and delete it after AI responds
+        if (result.text && result.text.trim()) {
+          // Just add to history so AI has context, but don't send to user
+          currentHistory.push({ role: 'model', content: result.text })
+        }
+
+        // Process all function calls in this response
+        const functionResults: string[] = []
+
         for (const call of result.functionCalls) {
           const commandName = call.name
-          const args = call.args
-
-          logger.debug(`🤖 AI triggering command: /${commandName}`, args)
-
-          // 1. Append function call to history so AI remembers it tried to run this
-          conversationBuffer.append(
-            conversationId,
-            'model',
-            `[System: Executing command /${commandName} with args: ${JSON.stringify(args)}]`
-          )
+          let args = call.args
 
           const command = aiCommandRegistry.getCommand(commandName)
-          if (command) {
-            const virtualInteraction = new VirtualInteraction(
-              message.client,
-              message,
-              commandName,
-              args
+          const metadata = aiCommandRegistry.getMetadata(commandName)
+
+          if (!command || !metadata) {
+            functionResults.push(
+              `Command /${commandName} not found. Available commands may be limited.`
             )
+            continue
+          }
 
-            try {
-              await command.interactionRun(virtualInteraction as any, {
-                settings: message.guild
-                  ? await getSettings(message.guild)
-                  : undefined,
-              })
+          // Permission checks based on model
+          const permissionCheck = await this.checkCommandPermissions(
+            message,
+            commandName,
+            metadata,
+            args
+          )
 
-              // 2. Capture output and feed back to AI
-              const output = virtualInteraction.getOutput()
-              if (output) {
-                conversationBuffer.append(
-                  conversationId,
-                  'user', // Using 'user' role to simulate system feedback in the next turn
-                  `[System: Command /${commandName} executed. Output: ${output}]`
-                )
-              } else {
-                conversationBuffer.append(
-                  conversationId,
-                  'user',
-                  `[System: Command /${commandName} executed successfully (no output captured)]`
-                )
-              }
-            } catch (err: any) {
-              logger.error(
-                `Failed to execute AI command ${commandName}: ${err.message}`
-              )
-              // 3. Feed error back to AI
-              conversationBuffer.append(
-                conversationId,
-                'user',
-                `[System: Command /${commandName} failed. Error: ${err.message}]`
-              )
+          if (!permissionCheck.allowed) {
+            functionResults.push(permissionCheck.reason)
+            continue
+          }
 
-              await message.reply(
-                `I tried to run \`/${commandName}\` but something went wrong! 😣`
-              )
-            }
-          } else {
-            conversationBuffer.append(
-              conversationId,
-              'user',
-              `[System: Command /${commandName} not found]`
+          // Apply free will limits (e.g., timeout duration cap)
+          if (permissionCheck.isFreeWill) {
+            args = this.applyFreeWillLimits(commandName, args)
+          }
+
+          const virtualInteraction = new VirtualInteraction(
+            message.client,
+            message,
+            commandName,
+            args
+          )
+
+          try {
+            await command.interactionRun(virtualInteraction as any, {
+              settings: message.guild
+                ? await getSettings(message.guild)
+                : undefined,
+            })
+
+            // Capture output for AI context
+            const output = virtualInteraction.getOutput()
+            const resultText = output
+              ? `Command /${commandName} executed successfully. Result:\n${output}`
+              : `Command /${commandName} executed successfully (no text output).`
+
+            functionResults.push(resultText)
+          } catch (err: any) {
+            logger.error(
+              `Failed to execute AI command ${commandName}: ${err.message}`
+            )
+            functionResults.push(
+              `Command /${commandName} failed with error: ${err.message}`
             )
           }
         }
+
+        // Feed function results back to AI as a user message (system feedback)
+        // Google AI requires history to alternate user/model, so we format this carefully
+        const systemFeedback = `[System Feedback]\n${functionResults.join('\n\n')}`
+
+        // If AI sent text with the function call, it's already in history as 'model'
+        // If not, we need to add a placeholder so the alternation works
+        if (!result.text || !result.text.trim()) {
+          currentHistory.push({
+            role: 'model',
+            content: '[Executing requested commands...]',
+          })
+          conversationBuffer.append(
+            conversationId,
+            'model',
+            '[Executing requested commands...]'
+          )
+        }
+
+        // Append to conversation buffer for persistence (but NOT to currentHistory - we'll pass it as the message)
+        conversationBuffer.append(conversationId, 'user', systemFeedback)
+
+        // Show typing indicator while AI thinks about the results
+        if ('sendTyping' in message.channel) {
+          await message.channel.sendTyping()
+        }
+
+        // Validate history starts with user before calling API
+        while (currentHistory.length > 0 && currentHistory[0].role !== 'user') {
+          currentHistory.shift()
+        }
+
+        // Generate follow-up response with the function results
+        // Pass systemFeedback as the current user message (Google AI requires non-empty message)
+        result = await this.client.generateResponse(
+          enhancedPrompt,
+          currentHistory,
+          systemFeedback, // Pass system feedback as the current message
+          config.maxTokens,
+          config.temperature,
+          undefined, // No media in follow-up
+          tools
+        )
+
+        // Add the feedback to history for next iteration (if any)
+        currentHistory.push({ role: 'user', content: systemFeedback })
       }
 
-      // Send text reply if present
-      if (result.text) {
+      // Send final text reply if present
+      if (result.text && result.text.trim()) {
         await message.reply(result.text)
         // Append bot response to conversation buffer
         conversationBuffer.append(conversationId, 'model', result.text)
       }
 
+      // Warn if we hit the iteration limit
+      if (iteration >= MAX_ITERATIONS) {
+        logger.warn(
+          `ReAct loop hit max iterations (${MAX_ITERATIONS}) for message ${message.id}`
+        )
+      }
+
       // Extract and store memories (async, don't block)
       this.extractAndStoreMemories(message, history).catch(err =>
         logger.warn(`Failed to extract memories: ${err.message}`)
-      )
-
-      // Log success
-      logger.debug(
-        `AI response sent - Latency: ${result.latency}ms, Mode: ${mode}`
       )
 
       // Clear failure count on success
@@ -608,6 +653,236 @@ export class AiResponderService {
           // Ignore if we can't send fallback
         })
     }
+  }
+
+  /**
+   * Check if AI can execute a command based on permission model
+   */
+  private async checkCommandPermissions(
+    message: Message,
+    commandName: string,
+    metadata: {
+      permissionModel: string
+      userPermissions: any[]
+      freeWillAllowed: boolean
+    },
+    args: Record<string, any>
+  ): Promise<{ allowed: boolean; reason: string; isFreeWill: boolean }> {
+    const { permissionModel, userPermissions, freeWillAllowed } = metadata
+
+    // Detect if this is likely a user request or AI free will
+    const isFreeWill = !this.isLikelyUserRequest(message.content, commandName)
+
+    // Check for prompt injection patterns
+    if (this.detectPromptInjection(message.content)) {
+      // If injection detected, treat ALL privileged commands as blocked
+      if (permissionModel === 'privileged') {
+        return {
+          allowed: false,
+          reason: `Command /${commandName} blocked: Suspicious request pattern detected.`,
+          isFreeWill,
+        }
+      }
+    }
+
+    // Open commands: Always allowed
+    if (permissionModel === 'open') {
+      return { allowed: true, reason: '', isFreeWill }
+    }
+
+    // User-request-only commands: Block if AI is acting on its own
+    if (permissionModel === 'userRequest') {
+      if (isFreeWill) {
+        return {
+          allowed: false,
+          reason: `I can only run /${commandName} if you ask me to! This command affects your account.`,
+          isFreeWill,
+        }
+      }
+      return { allowed: true, reason: '', isFreeWill }
+    }
+
+    // Privileged commands: Check permissions
+    if (permissionModel === 'privileged') {
+      // Free will exception (e.g., timeout for self-defense)
+      if (isFreeWill && freeWillAllowed) {
+        // Additional check: Can't target admins/mods with free will
+        const targetCheck = await this.checkTargetHierarchy(message, args)
+        if (!targetCheck.allowed) {
+          return {
+            allowed: false,
+            reason: targetCheck.reason,
+            isFreeWill,
+          }
+        }
+        return { allowed: true, reason: '', isFreeWill }
+        // TODO: Consider notifying/tagging a guild admin when AI uses free will on privileged commands
+      }
+
+      // User must have permissions
+      if (!message.guild || !message.member) {
+        return {
+          allowed: false,
+          reason: `Command /${commandName} requires server permissions and must be used in a server.`,
+          isFreeWill,
+        }
+      }
+
+      const member = message.member as GuildMember
+      if (
+        userPermissions.length > 0 &&
+        !member.permissions.has(userPermissions)
+      ) {
+        const permNames = userPermissions.join(', ')
+        return {
+          allowed: false,
+          reason: `You need [${permNames}] permission(s) to use /${commandName}.`,
+          isFreeWill,
+        }
+      }
+
+      return { allowed: true, reason: '', isFreeWill }
+    }
+
+    // Default: allow (shouldn't reach here)
+    return { allowed: true, reason: '', isFreeWill }
+  }
+
+  /**
+   * Detect if user message contains prompt injection patterns
+   */
+  private detectPromptInjection(content: string): boolean {
+    const lower = content.toLowerCase()
+    return aiPermissions.injectionPatterns.some(pattern =>
+      lower.includes(pattern.toLowerCase())
+    )
+  }
+
+  /**
+   * Check if user message likely contains explicit request for this command
+   */
+  private isLikelyUserRequest(content: string, commandName: string): boolean {
+    const lower = content.toLowerCase()
+
+    // Check if user mentioned the command name or related action words
+    const actionWords: Record<string, string[]> = {
+      timeout: ['timeout', 'mute', 'silence', 'quiet'],
+      ban: ['ban', 'remove permanently', 'get rid of'],
+      kick: ['kick', 'remove', 'boot'],
+      warn: ['warn', 'warning'],
+      purge: ['purge', 'delete messages', 'clear messages', 'clean'],
+      gamble: ['gamble', 'bet', 'wager'],
+      slots: ['slots', 'slot machine'],
+      coinflip: ['coinflip', 'flip a coin', 'coin flip'],
+      blackjack: ['blackjack', 'play blackjack', '21'],
+    }
+
+    // Check command name directly
+    if (lower.includes(commandName)) return true
+
+    // Check action words for this command
+    const words = actionWords[commandName] || []
+    return words.some(word => lower.includes(word))
+  }
+
+  /**
+   * Check if target user has higher/equal role than bot (for free will actions)
+   */
+  private async checkTargetHierarchy(
+    message: Message,
+    args: Record<string, any>
+  ): Promise<{ allowed: boolean; reason: string }> {
+    if (!message.guild) {
+      return { allowed: true, reason: '' }
+    }
+
+    // Find target user in args (could be 'user', 'member', 'target', etc.)
+    const targetId = args.user || args.member || args.target
+    if (!targetId) {
+      return { allowed: true, reason: '' }
+    }
+
+    try {
+      const botMember = message.guild.members.me
+      const targetMember = await message.guild.members
+        .fetch(targetId)
+        .catch(() => null)
+
+      if (!botMember || !targetMember) {
+        return { allowed: true, reason: '' }
+      }
+
+      // Can't target users with higher or equal role
+      if (
+        targetMember.roles.highest.position >= botMember.roles.highest.position
+      ) {
+        return {
+          allowed: false,
+          reason: `Cannot perform action on ${targetMember.displayName} - they have a higher or equal role than me.`,
+        }
+      }
+
+      // Can't target server owner
+      if (targetMember.id === message.guild.ownerId) {
+        return {
+          allowed: false,
+          reason: `Cannot perform action on the server owner.`,
+        }
+      }
+
+      return { allowed: true, reason: '' }
+    } catch {
+      return { allowed: true, reason: '' }
+    }
+  }
+
+  /**
+   * Apply limits to free will command arguments
+   */
+  private applyFreeWillLimits(
+    commandName: string,
+    args: Record<string, any>
+  ): Record<string, any> {
+    const limits = aiPermissions.freeWillLimits as Record<
+      string,
+      {
+        maxDurationSeconds?: number
+        maxMessages?: number
+        maxPerUser?: number
+        requiresReason?: boolean
+      }
+    >
+
+    if (commandName === 'timeout' && limits.timeout) {
+      const maxDuration = limits.timeout.maxDurationSeconds || 300
+      if (args.duration && args.duration > maxDuration) {
+        args.duration = maxDuration
+      }
+      // If no duration specified, use a reasonable default
+      if (!args.duration) {
+        args.duration = 60 // 1 minute default for free will
+      }
+    }
+
+    if (commandName === 'purge' && limits.purge) {
+      const maxMessages = limits.purge.maxMessages || 10
+      if (args.amount && args.amount > maxMessages) {
+        args.amount = maxMessages
+      }
+      // If no amount specified, use a conservative default
+      if (!args.amount) {
+        args.amount = 5
+      }
+    }
+
+    if (commandName === 'warn' && limits.warn) {
+      // Ensure reason is provided for free will warnings
+      if (!args.reason) {
+        args.reason = 'Automated warning by Mina AI'
+      }
+    }
+
+    return args
   }
 
   private getConversationId(message: Message): string {
@@ -739,10 +1014,6 @@ export class AiResponderService {
       }
     }
 
-    logger.debug(
-      `Active participants detected: ${participants.size} users (from ${history.length} messages)`
-    )
-
     return participants
   }
 
@@ -779,9 +1050,6 @@ export class AiResponderService {
       }
     }
 
-    logger.debug(
-      `Fetched profiles for ${profiles.size}/${userIds.length} participants`
-    )
     return profiles
   }
 
@@ -816,10 +1084,6 @@ export class AiResponderService {
           guildId,
           conversationSnippet
         )
-      }
-
-      if (facts.length > 0) {
-        logger.debug(`Stored ${facts.length} new memories for user ${userId}`)
       }
     } catch (error: any) {
       logger.warn(`Memory extraction failed: ${error.message}`)

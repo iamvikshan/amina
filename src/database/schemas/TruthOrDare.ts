@@ -11,8 +11,9 @@ const Schema = new mongoose.Schema({
   question: reqString,
   rating: {
     type: String,
-    required: true,
-    enum: ['PG', 'PG-13', 'PG-16', 'R'],
+    required: false, // Allow null for legacy questions (treated as PG)
+    enum: ['PG', 'PG-16', 'R', null],
+    default: null,
   },
 })
 
@@ -62,7 +63,7 @@ export async function addQuestion(
 export async function getQuestions(
   limit: number = 10,
   category: string = 'random',
-  age: number = 13,
+  age: number | null = null,
   requestedRating: string | null = null
 ): Promise<any[]> {
   // Get allowed ratings based on age
@@ -73,11 +74,30 @@ export async function getQuestions(
     return [] // Return empty if requested rating isn't allowed for user's age
   }
 
+  // Determine which rating(s) to query
+  // Note: null/missing rating in DB is treated as PG
+  let ratingFilter: any
+  if (requestedRating) {
+    // Specific rating requested
+    if (requestedRating === 'PG') {
+      // PG includes both explicit 'PG' and null (legacy questions)
+      ratingFilter = { $in: ['PG', null] }
+    } else {
+      ratingFilter = requestedRating
+    }
+  } else {
+    // No rating specified - use all allowed ratings
+    // Include null for PG-level questions
+    const filterRatings = allowedRatings.includes('PG')
+      ? [...allowedRatings, null]
+      : allowedRatings
+    ratingFilter = { $in: filterRatings }
+  }
+
   const aggregate: any[] = [
     {
       $match: {
-        // If specific rating requested, use it; otherwise use all allowed ratings
-        rating: requestedRating ? requestedRating : { $in: allowedRatings },
+        rating: ratingFilter,
       },
     },
   ]
@@ -124,9 +144,11 @@ export async function getQuestionById(questionId: string): Promise<any> {
   return question
 }
 
-function getAllowedRatings(age: number): string[] {
-  if (age >= 18) return ['PG', 'PG-13', 'PG-16', 'R']
-  if (age >= 16) return ['PG', 'PG-13', 'PG-16']
-  if (age >= 13) return ['PG', 'PG-13']
-  return ['PG']
+function getAllowedRatings(age: number | null): string[] {
+  // New ratings: PG (default, 13+), PG-16 (16+), R (18+, NSFW)
+  // null age defaults to PG only
+  if (!age) return ['PG']
+  if (age >= 18) return ['PG', 'PG-16', 'R']
+  if (age >= 16) return ['PG', 'PG-16']
+  return ['PG'] // 13+ (Discord minimum)
 }

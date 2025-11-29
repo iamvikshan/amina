@@ -14,7 +14,7 @@ export function loadDefaultPrompt(): string {
   try {
     const promptPath = join(process.cwd(), 'src/data/prompt.md')
     const prompt = readFileSync(promptPath, 'utf-8').trim()
-    logger.debug(
+    logger.log(
       `Loaded default prompt from ${promptPath} (${prompt.length} chars)`
     )
     return prompt

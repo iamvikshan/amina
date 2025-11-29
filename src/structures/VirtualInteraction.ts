@@ -31,6 +31,7 @@ export class VirtualInteraction {
 
   private replied: boolean = false
   private replyMessage: Message | null = null
+  private allMessages: Message[] = [] // Track all messages sent
   private originalMessage: Message
 
   constructor(
@@ -56,6 +57,42 @@ export class VirtualInteraction {
 
   isChatInputCommand(): this is ChatInputCommandInteraction {
     return true
+  }
+
+  isButton(): boolean {
+    return false
+  }
+
+  isCommand(): boolean {
+    return true
+  }
+
+  isAutocomplete(): boolean {
+    return false
+  }
+
+  isModalSubmit(): boolean {
+    return false
+  }
+
+  isSelectMenu(): boolean {
+    return false
+  }
+
+  isAnySelectMenu(): boolean {
+    return false
+  }
+
+  isContextMenuCommand(): boolean {
+    return false
+  }
+
+  isMessageContextMenuCommand(): boolean {
+    return false
+  }
+
+  isUserContextMenuCommand(): boolean {
+    return false
   }
 
   isRepliable(): boolean {
@@ -87,8 +124,10 @@ export class VirtualInteraction {
 
     if (this.channel) {
       // Cast to any to avoid TextBasedChannel issues (it usually has send)
-      this.replyMessage = await (this.channel as any).send(content)
-      return this.replyMessage as any
+      const msg = await (this.channel as any).send(content)
+      this.replyMessage = msg
+      this.allMessages.push(msg)
+      return msg as any
     }
 
     throw new Error('No channel to reply to')
@@ -111,7 +150,9 @@ export class VirtualInteraction {
     options: string | MessagePayload | InteractionReplyOptions
   ): Promise<Message> {
     if (this.channel) {
-      return (this.channel as any).send(options)
+      const msg = await (this.channel as any).send(options)
+      this.allMessages.push(msg)
+      return msg
     }
     throw new Error('No channel to follow up in')
   }
@@ -129,13 +170,57 @@ export class VirtualInteraction {
   }
 
   getOutput(): string | null {
-    if (this.replyMessage) {
-      return (
-        this.replyMessage.content ||
-        (this.replyMessage.embeds.length > 0 ? '[Embed Sent]' : null)
-      )
+    // Return output from all messages sent (reply + followUps)
+    if (this.allMessages.length > 0) {
+      const outputs = this.allMessages.map(msg => this.extractRichOutput(msg))
+      return outputs.join('\n\n---\n\n')
     }
     return null
+  }
+
+  /**
+   * Extract rich output from a message including embeds for AI context
+   */
+  private extractRichOutput(msg: Message): string {
+    const parts: string[] = []
+
+    // Include text content
+    if (msg.content) {
+      parts.push(msg.content)
+    }
+
+    // Extract embed content for AI context
+    if (msg.embeds.length > 0) {
+      for (const embed of msg.embeds) {
+        const embedParts: string[] = []
+
+        if (embed.title) {
+          embedParts.push(`**${embed.title}**`)
+        }
+        if (embed.description) {
+          embedParts.push(embed.description)
+        }
+        if (embed.fields.length > 0) {
+          for (const field of embed.fields) {
+            embedParts.push(`${field.name}: ${field.value}`)
+          }
+        }
+        if (embed.footer?.text) {
+          embedParts.push(`_${embed.footer.text}_`)
+        }
+
+        if (embedParts.length > 0) {
+          parts.push(`[Embed]\n${embedParts.join('\n')}`)
+        }
+      }
+    }
+
+    // Note if there are interactive components
+    if (msg.components.length > 0) {
+      parts.push('[Interactive buttons/menus available for user]')
+    }
+
+    return parts.length > 0 ? parts.join('\n\n') : '[Command executed]'
   }
 }
 

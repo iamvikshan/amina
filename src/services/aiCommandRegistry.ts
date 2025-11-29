@@ -1,11 +1,25 @@
-import { ApplicationCommandOptionType } from 'discord.js'
+import {
+  ApplicationCommandOptionType,
+  type PermissionResolvable,
+} from 'discord.js'
 import type { BotClient } from '@src/structures'
+import Logger from '@helpers/Logger'
+import aiPermissions from '@src/data/aiPermissions.json'
+
+const logger = Logger
+
+// Permission model types
+type PermissionModel = 'open' | 'userRequest' | 'privileged'
+
+// Metadata stored for each registered command
+interface AiToolMetadata {
+  name: string
+  permissionModel: PermissionModel
+  userPermissions: PermissionResolvable[]
+  freeWillAllowed: boolean
+}
 
 // Type definitions for Google AI Tools
-// We define them here to avoid direct dependency on the google-ai package in this file if possible,
-// or we can import them if we want strict typing.
-// For now, we'll match the structure expected by the GoogleAiClient.
-
 interface FunctionDeclaration {
   name: string
   description: string
@@ -18,19 +32,17 @@ interface FunctionDeclaration {
 
 export class AiCommandRegistry {
   private client: BotClient | null = null
-  private allowedCategories = [
-    'FUN',
-    'UTILITY',
-    'MODERATION',
-    'INFO',
-    'ECONOMY',
-  ]
+  private isInitialized: boolean = false
   private commandCache: Map<string, CommandData> = new Map()
   private toolDefinitions: FunctionDeclaration[] = []
+  private toolMetadata: Map<string, AiToolMetadata> = new Map()
 
   initialize(client: BotClient) {
+    if (this.isInitialized) return // Already initialized
+
     this.client = client
     this.refreshRegistry()
+    this.isInitialized = true
   }
 
   refreshRegistry() {
@@ -38,6 +50,7 @@ export class AiCommandRegistry {
 
     this.commandCache.clear()
     this.toolDefinitions = []
+    this.toolMetadata.clear()
 
     this.client.slashCommands.forEach(cmd => {
       // Filter commands
@@ -48,11 +61,15 @@ export class AiCommandRegistry {
       if (tool) {
         this.toolDefinitions.push(tool)
         this.commandCache.set(cmd.name, cmd)
+
+        // Store metadata for permission checking
+        const metadata = this.buildMetadata(cmd)
+        this.toolMetadata.set(cmd.name, metadata)
       }
     })
 
-    console.log(
-      `[AiCommandRegistry] Registered ${this.toolDefinitions.length} AI tools`
+    logger.log(
+      `AI Command Registry: Registered ${this.toolDefinitions.length} tools`
     )
   }
 
@@ -64,15 +81,76 @@ export class AiCommandRegistry {
     return this.commandCache.get(name)
   }
 
+  getMetadata(name: string): AiToolMetadata | undefined {
+    return this.toolMetadata.get(name)
+  }
+
+  /**
+   * Get permission model for a command
+   */
+  private getPermissionModel(cmd: CommandData): PermissionModel {
+    const { commands } = aiPermissions
+
+    // Check if command is in restricted list (should have been filtered already)
+    if (commands.restricted.includes(cmd.name)) {
+      return 'privileged' // Shouldn't reach here, but treat as most restrictive
+    }
+
+    // Check if command is in privileged list
+    if (commands.privileged.includes(cmd.name)) {
+      return 'privileged'
+    }
+
+    // Check if command is user-request only (e.g., gambling, music, economy)
+    if (commands.userRequestOnly.includes(cmd.name)) {
+      return 'userRequest'
+    }
+
+    // Check if command is explicitly open
+    if (commands.open.includes(cmd.name)) {
+      return 'open'
+    }
+
+    // Default: userRequest for safety (requires user to ask)
+    // This ensures any command not explicitly classified defaults to safer behavior
+    return 'userRequest'
+  }
+
+  /**
+   * Build metadata for a command
+   */
+  private buildMetadata(cmd: CommandData): AiToolMetadata {
+    const permissionModel = this.getPermissionModel(cmd)
+    const { commands } = aiPermissions
+
+    // Check if this privileged command has free will exception (e.g., timeout)
+    const freeWillAllowed =
+      permissionModel === 'open' ||
+      (permissionModel === 'privileged' &&
+        commands.freeWillExceptions.includes(cmd.name))
+
+    return {
+      name: cmd.name,
+      permissionModel,
+      userPermissions: cmd.userPermissions || [],
+      freeWillAllowed,
+    }
+  }
+
   private isCommandAllowed(cmd: CommandData): boolean {
-    // Check category
-    if (!this.allowedCategories.includes(cmd.category)) return false
+    const { categories, commands } = aiPermissions
+
+    // Never register restricted commands (dev commands)
+    if (commands.restricted.includes(cmd.name)) return false
+
+    // Never register commands from forbidden categories
+    if (categories.neverRegister.includes(cmd.category)) return false
+
+    // Only allow commands from allowed categories
+    if (!categories.allowed.includes(cmd.category)) return false
 
     // Check explicit disable
     if (cmd.slashCommand.enabled === false) return false
-
-    // Skip dev/admin commands for safety (unless explicitly allowed later)
-    if (cmd.category === 'ADMIN' || cmd.category === 'DEV') return false
 
     return true
   }

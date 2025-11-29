@@ -14,11 +14,11 @@ import todHandler from '@handlers/tod'
 import { EMBED_COLORS } from '@src/config'
 
 // Helper function to create rating choices with Amina's style
+// Ratings: PG (default, 13+), PG-16 (16+), R (18+ NSFW only)
 const getRatingChoices = () => [
-  { name: 'pg - keep it light and fun!', value: 'PG' },
-  { name: 'pg-13 - getting interesting...', value: 'PG-13' },
-  { name: 'pg-16 - spicy territory ahead', value: 'PG-16' },
-  { name: 'r - strictly grown-ups only', value: 'R' },
+  { name: 'pg - keep it fun! (default)', value: 'PG' },
+  { name: 'pg-16 - spicy territory ahead (16+)', value: 'PG-16' },
+  { name: 'r - strictly grown-ups only (18+ nsfw)', value: 'R' },
 ]
 
 // Helper function to create subcommand with rating option
@@ -81,31 +81,30 @@ const command: CommandData = {
     if (!member || !('user' in member)) {
       return chatInteraction.followUp('Could not find member information!')
     }
-    const user = await getUser(member.user)
-    // Check if age is set
-    if (!user.profile?.age) {
-      return chatInteraction.followUp({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(EMBED_COLORS.ERROR)
-            .setTitle('✦ hold up friend!')
-            .setDescription(
-              'i need to know your age first! use `/profile set` so we can play safely!'
-            ),
-        ],
-        ephemeral: true,
-      })
+    const user = (await getUser(member.user)) as any
+    const userAge = user.profile?.age || null
+
+    // Determine the rating to use
+    // Priority: requested > user preference > PG default
+    let effectiveRating = requestedRating || user.todRating || 'PG'
+
+    // Check for PG-16 age requirement
+    if (effectiveRating === 'PG-16' && userAge && userAge < 16) {
+      effectiveRating = 'PG' // Downgrade if underage
     }
+
     // Check for R-rated content requirements
-    if (requestedRating === 'R') {
-      if (user.profile.age < 18) {
+    if (effectiveRating === 'R') {
+      if (!userAge || userAge < 18) {
         return chatInteraction.followUp({
           embeds: [
             new EmbedBuilder()
               .setColor(EMBED_COLORS.ERROR)
-              .setTitle('✦ oops, age check failed!')
+              .setTitle('✦ oops, age check needed!')
               .setDescription(
-                'sorry friend, that stuff is for the grown-ups only!'
+                userAge
+                  ? 'sorry friend, that stuff is for the grown-ups only!'
+                  : 'i need to know your age for R-rated content! use `/profile hub` to set it.'
               ),
           ],
           ephemeral: true,
@@ -128,40 +127,36 @@ const command: CommandData = {
       }
     }
 
+    // Save user's rating preference if they explicitly selected one
+    if (requestedRating && requestedRating !== user.todRating) {
+      user.todRating = requestedRating
+      await user.save()
+    }
+
     switch (subcommand) {
       case 'truth':
-        sendQuestion(
-          chatInteraction,
-          'truth',
-          user.profile.age,
-          requestedRating
-        )
+        sendQuestion(chatInteraction, 'truth', userAge, effectiveRating)
         break
       case 'dare':
-        sendQuestion(chatInteraction, 'dare', user.profile.age, requestedRating)
+        sendQuestion(chatInteraction, 'dare', userAge, effectiveRating)
         break
       case 'paranoia':
-        sendQuestion(
-          chatInteraction,
-          'paranoia',
-          user.profile.age,
-          requestedRating
-        )
+        sendQuestion(chatInteraction, 'paranoia', userAge, effectiveRating)
         break
       case 'nhie':
-        sendQuestion(chatInteraction, 'nhie', user.profile.age, requestedRating)
+        sendQuestion(chatInteraction, 'nhie', userAge, effectiveRating)
         break
       case 'wyr':
-        sendQuestion(chatInteraction, 'wyr', user.profile.age, requestedRating)
+        sendQuestion(chatInteraction, 'wyr', userAge, effectiveRating)
         break
       case 'hye':
-        sendQuestion(chatInteraction, 'hye', user.profile.age, requestedRating)
+        sendQuestion(chatInteraction, 'hye', userAge, effectiveRating)
         break
       case 'wwyd':
-        sendQuestion(chatInteraction, 'wwyd', user.profile.age, requestedRating)
+        sendQuestion(chatInteraction, 'wwyd', userAge, effectiveRating)
         break
       case 'random':
-        sendRandomQuestion(chatInteraction, user.profile.age, requestedRating)
+        sendRandomQuestion(chatInteraction, userAge, effectiveRating)
         break
     }
   },
@@ -170,10 +165,10 @@ const command: CommandData = {
 async function sendQuestion(
   interaction: ChatInputCommandInteraction,
   category: string,
-  userAge: number,
-  requestedRating: string | null
+  userAge: number | null,
+  effectiveRating: string
 ) {
-  const questions = await getQuestions(1, category, userAge, requestedRating)
+  const questions = await getQuestions(1, category, userAge, effectiveRating)
   if (questions.length === 0) {
     await interaction.followUp({
       embeds: [
@@ -189,6 +184,8 @@ async function sendQuestion(
   }
 
   const question = questions[0]
+  // Display rating: use effective rating, or 'PG' for null/legacy questions
+  const displayRating = question.rating || 'PG'
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.BOT_EMBED)
     .setTitle(`✦ ${category.toUpperCase()} TIME!`)
@@ -200,7 +197,7 @@ async function sendQuestion(
           : `${interaction.user.username}, don't be scared!\n\n**${question.question}**\n`
     )
     .setFooter({
-      text: `type: ${category} | rating: ${question.rating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
+      text: `type: ${category} | rating: ${displayRating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
     })
 
   const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -226,10 +223,10 @@ async function sendQuestion(
 
 async function sendRandomQuestion(
   interaction: ChatInputCommandInteraction,
-  userAge: number,
-  requestedRating: string | null
+  userAge: number | null,
+  effectiveRating: string
 ) {
-  const questions = await getQuestions(1, 'random', userAge, requestedRating)
+  const questions = await getQuestions(1, 'random', userAge, effectiveRating)
   if (questions.length === 0) {
     await interaction.followUp({
       embeds: [
@@ -246,6 +243,8 @@ async function sendRandomQuestion(
   }
 
   const question = questions[0]
+  // Display rating: use effective rating, or 'PG' for null/legacy questions
+  const displayRating = question.rating || 'PG'
   const embed = new EmbedBuilder()
     .setColor('Random')
     .setTitle('✦ RANDOM SURPRISE!')
@@ -253,7 +252,7 @@ async function sendRandomQuestion(
       `ooh, this is gonna be fun! ready?\n\n**${question.question}**\n\nwhat's your next move?`
     )
     .setFooter({
-      text: `type: ${question.category} | rating: ${question.rating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
+      text: `type: ${question.category} | rating: ${displayRating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
     })
 
   const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(

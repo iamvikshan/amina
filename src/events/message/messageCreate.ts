@@ -125,23 +125,10 @@ function generateAfkMessage(params: {
  * @param {Message} message - The message that was created
  */
 export default async (client: BotClient, message: Message): Promise<void> => {
-  // AI Responder - check eligibility first (works for DMs and guilds)
-  const aiMode = await aiResponderService.shouldRespond(message)
-  if (aiMode) {
-    await aiResponderService.handleMessage(message, aiMode)
-    return // Exit early after AI response (prevents duplicate mention handling)
-  }
-
-  // Guild-only features below
-  if (!message.guild || message.author.bot) return
-
-  // Parallelize fetching settings and author data
-  const [settings, authorData] = await Promise.all([
-    getSettings(message.guild),
-    getUser(message.author),
-  ])
+  if (message.author.bot) return
 
   // Check if message author is AFK and remove their AFK status
+  const authorData = await getUser(message.author)
   if ((authorData as any).afk?.enabled) {
     const authorPronouns = await fetchPronouns(message.author.id)
     const [subject] = authorPronouns.split('/')
@@ -160,6 +147,18 @@ export default async (client: BotClient, message: Message): Promise<void> => {
     })
     setTimeout(() => response.delete().catch(() => {}), 5000)
   }
+
+  // AI Responder - check eligibility first (works for DMs and guilds)
+  const aiMode = await aiResponderService.shouldRespond(message)
+  if (aiMode) {
+    await aiResponderService.handleMessage(message, aiMode)
+    return // Exit early after AI response (prevents duplicate mention handling)
+  }
+
+  // Guild-only features below
+  if (!message.guild) return
+
+  const settings = await getSettings(message.guild)
 
   // Check for mentioned users who are AFK
   if (message.mentions.users.size > 0) {
@@ -245,7 +244,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
   // Amina mentions handling (only if AI is not configured/responding)
   if (
     message.content.includes(`${client.user?.id}`) ||
-    message.mentions.has(client.user!)
+    (client.user && message.mentions.has(client.user))
   ) {
     // Check if AI is enabled and configured for this guild
     const aiEnabled = settings.aiResponder?.enabled

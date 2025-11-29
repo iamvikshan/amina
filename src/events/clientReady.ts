@@ -7,6 +7,7 @@ import { getPresenceConfig, getDevCommandsConfig } from '@schemas/Dev'
 import { ApplicationCommandType, RateLimitError } from 'discord.js'
 import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/aiResponder'
+import { aiCommandRegistry } from '@src/services/aiCommandRegistry'
 import { memoryService } from '@src/services/memoryService'
 import { config } from '@src/config'
 import BotUtils from '../helpers/BotUtils'
@@ -23,6 +24,10 @@ export default async (client: BotClient): Promise<void> => {
   // Initialize AI Responder Service
   await aiResponderService.initialize()
   client.logger.success('AI Responder Service initialized')
+
+  // Initialize AI Command Registry
+  aiCommandRegistry.initialize(client)
+  client.logger.success('AI Command Registry initialized')
 
   // Initialize Memory Service
   const { configCache } = await import('@src/config/aiResponder')

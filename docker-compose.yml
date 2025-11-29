@@ -53,9 +53,17 @@ services:
     env_file:
       - .env
     environment:
-      - _JAVA_OPTIONS=-Xmx512M
+      - _JAVA_OPTIONS=-Xmx512M -Xms256M
       - SERVER_PORT=2333
       - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD_1:-incorrect}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
     volumes:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - lavalink-plugins:/opt/Lavalink/plugins

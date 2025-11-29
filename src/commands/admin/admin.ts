@@ -5,7 +5,6 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import type { CommandData } from '@src/structures/Command'
 import config from '@src/config'
 
 const command: CommandData = {

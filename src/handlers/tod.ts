@@ -15,20 +15,7 @@ async function handleTodButtonClick(
   if (!interaction.member || !interaction.guild) return
 
   const user = (await getUser((interaction.member as any).user)) as any
-
-  if (!user.profile?.age) {
-    return interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('✦ hold up friend!')
-          .setDescription(
-            'i need to know your age first! use `/profile set` so we can play safely!'
-          ),
-      ],
-      ephemeral: true,
-    })
-  }
+  const userAge = user.profile?.age || null
 
   // Get the current rating from the footer of the previous embed
   const currentEmbed = interaction.message.embeds[0]
@@ -36,16 +23,31 @@ async function handleTodButtonClick(
   const ratingMatch = footerText.match(/rating: ([^|]+)/i)
   const currentRating = ratingMatch ? ratingMatch[1].trim() : 'PG' // default to PG if no match
 
+  // Check PG-16 requirement
+  if (currentRating === 'PG-16' && userAge && userAge < 16) {
+    return interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(EMBED_COLORS.ERROR)
+          .setTitle('✦ age check!')
+          .setDescription('that content needs you to be 16+, friend!'),
+      ],
+      ephemeral: true,
+    })
+  }
+
   // Check R-rating requirements for button clicks
   if (currentRating === 'R') {
-    if (user.profile.age < 18) {
+    if (!userAge || userAge < 18) {
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor(EMBED_COLORS.ERROR)
-            .setTitle('✦ oops, age check failed!')
+            .setTitle('✦ oops, age check needed!')
             .setDescription(
-              'sorry friend, that content is for the grown-ups only!'
+              userAge
+                ? 'sorry friend, that content is for the grown-ups only!'
+                : 'i need to know your age for R-rated content! use `/profile hub` to set it.'
             ),
         ],
         ephemeral: true,
@@ -71,13 +73,13 @@ async function handleTodButtonClick(
 
   switch (customId) {
     case 'truthBtn':
-      await sendQuestion(interaction, 'truth', user.profile.age, currentRating)
+      await sendQuestion(interaction, 'truth', userAge, currentRating)
       break
     case 'dareBtn':
-      await sendQuestion(interaction, 'dare', user.profile.age, currentRating)
+      await sendQuestion(interaction, 'dare', userAge, currentRating)
       break
     case 'randomBtn':
-      await sendRandomQuestion(interaction, user.profile.age, currentRating)
+      await sendRandomQuestion(interaction, userAge, currentRating)
       break
   }
 }
@@ -85,14 +87,14 @@ async function handleTodButtonClick(
 async function sendQuestion(
   interaction: ButtonInteraction,
   category: string,
-  userAge: number,
-  requestedRating: string
+  userAge: number | null,
+  effectiveRating: string
 ): Promise<any> {
   const questions = (await getQuestions(
     1,
     category,
     userAge,
-    requestedRating
+    effectiveRating
   )) as any[]
   if (questions.length === 0) {
     return interaction.reply({
@@ -109,6 +111,8 @@ async function sendQuestion(
   }
 
   const question = questions[0]
+  // Display rating: use effective rating, or 'PG' for null/legacy questions
+  const displayRating = question.rating || 'PG'
   const embed = new EmbedBuilder()
     .setColor(EMBED_COLORS.BOT_EMBED)
     .setTitle(`✦ ${category.toUpperCase()} TIME!`)
@@ -120,7 +124,7 @@ async function sendQuestion(
           : `${interaction.user.username}, don't be scared!\n\n**${question.question}**\n`
     )
     .setFooter({
-      text: `type: ${category} | rating: ${question.rating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
+      text: `type: ${category} | rating: ${displayRating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
     })
 
   const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -146,14 +150,14 @@ async function sendQuestion(
 
 async function sendRandomQuestion(
   interaction: ButtonInteraction,
-  userAge: number,
-  requestedRating: string
+  userAge: number | null,
+  effectiveRating: string
 ): Promise<any> {
   const questions = (await getQuestions(
     1,
     'random',
     userAge,
-    requestedRating
+    effectiveRating
   )) as any[]
   if (questions.length === 0) {
     return interaction.reply({
@@ -170,6 +174,8 @@ async function sendRandomQuestion(
   }
 
   const question = questions[0]
+  // Display rating: use effective rating, or 'PG' for null/legacy questions
+  const displayRating = question.rating || 'PG'
   const embed = new EmbedBuilder()
     .setColor('Random')
     .setTitle('✦ RANDOM SURPRISE!')
@@ -177,7 +183,7 @@ async function sendRandomQuestion(
       `ooh, this is gonna be fun! ready?\n\n**${question.question}**\n\nwhat's your next move?`
     )
     .setFooter({
-      text: `type: ${question.category} | rating: ${question.rating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
+      text: `type: ${question.category} | rating: ${displayRating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
     })
 
   const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
