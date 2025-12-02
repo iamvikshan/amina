@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Dependencies
 # ============================================
-FROM oven/bun:1.3.1-alpine AS dependencies
+FROM oven/bun:1.3.3-alpine AS dependencies
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN bun install --frozen-lockfile --production --ignore-scripts
 # ============================================
 # Stage 2: Final Runtime Image
 # ============================================
-FROM oven/bun:1.3.1-alpine AS runtime
+FROM oven/bun:1.3.3-alpine AS runtime
 
 # Install only dumb-init (no curl needed)
 RUN apk add --no-cache dumb-init
