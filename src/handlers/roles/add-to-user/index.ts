@@ -2,14 +2,10 @@ import {
   ButtonInteraction,
   UserSelectMenuInteraction,
   RoleSelectMenuInteraction,
-  EmbedBuilder,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import {
-  createSecondaryBtn,
-  createSuccessBtn,
-  createDangerBtn,
-} from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 
 /**
  * Show the add to user menu - starts with user selection
@@ -17,25 +13,24 @@ import {
 export async function showAddToUserMenu(
   interaction: ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setTitle('👥 Add Roles to Users')
-    .setDescription('Assign roles to multiple users at once.')
+  const embed = MinaEmbed.primary()
+    .setTitle('add roles to users')
+    .setDescription('assign roles to multiple users at once.')
     .addFields(
       {
-        name: '📋 Process',
+        name: 'process',
         value:
-          '1️⃣ Select users to assign roles to\n2️⃣ Select roles to assign\n3️⃣ Review and confirm',
+          '1. select users to assign roles to\n2. select roles to assign\n3. review and confirm',
       },
       {
-        name: '⚠️ Notes',
+        name: 'notes',
         value:
-          '• You can select up to 25 users at once\n' +
-          '• Only assignable roles will be shown\n' +
-          '• Users who already have the role will be skipped',
+          '- you can select up to 25 users at once\n' +
+          '- only assignable roles will be shown\n' +
+          '- users who already have the role will be skipped',
       }
     )
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setFooter({ text: 'Select users to begin' })
+    .setFooter({ text: 'select users to begin' })
 
   const userSelectRow = {
     type: 1,
@@ -50,14 +45,12 @@ export async function showAddToUserMenu(
     ],
   }
 
-  const buttonRow = createDangerBtn({
-    label: 'Cancel',
-    customId: 'roles:btn:back',
-  })
-
   await interaction.update({
     embeds: [embed],
-    components: [userSelectRow, buttonRow],
+    components: [
+      userSelectRow,
+      MinaRows.single(MinaButtons.nah('roles:btn:back')),
+    ],
   })
 }
 
@@ -83,11 +76,9 @@ export async function handleUserSelect(
   if (assignableRoles.size === 0) {
     await interaction.update({
       content:
-        '❌ No assignable roles found. Make sure the bot has a higher role than the roles you want to assign.',
+        'no assignable roles found. make sure the bot has a higher role than the roles you want to assign.',
       embeds: [],
-      components: [
-        createSecondaryBtn({ label: 'Back', customId: 'roles:btn:back' }),
-      ],
+      components: [MinaRows.backRow('roles:btn:back')],
     })
     return
   }
@@ -97,22 +88,21 @@ export async function handleUserSelect(
     'base64'
   )
 
-  const embed = new EmbedBuilder()
-    .setTitle('🎭 Select Roles')
+  const embed = MinaEmbed.primary()
+    .setTitle('select roles')
     .setDescription(
-      `Adding roles to **${selectedUsers.length}** user${selectedUsers.length > 1 ? 's' : ''}`
+      `adding roles to **${selectedUsers.length}** user${selectedUsers.length > 1 ? 's' : ''}`
     )
     .addFields(
       {
-        name: '👥 Selected Users',
+        name: 'selected users',
         value: selectedUsers.map(id => `<@${id}>`).join(', '),
       },
       {
-        name: '📝 Next Step',
-        value: 'Select the roles you want to assign to these users',
+        name: 'next step',
+        value: 'select the roles you want to assign to these users',
       }
     )
-    .setColor(EMBED_COLORS.BOT_EMBED)
     .setFooter({ text: `${assignableRoles.size} assignable roles available` })
 
   const roleSelectRow = {
@@ -128,14 +118,12 @@ export async function handleUserSelect(
     ],
   }
 
-  const buttonRow = createDangerBtn({
-    label: 'Cancel',
-    customId: 'roles:btn:back',
-  })
-
   await interaction.update({
     embeds: [embed],
-    components: [roleSelectRow, buttonRow],
+    components: [
+      roleSelectRow,
+      MinaRows.single(MinaButtons.nah('roles:btn:back')),
+    ],
   })
 }
 
@@ -162,11 +150,9 @@ export async function handleRoleSelect(
 
   if (roles.length === 0) {
     await interaction.editReply({
-      content: '❌ Failed to fetch selected roles.',
+      content: 'failed to fetch selected roles.',
       embeds: [],
-      components: [
-        createSecondaryBtn({ label: 'Back', customId: 'roles:btn:back' }),
-      ],
+      components: [MinaRows.backRow('roles:btn:back')],
     })
     return
   }
@@ -206,47 +192,46 @@ export async function handleRoleSelect(
   }
 
   // Show preview
-  const embed = new EmbedBuilder()
-    .setTitle('📊 Assignment Preview')
-    .setDescription(`Review the role assignment before confirming`)
+  const embed = MinaEmbed.warning()
+    .setTitle('assignment preview')
+    .setDescription(`review the role assignment before confirming`)
     .addFields(
       {
-        name: '📈 Statistics',
+        name: 'statistics',
         value:
-          `**Users**: ${stats.totalUsers}\n` +
-          `**Roles**: ${stats.totalRoles}\n` +
-          `**New Assignments**: ${stats.totalOperations}\n` +
-          `**Already Has**: ${stats.skipped}`,
+          `**users**: ${stats.totalUsers}\n` +
+          `**roles**: ${stats.totalRoles}\n` +
+          `**new assignments**: ${stats.totalOperations}\n` +
+          `**already has**: ${stats.skipped}`,
         inline: false,
       },
       {
-        name: '🎭 Roles to Assign',
+        name: 'roles to assign',
         value: roles.map(r => `${r}`).join(', '),
         inline: false,
       }
     )
-    .setColor(EMBED_COLORS.WARNING)
-    .setFooter({ text: 'Confirm to proceed with assignment' })
+    .setFooter({ text: 'confirm to proceed with assignment' })
 
   // Add user breakdown (max 5 users shown)
   const previewUsers = userStatus.slice(0, 5)
   for (const { userId, willReceive, alreadyHas } of previewUsers) {
     const statusText: string[] = []
     if (willReceive.length > 0)
-      statusText.push(`✅ Will receive: ${willReceive.join(', ')}`)
+      statusText.push(`will receive: ${willReceive.join(', ')}`)
     if (alreadyHas.length > 0)
-      statusText.push(`⏭️ Already has: ${alreadyHas.join(', ')}`)
+      statusText.push(`already has: ${alreadyHas.join(', ')}`)
 
     embed.addFields({
-      name: `👤 <@${userId}>`,
-      value: statusText.join('\n') || '⏭️ Already has all roles',
+      name: `<@${userId}>`,
+      value: statusText.join('\n') || 'already has all roles',
       inline: false,
     })
   }
 
   if (userStatus.length > 5) {
     embed.addFields({
-      name: '📋 More Users',
+      name: 'more users',
       value: `... and ${userStatus.length - 5} more users`,
       inline: false,
     })
@@ -255,14 +240,13 @@ export async function handleRoleSelect(
   if (stats.totalOperations === 0) {
     await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle('ℹ️ No Changes Needed')
-          .setDescription('All selected users already have all selected roles.')
-          .setColor(EMBED_COLORS.BOT_EMBED),
+        MinaEmbed.primary()
+          .setTitle('no changes needed')
+          .setDescription(
+            'all selected users already have all selected roles.'
+          ),
       ],
-      components: [
-        createSecondaryBtn({ label: 'Back', customId: 'roles:btn:back' }),
-      ],
+      components: [MinaRows.backRow('roles:btn:back')],
     })
     return
   }
@@ -273,18 +257,16 @@ export async function handleRoleSelect(
     JSON.stringify(assignmentData)
   ).toString('base64')
 
-  const confirmBtn = createSuccessBtn({
-    label: `Confirm (${stats.totalOperations} assignments)`,
-    customId: `roles:btn:assign_confirm|${assignmentDataB64}`,
-  })
-  const cancelBtn = createDangerBtn({
-    label: 'Cancel',
-    customId: 'roles:btn:back',
-  })
+  const confirmBtn = MinaButtons.custom(
+    `roles:btn:assign_confirm|${assignmentDataB64}`,
+    `confirm (${stats.totalOperations} assignments)`,
+    ButtonStyle.Success
+  )
+  const cancelBtn = MinaButtons.nah('roles:btn:back')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [confirmBtn, cancelBtn],
+    components: [MinaRows.from(confirmBtn, cancelBtn)],
   })
 }
 
@@ -304,7 +286,7 @@ export async function handleAssignConfirm(
   const guild = interaction.guild!
   const roles = roleIds
     .map((id: string) => guild.roles.cache.get(id))
-    .filter((role): role is NonNullable<typeof role> => role !== undefined)
+    .filter((role: any): role is NonNullable<typeof role> => role !== undefined)
 
   let successCount = 0
   let failCount = 0
@@ -331,26 +313,23 @@ export async function handleAssignConfirm(
   }
 
   // Show results
-  const embed = new EmbedBuilder()
-    .setTitle(
-      successCount > 0 ? '✅ Assignment Complete' : '❌ Assignment Failed'
-    )
-    .setDescription(`Processed ${userIds.length} users`)
+  const embed = (successCount > 0 ? MinaEmbed.success() : MinaEmbed.error())
+    .setTitle(successCount > 0 ? 'assignment complete' : 'assignment failed')
+    .setDescription(`processed ${userIds.length} users`)
     .addFields(
       {
-        name: '📊 Results',
-        value: `✅ Successful: ${successCount}\n❌ Failed: ${failCount}`,
+        name: 'results',
+        value: `successful: ${successCount}\nfailed: ${failCount}`,
       },
       {
-        name: '🎭 Roles Assigned',
-        value: roles.map(r => `${r}`).join(', '),
+        name: 'roles assigned',
+        value: roles.map((r: any) => `${r}`).join(', '),
       }
     )
-    .setColor(successCount > 0 ? EMBED_COLORS.SUCCESS : EMBED_COLORS.ERROR)
 
   if (errors.length > 0) {
     embed.addFields({
-      name: '❌ Errors',
+      name: 'errors',
       value:
         errors.slice(0, 5).join('\n') +
         (errors.length > 5 ? `\n... and ${errors.length - 5} more` : ''),

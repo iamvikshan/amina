@@ -1,31 +1,15 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   User,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
+import responses from '@data/responses'
 const NORMAL =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_,;.?!/\\'0123456789"
 const FLIPPED =
   "∀qϽᗡƎℲƃHIſʞ˥WNOԀὉᴚS⊥∩ΛMXʎZɐqɔpǝɟbɥıظʞןɯuodbɹsʇnʌʍxʎz‾'؛˙¿¡/\\,0ƖᄅƐㄣϛ9ㄥ86"
-
-const coinTossIntros = [
-  '*bouncing excitedly* \nTime for a game of chance! 🎲',
-  "*channels Player 001 energy* \nLet's play a little game~ 🦑",
-  '*spins around* \nReady for some coin-flipping fun? ✨',
-  '*giggles* \nYour fate is in my hands! Well, in this coin actually! 🎮',
-  "*eyes sparkling* \nWill luck be on your side? Let's find out! 🍀",
-]
-
-const waitingMessages = [
-  '*watching intensely like in Squid Game* \nThe suspense! 😱',
-  '*holds breath dramatically* \nUp it goes! ✨',
-  '*bouncing nervously* \nOh oh oh, where will it land?! 🎯',
-  "*channel's Player 001's patience* \nJust a moment... 🦑",
-  '*can barely contain excitement* \nAlmost there! 💫',
-]
 
 const command: CommandData = {
   name: 'flip',
@@ -42,12 +26,12 @@ const command: CommandData = {
       },
       {
         name: 'text',
-        description: "Let's turn your words upside down! ✨",
+        description: "Let's turn your words upside down!",
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'input',
-            description: 'What message should I flip for you? Make it fun! 🎨',
+            description: 'What message should I flip for you?',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -73,52 +57,48 @@ const command: CommandData = {
     } else if (sub === 'text') {
       const input = interaction.options.getString('input')
       if (!input) {
-        return interaction.followUp('Please provide text to flip!')
+        return interaction.followUp(mina.say('fun.flip.text.noInput'))
       }
       const response = await flipText(input)
       await interaction.followUp({
-        content: `*giggles* Here's your text, but make it ✨chaos✨:\n${response}`,
+        content: mina.sayf('fun.flip.text.success', { text: response }),
       })
     }
     return
   },
 }
 
-const firstEmbed = (user: User): EmbedBuilder => {
+const firstEmbed = (user: User): MinaEmbed => {
+  const coinTossIntros = responses.fun.flip.intros
   const randomIntro =
     coinTossIntros[Math.floor(Math.random() * coinTossIntros.length)]
-  return new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  return MinaEmbed.primary()
     .setTitle(randomIntro)
     .setDescription(
-      `${user.username} started a coin toss! Let's see what fate has in store! 🎲`
+      mina.sayf('fun.flip.embed.description', { user: user.username })
     )
     .setImage(
       'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW4ydjNmdWprcmJmbXEyZnhrN3piZHRscGNtaXVhaGlpMTFyeGwxMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZR8teuiCs3AkSkzjnG/giphy.gif'
     )
 }
 
-const secondEmbed = (): EmbedBuilder => {
+const secondEmbed = (): MinaEmbed => {
+  const waitingMessages = responses.fun.flip.waiting
   const randomWait =
     waitingMessages[Math.floor(Math.random() * waitingMessages.length)]
-  return new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  return MinaEmbed.loading()
     .setDescription(randomWait)
     .setImage(
       'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW4ydjNmdWprcmJmbXEyZnhrN3piZHRscGNtaXVhaGlpMTFyeGwxMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZR8teuiCs3AkSkzjnG/giphy.gif'
     )
 }
 
-const resultEmbed = (toss: string): EmbedBuilder => {
-  const winMessages: Record<string, string> = {
-    HEAD: '*jumps with joy* The coin shows its face! ✨',
-    TAIL: '*spins excitedly* The coin shows its tail! ✨',
-  }
+const resultEmbed = (toss: string): MinaEmbed => {
+  const winMessages = responses.fun.flip.win as Record<string, string>
 
-  return new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle(winMessages[toss] || 'Coin flip result!')
-    .setDescription(`>> **${toss} Wins** <<`)
+  return MinaEmbed.success()
+    .setTitle(winMessages[toss] || mina.say('fun.flip.embed.resultTitle'))
+    .setDescription(mina.sayf('fun.flip.embed.resultDescription', { toss }))
     .setImage(
       toss === 'HEAD'
         ? 'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTh5ZXg3d3h1dWVnY2RsdXRjamp1ZnYwZHdmejQxcXFvZ213NXBvMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9uorwgUW3jFsY/giphy.gif'

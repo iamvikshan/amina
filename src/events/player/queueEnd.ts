@@ -1,6 +1,6 @@
-import { MUSIC, EMBED_COLORS } from '@src/config'
-import { EmbedBuilder } from 'discord.js'
+import { MUSIC } from '@src/config'
 import type { BotClient } from '@src/structures'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import type { Player } from 'lavalink-client'
 
 /**
@@ -36,11 +36,10 @@ export default async (client: BotClient, player: Player): Promise<void> => {
     await channel.safeSend(
       {
         embeds: [
-          new EmbedBuilder()
-            .setColor(EMBED_COLORS.BOT_EMBED)
-            .setTitle('Queue Concluded')
+          MinaEmbed.primary()
+            .setTitle('queue concluded')
             .setDescription(
-              `Enjoying music with me? Consider [voting](https://top.gg/bot/${client.user?.id}/vote) for me!`
+              `enjoying music with me? consider [voting](https://top.gg/bot/${client.user?.id}/vote) for me!`
             ),
         ],
       },

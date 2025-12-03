@@ -1,8 +1,7 @@
-import { EmbedBuilder, Message } from 'discord.js'
-import type { PartialMessage } from 'discord.js'
+import type { Message, PartialMessage } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
-import { EMBED_COLORS } from '@src/config'
 import type { BotClient } from '@src/structures'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handles message update events
@@ -38,30 +37,29 @@ export default async (
   // Check if message edit logging is enabled
   if (!settings.logs.member.message_edit) return
 
-  const embed = new EmbedBuilder()
-    .setTitle('Message Edited')
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription(`A message was edited in ${oldMessage.channel.toString()}`)
+  const embed = MinaEmbed.primary()
+    .setTitle('message edited')
+    .setDescription(`a message was edited in ${oldMessage.channel.toString()}`)
     .addFields(
       {
-        name: 'Author',
+        name: 'author',
         value: `${oldMessage.author.tag} (${oldMessage.author.id})`,
         inline: true,
       },
-      { name: 'Channel', value: oldMessage.channel.toString(), inline: true },
+      { name: 'channel', value: oldMessage.channel.toString(), inline: true },
       {
-        name: 'Old Content',
+        name: 'old content',
         value:
           oldMessage.content && oldMessage.content.length > 1024
             ? oldMessage.content.slice(0, 1021) + '...'
-            : oldMessage.content || 'None',
+            : oldMessage.content || 'none',
       },
       {
-        name: 'New Content',
+        name: 'new content',
         value:
           newMessage.content && newMessage.content.length > 1024
             ? newMessage.content.slice(0, 1021) + '...'
-            : newMessage.content || 'None',
+            : newMessage.content || 'none',
       }
     )
     .setTimestamp()

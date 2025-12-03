@@ -1,7 +1,6 @@
 import type { BotClient } from '@src/structures'
 import { getSettings } from '@schemas/Guild'
-import { EmbedBuilder } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Check for pending guild setup reminders
@@ -51,16 +50,15 @@ export async function checkGuildReminders(client: BotClient): Promise<void> {
         try {
           const owner = await guild.members.fetch(guild.ownerId)
           if (owner) {
-            const reminderEmbed = new EmbedBuilder()
-              .setColor(EMBED_COLORS.BOT_EMBED)
-              .setTitle('✨ Friendly Reminder from Amina! ✨')
+            const reminderEmbed = MinaEmbed.primary()
+              .setTitle('friendly reminder from mina')
               .setDescription(
-                `Heyyy! *pokes gently* Just your friendly neighborhood Amina here! 🌟\n\n` +
-                  `I noticed we haven't finished setting things up yet! Pretty please run \`/settings\` when you can - I have so many cool features I want to show you! 🎨\n\n` +
-                  `Can't wait to show you what I can really do! 💖`
+                `heyyy! just your friendly neighborhood mina here!\n\n` +
+                  `i noticed we haven't finished setting things up yet! pretty please run \`/settings\` when you can - i have so many cool features i want to show you!\n\n` +
+                  `can't wait to show you what i can really do!`
               )
               .setFooter({
-                text: "Let's make your server amazing together! (◠‿◠✿)",
+                text: "let's make your server amazing together!",
               })
 
             await owner.send({ embeds: [reminderEmbed] })

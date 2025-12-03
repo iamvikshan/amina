@@ -111,7 +111,7 @@ export const logModeration = async (
       .setThumbnail(
         target instanceof GuildMember || target instanceof User
           ? target.displayAvatarURL()
-          : undefined
+          : null
       )
 
     if (target instanceof GuildMember) {

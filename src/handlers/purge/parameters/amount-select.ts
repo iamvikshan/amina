@@ -2,13 +2,13 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ModalSubmitInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn, createPrimaryBtn } from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 // PurgeType is now globally available - see types/handlers.d.ts
 
@@ -24,20 +24,19 @@ export async function showAmountSelect(
   additionalData?: { token?: string; userId?: string },
   isDefault?: boolean
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('📊 Select Amount')
+  const embed = MinaEmbed.primary()
+    .setTitle('select amount')
     .setDescription(
-      'Choose how many messages to delete:\n\n' +
-        '**Presets:**\n' +
-        '• 10 messages\n' +
-        '• 25 messages\n' +
-        '• 50 messages\n' +
-        '• 100 messages (Discord max per operation)\n' +
-        '• Custom (1-100)\n\n' +
-        '⚠️ **Note:** Maximum 500 messages per command execution.'
+      'choose how many messages to delete:\n\n' +
+        '**presets:**\n' +
+        '- 10 messages\n' +
+        '- 25 messages\n' +
+        '- 50 messages\n' +
+        '- 100 messages (discord max per operation)\n' +
+        '- custom (1-100)\n\n' +
+        'note: maximum 500 messages per command execution.'
     )
-    .setFooter({ text: 'Select an amount or choose custom' })
+    .setFooter({ text: 'select an amount or choose custom' })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -48,34 +47,29 @@ export async function showAmountSelect(
             : ''
         }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}${isDefault ? '|default:true' : ''}`
       )
-      .setPlaceholder('🔢 Select amount...')
+      .setPlaceholder('select amount...')
       .addOptions([
         new StringSelectMenuOptionBuilder()
           .setLabel('10 Messages')
           .setDescription('Delete 10 messages')
-          .setValue('10')
-          .setEmoji('🔟'),
+          .setValue('10'),
         new StringSelectMenuOptionBuilder()
           .setLabel('25 Messages')
           .setDescription('Delete 25 messages')
-          .setValue('25')
-          .setEmoji('2️⃣'),
+          .setValue('25'),
         new StringSelectMenuOptionBuilder()
           .setLabel('50 Messages')
           .setDescription('Delete 50 messages')
-          .setValue('50')
-          .setEmoji('5️⃣'),
+          .setValue('50'),
         new StringSelectMenuOptionBuilder()
           .setLabel('100 Messages')
           .setDescription('Delete 100 messages (Discord max)')
           .setValue('100')
-          .setEmoji('💯')
           .setDefault(isDefault === true), // Preselect 100 for default flow
         new StringSelectMenuOptionBuilder()
           .setLabel('Custom Amount')
           .setDescription('Enter a custom amount (1-100)')
-          .setValue('custom')
-          .setEmoji('✏️'),
+          .setValue('custom'),
       ])
   )
 
@@ -83,24 +77,22 @@ export async function showAmountSelect(
 
   // Add Proceed button for default flow (100 preselected)
   if (isDefault) {
-    const proceedButton = createPrimaryBtn({
-      customId: `purge:btn:proceed_amount|type:${purgeType}|amount:100${
-        additionalData?.token
-          ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
-          : ''
-      }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
-      label: 'Proceed',
-      emoji: '➡️',
-    })
-    components.push(proceedButton)
+    const proceedRow = MinaRows.single(
+      MinaButtons.custom(
+        `purge:btn:proceed_amount|type:${purgeType}|amount:100${
+          additionalData?.token
+            ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
+            : ''
+        }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
+        'proceed',
+        ButtonStyle.Primary
+      )
+    )
+    components.push(proceedRow)
   }
 
-  const backButton = createSecondaryBtn({
-    customId: 'purge:btn:back',
-    label: 'Back to Type Selection',
-    emoji: '◀️',
-  })
-  components.push(backButton)
+  const backRow = MinaRows.backRow('purge:btn:back')
+  components.push(backRow)
 
   await interaction.editReply({
     embeds: [embed],
@@ -142,7 +134,7 @@ export async function handleAmountSelect(
   // Validate amount
   if (amount < 1 || amount > 100) {
     await interaction.followUp({
-      content: '❌ Invalid amount. Please select between 1-100 messages.',
+      content: 'invalid amount, please select between 1-100 messages.',
       ephemeral: true,
     })
     return

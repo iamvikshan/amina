@@ -1,16 +1,18 @@
 import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChannelType,
   BaseGuildTextChannel,
   Guild,
   User,
   Collection,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } from 'discord.js'
 import type { Channel } from 'discord.js'
 import { TICKET } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 // schemas
 import { getSettings } from '@schemas/Guild'
@@ -111,30 +113,26 @@ export async function closeTicket(
     // DM user with transcript if available
     if (ticketDetails?.user && logsUrl) {
       try {
-        const dmEmbed = new EmbedBuilder()
-          .setColor(TICKET.CLOSE_EMBED as any)
-          .setAuthor({ name: 'Ticket Closed' })
+        const dmEmbed = MinaEmbed.primary()
+          .setAuthor({ name: mina.say('ticket.closeEmbed.title') })
           .setDescription(
-            `Your ticket **${channel.name}** has been closed.\n\n` +
-              `**Server:** ${channel.guild.name}\n` +
-              `**Topic:** ${ticketDetails.catName}\n\n` +
-              `Click the button below to view the transcript.`
+            mina.sayf('ticket.closeEmbed.description', {
+              channel: channel.name,
+              server: channel.guild.name,
+              topic: ticketDetails.catName,
+            })
           )
           .setThumbnail(channel.guild.iconURL())
 
-        const transcriptButton =
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setLabel('View Transcript')
-              .setURL(logsUrl.short)
-              .setStyle(ButtonStyle.Link)
-          )
+        const transcriptButton = MinaRows.from(
+          MinaButtons.link(logsUrl.short, mina.say('ticket.closeEmbed.button'))
+        )
 
         await ticketDetails.user.send({
           embeds: [dmEmbed],
           components: [transcriptButton],
         })
-      } catch (dmError) {
+      } catch (_dmError) {
         // User has DMs disabled - that's okay, continue
       }
     }
@@ -144,7 +142,7 @@ export async function closeTicket(
     if (channel.parent) {
       try {
         await channel.lockPermissions()
-      } catch (permError) {
+      } catch (_permError) {
         // If lock fails, manually remove user permissions
         const overwrites = channel.permissionOverwrites.cache
         for (const overwrite of overwrites.values()) {
@@ -174,57 +172,52 @@ export async function closeTicket(
     }
 
     // Create close embed with delete button
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: 'Ticket Closed' })
-      .setColor(TICKET.CLOSE_EMBED as any)
-
     let description =
-      'This ticket has been closed. All non-admin users have been removed.\n\n'
+      'this ticket has been closed. all non-admin users have been removed.\n\n'
     if (logsUrl) {
       description +=
-        'A transcript has been generated and sent to the ticket creator.\n\n'
+        'a transcript has been generated and sent to the ticket creator.\n\n'
     }
-    description += 'Click the button below to permanently delete this channel.'
-    embed.setDescription(description)
+    description += 'click the button below to permanently delete this channel.'
+
+    const embed = MinaEmbed.primary()
+      .setAuthor({ name: mina.say('ticket.closeEmbed.title') })
+      .setDescription(description)
+
     const fields: Array<{ name: string; value: string; inline: boolean }> = []
 
-    if (reason) fields.push({ name: 'Reason', value: reason, inline: false })
+    if (reason) fields.push({ name: 'reason', value: reason, inline: false })
     fields.push(
       {
-        name: 'Opened By',
-        value: ticketDetails?.user ? ticketDetails.user.username : 'Unknown',
+        name: 'opened by',
+        value: ticketDetails?.user ? ticketDetails.user.username : 'unknown',
         inline: true,
       },
       {
-        name: 'Closed By',
-        value: closedBy ? closedBy.username : 'Unknown',
+        name: 'closed by',
+        value: closedBy ? closedBy.username : 'unknown',
         inline: true,
       }
     )
 
     embed.setFields(fields)
 
-    const components: ActionRowBuilder<ButtonBuilder>[] = []
+    const components: any[] = []
 
     // Add delete button
     components.push(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`ticket:btn:delete|ch:${channel.id}`)
-          .setLabel('Delete Channel')
-          .setStyle(ButtonStyle.Danger)
-          .setEmoji('🗑️')
+      MinaRows.from(
+        MinaButtons.delete(`ticket:btn:delete|ch:${channel.id}`).setLabel(
+          'delete channel'
+        )
       )
     )
 
     // Add transcript link if available
     if (logsUrl) {
       components.push(
-        new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setLabel('View Transcript')
-            .setURL(logsUrl.short)
-            .setStyle(ButtonStyle.Link)
+        MinaRows.from(
+          MinaButtons.link(logsUrl.short, mina.say('ticket.closeEmbed.button'))
         )
       )
     }
@@ -232,7 +225,7 @@ export async function closeTicket(
     // Send final embed to channel
     try {
       await channel.send({ embeds: [embed], components })
-    } catch (sendError) {
+    } catch (_sendError) {
       // Channel might be deleted or inaccessible - that's okay
     }
 
@@ -241,20 +234,15 @@ export async function closeTicket(
       const logChannel = channel.guild.channels.cache.get(
         (config as any).ticket.log_channel
       )
-      const logEmbed = new EmbedBuilder()
-        .setAuthor({ name: 'Ticket Closed' })
+      const logEmbed = MinaEmbed.plain()
         .setColor(TICKET.CLOSE_EMBED as any)
+        .setAuthor({ name: 'Ticket Closed' })
         .setFields(fields)
 
-      const logComponents: ActionRowBuilder<ButtonBuilder>[] = []
+      const logComponents: any[] = []
       if (logsUrl) {
         logComponents.push(
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setLabel('Transcript')
-              .setURL(logsUrl.short)
-              .setStyle(ButtonStyle.Link)
-          )
+          MinaRows.from(MinaButtons.link(logsUrl.short, 'transcript'))
         )
       }
       ;(logChannel as any)?.safeSend({
@@ -265,13 +253,19 @@ export async function closeTicket(
 
     // Send embed to user (no logging needed as per user request)
     if (ticketDetails?.user) {
-      const dmEmbed = new EmbedBuilder()
-        .setColor(TICKET.CLOSE_EMBED as any)
-        .setAuthor({ name: 'Ticket Closed' })
+      const dmEmbed = MinaEmbed.primary()
+        .setAuthor({ name: mina.say('ticket.closeEmbed.title') })
         .setDescription(
-          `**Server:** ${channel.guild.name}\n` +
-            `**Topic:** ${ticketDetails.catName}\n\n` +
-            `Your ticket has been closed.`
+          mina
+            .sayf('ticket.closeEmbed.description', {
+              channel: channel.name,
+              server: channel.guild.name,
+              topic: ticketDetails.catName,
+            })
+            .replace(
+              'click the button below to view the transcript.',
+              'your ticket has been closed.'
+            )
         )
         .setThumbnail(channel.guild.iconURL())
         .setFields(fields.filter(f => f.name !== 'Reason')) // Don't show reason to user

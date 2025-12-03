@@ -1,14 +1,9 @@
-import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChatInputCommandInteraction,
-} from 'discord.js'
-import config from '@src/config'
+import { ChatInputCommandInteraction, ButtonStyle } from 'discord.js'
 import HttpUtils from '@helpers/HttpUtils'
-import Utils from '@helpers/Utils'
-import type { CommandData } from '@structures/Command'
+// CommandData is globally available - see types/commands.d.ts
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 interface MemeApiResponse {
   title: string
@@ -20,7 +15,7 @@ interface MemeApiResponse {
 
 const command: CommandData = {
   name: 'meme',
-  description: '✨ Time for some giggles! Let me find you a funny meme! 🎭',
+  description: 'get a random meme',
   category: 'FUN',
   cooldown: 1,
   slashCommand: {
@@ -30,12 +25,12 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId('regenMemeBtn')
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji('🎲')
-        .setLabel('Another one!')
+    const buttonRow = MinaRows.from(
+      MinaButtons.custom(
+        'regenMemeBtn',
+        mina.say('fun.meme.button.regenerate'),
+        ButtonStyle.Secondary
+      )
     )
 
     const embed = await getRandomEmbed('dank')
@@ -61,7 +56,7 @@ const command: CommandData = {
   },
 }
 
-async function getRandomEmbed(category: string): Promise<EmbedBuilder> {
+async function getRandomEmbed(category: string) {
   try {
     // Call the Meme API, category is always 'dank'
     const response = await HttpUtils.getJson(
@@ -70,40 +65,26 @@ async function getRandomEmbed(category: string): Promise<EmbedBuilder> {
     )
 
     if (!response.success) {
-      return new EmbedBuilder()
-        .setColor(config.EMBED_COLORS.ERROR)
-        .setDescription(
-          "*pouts* Aww, the memes are being shy! Let's try again! 🎨"
-        )
+      return MinaEmbed.error(mina.say('fun.meme.error.fetchFailed'))
     }
 
     const meme = response.data as MemeApiResponse
 
-    // Amina's random meme reactions
-    const reactions = [
-      "(*≧▽≦) This one's gold!",
-      '✨ Look what I found! ✨',
-      'This made me giggle~ 🎭',
-      'Quality meme incoming! 🌟',
-    ]
-
-    return new EmbedBuilder()
+    return MinaEmbed.primary()
       .setAuthor({
-        name: reactions[Utils.getRandomInt(reactions.length)],
+        name: mina.say('fun.meme.reactions'),
         url: meme.postLink,
       })
       .setTitle(meme.title)
       .setImage(meme.url)
-      .setColor('Random')
       .setFooter({
-        text: `💖 ${meme.ups.toLocaleString()} upvotes | From r/${meme.subreddit}`,
+        text: mina.sayf('fun.meme.footer.upvotes', {
+          upvotes: meme.ups.toLocaleString(),
+          subreddit: meme.subreddit,
+        }),
       })
   } catch (_error) {
-    return new EmbedBuilder()
-      .setColor(config.EMBED_COLORS.ERROR)
-      .setDescription(
-        "*dramatic gasp* The memes escaped! Don't worry, we can catch them next time! 🎨✨"
-      )
+    return MinaEmbed.error(mina.say('fun.meme.error.apiError'))
   }
 }
 

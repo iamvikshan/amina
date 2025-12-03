@@ -35,7 +35,7 @@ export async function cleanupExpiredGuilds(client: BotClient): Promise<{
     }).lean()
 
     if (expiredGuilds.length === 0) {
-      client.logger.log('No expired guilds to clean up')
+      //  client.logger.log('No expired guilds to clean up')
       return {
         success: true,
         expiredGuildsFound: 0,
@@ -46,9 +46,9 @@ export async function cleanupExpiredGuilds(client: BotClient): Promise<{
       }
     }
 
-    client.logger.log(
+    /*  client.logger.log(
       `Found ${expiredGuilds.length} expired guild(s) to clean up`
-    )
+    ) */
 
     let totalDeleted = 0
     let totalErrors = 0
@@ -59,8 +59,8 @@ export async function cleanupExpiredGuilds(client: BotClient): Promise<{
       const guildId = guild._id
 
       // Double-check: Don't delete if bot is still in the guild
-      if (client.guilds.cache.has(guildId)) {
-        guildsSkipped
+      if (!guildId || client.guilds.cache.has(guildId)) {
+        guildsSkipped++
         continue
       }
 

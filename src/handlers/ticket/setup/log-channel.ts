@@ -1,15 +1,14 @@
 import {
   StringSelectMenuInteraction,
   ChannelSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ChannelSelectMenuBuilder,
   ChannelType,
   TextChannel,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
@@ -20,32 +19,27 @@ export async function showLogChannelSelect(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '📝 Setup Log Channel' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: 'setup log channel' })
     .setDescription(
-      'Please select the channel where ticket logs should be sent.\n\n' +
-        'This channel will receive logs when tickets are closed, including transcripts.'
+      'please select the channel where ticket logs should be sent.\n\n' +
+        'this channel will receive logs when tickets are closed, including transcripts.'
     )
-    .setFooter({ text: 'Select a text channel below' })
+    .setFooter({ text: 'select a text channel below' })
 
   const channelSelect =
     new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
       new ChannelSelectMenuBuilder()
         .setCustomId('ticket:channel:log')
-        .setPlaceholder('📝 Select a log channel...')
+        .setPlaceholder('select a log channel...')
         .setChannelTypes(ChannelType.GuildText)
     )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_setup',
-    label: 'Back to Setup',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_setup')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [channelSelect, backButton],
+    components: [channelSelect, backRow],
   })
 }
 
@@ -59,7 +53,7 @@ export async function handleLogChannelSelect(
 
   if (!channel) {
     await interaction.reply({
-      content: '❌ Invalid channel selected',
+      content: 'invalid channel selected',
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -73,11 +67,9 @@ export async function handleLogChannelSelect(
   ) {
     await interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `Oops! I don't have permission to send messages and embeds in ${channel}. Could you please give me those permissions? Pretty please? 🙏`
-          ),
+        MinaEmbed.error(
+          `i don't have permission to send messages and embeds in ${channel}. please give me those permissions.`
+        ),
       ],
       flags: MessageFlags.Ephemeral,
     })
@@ -91,21 +83,15 @@ export async function handleLogChannelSelect(
   settings.ticket.log_channel = channel.id
   await updateSettings(interaction.guild!.id, settings)
 
-  const successEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(
-      `Configuration saved! Ticket logs will be sent to ${channel.toString()} 🎉\n\n` +
-        'All ticket closures will now be logged in this channel.'
-    )
+  const successEmbed = MinaEmbed.success(
+    `configuration saved. ticket logs will be sent to ${channel.toString()}.\n\n` +
+      'all ticket closures will now be logged in this channel.'
+  )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_setup',
-    label: 'Back to Setup',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_setup')
 
   await interaction.editReply({
     embeds: [successEmbed],
-    components: [backButton],
+    components: [backRow],
   })
 }

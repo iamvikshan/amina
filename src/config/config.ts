@@ -42,7 +42,7 @@ const config: Config = {
   },
   MESSAGES: {
     API_ERROR:
-      'Oopsie! 🌟 Something went wrong on our end. Please try again later. If this keeps happening, reach out to our support server or run `/report`! 💖',
+      'something broke on my end. try again later or use `/report` if it keeps happening.',
   },
 
   // whether or not to enable feedback/report system
@@ -53,8 +53,8 @@ const config: Config = {
 
   AUTOMOD: {
     ENABLED: true,
-    LOG_EMBED: '#F1F1F1', // Light gray for a neutral tone
-    DM_EMBED: '#FFB3D9', // Soft pastel pink for DM embeds
+    LOG_EMBED: '#2B2D31', // Discord dark - blends with discord theme
+    DM_EMBED: '#1E90FF', // Electric blue - mina's signature
   },
 
   ECONOMY: {
@@ -87,47 +87,46 @@ const config: Config = {
   GIVEAWAYS: {
     ENABLED: true,
     REACTION: '🎁',
-    START_EMBED: '#FFB3D9', // Soft pastel pink for giveaway embeds
-    END_EMBED: '#FFB3D9',
+    START_EMBED: '#FFD700', // Imperial gold - prize worthy
+    END_EMBED: '#DC143C', // Crimson - akame ga kill theme
   },
 
   IMAGE: {
     ENABLED: true,
-    BASE_API: 'https://strangeapi.hostz.me/api',
+    BASE_API: 'https://imageapi.strangebot.fun/api',
   },
 
   INVITE: {
     ENABLED: true,
   },
   EMBED_COLORS: {
-    BOT_EMBED: '#FF1493', // (Deep pink - represents her core energy and vibrant spirit)
-    SUCCESS: '#00FFB3', // (Bright aqua - her creative, unique way of seeing success)
-    ERROR: '#FF6978', // (Coral pink - softer than traditional red, showing her sensitivity even in errors)
-    WARNING: '#FFD93D', // (Bright yellow - her playful way of warning others)
+    BOT_EMBED: '#1E90FF', // Electric blue - mina's signature color
+    SUCCESS: '#57F287', // Discord green - universal success
+    ERROR: '#DC143C', // Crimson - akame ga kill red
+    WARNING: '#FEE75C', // Discord yellow - clear warning
   },
   MODERATION: {
     ENABLED: true,
     EMBED_COLORS: {
-      TIMEOUT: '#9B6DFF', // (Soft purple - gentle but firm)
-      UNTIMEOUT: '#4DEEEA', // (Bright turquoise - freedom and relief)
-      KICK: '#FF9A8C', // (Salmon pink - serious but not harsh)
-      SOFTBAN: '#FF75C3', // (Medium pink - firm but temporary)
-      BAN: '#FF3864', // (Strong pink-red - serious but still on-brand)
-      UNBAN: '#00F5D4', // (Mint green - fresh starts)
-      VMUTE: '#D4B3FF', // (Lavender - gentle silence)
-      VUNMUTE: '#98FB98', // (Pale green - gentle freedom)
-      DEAFEN: '#C8A2C8', // (Lilac - peaceful quiet)
-      UNDEAFEN: '#7FFFD4', // (Aquamarine - return to sound)
-      DISCONNECT: 'Random', // (Keeps her chaotic energy)
-      MOVE: 'Random', // (Keeps her spontaneity)
+      TIMEOUT: '#1E90FF', // Electric blue - firm but mina-branded
+      UNTIMEOUT: '#57F287', // Discord green - freedom granted
+      KICK: '#FEE75C', // Discord yellow - warning action
+      SOFTBAN: '#FEE75C', // Discord yellow - temporary measure
+      BAN: '#8B0000', // Blood red - serious action
+      UNBAN: '#57F287', // Discord green - welcome back
+      VMUTE: '#36393F', // Discord gray - silenced
+      VUNMUTE: '#57F287', // Discord green - unmuted
+      DEAFEN: '#36393F', // Discord gray - deafened
+      UNDEAFEN: '#57F287', // Discord green - hearing restored
+      DISCONNECT: '#DC143C', // Crimson - removal
+      MOVE: '#1E90FF', // Electric blue - neutral action
     },
   },
 
   STATS: {
     ENABLED: true,
     XP_COOLDOWN: 5,
-    DEFAULT_LVL_UP_MSG:
-      '{member:tag}, Yay! 🎉 You just leveled up to **Level {level}**! 🌟',
+    DEFAULT_LVL_UP_MSG: '{member:tag}, you hit **level {level}**. nice.',
   },
 
   SUGGESTIONS: {
@@ -136,15 +135,15 @@ const config: Config = {
       UP_VOTE: '⬆️',
       DOWN_VOTE: '⬇️',
     },
-    DEFAULT_EMBED: '#FFB8DE', // (Light pink - welcoming new ideas)
-    APPROVED_EMBED: '#47E0A0', // (Seafoam green - creative acceptance)
-    DENIED_EMBED: '#FF8BA7', // (Soft rose - gentle rejection)
+    DEFAULT_EMBED: '#1E90FF', // Electric blue - mina's color
+    APPROVED_EMBED: '#57F287', // Discord green - approved
+    DENIED_EMBED: '#DC143C', // Crimson - rejected
   },
 
   TICKET: {
     ENABLED: true,
-    CREATE_EMBED: '#E0AAFF' as ColorResolvable, // (Soft violet - welcoming support)
-    CLOSE_EMBED: '#48D1CC' as ColorResolvable, // (Turquoise - positive closure)
+    CREATE_EMBED: '#1E90FF' as ColorResolvable, // Electric blue - mina's signature
+    CLOSE_EMBED: '#36393F' as ColorResolvable, // Discord gray - closed/archived
   },
 }
 

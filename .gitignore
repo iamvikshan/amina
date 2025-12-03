@@ -42,3 +42,4 @@ aws/
 *.pem
 
 .cursor/
+docs/

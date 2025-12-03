@@ -12,6 +12,8 @@ import {
   StageChannel,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'voice',
@@ -153,12 +155,16 @@ const command: CommandData = {
 
     const user = interaction.options.getUser('user')
     if (!user) {
-      await interaction.followUp('Please specify a valid user.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('notFound.user'))],
+      })
       return
     }
 
     if (!interaction.guild) {
-      await interaction.followUp('This command can only be used in a server.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
       return
     }
 

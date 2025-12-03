@@ -1,8 +1,6 @@
-import { EmbedBuilder, ApplicationCommandType, type User } from 'discord.js'
-import config from '@src/config'
+import { ApplicationCommandType, type User } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 // ContextData is now globally available - see types/contexts.d.ts
-
-const { EMBED_COLORS } = config
 
 const avatarContext: ContextData = {
   name: 'avatar',
@@ -26,12 +24,11 @@ function getAvatar(user: User) {
   const x1024 = user.displayAvatarURL({ extension: 'png', size: 1024 })
   const x2048 = user.displayAvatarURL({ extension: 'png', size: 2048 })
 
-  const embed = new EmbedBuilder()
-    .setTitle(`Avatar of ${user.username}`)
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
+    .setTitle(`avatar of ${user.username}`)
     .setImage(x256)
     .setDescription(
-      `Links: • [x64](${x64}) ` +
+      `links: • [x64](${x64}) ` +
         `• [x128](${x128}) ` +
         `• [x256](${x256}) ` +
         `• [x512](${x512}) ` +

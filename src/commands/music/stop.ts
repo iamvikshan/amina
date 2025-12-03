@@ -1,9 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'stop',
-  description: 'Stop the music player',
+  description: 'stop the music player',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
@@ -11,7 +13,7 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const response = await stop(interaction)
+    const response = await stop(interaction as any)
     await interaction.followUp(response)
   },
 }
@@ -22,11 +24,11 @@ async function stop({
 }: {
   client: any
   guildId: string
-}): Promise<string> {
+}): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return "🚫 There's no music currently playing"
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   if (player.get('autoplay') === true) {
@@ -35,7 +37,7 @@ async function stop({
 
   player.stopPlaying(true, false)
 
-  return '🎶 The music player is stopped, and the queue has been cleared'
+  return { embeds: [MinaEmbed.success(mina.say('music.stop'))] }
 }
 
 export default command

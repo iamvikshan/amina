@@ -1,12 +1,12 @@
 import {
   ButtonInteraction,
-  EmbedBuilder,
   TextChannel,
   GuildMember,
+  EmbedBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { purgeMessages } from '@helpers/ModUtils/purge'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handle purge confirmation and execution
@@ -22,7 +22,7 @@ export async function handlePurgeConfirm(
 
   if (parts.length < 2) {
     await interaction.editReply({
-      content: '❌ Invalid purge state. Please try again.',
+      content: 'invalid purge state, please try again.',
       embeds: [],
       components: [],
     })
@@ -41,10 +41,10 @@ export async function handlePurgeConfirm(
   try {
     const decoded = Buffer.from(stateEncoded, 'base64').toString()
     stateData = JSON.parse(decoded) as typeof stateData
-  } catch (error) {
+  } catch (_error) {
     await interaction.editReply({
       content:
-        '❌ Invalid purge state. The operation may have expired. Please try again.',
+        'invalid purge state, the operation may have expired. try again.',
       embeds: [],
       components: [],
     })
@@ -60,7 +60,7 @@ export async function handlePurgeConfirm(
 
   if (!channel || !channel.isTextBased()) {
     await interaction.editReply({
-      content: '❌ Invalid channel. The channel may have been deleted.',
+      content: 'invalid channel, it may have been deleted.',
       embeds: [],
       components: [],
     })
@@ -75,20 +75,22 @@ export async function handlePurgeConfirm(
       ?.has(['ManageMessages', 'ReadMessageHistory'])
   ) {
     await interaction.editReply({
-      content: `❌ You don't have permission to manage messages in ${channel}.`,
+      content: `you don't have permission to manage messages in ${channel}.`,
       embeds: [],
       components: [],
     })
     return
   }
 
+  const botMember = interaction.guild?.members.me
   if (
+    !botMember ||
     !channel
-      .permissionsFor(interaction.guild!.members.me!)
+      .permissionsFor(botMember)
       ?.has(['ManageMessages', 'ReadMessageHistory'])
   ) {
     await interaction.editReply({
-      content: `❌ I don't have permission to manage messages in ${channel}.`,
+      content: `i don't have permission to manage messages in ${channel}.`,
       embeds: [],
       components: [],
     })
@@ -96,9 +98,9 @@ export async function handlePurgeConfirm(
   }
 
   // Show loading embed
-  const loadingEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription('⏳ Purging messages... This may take a moment.')
+  const loadingEmbed = MinaEmbed.primary().setDescription(
+    'purging messages... this may take a moment.'
+  )
 
   await interaction.editReply({
     embeds: [loadingEmbed],
@@ -135,45 +137,39 @@ export async function handlePurgeConfirm(
 
   if (typeof result === 'number') {
     // Success
-    resultEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setTitle('✅ Purge Complete')
+    resultEmbed = MinaEmbed.success()
+      .setTitle('purge complete')
       .setDescription(
-        `Successfully deleted **${result}** message${result !== 1 ? 's' : ''} in ${channel}.\n\n` +
-          `**Type:** ${getPurgeTypeLabel(type)}\n` +
-          `**Requested:** ${amount} messages\n` +
-          `**Deleted:** ${result} messages\n\n` +
+        `deleted **${result}** message${result !== 1 ? 's' : ''} in ${channel}.\n\n` +
+          `**type:** ${getPurgeTypeLabel(type)}\n` +
+          `**requested:** ${amount} messages\n` +
+          `**deleted:** ${result} messages\n\n` +
           (result < amount
-            ? '⚠️ Some messages may have been older than 14 days or not deletable.'
+            ? 'some messages may have been older than 14 days or not deletable.'
             : '')
       )
-      .setFooter({ text: 'Purge operation completed' })
+      .setFooter({ text: 'purge operation completed' })
   } else {
     // Error
     const errorMessages: Record<string, string> = {
-      MEMBER_PERM: `You don't have permission to manage messages in ${channel}.`,
-      BOT_PERM: `I don't have permission to manage messages in ${channel}.`,
-      INVALID_AMOUNT: 'Invalid amount specified.',
-      NO_MESSAGES: 'No messages found matching the criteria.',
-      ERROR: 'An error occurred while purging messages.',
+      MEMBER_PERM: `you don't have permission to manage messages in ${channel}.`,
+      BOT_PERM: `i don't have permission to manage messages in ${channel}.`,
+      INVALID_AMOUNT: 'invalid amount specified.',
+      NO_MESSAGES: 'no messages found matching the criteria.',
+      ERROR: 'an error occurred while purging messages.',
     }
 
-    resultEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setTitle('❌ Purge Failed')
-      .setDescription(errorMessages[result] || 'Unknown error occurred.')
-      .setFooter({ text: 'Please try again or contact support' })
+    resultEmbed = MinaEmbed.error()
+      .setTitle('purge failed')
+      .setDescription(errorMessages[result] || 'unknown error occurred.')
+      .setFooter({ text: 'please try again or contact support' })
   }
 
-  const backButton = createSecondaryBtn({
-    customId: 'purge:btn:back',
-    label: 'Back to Type Selection',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('purge:btn:back')
 
   await interaction.editReply({
     embeds: [resultEmbed],
-    components: [backButton],
+    components: [backRow],
   })
 }
 
@@ -185,21 +181,16 @@ export async function handlePurgeCancel(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('❌ Purge Cancelled')
-    .setDescription('The purge operation has been cancelled.')
-    .setFooter({ text: 'No messages were deleted' })
+  const embed = MinaEmbed.primary()
+    .setTitle('purge cancelled')
+    .setDescription('the purge operation has been cancelled.')
+    .setFooter({ text: 'no messages were deleted' })
 
-  const backButton = createSecondaryBtn({
-    customId: 'purge:btn:back',
-    label: 'Back to Type Selection',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('purge:btn:back')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [backButton],
+    components: [backRow],
   })
 }
 

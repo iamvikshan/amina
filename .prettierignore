@@ -34,5 +34,4 @@ logs/
 Dockerfile*
 
 # Specific data files to exclude
-src/data.json
 types/*

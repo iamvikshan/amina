@@ -1,9 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'skip',
-  description: 'Skip the current song',
+  description: 'skip the current song',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
@@ -11,8 +13,16 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const response = await skip(interaction)
-    await interaction.followUp(response)
+    if (!interaction.guildId) {
+      return interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
+    }
+    const response = await skip({
+      client: interaction.client,
+      guildId: interaction.guildId,
+    })
+    return interaction.followUp(response)
   },
 }
 
@@ -22,21 +32,23 @@ async function skip({
 }: {
   client: any
   guildId: string
-}): Promise<string> {
+}): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return "🚫 There's no music currently playing"
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   const title = player.queue.current.info.title
 
   if (player.queue.tracks.length === 0) {
-    return 'There is no next song to skip to'
+    return { embeds: [MinaEmbed.warning(mina.say('music.empty'))] }
   }
 
   await player.skip()
-  return `⏯️ ${title} was skipped`
+  return {
+    embeds: [MinaEmbed.success(mina.sayf('music.skip', { track: title }))],
+  }
 }
 
 export default command

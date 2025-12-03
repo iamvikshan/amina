@@ -1,11 +1,11 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
-  EmbedBuilder,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { EMBED_COLORS, config } from '@src/config'
+import { config } from '@src/config'
 import { setDevCommands } from '@schemas/Dev'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 import type { BotClient } from '@structures/BotClient'
 
@@ -42,21 +42,16 @@ const command: CommandData = {
     )
     if (testGuild) {
       try {
+        // Only register devOnly and testGuildOnly commands to test guild
+        // Regular commands come from global registration
         const commandsToSet = (client as BotClient).slashCommands
-          .filter(
-            cmd =>
-              cmd.testGuildOnly ||
-              (cmd.devOnly && enabled) ||
-              // Also include regular commands if GLOBAL=true, so we don't wipe them from test guild
-              ((client as BotClient).config.INTERACTIONS.GLOBAL &&
-                !cmd.testGuildOnly &&
-                !cmd.devOnly)
-          )
+          .filter(cmd => cmd.testGuildOnly || (cmd.devOnly && enabled))
           .map(cmd => ({
             name: cmd.name,
             description: cmd.description,
             type: ApplicationCommandType.ChatInput,
             options: cmd.slashCommand?.options || [],
+            dm_permission: cmd.dmCommand ?? false,
           }))
 
         await testGuild.commands.set(commandsToSet)
@@ -71,22 +66,18 @@ const command: CommandData = {
         )
         return interaction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setColor(EMBED_COLORS.ERROR)
-              .setDescription(
-                'Failed to update test guild commands. Check bot logs for details.'
-              ),
+            MinaEmbed.error().setDescription(
+              'failed to update test guild commands. check bot logs for details.'
+            ),
           ],
         })
       }
     }
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        `✅ Dev commands are now ${enabled ? 'enabled' : 'disabled'}!\n` +
-          `Current state: \`${enabled ? 'ENABLED' : 'DISABLED'}\``
-      )
+    const embed = MinaEmbed.success().setDescription(
+      `dev commands are now ${enabled ? 'enabled' : 'disabled'}!\n` +
+        `current state: \`${enabled ? 'ENABLED' : 'DISABLED'}\``
+    )
 
     return interaction.followUp({ embeds: [embed] })
   },

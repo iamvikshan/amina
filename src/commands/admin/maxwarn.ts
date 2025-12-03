@@ -17,7 +17,7 @@ const command: CommandData = {
       {
         name: 'limit',
         description:
-          'Set max warnings a member can receive before taking action! ⚠️',
+          'Set max warnings a member can receive before taking action!',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
@@ -88,7 +88,7 @@ const command: CommandData = {
 async function setLimit(limit: number, settings: any): Promise<string> {
   settings.max_warn.limit = limit
   await settings.save()
-  return `Yay! 🎊 Configuration saved! Maximum warnings are set to ${limit}! 🌈`
+  return `configuration saved! maximum warnings are set to ${limit}!`
 }
 
 async function setAction(

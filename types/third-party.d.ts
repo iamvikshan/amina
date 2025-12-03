@@ -1,6 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Third-party package type declarations
 
+declare module 'sourcebin_js' {
+  interface SourceBinFile {
+    content: string
+    language?: string
+  }
+  interface SourceBinResult {
+    url: string
+    key: string
+  }
+  function create(
+    files: SourceBinFile[],
+    options?: { title?: string; description?: string }
+  ): Promise<SourceBinResult>
+  const sourcebin: { create: typeof create }
+  export = sourcebin
+}
+
 declare module 'common-tags' {
   export function stripIndent(
     strings: TemplateStringsArray,

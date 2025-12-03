@@ -1,8 +1,9 @@
-import { EmbedBuilder, Message } from 'discord.js'
+import { Message } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 import { containsLink, containsDiscordInvite } from '@helpers/Utils'
 import { getMember } from '@schemas/Member'
 const ModUtils = require('@helpers/ModUtils')
-import { AUTOMOD } from '@src/config'
 import { addAutoModLogToDb } from '@schemas/AutomodLogs'
 
 interface AntispamInfo {
@@ -71,7 +72,7 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
   const fields: Array<{ name: string; value: string; inline: boolean }> = []
 
   // Max mentions
-  if (mentions.members.size > automod.max_mentions) {
+  if (mentions.members && mentions.members.size > automod.max_mentions) {
     fields.push({
       name: 'Mentions',
       value: `${mentions.members.size}/${automod.max_mentions}`,
@@ -185,7 +186,7 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
     message
       .delete()
       .then(() =>
-        (channel as any).safeSend('> Auto-Moderation! Message deleted', 5)
+        (channel as any).safeSend(mina.say('automod.messageDeleted'), 5)
       )
       .catch(() => {})
   }
@@ -203,16 +204,21 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
 
     // send automod log
     if (logChannel) {
-      const logEmbed = new EmbedBuilder()
-        .setAuthor({ name: 'Auto Moderation' })
+      const logEmbed = MinaEmbed.info()
+        .setAuthor({ name: mina.say('automod.log.title') })
         .setThumbnail(author.displayAvatarURL())
-        .setColor(AUTOMOD.LOG_EMBED as any)
         .addFields(fields)
         .setDescription(
-          `**Channel:** ${channel.toString()}\n**Content:**\n${content}`
+          mina.sayf('automod.log.description', {
+            channel: channel.toString(),
+            content,
+          })
         )
         .setFooter({
-          text: `By ${author.username} | ${author.id}`,
+          text: mina.sayf('automod.log.footer', {
+            user: author.username,
+            id: author.id,
+          }),
           iconURL: author.avatarURL() || undefined,
         })
 
@@ -220,15 +226,17 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
     }
 
     // DM strike details
-    const strikeEmbed = new EmbedBuilder()
-      .setColor(AUTOMOD.DM_EMBED as any)
+    const strikeEmbed = MinaEmbed.warning()
       .setThumbnail(guild.iconURL())
-      .setAuthor({ name: 'Auto Moderation' })
+      .setAuthor({ name: mina.say('automod.dm.title') })
       .addFields(fields)
       .setDescription(
-        `You have received ${strikesTotal} strikes!\n\n` +
-          `**Guild:** ${guild.name}\n` +
-          `**Total Strikes:** ${memberDb.strikes} out of ${automod.strikes}`
+        mina.sayf('automod.dm.description', {
+          strikes: strikesTotal.toString(),
+          guild: guild.name,
+          total: memberDb.strikes.toString(),
+          max: automod.strikes.toString(),
+        })
       )
 
     author.send({ embeds: [strikeEmbed] }).catch(() => {})

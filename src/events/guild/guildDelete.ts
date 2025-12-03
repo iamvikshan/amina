@@ -1,14 +1,11 @@
-import {
-  EmbedBuilder,
-  ButtonBuilder,
-  ActionRowBuilder,
-  ButtonStyle,
-  Guild,
-} from 'discord.js'
+import { Guild } from 'discord.js'
 import { getSettings, Model } from '@schemas/Guild'
 import { notifyDashboard } from '@helpers/webhook'
 import { config } from '@src/config'
 import type { BotClient } from '@src/structures'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 const wait = (ms: number): Promise<void> =>
   new Promise(resolve => setTimeout(resolve, ms))
@@ -51,34 +48,33 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   }
 
   // Create the embed for webhook
-  const webhookEmbed = new EmbedBuilder()
-    .setTitle(`*sniff* Just left ${guild.name} 💔`)
+  const webhookEmbed = MinaEmbed.error()
+    .setTitle(mina.sayf('greetings.leave', { server: guild.name }))
     .setThumbnail(guild.iconURL())
-    .setColor(client.config.EMBED_COLORS.ERROR)
     .addFields(
       {
-        name: '📝 Server Name',
-        value: guild.name || 'N/A',
+        name: 'server name',
+        value: guild.name || 'n/a',
         inline: true,
       },
       {
-        name: '🔍 Server ID',
+        name: 'server id',
         value: guild.id,
         inline: true,
       },
       {
-        name: '👑 Owner',
+        name: 'owner',
         value: `${ownerTag} [\`${ownerId}\`]`,
         inline: true,
       },
       {
-        name: '👥 Members',
+        name: 'members',
         value: `\`\`\`yaml\n${guild.memberCount}\`\`\``,
         inline: true,
       }
     )
     .setFooter({
-      text: `Server #${client.guilds.cache.size} | *draws a sad doodle*`,
+      text: `server #${client.guilds.cache.size}`,
     })
 
   // Send webhook message
@@ -98,42 +94,25 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
 
   // Attempt to send DM to owner
   if (owner) {
-    const components = [
-      new ButtonBuilder()
-        .setLabel('Invite Me Back? 🥺')
-        .setStyle(ButtonStyle.Link)
-        .setURL(`${client.getInvite()}`),
-      new ButtonBuilder()
-        .setLabel('Support Server')
-        .setStyle(ButtonStyle.Link)
-        .setURL(config.BOT.SUPPORT_SERVER as string),
-      new ButtonBuilder()
-        .setLabel('Leave Feedback')
-        .setStyle(ButtonStyle.Link)
-        .setURL(`https://github.com/iamvikshan/amina/issues/new/choose`),
-    ]
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(components)
+    const row = MinaRows.from(
+      MinaButtons.invite(client.getInvite()).setLabel(
+        mina.say('greetings.leaveDM.buttons.invite')
+      ),
+      MinaButtons.support(config.BOT.SUPPORT_SERVER as string),
+      MinaButtons.link(
+        'https://github.com/iamvikshan/amina/issues/new/choose',
+        mina.say('greetings.leaveDM.buttons.feedback')
+      )
+    )
 
     // Create a new embed for the DM
-    const dmEmbed = new EmbedBuilder()
-      .setTitle('💔 *quietly doodles sad faces*')
+    const dmEmbed = MinaEmbed.error()
+      .setTitle(mina.sayf('greetings.leaveDM.title', { user: owner.username }))
       .setDescription(
-        `Hey <@${ownerId}>, it's Amina... *fidgets nervously*\n\n` +
-          `I just wanted to say goodbye and thank you for having me in your server. Even though things didn't work out, I had a lot of fun! 🎨\n\n` +
-          `If I did something wrong, or if there's any way I could've been better, I'd really love to know. Your feedback helps me grow! And maybe... *looks hopeful* maybe we can be friends again someday?\n\n` +
-          `*starts drawing a friendship bracelet, just in case*\n\n` +
-          `remember to say hi here sometime, i am great at conversations!\n` +
-          `Take care,\nAmina `
+        mina.sayf('greetings.leaveDM.description', { server: guild.name })
       )
-      .setColor(client.config.EMBED_COLORS.ERROR)
       .setThumbnail(client.user?.displayAvatarURL() || '')
-      .addFields({
-        name: '✨ Want to try again?',
-        value: 'I promise to do my very best to make your server amazing!',
-        inline: false,
-      })
-      .setFooter({ text: '*tucks away art supplies with a small smile*' })
+      .setFooter({ text: mina.say('greetings.leaveDM.footer') })
 
     try {
       await wait(1000)

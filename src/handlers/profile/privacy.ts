@@ -1,16 +1,14 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { getUser } from '@schemas/User'
-import { createSecondaryBtn } from '@helpers/componentHelper'
-import { handleProfileBackButton } from './main-hub'
+import { MinaRows } from '@helpers/componentHelper'
 import { Logger } from '@helpers/Logger'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show privacy settings menu
@@ -21,60 +19,51 @@ export async function showPrivacyMenu(
   const user = await getUser(interaction.user)
   const privacy = user.profile?.privacy || {}
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🔒 Privacy Settings')
+  const embed = MinaEmbed.primary()
+    .setTitle('privacy settings')
     .setDescription(
-      'Control what parts of your profile are visible to others.\n\n' +
-        '**Current Settings:**\n' +
-        `• Age: ${privacy.showAge ? '✅ Visible' : '🔒 Hidden'}\n` +
-        `• Region: ${privacy.showRegion ? '✅ Visible' : '🔒 Hidden'}\n` +
-        `• Birthdate: ${privacy.showBirthdate ? '✅ Visible' : '🔒 Hidden'}\n` +
-        `• Pronouns: ${privacy.showPronouns ? '✅ Visible' : '🔒 Hidden'}\n\n` +
-        'Select a field below to toggle its visibility.'
+      'control what parts of your profile are visible to others.\n\n' +
+        '**current settings:**\n' +
+        `- age: ${privacy.showAge ? 'visible' : 'hidden'}\n` +
+        `- region: ${privacy.showRegion ? 'visible' : 'hidden'}\n` +
+        `- birthdate: ${privacy.showBirthdate ? 'visible' : 'hidden'}\n` +
+        `- pronouns: ${privacy.showPronouns ? 'visible' : 'hidden'}\n\n` +
+        'select a field below to toggle its visibility.'
     )
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('profile:menu:privacy')
-      .setPlaceholder('Choose a field to toggle')
+      .setPlaceholder('choose a field to toggle')
       .addOptions([
         new StringSelectMenuOptionBuilder()
           .setLabel('Age')
           .setDescription(
             `Currently ${privacy.showAge ? 'visible' : 'hidden'} - Click to toggle`
           )
-          .setValue('showAge')
-          .setEmoji(privacy.showAge ? '✅' : '🔒'),
+          .setValue('showAge'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Region')
           .setDescription(
             `Currently ${privacy.showRegion ? 'visible' : 'hidden'} - Click to toggle`
           )
-          .setValue('showRegion')
-          .setEmoji(privacy.showRegion ? '✅' : '🔒'),
+          .setValue('showRegion'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Birthdate')
           .setDescription(
             `Currently ${privacy.showBirthdate ? 'visible' : 'hidden'} - Click to toggle`
           )
-          .setValue('showBirthdate')
-          .setEmoji(privacy.showBirthdate ? '✅' : '🔒'),
+          .setValue('showBirthdate'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Pronouns')
           .setDescription(
             `Currently ${privacy.showPronouns ? 'visible' : 'hidden'} - Click to toggle`
           )
-          .setValue('showPronouns')
-          .setEmoji(privacy.showPronouns ? '✅' : '🔒'),
+          .setValue('showPronouns'),
       ])
   )
 
-  const backRow = createSecondaryBtn({
-    customId: 'profile:btn:back',
-    label: 'Back to Profile Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('profile:btn:back')
 
   if (interaction.deferred || interaction.replied) {
     await interaction.editReply({
@@ -108,15 +97,6 @@ export async function handlePrivacyMenu(
     ;(user.profile.privacy as any)[setting] = !currentValue
 
     await user.save()
-
-    const settingName = setting.replace('show', '').toLowerCase()
-    const newValue = !currentValue
-
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        `✅ Updated your privacy settings! ${settingName} is now ${newValue ? 'visible' : 'hidden'} to others.`
-      )
 
     await interaction.deferUpdate()
     await showPrivacyMenu(interaction)

@@ -11,6 +11,8 @@ import {
   User,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'unban',
@@ -43,7 +45,9 @@ const command: CommandData = {
     const reason = interaction.options.getString('reason')
 
     if (!interaction.guild) {
-      await interaction.followUp('This command can only be used in a server.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
       return
     }
 
@@ -74,7 +78,13 @@ async function getMatchingBans(guild: Guild, match: string) {
     }
   }
 
-  if (matched.length === 0) return `No user found matching ${match}`
+  if (matched.length === 0) {
+    return {
+      embeds: [
+        MinaEmbed.error(mina.sayf('moderation.error.noMatch', { match })),
+      ],
+    }
+  }
 
   const options = []
   for (const user of matched) {
@@ -89,7 +99,7 @@ async function getMatchingBans(guild: Guild, match: string) {
   )
 
   return {
-    content: 'Please select a user you wish to unban',
+    embeds: [MinaEmbed.info(mina.say('moderation.unban.select'))],
     components: [menuRow],
   }
 }
@@ -118,24 +128,40 @@ async function waitForBan(
     const status = await unBanTarget(
       issuer,
       user,
-      reason || 'No reason provided'
+      reason || mina.say('moderation.error.noReason')
     )
-    if (typeof status === 'boolean')
+    if (typeof status === 'boolean') {
       return sent.edit({
-        content: `${user.username} is un-banned!`,
+        embeds: [
+          MinaEmbed.mod('unban').setDescription(
+            mina.sayf('moderation.unban.success', { target: user.username })
+          ),
+        ],
         components: [],
       })
-    else
+    } else {
       return sent.edit({
-        content: `Failed to unban ${user.username}`,
+        embeds: [
+          MinaEmbed.error(
+            mina.sayf('moderation.error.failed', {
+              action: 'unban',
+              target: user.username,
+            })
+          ),
+        ],
         components: [],
       })
+    }
   })
 
   // collect user and unban
   collector.on('end', async collected => {
-    if (collected.size === 0)
-      return sent.edit('Oops! Timed out. Try again later.')
+    if (collected.size === 0) {
+      return sent.edit({
+        embeds: [MinaEmbed.error(mina.say('music.error.timeout'))],
+        components: [],
+      })
+    }
     return
   })
   return

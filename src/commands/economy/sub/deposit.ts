@@ -1,39 +1,41 @@
-import { EmbedBuilder, User } from 'discord.js'
+import { User } from 'discord.js'
 import { getUser } from '@schemas/User'
-import { ECONOMY, EMBED_COLORS } from '@src/config'
+import { ECONOMY } from '@src/config'
+import { mina } from '@helpers/mina'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function deposit(
   user: User,
   coins: number
-): Promise<string | { embeds: EmbedBuilder[] }> {
-  if (isNaN(coins) || coins <= 0)
-    return 'Please enter a valid amount of coins to deposit'
+): Promise<string | { embeds: MinaEmbed[] }> {
+  if (isNaN(coins) || coins <= 0) return mina.say('economy.error.invalidAmount')
   const userDb = await getUser(user)
 
   if (coins > userDb.coins)
-    return `You only have ${userDb.coins}${ECONOMY.CURRENCY} coins in your wallet`
+    return mina.sayf('economy.error.insufficientWallet', {
+      amount: `${userDb.coins}${ECONOMY.CURRENCY}`,
+    })
 
   userDb.coins -= coins
   userDb.bank += coins
   await userDb.save()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: 'New Balance' })
+  const embed = MinaEmbed.success()
+    .setAuthor({ name: mina.say('economy.balance.newBalance') })
     .setThumbnail(user.displayAvatarURL())
     .addFields(
       {
-        name: 'Wallet',
+        name: 'wallet',
         value: `${userDb.coins}${ECONOMY.CURRENCY}`,
         inline: true,
       },
       {
-        name: 'Bank',
+        name: 'bank',
         value: `${userDb.bank}${ECONOMY.CURRENCY}`,
         inline: true,
       },
       {
-        name: 'Net Worth',
+        name: 'net worth',
         value: `${userDb.coins + userDb.bank}${ECONOMY.CURRENCY}`,
         inline: true,
       }

@@ -2,15 +2,13 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { showMemoriesView } from './memories'
-import { showForgetMeConfirmation } from './forget-me'
 import { showSettings } from './settings'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main Mina AI hub with operation selection
@@ -24,22 +22,21 @@ export async function showMinaAiHub(
   const isDM = !interaction.guild
   const contextName = isDM ? 'DM' : 'Server'
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '🧠 Mina AI Memory Management' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: 'mina ai memory management' })
     .setDescription(
-      `Welcome to Mina AI Memory Management! 🌟\n\n` +
-        `**Current Context:** ${contextName}\n\n` +
-        `**Choose an operation:**\n` +
+      `welcome to mina ai memory management\n\n` +
+        `**current context:** ${contextName}\n\n` +
+        `**choose an operation:**\n` +
         (isDM
-          ? `📖 **View DM Memories** - See what Mina remembers from your DMs\n`
-          : `📖 **View Server Memories** - See what Mina remembers from this server\n`) +
-        `⚙️ **Settings** - Configure your preferences (including Forget Me)\n\n` +
+          ? `**view dm memories** - see what mina remembers from your dms\n`
+          : `**view server memories** - see what mina remembers from this server\n`) +
+        `**settings** - configure your preferences (including forget me)\n\n` +
         (isDM
-          ? `💡 To view server memories, use this command in a server.`
-          : `💡 To view DM memories, use this command in DMs.`)
+          ? `tip: to view server memories, use this command in a server.`
+          : `tip: to view dm memories, use this command in dms.`)
     )
-    .setFooter({ text: 'Privacy first! Your memories are yours to control 💕' })
+    .setFooter({ text: 'privacy first! your memories are yours to control' })
 
   const menuOptions = [
     new StringSelectMenuOptionBuilder()
@@ -47,19 +44,17 @@ export async function showMinaAiHub(
       .setDescription(
         isDM ? 'View memories from DMs' : 'View memories from this server'
       )
-      .setValue(isDM ? 'memories_dm' : 'memories_server')
-      .setEmoji(isDM ? '💬' : '🏠'),
+      .setValue(isDM ? 'memories_dm' : 'memories_server'),
     new StringSelectMenuOptionBuilder()
       .setLabel('Settings')
       .setDescription('Configure your preferences')
-      .setValue('settings')
-      .setEmoji('⚙️'),
+      .setValue('settings'),
   ]
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('minaai:menu:operation')
-      .setPlaceholder('📂 Select an operation...')
+      .setPlaceholder('select an operation...')
       .addOptions(menuOptions)
   )
 
@@ -91,7 +86,7 @@ export async function handleMinaAiOperationMenu(
       break
     default:
       await interaction.followUp({
-        content: '❌ Invalid operation selected',
+        content: 'invalid operation selected',
         ephemeral: true,
       })
   }

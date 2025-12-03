@@ -19,6 +19,7 @@
     "baseUrl": "./",
     "paths": {
       "@root/*": ["./*"],
+      "@data/*": ["./src/data/*"],
       "@handlers/*": ["./src/handlers/*"],
       "@helpers/*": ["./src/helpers/*"],
       "@schemas/*": ["./src/database/schemas/*"],

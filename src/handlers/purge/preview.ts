@@ -1,12 +1,10 @@
 import {
   ButtonInteraction,
   ChannelSelectMenuInteraction,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createDangerBtn, createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 // PurgeType is now globally available - see types/handlers.d.ts
 
 /**
@@ -31,26 +29,25 @@ export async function showPurgePreview(
     user: 'User Messages',
   }
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.WARNING)
-    .setTitle('⚠️ Purge Preview')
+  const embed = MinaEmbed.warning()
+    .setTitle('purge preview')
     .setDescription(
-      '**Review the purge operation before confirming:**\n\n' +
-        `**Type:** ${typeLabels[purgeType]}\n` +
-        `**Amount:** ${amount} messages\n` +
-        `**Channel:** ${channelMention}\n` +
+      '**review the purge operation before confirming:**\n\n' +
+        `**type:** ${typeLabels[purgeType]}\n` +
+        `**amount:** ${amount} messages\n` +
+        `**channel:** ${channelMention}\n` +
         (additionalData?.token
-          ? `**Token/Keyword:** \`${additionalData.token}\` (case-insensitive)\n`
+          ? `**token/keyword:** \`${additionalData.token}\` (case-insensitive)\n`
           : '') +
         (additionalData?.userId
-          ? `**User:** <@${additionalData.userId}>\n`
+          ? `**user:** <@${additionalData.userId}>\n`
           : '') +
-        '\n⚠️ **Warning:** This action cannot be undone!\n' +
-        '📝 Messages older than 14 days cannot be bulk deleted.\n' +
-        '🔒 You must have Manage Messages permission in the target channel.'
+        '\n**warning:** this action cannot be undone!\n' +
+        'messages older than 14 days cannot be bulk deleted.\n' +
+        'you must have manage messages permission in the target channel.'
     )
     .setFooter({
-      text: 'Click Confirm to proceed or Cancel to abort',
+      text: 'click confirm to proceed or cancel to abort',
     })
 
   // Encode state for confirm button (keep under 100 chars)
@@ -64,22 +61,14 @@ export async function showPurgePreview(
   const stateEncoded = Buffer.from(JSON.stringify(stateData)).toString('base64')
   const confirmCustomId = `purge:btn:confirm|${stateEncoded}`.substring(0, 100)
 
-  const confirmButton = createDangerBtn({
-    customId: confirmCustomId,
-    label: `Confirm Delete (${amount} messages)`,
-    emoji: '⚠️',
-  })
-
-  const cancelButton = createSecondaryBtn({
-    customId: 'purge:btn:cancel',
-    label: 'Cancel',
-    emoji: '❌',
-  })
-
   // Combine buttons in one row
-  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    confirmButton.components[0],
-    cancelButton.components[0]
+  const buttonRow = MinaRows.from(
+    MinaButtons.custom(
+      confirmCustomId,
+      `confirm (${amount})`,
+      ButtonStyle.Danger
+    ),
+    MinaButtons.nah('purge:btn:cancel')
   )
 
   await interaction.editReply({

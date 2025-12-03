@@ -1,14 +1,15 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS, config } from '@src/config'
+import { config } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import type { BotClient } from '@src/structures'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 /**
  * Show reload menu
@@ -16,53 +17,36 @@ import { createSecondaryBtn } from '@helpers/componentHelper'
 export async function showReloadMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🔄 Command Reload')
-    .setDescription(
-      'Reload commands, events, or contexts! 🔄\n\n' +
-        '**Select what to reload:**\n' +
-        '📝 **Commands** - Reload all slash commands\n' +
-        '📡 **Events** - Reload all event handlers\n' +
-        '🎯 **Contexts** - Reload all context menus\n' +
-        '🌐 **All** - Reload everything\n\n' +
-        '⚠️ **Note:** This will reload the specified modules from disk.'
-    )
-    .setFooter({ text: 'Select what to reload' })
+  const embed = MinaEmbed.primary()
+    .setTitle(mina.say('dev.reload.title'))
+    .setDescription(mina.say('dev.reload.description'))
+    .setFooter({ text: mina.say('dev.reload.footer') })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:reload_type')
-      .setPlaceholder('Select what to reload...')
+      .setPlaceholder(mina.say('dev.reload.placeholder'))
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Commands')
-          .setDescription('Reload all slash commands')
-          .setValue('commands')
-          .setEmoji('📝'),
+          .setLabel(mina.say('dev.reload.option.commands.label'))
+          .setDescription(mina.say('dev.reload.option.commands.description'))
+          .setValue('commands'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Events')
-          .setDescription('Reload all event handlers')
-          .setValue('events')
-          .setEmoji('📡'),
+          .setLabel(mina.say('dev.reload.option.events.label'))
+          .setDescription(mina.say('dev.reload.option.events.description'))
+          .setValue('events'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Contexts')
-          .setDescription('Reload all context menus')
-          .setValue('contexts')
-          .setEmoji('🎯'),
+          .setLabel(mina.say('dev.reload.option.contexts.label'))
+          .setDescription(mina.say('dev.reload.option.contexts.description'))
+          .setValue('contexts'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('All')
-          .setDescription('Reload everything')
+          .setLabel(mina.say('dev.reload.option.all.label'))
+          .setDescription(mina.say('dev.reload.option.all.description'))
           .setValue('all')
-          .setEmoji('🌐')
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_reload',
-    label: 'Back to Dev Hub',
-    emoji: '◀️',
-  })
+  const backButton = MinaRows.backRow('dev:btn:back_reload')
 
   await interaction.editReply({
     embeds: [embed],
@@ -82,25 +66,22 @@ export async function handleReloadType(
 
   const client = interaction.client as BotClient
 
-  // Helper to register commands to test guild
+  // Helper to register commands
   const registerCommands = async () => {
+    const devConfig = await import('@schemas/Dev').then(m =>
+      m.getDevCommandsConfig()
+    )
+
+    // Register devOnly and testGuildOnly commands to test guild
     const testGuild = client.guilds.cache.get(
       config.BOT.TEST_GUILD_ID as string
     )
     if (testGuild) {
-      // We only reload to test guild to avoid global rate limits
-      const devConfig = await import('@schemas/Dev').then(m =>
-        m.getDevCommandsConfig()
-      )
-
-      const commandsToSet = client.slashCommands
+      const testGuildCommands = client.slashCommands
         .filter(
           cmd =>
-            cmd.testGuildOnly ||
-            (cmd.devOnly && devConfig.ENABLED) ||
-            (client.config.INTERACTIONS.GLOBAL &&
-              !cmd.testGuildOnly &&
-              !cmd.devOnly)
+            // Only dev and test commands - regular commands come from global registration
+            cmd.testGuildOnly || (cmd.devOnly && devConfig.ENABLED)
         )
         .map(cmd => ({
           name: cmd.name,
@@ -110,7 +91,30 @@ export async function handleReloadType(
           dm_permission: cmd.dmCommand ?? false,
         }))
 
-      await testGuild.commands.set(commandsToSet)
+      await testGuild.commands.set(testGuildCommands)
+      client.logger.success(
+        `Registered ${testGuildCommands.length} test guild commands`
+      )
+    }
+
+    // Also register global commands if GLOBAL=true
+    if (client.config.INTERACTIONS.GLOBAL) {
+      const globalCommands = client.slashCommands
+        .filter(cmd => !cmd.testGuildOnly && !cmd.devOnly)
+        .map(cmd => ({
+          name: cmd.name,
+          description: cmd.description,
+          type: 1, // ApplicationCommandType.ChatInput
+          options: cmd.slashCommand.options,
+          dm_permission: cmd.dmCommand ?? false,
+        }))
+
+      if (globalCommands.length > 0) {
+        await client.application?.commands.set(globalCommands)
+        client.logger.success(
+          `Registered ${globalCommands.length} global commands (may take up to 1 hour to propagate)`
+        )
+      }
     }
   }
 
@@ -135,42 +139,39 @@ export async function handleReloadType(
         break
       default:
         await interaction.followUp({
-          content: '❌ Invalid reload type selected',
+          content: mina.say('dev.reload.error.invalidType'),
           ephemeral: true,
         })
         return
     }
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setTitle('✅ Reloaded')
-      .setDescription(`Successfully reloaded ${reloadType}`)
+    const embed = MinaEmbed.success()
+      .setTitle(mina.say('dev.reload.success.title'))
+      .setDescription(
+        mina.sayf('dev.reload.success.description', { type: reloadType })
+      )
+
+    const backButton = MinaRows.backRow('dev:btn:back_reload')
 
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'dev:btn:back_reload',
-          label: 'Back to Dev Hub',
-          emoji: '◀️',
-        }),
-      ],
+      components: [backButton],
     })
   } catch (error: any) {
-    const errorEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setTitle('❌ Reload Failed')
-      .setDescription(`Failed to reload ${reloadType}: ${error.message}`)
+    const errorEmbed = MinaEmbed.error()
+      .setTitle(mina.say('dev.reload.error.title'))
+      .setDescription(
+        mina.sayf('dev.reload.error.description', {
+          type: reloadType,
+          error: error.message,
+        })
+      )
+
+    const backButton = MinaRows.backRow('dev:btn:back_reload')
 
     await interaction.editReply({
       embeds: [errorEmbed],
-      components: [
-        createSecondaryBtn({
-          customId: 'dev:btn:back_reload',
-          label: 'Back to Dev Hub',
-          emoji: '◀️',
-        }),
-      ],
+      components: [backButton],
     })
   }
 }

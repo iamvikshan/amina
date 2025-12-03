@@ -1,14 +1,12 @@
 import {
-  EmbedBuilder,
   ChatInputCommandInteraction,
   TextChannel,
   PermissionFlagsBits,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { updateSetupStatus, createSetupEmbed } from './setupEmbed'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 export default async function updateChannel(
   interaction: ChatInputCommandInteraction,
@@ -20,11 +18,11 @@ export default async function updateChannel(
       .permissionsFor(interaction.guild?.members.me as any)
       ?.has(PermissionFlagsBits.SendMessages)
   ) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        "Oopsie! I don't have permission to send messages in that channel. Can you please give me the right permissions? Pretty please?"
-      )
+    const embed = MinaEmbed.error().setDescription(
+      mina.sayf('guild.setup.error.noPermission', {
+        channel: channel.toString(),
+      })
+    )
     await interaction.editReply({ embeds: [embed] })
     return
   }
@@ -35,23 +33,15 @@ export default async function updateChannel(
 
   const setupEmbed = createSetupEmbed(settings)
 
-  const backButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('admin:btn:back')
-      .setLabel('Back to Admin Hub')
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji('◀️')
-  )
+  const backButton = MinaRows.backRow('admin:btn:back')
 
   await interaction.editReply({
     embeds: [setupEmbed],
     components: [backButton],
   })
 
-  const notificationEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription(
-      `Yay! This channel has been set as the updates channel for Mina! All my future updates will be sent here. Get ready for some awesome notifications!`
-    )
+  const notificationEmbed = MinaEmbed.primary().setDescription(
+    mina.say('guild.setup.success.testDescription')
+  )
   await channel.send({ embeds: [notificationEmbed] })
 }

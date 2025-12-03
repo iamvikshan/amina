@@ -1,11 +1,11 @@
 import {
-  EmbedBuilder,
   AttachmentBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { getBuffer } from '@helpers/HttpUtils'
-import { EMBED_COLORS, IMAGE, secret } from '@src/config'
+import { IMAGE, secret } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const availableOverlays = [
   'approved',
@@ -79,8 +79,7 @@ const command: CommandData = {
     const attachment = new AttachmentBuilder(response.buffer!, {
       name: 'attachment.png',
     })
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
+    const embed = MinaEmbed.primary()
       .setImage('attachment://attachment.png')
       .setFooter({ text: `sparkled up by ${author.username}` })
 

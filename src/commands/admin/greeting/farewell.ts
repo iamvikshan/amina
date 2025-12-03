@@ -4,7 +4,7 @@ import {
   ChatInputCommandInteraction,
   TextChannel,
 } from 'discord.js'
-import type { CommandData } from '@src/structures/Command'
+// CommandData is globally available - see types/commands.d.ts
 import {
   sendPreview,
   setStatus,

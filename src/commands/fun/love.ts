@@ -1,34 +1,13 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   User,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
+import responses from '@data/responses'
 
 // Amina's creative love responses
-const loveResponses = {
-  perfect: [
-    "💖 OMG they're literally soulmates! The stars aligned! 💫",
-    '✨ This is like something straight out of my favorite romance anime! ✨',
-    "💝 My heart can't handle how perfect they are together! 💝",
-  ],
-  good: [
-    "💕 Aww, they've got such sweet chemistry! 💕",
-    "💫 I'm getting such good vibes from this match! ✨",
-    '🌟 They could write a really cute love story together! 🌟',
-  ],
-  decent: [
-    '💛 With a little magic, this could become something special! ✨',
-    "🌟 There's potential here - just needs some sparkle! 🌟",
-    '💫 I see a spark waiting to bloom! 💫',
-  ],
-  low: [
-    '💜 Sometimes opposites attract in the most unexpected ways! 💫',
-    "✨ Maybe they're better as adventure buddies! 🌟",
-    '🎨 Every relationship is its own unique masterpiece! 💫',
-  ],
-}
 
 const command: CommandData = {
   name: 'love',
@@ -68,32 +47,30 @@ async function getUserLove(
   user1: User,
   user2: User,
   mauthor: User
-): Promise<{ embeds: EmbedBuilder[] }> {
+): Promise<{ embeds: MinaEmbed[] }> {
   const result = Math.ceil(Math.random() * 100)
 
   // Get a random response based on the result
   let loveStatus: string
   let customResponse: string
+  const loveData = responses.fun.love
+
   if (result <= 20) {
-    loveStatus = '💜 Friendship Stars 💜'
+    loveStatus = loveData.titles.low
     customResponse =
-      loveResponses.low[Math.floor(Math.random() * loveResponses.low.length)]
+      loveData.low[Math.floor(Math.random() * loveData.low.length)]
   } else if (result <= 50) {
-    loveStatus = '💫 Potential Sparkles 💫'
+    loveStatus = loveData.titles.decent
     customResponse =
-      loveResponses.decent[
-        Math.floor(Math.random() * loveResponses.decent.length)
-      ]
+      loveData.decent[Math.floor(Math.random() * loveData.decent.length)]
   } else if (result <= 80) {
-    loveStatus = '💝 Love Blooming 💝'
+    loveStatus = loveData.titles.good
     customResponse =
-      loveResponses.good[Math.floor(Math.random() * loveResponses.good.length)]
+      loveData.good[Math.floor(Math.random() * loveData.good.length)]
   } else {
-    loveStatus = '✨ Magical Match ✨'
+    loveStatus = loveData.titles.perfect
     customResponse =
-      loveResponses.perfect[
-        Math.floor(Math.random() * loveResponses.perfect.length)
-      ]
+      loveData.perfect[Math.floor(Math.random() * loveData.perfect.length)]
   }
 
   const loveImage =
@@ -101,26 +78,30 @@ async function getUserLove(
       ? 'https://media1.giphy.com/media/TmngSmlDjzJfO/giphy.gif?cid=ecf05e47brm0fzk1kan0ni753jmvvik6h27sp13fkn8a9kih&rid=giphy.gif&ct=g'
       : 'https://media4.giphy.com/media/SIPIe590rx6iA/giphy.gif?cid=ecf05e476u1ciogyg7rjw1aaoh29s912axi5r7b5r46fczx6&rid=giphy.gif&ct=g'
 
-  const embed = new EmbedBuilder()
-    .setTitle("💖 Amina's Love-O-Meter ✨")
-    .setDescription("*wiggles eyebrows* Let's see what the love stars say! 💫")
+  const embed = MinaEmbed.primary()
+    .setTitle(mina.say('fun.love.embed.title'))
+    .setDescription(mina.say('fun.love.embed.description'))
     .addFields(
       {
-        name: '💫 The Magic Result 💫',
-        value: `**${user1}** and **${user2}** are a **${result}%** match!\n${customResponse}`,
+        name: mina.say('fun.love.embed.resultTitle'),
+        value: mina.sayf('fun.love.embed.resultValue', {
+          user1: user1.username,
+          user2: user2.username,
+          percent: result.toString(),
+          response: customResponse,
+        }),
         inline: false,
       },
       {
-        name: '✨ Love Status ✨',
+        name: mina.say('fun.love.embed.statusTitle'),
         value: loveStatus,
         inline: false,
       }
     )
-    .setColor(EMBED_COLORS.BOT_EMBED)
     .setImage(loveImage)
     .setThumbnail('https://www.wownow.net.in/assets/images/love.gif')
     .setFooter({
-      text: `Requested by ${mauthor.tag} (I ship it! 💖)`,
+      text: mina.sayf('fun.love.embed.footer', { user: mauthor.tag }),
     })
     .setTimestamp()
 

@@ -1,5 +1,4 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   GuildMember,
@@ -7,6 +6,8 @@ import {
 import { getWarningLogs, clearWarningLogs } from '@schemas/ModLog'
 import { getMember } from '@schemas/Member'
 import { MODERATION } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'warnings',
@@ -51,14 +52,18 @@ const command: CommandData = {
     let response: any = ''
 
     if (!interaction.guild) {
-      await interaction.followUp('This command can only be used in a server.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
       return
     }
 
     if (sub === 'list') {
       const user = interaction.options.getUser('user')
       if (!user) {
-        await interaction.followUp('Please specify a valid user.')
+        await interaction.followUp({
+          embeds: [MinaEmbed.error(mina.say('notFound.user'))],
+        })
         return
       }
       const target =
@@ -68,13 +73,17 @@ const command: CommandData = {
     } else if (sub === 'clear') {
       const user = interaction.options.getUser('user')
       if (!user) {
-        await interaction.followUp('Please specify a valid user.')
+        await interaction.followUp({
+          embeds: [MinaEmbed.error(mina.say('notFound.user'))],
+        })
         return
       }
       const target = await interaction.guild.members.fetch(user.id)
       response = await clearWarnings(target, interaction)
     } else {
-      response = `Invalid subcommand ${sub}`
+      response = {
+        embeds: [MinaEmbed.error(mina.say('error'))],
+      }
     }
 
     await interaction.followUp(response)
@@ -85,26 +94,47 @@ const command: CommandData = {
 async function listWarnings(
   target: GuildMember,
   interaction: ChatInputCommandInteraction
-) {
-  if (!target) return 'No user provided'
-  if (target.user.bot) return "Bots don't have warnings"
+): Promise<string | { embeds: MinaEmbed[] }> {
+  if (!target) {
+    return {
+      embeds: [MinaEmbed.error(mina.say('notFound.user'))],
+    }
+  }
+  if (target.user.bot) {
+    return {
+      embeds: [MinaEmbed.error(mina.say('moderation.warnings.noBots'))],
+    }
+  }
 
   const warnings = await getWarningLogs(
     interaction.guildId as string,
     target.id
   )
-  if (!warnings.length) return `${target.user.username} has no warnings`
+  if (!warnings.length) {
+    return {
+      embeds: [
+        MinaEmbed.info(
+          mina.sayf('moderation.warnings.none', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
+  }
 
   const acc = warnings
     .map(
       (warning, i) =>
-        `${i + 1}. ${warning.reason} [By ${warning.admin.username}]`
+        `${i + 1}. ${warning.reason} [${mina.say('generic.requestedByLabel')} ${warning.admin.username}]`
     )
     .join('\n')
-  const embed = new EmbedBuilder({
-    author: { name: `${target.user.username}'s warnings` },
-    description: acc,
-  })
+  const embed = MinaEmbed.info()
+    .setAuthor({
+      name: mina.sayf('moderation.warnings.title', {
+        target: target.user.username,
+      }),
+    })
+    .setDescription(acc)
 
   return { embeds: [embed] }
 }
@@ -112,16 +142,32 @@ async function listWarnings(
 async function clearWarnings(
   target: GuildMember,
   interaction: ChatInputCommandInteraction
-) {
-  if (!target) return 'No user provided'
-  if (target.user.bot) return "Bots don't have warnings"
+): Promise<string | { embeds: MinaEmbed[] }> {
+  if (!target) {
+    return {
+      embeds: [MinaEmbed.error(mina.say('notFound.user'))],
+    }
+  }
+  if (target.user.bot) {
+    return {
+      embeds: [MinaEmbed.error(mina.say('moderation.warnings.noBots'))],
+    }
+  }
 
   const memberDb = await getMember(interaction.guildId as string, target.id)
   ;(memberDb as any).warnings = 0
   await (memberDb as any).save()
 
   await clearWarningLogs(interaction.guildId as string, target.id)
-  return `${target.user.username}'s warnings have been cleared`
+  return {
+    embeds: [
+      MinaEmbed.success(
+        mina.sayf('moderation.warnings.cleared', {
+          target: target.user.username,
+        })
+      ),
+    ],
+  }
 }
 
 export default command

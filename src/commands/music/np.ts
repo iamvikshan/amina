@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js'
-import { EmbedBuilder } from 'discord.js'
 import { splitBar } from 'string-progressbar'
-import config from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'np',
-  description: 'Shows what track is currently being played',
+  description: 'shows what track is currently being played',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -13,7 +13,7 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const response = nowPlaying(interaction)
+    const response = nowPlaying(interaction as any)
     await interaction.followUp(response)
   },
 }
@@ -24,31 +24,31 @@ function nowPlaying({
 }: {
   client: any
   guildId: string
-}): string | { embeds: EmbedBuilder[] } {
+}): string | { embeds: MinaEmbed[] } {
   const player = client.musicManager.getPlayer(guildId)
   if (!player || !player.queue.current) {
-    return '🚫 No music is being played!'
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   const track = player.queue.current
   const end =
     track.info.duration > 6.048e8
-      ? '🔴 LIVE'
+      ? mina.say('music.success.queue.live')
       : client.utils.formatTime(track.info.duration)
 
-  const embed = new EmbedBuilder()
-    .setColor(config.EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: 'Now Playing' })
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('music.success.queue.nowPlaying') })
     .setDescription(`[${track.info.title}](${track.info.uri})`)
     .addFields(
       {
-        name: 'Song Duration',
+        name: mina.say('music.success.queue.duration'),
         value: client.utils.formatTime(track.info.duration),
         inline: true,
       },
       {
-        name: 'Requested By',
-        value: track.requester?.username || 'Unknown',
+        name: mina.say('generic.requestedByLabel'),
+        value:
+          track.requester?.username || mina.say('music.success.queue.unknown'),
         inline: true,
       },
       {

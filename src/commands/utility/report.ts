@@ -1,5 +1,4 @@
 import {
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ModalBuilder,
@@ -8,8 +7,9 @@ import {
   ChatInputCommandInteraction,
   StringSelectMenuInteraction,
 } from 'discord.js'
-import { EMBED_COLORS, FEEDBACK } from '@src/config'
+import { FEEDBACK } from '@src/config'
 import { Logger } from '@helpers/Logger'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'report',
@@ -23,30 +23,27 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
-      .setTitle("Mina's Report System! 🕵️‍♀️")
+    const embed = MinaEmbed.primary()
+      .setTitle("mina's report system")
       .setDescription(
-        'Heya! 💖 Wanna help make me even more awesome? Pick what you want to tell the devs about!'
+        'heya! wanna help make me even more awesome? pick what you want to tell the devs about!'
       )
 
     const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('report_select')
-        .setPlaceholder('Choose something to report or share~')
+        .setPlaceholder('choose something to report or share')
         .addOptions([
           {
-            label: 'Report a Server',
+            label: 'report a server',
             value: 'server',
-            emoji: '🏠',
           },
-          { label: 'Report a User', value: 'user', emoji: '👤' },
-          { label: 'Report a Bug', value: 'bug', emoji: '🐞' },
-          { label: 'Report a TOD Question', value: 'tod', emoji: '🌶️' },
+          { label: 'report a user', value: 'user' },
+          { label: 'report a bug', value: 'bug' },
+          { label: 'report a tod question', value: 'tod' },
           {
-            label: 'Share Your Amazing Feedback',
+            label: 'share your amazing feedback',
             value: 'feedback',
-            emoji: '💡',
           },
         ])
     )
@@ -73,8 +70,8 @@ const command: CommandData = {
           const selected = i.values[0]
           await showReportModal(i, selected)
         }
-      } catch (error) {
-        Logger.error('Error handling report select interaction', error)
+      } catch (_error) {
+        Logger.error('Error handling report select interaction', _error)
       }
     })
 

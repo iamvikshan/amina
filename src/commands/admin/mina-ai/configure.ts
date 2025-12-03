@@ -1,7 +1,7 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 import { updateSettings } from '@schemas/Guild'
 import { getAiConfig } from '@schemas/Dev'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function configureHandler(
   interaction: ChatInputCommandInteraction,
@@ -11,11 +11,9 @@ export default async function configureHandler(
   const globalConfig = await getAiConfig()
 
   if (enabled && !globalConfig.globallyEnabled) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        '❌ AI is currently disabled globally by the bot owner. Please try again later!'
-      )
+    const embed = MinaEmbed.error().setDescription(
+      'ai is currently disabled globally by the bot owner. please try again later!'
+    )
     return interaction.followUp({ embeds: [embed] })
   }
 
@@ -28,11 +26,10 @@ export default async function configureHandler(
     },
   })
 
-  const embed = new EmbedBuilder()
-    .setColor(enabled ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-    .setDescription(
-      `✨ AI has been **${enabled ? 'enabled' : 'disabled'}** for this server!`
-    )
+  const embed = enabled ? MinaEmbed.success() : MinaEmbed.warning()
+  embed.setDescription(
+    `ai has been **${enabled ? 'enabled' : 'disabled'}** for this server!`
+  )
 
   await interaction.followUp({ embeds: [embed] })
   return

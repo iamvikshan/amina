@@ -1,12 +1,14 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   User,
 } from 'discord.js'
 import { getUser } from '@schemas/User'
-import { EMBED_COLORS, ECONOMY } from '@src/config'
+import { ECONOMY } from '@src/config'
 import { getRandomInt } from '@helpers/Utils'
+import { mina } from '@helpers/mina'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import responses from '@data/responses'
 
 const command: CommandData = {
   name: 'gamble',
@@ -33,29 +35,8 @@ const command: CommandData = {
 }
 
 function getEmoji(): string {
-  const ran = getRandomInt(9)
-  switch (ran) {
-    case 1:
-      return '\uD83C\uDF52'
-    case 2:
-      return '\uD83C\uDF4C'
-    case 3:
-      return '\uD83C\uDF51'
-    case 4:
-      return '\uD83C\uDF45'
-    case 5:
-      return '\uD83C\uDF49'
-    case 6:
-      return '\uD83C\uDF47'
-    case 7:
-      return '\uD83C\uDF53'
-    case 8:
-      return '\uD83C\uDF50'
-    case 9:
-      return '\uD83C\uDF4D'
-    default:
-      return '\uD83C\uDF52'
-  }
+  const emojis = responses.lists.slotEmojis
+  return emojis[getRandomInt(emojis.length - 1)]
 }
 
 function calculateReward(
@@ -71,48 +52,68 @@ function calculateReward(
 
 async function gamble(user: User, betAmount: number | null) {
   if (betAmount === null || isNaN(betAmount))
-    return 'Bet amount needs to be a valid number input'
-  if (betAmount < 0) return 'Bet amount cannot be negative'
-  if (betAmount < 10) return 'Bet amount cannot be less than 10'
+    return mina.say('economy.error.invalidAmount')
+  if (betAmount < 0) return mina.say('economy.error.invalidAmount')
+  if (betAmount < 10) return mina.sayf('economy.error.minBet', { amount: '10' })
 
   const userDb = await getUser(user)
   if (userDb.coins < betAmount)
-    return `You do not have sufficient coins to gamble!\n**Coin balance:** ${userDb.coins || 0}${ECONOMY.CURRENCY}`
+    return mina.sayf('economy.error.insufficientWallet', {
+      amount: `${userDb.coins || 0}${ECONOMY.CURRENCY}`,
+    })
 
   const slot1 = getEmoji()
   const slot2 = getEmoji()
   const slot3 = getEmoji()
 
   const str = `
-    **Gamble Amount:** ${betAmount}${ECONOMY.CURRENCY}
-    **Multiplier:** 2x
-    ╔══════════╗
-    ║ ${getEmoji()} ║ ${getEmoji()} ║ ${getEmoji()} ‎‎‎‎║
-    ╠══════════╣
-    ║ ${slot1} ║ ${slot2} ║ ${slot3} ⟸
-    ╠══════════╣
-    ║ ${getEmoji()} ║ ${getEmoji()} ║ ${getEmoji()} ║
-    ╚══════════╝
-    `
+**gamble amount:** ${betAmount}${ECONOMY.CURRENCY}
+**multiplier:** 2x
+╔══════════╗
+║ ${getEmoji()} ║ ${getEmoji()} ║ ${getEmoji()} ‎‎‎‎║
+╠══════════╣
+║ ${slot1} ║ ${slot2} ║ ${slot3} ⟸
+╠══════════╣
+║ ${getEmoji()} ║ ${getEmoji()} ║ ${getEmoji()} ║
+╚══════════╝
+`
 
   const reward = calculateReward(betAmount, slot1, slot2, slot3)
-  const result =
-    (reward > 0 ? `You won: ${reward}` : `You lost: ${betAmount}`) +
-    ECONOMY.CURRENCY
   const balance = reward - betAmount
-
   userDb.coins += balance
   await userDb.save()
 
-  const embed = new EmbedBuilder()
+  let embed: MinaEmbed
+  let resultText: string
+
+  if (reward === betAmount * 3) {
+    // Jackpot - triple match
+    embed = MinaEmbed.gold()
+    resultText = mina.sayf('economy.gamble.jackpot', {
+      amount: `${reward}${ECONOMY.CURRENCY}`,
+    })
+  } else if (reward > 0) {
+    // Win - double match
+    embed = MinaEmbed.success()
+    resultText = mina.sayf('economy.gamble.win', {
+      amount: `${reward}${ECONOMY.CURRENCY}`,
+    })
+  } else {
+    // Loss
+    embed = MinaEmbed.error()
+    resultText = mina.sayf('economy.gamble.lose', {
+      amount: `${betAmount}${ECONOMY.CURRENCY}`,
+    })
+  }
+
+  embed
     .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
-    .setColor(EMBED_COLORS.BOT_EMBED)
     .setThumbnail(
       'https://i.pinimg.com/originals/9a/f1/4e/9af14e0ae92487516894faa9ea2c35dd.gif'
     )
     .setDescription(str)
     .setFooter({
-      text: `${result}\nUpdated Wallet balance: ${userDb.coins}${ECONOMY.CURRENCY}`,
+      text: `${resultText}\n${mina.sayf('economy.updatedBalance', { amount: `${userDb.coins}${ECONOMY.CURRENCY}` })}`,
     })
 
   return { embeds: [embed] }

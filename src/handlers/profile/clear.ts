@@ -1,13 +1,11 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
-  ActionRowBuilder,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createDangerBtn, createSecondaryBtn } from '@helpers/componentHelper'
-import { handleProfileBackButton } from './main-hub'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { clearProfile } from '@schemas/User'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Legacy handler for old String Select Menu clear confirmation
@@ -19,29 +17,28 @@ export async function handleProfileClear(
   const selected = interaction.values[0]
 
   if (selected === 'cancel') {
-    return interaction.update({
+    await interaction.update({
       content: 'keeping your profile just as it is!',
       embeds: [],
       components: [],
     })
+    return
   }
 
   try {
     await clearProfile(interaction.user.id)
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        'fresh start achieved! your canvas is clean and ready for a new masterpiece!'
-      )
+    const embed = MinaEmbed.success(
+      'fresh start achieved! your canvas is clean and ready for a new masterpiece!'
+    )
 
-    return interaction.update({
+    await interaction.update({
       embeds: [embed],
       components: [],
     })
   } catch (error) {
     console.error('Error clearing profile:', error)
-    return interaction.update({
+    await interaction.update({
       content:
         'oh no! something went wrong while clearing your profile. want to try again?',
       components: [],
@@ -55,36 +52,35 @@ export async function handleProfileClear(
 export async function showClearConfirmation(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🗑️ Clear Profile')
+  const embed = MinaEmbed.warning()
+    .setTitle('clear profile')
     .setDescription(
-      '⚠️ **Are you sure you want to clear your entire profile?**\n\n' +
-        'This will permanently delete all your profile information including:\n' +
-        '• Basic info (pronouns, birthdate, region, etc.)\n' +
-        '• Bio and interests\n' +
-        '• Social links and favorites\n' +
-        '• Goals\n\n' +
-        '**This action cannot be undone!**'
+      '**are you sure you want to clear your entire profile?**\n\n' +
+        'this will permanently delete all your profile information including:\n' +
+        '- basic info (pronouns, birthdate, region, etc.)\n' +
+        '- bio and interests\n' +
+        '- social links and favorites\n' +
+        '- goals\n\n' +
+        '**this action cannot be undone!**'
     )
 
-  const confirmRow = createDangerBtn({
-    customId: 'profile:btn:clear_confirm',
-    label: 'Yes, Clear My Profile',
-    emoji: '⚠️',
-  })
+  const confirmRow = MinaRows.single(
+    MinaButtons.custom(
+      'profile:btn:clear_confirm',
+      'yes, clear my profile',
+      ButtonStyle.Danger
+    )
+  )
 
-  const cancelRow = createSecondaryBtn({
-    customId: 'profile:btn:clear_cancel',
-    label: 'No, Keep My Profile',
-    emoji: '❌',
-  })
+  const cancelRow = MinaRows.single(
+    MinaButtons.custom(
+      'profile:btn:clear_cancel',
+      'no, keep my profile',
+      ButtonStyle.Secondary
+    )
+  )
 
-  const backRow = createSecondaryBtn({
-    customId: 'profile:btn:back',
-    label: 'Back to Profile Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('profile:btn:back')
 
   if (interaction.deferred || interaction.replied) {
     await interaction.editReply({
@@ -109,11 +105,9 @@ export async function handleClearConfirm(
   try {
     await clearProfile(interaction.user.id)
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        '✨ Fresh start achieved! Your canvas is clean and ready for a new masterpiece!'
-      )
+    const embed = MinaEmbed.success(
+      'fresh start achieved! your canvas is clean and ready for a new masterpiece!'
+    )
 
     await interaction.deferUpdate()
     await interaction.editReply({
@@ -138,7 +132,7 @@ export async function handleClearCancel(
 ): Promise<void> {
   await interaction.deferUpdate()
   await interaction.editReply({
-    content: 'keeping your profile just as it is! ✨',
+    content: 'keeping your profile just as it is!',
     embeds: [],
     components: [],
   })

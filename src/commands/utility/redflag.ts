@@ -4,19 +4,20 @@ import {
   ChatInputCommandInteraction,
   GuildMember,
   User,
-  EmbedBuilder,
 } from 'discord.js'
 import { getUser, addFlag, removeFlag, removeAllFlags } from '@schemas/User'
 import { Logger } from '@helpers/Logger'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const MAX_FLAGS = 5
 
 const DANGER_RATINGS: Record<number, { label: string; color: number }> = {
-  1: { label: 'Low Risk ⚠️', color: 0xffff00 },
-  2: { label: 'Moderate Risk ⚠️⚠️', color: 0xff9900 },
-  3: { label: 'High Risk ⚠️⚠️⚠️', color: 0xff6600 },
-  4: { label: 'Very High Risk ⚠️⚠️⚠️⚠️', color: 0xff3300 },
-  5: { label: 'Extremely Dangerous ⚠️⚠️⚠️⚠️⚠️', color: 0xff0000 },
+  1: { label: 'low risk', color: 0xffff00 },
+  2: { label: 'moderate risk', color: 0xff9900 },
+  3: { label: 'high risk', color: 0xff6600 },
+  4: { label: 'very high risk', color: 0xff3300 },
+  5: { label: 'extremely dangerous', color: 0xff0000 },
 }
 
 const command: CommandData = {
@@ -91,12 +92,12 @@ const command: CommandData = {
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     if (!interaction.guild) {
-      return interaction.followUp('This command can only be used in a server.')
+      return interaction.followUp(mina.say('serverOnly'))
     }
 
     const member = interaction.member as GuildMember
     if (!member) {
-      return interaction.followUp('Could not find member information.')
+      return interaction.followUp(mina.say('errors.memberNotFound'))
     }
 
     const subcommand = interaction.options.getSubcommand()
@@ -105,9 +106,7 @@ const command: CommandData = {
 
     // Only prevent self-flagging/unflagging/clearing, allow self-check
     if (user.id === interaction.user.id && subcommand !== 'check') {
-      return interaction.followUp(
-        "Whoopsie! You can't add or remove red flags on yourself, silly! That'd be like trying to tickle yourself - fun idea, but it just doesn't work! 😜"
-      )
+      return interaction.followUp(mina.say('utility.redflag.error.noSelf'))
     }
 
     const response = await handleRedFlag(
@@ -128,7 +127,7 @@ async function handleRedFlag(
   user: User,
   reason: string | null,
   member: GuildMember
-): Promise<string | { embeds: EmbedBuilder[] }> {
+): Promise<string | { embeds: any[] }> {
   try {
     let userDb = await getUser(user)
 
@@ -136,19 +135,20 @@ async function handleRedFlag(
 
     switch (action) {
       case 'add':
-        if (!reason)
-          return "Oopsie! You forgot to give a reason! Don't leave me hanging, spill the tea! ☕️"
+        if (!reason) return mina.say('utility.redflag.error.noReason')
 
         // Check if user already has a flag from this flagger
         if (
           userDb.flags?.some(flag => flag.flaggedBy === interaction.user.id)
         ) {
-          return "Whoa there, flag enthusiast! You've already planted your flag on this user's profile. One's enough, don't you think? 🚩😅"
+          return mina.say('utility.redflag.error.alreadyFlagged')
         }
 
         // Check if max flags reached
         if ((userDb.flags?.length || 0) >= MAX_FLAGS) {
-          return `Holy moly! This user's got more red flags than a parade! They've hit the max of ${MAX_FLAGS}. Time to slow down, flag master! 🎭`
+          return mina.sayf('utility.redflag.error.maxReached', {
+            max: MAX_FLAGS.toString(),
+          })
         }
 
         await addFlag(
@@ -158,34 +158,36 @@ async function handleRedFlag(
           interaction.guild!.id,
           interaction.guild!.name
         )
-        return `⚠️ Red flag added to ${user.tag}! Reason: ${reason}\nWow, that's some spicy info! I'll keep it safe in my quirky collection of odd facts. 🌶️🗃️`
+        return mina.sayf('utility.redflag.success.added', {
+          user: user.tag,
+          reason,
+        })
 
       case 'remove':
         if (!userDb.flags?.length)
-          return "Psst... this user's as clean as a whistle! Not a red flag in sight. Are you sure you didn't dream about adding one? 🌠"
+          return mina.say('utility.redflag.error.noFlags')
 
         // Check if user has a flag from this person
         if (
           !userDb.flags.some(flag => flag.flaggedBy === interaction.user.id)
         ) {
-          return "Uh-oh! Looks like you're trying to remove a flag you never planted. Nice try, sneaky! 😏"
+          return mina.say('utility.redflag.error.notYourFlag')
         }
 
         await removeFlag(user.id, interaction.user.id)
-        return `✅ Your red flag was removed from ${user.tag}! Poof! It's gone like magic... or like my last brilliant idea. Was it brilliant? I forgot. 🎩✨`
+        return mina.sayf('utility.redflag.success.removed', { user: user.tag })
 
       case 'clear':
-        if (!isAdmin)
-          return "Nice try, but that's an admin-only move! You're not fooling this quirky bot! 🕵️‍♀️"
+        if (!isAdmin) return mina.say('permissions.missing')
         if (!userDb.flags?.length)
-          return "Aww, there are no flags to clear! This user's reputation is already squeaky clean. Like, 'eat-off-the-floor' clean! 🍽️"
+          return mina.say('utility.redflag.error.noFlags')
 
         await removeAllFlags(user.id)
-        return `✅ All red flags have been cleared from ${user.tag}! It's like spring cleaning, but for reputations. Everything's fresh and sparkly now! ✨🧼`
+        return mina.sayf('utility.redflag.success.cleared', { user: user.tag })
 
       case 'check':
         if (!userDb.flags?.length)
-          return "Good news! This user is flag-free. They're as innocent as a unicorn in a field of rainbows! 🦄🌈"
+          return mina.say('utility.redflag.check.noFlags')
 
         const flagFields = await Promise.all(
           userDb.flags.map(async (flag, index) => {
@@ -194,15 +196,29 @@ async function handleRedFlag(
                 flag.flaggedBy
               )
               return {
-                name: `Red Flag #${index + 1}`,
-                value: `**By:** ${flagger.tag}\n**Server:** ${flag.serverName}\n**When:** <t:${Math.floor(flag.flaggedAt.getTime() / 1000)}:R>\n**Reason:** ${flag.reason}`,
+                name: mina.sayf('utility.redflag.check.flagNumber', {
+                  number: (index + 1).toString(),
+                }),
+                value: mina.sayf('utility.redflag.check.flagValue', {
+                  by: flagger.tag,
+                  server: flag.serverName,
+                  when: Math.floor(flag.flaggedAt.getTime() / 1000).toString(),
+                  reason: flag.reason,
+                }),
                 inline: false,
               }
             } catch (ex) {
               Logger.error('Failed to fetch flagger user', ex)
               return {
-                name: `Red Flag #${index + 1}`,
-                value: `**By:** Deleted User\n**Server:** ${flag.serverName}\n**When:** <t:${Math.floor(flag.flaggedAt.getTime() / 1000)}:R>\n**Reason:** ${flag.reason}`,
+                name: mina.sayf('utility.redflag.check.flagNumber', {
+                  number: (index + 1).toString(),
+                }),
+                value: mina.sayf('utility.redflag.check.flagValue', {
+                  by: 'deleted user',
+                  server: flag.serverName,
+                  when: Math.floor(flag.flaggedAt.getTime() / 1000).toString(),
+                  reason: flag.reason,
+                }),
                 inline: false,
               }
             }
@@ -211,31 +227,34 @@ async function handleRedFlag(
 
         const rating = DANGER_RATINGS[userDb.flags.length] || DANGER_RATINGS[5] // Default to max if over 5
 
-        let description = `Uh-oh! Looks like we've got some tea to spill! 🍵 This user has ${userDb.flags.length} red flag${userDb.flags.length > 1 ? 's' : ''}!\n**Current Status:** ${rating.label}`
+        let description = mina.sayf('utility.redflag.check.description', {
+          count: userDb.flags.length.toString(),
+          plural: userDb.flags.length > 1 ? 's' : '',
+          status: rating.label,
+        })
 
         // Add note if user is checking their own flags
         if (user.id === interaction.user.id) {
-          description +=
-            "\n\n**Note:** These are the red flags on your account. Don't worry, we all have our quirks! If you think any of these are unfair, go chat with the server admins. They don't bite... usually. 😉"
+          description += '\n\n' + mina.say('utility.redflag.check.selfNote')
         }
 
-        const embed = new EmbedBuilder()
-          .setTitle('🚩 Red Flag Fiesta! 🎉')
+        const embed = MinaEmbed.warning()
+          .setTitle(mina.say('utility.redflag.check.title'))
           .setDescription(description)
           .addFields(flagFields)
           .setColor(rating.color)
           .setFooter({
-            text: 'Remember: Users can remove their own flags, and admins can go flag-clearing crazy!',
+            text: mina.say('utility.redflag.check.footer'),
           })
 
         return { embeds: [embed] }
 
       default:
-        return "Whoopsie-daisy! Something went wonky. Did you try to invent a new command? I love creativity, but let's stick to the script for now! 😅"
+        return mina.say('error')
     }
   } catch (ex) {
     Logger.error('Red flag command', ex)
-    return 'An error occurred while processing the red flag request. Please try again.'
+    return mina.say('utility.redflag.error.processing')
   }
 }
 

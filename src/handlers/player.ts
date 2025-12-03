@@ -1,8 +1,9 @@
 import config from '@src/config'
-import { EmbedBuilder } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 import type { BotClient } from '@src/structures'
 
-const { EMBED_COLORS, MUSIC } = config
+const { MUSIC } = config
 
 export const autoplayFunction = async (
   client: BotClient,
@@ -49,11 +50,7 @@ export const autoplayFunction = async (
   if (!res || res.tracks.length === 0) {
     await channel.safeSend(
       {
-        embeds: [
-          new EmbedBuilder()
-            .setColor(EMBED_COLORS.WARNING)
-            .setDescription('> Autoplay, No results found'),
-        ],
+        embeds: [MinaEmbed.warning(mina.say('music.error.noResults'))],
       },
       10
     )
@@ -79,11 +76,7 @@ export const autoplayFunction = async (
   if (player.queue.tracks.length === 0) {
     await channel?.safeSend(
       {
-        embeds: [
-          new EmbedBuilder()
-            .setColor(EMBED_COLORS.WARNING)
-            .setDescription('> Autoplay, No unique track found'),
-        ],
+        embeds: [MinaEmbed.warning(mina.say('music.error.noResults'))],
       },
       10
     )

@@ -1,9 +1,5 @@
 // src/structures/BaseContext.ts
-import {
-  ApplicationCommandType,
-  ContextMenuCommandInteraction,
-} from 'discord.js'
-import type { PermissionResolvable } from 'discord.js'
+import { ApplicationCommandType } from 'discord.js'
 
 // All types are now globally available - see types/contexts.d.ts
 // This file only exports the runtime context template
@@ -14,7 +10,7 @@ import type { PermissionResolvable } from 'discord.js'
 const baseContext: ContextData = {
   name: '',
   description: '',
-  type: '',
+  type: ApplicationCommandType.User,
   enabled: false,
   ephemeral: false,
   userPermissions: [],

@@ -72,7 +72,7 @@ export default {
 
       const xpChannel =
         settings.stats.xp.channel &&
-        message.guild.channels.cache.get(settings.stats.xp.channel)
+        message.guild?.channels.cache.get(settings.stats.xp.channel)
       const lvlUpChannel = xpChannel || message.channel
 
       ;(lvlUpChannel as any).safeSend(lvlUpMessage)

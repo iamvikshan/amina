@@ -6,6 +6,8 @@ import {
   GuildMember,
 } from 'discord.js'
 import ems from 'enhanced-ms'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'timeout',
@@ -42,7 +44,13 @@ const command: CommandData = {
     const user = interaction.options.getUser('user')
 
     if (!user) {
-      await interaction.followUp('Please specify a valid user to timeout.')
+      await interaction.followUp({
+        embeds: [
+          MinaEmbed.error(
+            mina.sayf('moderation.error.specifyUser', { action: 'timeout' })
+          ),
+        ],
+      })
       return
     }
 
@@ -50,13 +58,15 @@ const command: CommandData = {
     const duration = interaction.options.getString('duration', true)
     const ms = ems(duration)
     if (!ms) {
-      return interaction.followUp(
-        'Please provide a valid duration. Example: 1d/1h/1m/1s'
-      )
+      return interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('moderation.error.invalidDuration'))],
+      })
     }
 
     if (!interaction.guild) {
-      await interaction.followUp('This command can only be used in a server.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
       return
     }
 
@@ -79,23 +89,57 @@ async function timeout(
   target: GuildMember,
   ms: number,
   reason: string | null
-): Promise<string> {
-  if (isNaN(ms)) return 'Please provide a valid duration. Example: 1d/1h/1m/1s'
+): Promise<string | { embeds: MinaEmbed[] }> {
+  if (isNaN(ms)) {
+    return {
+      embeds: [MinaEmbed.error(mina.say('moderation.error.invalidDuration'))],
+    }
+  }
   const response = await timeoutTarget(
     issuer,
     target,
     ms,
-    reason || 'No reason provided'
+    reason || mina.say('moderation.error.noReason')
   )
-  if (typeof response === 'boolean')
-    return `${target.user.username} is timed out!`
-  if (response === 'BOT_PERM')
-    return `I do not have permission to timeout ${target.user.username}`
-  else if (response === 'MEMBER_PERM')
-    return `You do not have permission to timeout ${target.user.username}`
-  else if (response === 'ALREADY_TIMEOUT')
-    return `${target.user.username} is already timed out!`
-  else return `Failed to timeout ${target.user.username}`
+  if (typeof response === 'boolean') {
+    return {
+      embeds: [
+        MinaEmbed.mod('timeout').setDescription(
+          mina.sayf('moderation.timeout', { target: target.user.username })
+        ),
+      ],
+    }
+  }
+  if (response === 'BOT_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.botMissing'))],
+    }
+  } else if (response === 'MEMBER_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.missing'))],
+    }
+  } else if (response === 'ALREADY_TIMEOUT') {
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.error.alreadyTimeout', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
+  } else {
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.error.failed', {
+            action: 'timeout',
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
+  }
 }
 
 export default command

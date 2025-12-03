@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { Hangman } from 'discord-gamecord'
-import { EMBED_COLORS } from '@src/config'
+import { mina } from '@helpers/mina'
 
 // Themes with Amina's creative touch
 const choices = [
@@ -20,7 +20,7 @@ const choices = [
 const command: CommandData = {
   name: 'hangman',
   description:
-    "Time for a word-guessing adventure! Pick a theme and let's play! 🎮",
+    "time for a word-guessing adventure! pick a theme and let's play!",
   category: 'FUN',
   slashCommand: {
     enabled: true,
@@ -48,8 +48,10 @@ const command: CommandData = {
       message: interaction,
       isSlashGame: true,
       embed: {
-        title: `🎯 Hangman: ${choice.charAt(0).toUpperCase() + choice.slice(1)} Theme`,
-        color: EMBED_COLORS.WARNING,
+        title: mina.sayf('fun.hangman.title', {
+          theme: choice.charAt(0).toUpperCase() + choice.slice(1),
+        }),
+        color: mina.color.warning,
       },
       hangman: {
         hat: '🎩',
@@ -60,12 +62,9 @@ const command: CommandData = {
       },
       timeoutTime: 60000,
       theme: choice,
-      winMessage:
-        "🎉 You did it! The word was **{word}**! You're amazing at this!",
-      loseMessage:
-        "Aww, not this time! The word was **{word}**. Let's try another round!",
-      playerOnlyMessage:
-        'Hey there! This game belongs to {player}! Start your own adventure with `/hangman` 💫',
+      winMessage: mina.say('fun.hangman.win'),
+      loseMessage: mina.say('fun.hangman.lose'),
+      playerOnlyMessage: mina.say('fun.hangman.playerOnly'),
     })
 
     Game.startGame()

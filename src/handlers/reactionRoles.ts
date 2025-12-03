@@ -13,6 +13,7 @@ export async function handleReactionAdd(
   const role = await getRole(reaction)
   if (!role) return
 
+  if (!reaction.message.guild) return
   const member = await reaction.message.guild.members.fetch(user.id)
   if (!member) return
 
@@ -31,6 +32,7 @@ export async function handleReactionRemove(
   const role = await getRole(reaction)
   if (!role) return
 
+  if (!reaction.message.guild) return
   const member = await reaction.message.guild.members.fetch(user.id)
   if (!member) return
 
@@ -44,9 +46,13 @@ export async function handleReactionRemove(
  */
 async function getRole(reaction: MessageReaction): Promise<any> {
   const { message, emoji } = reaction
-  if (!message || !message.channel) return
+  if (!message || !message.channel || !message.guild) return null
 
-  const rr = getReactionRoles(message.guildId, message.channelId, message.id)
+  const rr = getReactionRoles(
+    message.guildId ?? '',
+    message.channelId,
+    message.id
+  )
   const emote = emoji.id ? emoji.id : emoji.toString()
   const found = rr.find(doc => doc.emote === emote)
 

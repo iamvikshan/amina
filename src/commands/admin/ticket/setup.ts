@@ -1,19 +1,18 @@
 import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
   ModalBuilder,
   TextInputBuilder,
-  ButtonStyle,
   TextInputStyle,
   ComponentType,
   ChannelType,
   TextChannel,
   Guild,
   GuildMember,
+  ActionRowBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { getSettings, updateSettings } from '@src/database/schemas/Guild'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 export async function ticketModalSetup(
   interaction: {
@@ -25,20 +24,15 @@ export async function ticketModalSetup(
 ): Promise<void> {
   const { guild, channel, member } = interaction
 
-  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('ticket_btnSetup')
-      .setLabel('Setup Message')
-      .setStyle(ButtonStyle.Primary)
+  const buttonRow = MinaRows.from(
+    MinaButtons.go('ticket_btnSetup').setLabel('setup message')
   )
 
   const sentMsg = await channel.send({
     embeds: [
-      new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setDescription(
-          'Please click the button below to setup the ticket message 🎫'
-        ),
+      MinaEmbed.primary().setDescription(
+        mina.say('ticket.setup.message.description')
+      ),
     ],
     components: [buttonRow],
   })
@@ -61,9 +55,9 @@ export async function ticketModalSetup(
   if (!btnInteraction) {
     await sentMsg.edit({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription('No response received, cancelling setup 😔'),
+        MinaEmbed.error().setDescription(
+          mina.say('ticket.setup.message.cancelled')
+        ),
       ],
       components: [],
     })
@@ -74,26 +68,26 @@ export async function ticketModalSetup(
   await btnInteraction.showModal(
     new ModalBuilder({
       customId: 'ticket-modalSetup',
-      title: 'Ticket Setup',
+      title: mina.say('ticket.setup.message.title'),
       components: [
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('title')
-            .setLabel('Embed Title')
+            .setLabel('embed title')
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('description')
-            .setLabel('Embed Description')
+            .setLabel('embed description')
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('footer')
-            .setLabel('Embed Footer')
+            .setLabel('embed footer')
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
@@ -115,9 +109,9 @@ export async function ticketModalSetup(
   if (!modal) {
     await sentMsg.edit({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription('No response received, cancelling setup 😔'),
+        MinaEmbed.error().setDescription(
+          mina.say('ticket.setup.message.cancelled')
+        ),
       ],
       components: [],
     })
@@ -126,9 +120,9 @@ export async function ticketModalSetup(
 
   await modal.reply({
     embeds: [
-      new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setDescription('Setting up ticket message... 🎫'),
+      MinaEmbed.primary().setDescription(
+        mina.say('ticket.setup.message.processing')
+      ),
     ],
   })
 
@@ -156,19 +150,15 @@ export async function ticketModalSetup(
   }
 
   // send ticket message
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: title || 'Support Ticket' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: title || 'support ticket' })
     .setDescription(
-      description || 'Please use the button below to create a ticket'
+      description || 'please use the button below to create a ticket'
     )
-    .setFooter({ text: footer || 'You can only have 1 open ticket at a time!' })
+    .setFooter({ text: footer || 'you can only have 1 open ticket at a time!' })
 
-  const tktBtnRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setLabel('Open a ticket')
-      .setCustomId('TICKET_CREATE')
-      .setStyle(ButtonStyle.Success)
+  const tktBtnRow = MinaRows.from(
+    MinaButtons.go('TICKET_CREATE').setLabel('open a ticket')
   )
 
   const ticketMessage = await targetChannel.send({
@@ -183,9 +173,9 @@ export async function ticketModalSetup(
   await modal.deleteReply()
   await sentMsg.edit({
     embeds: [
-      new EmbedBuilder()
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setDescription('Yay! Ticket Message Created Successfully! 🎉'),
+      MinaEmbed.success().setDescription(
+        mina.say('ticket.setup.message.success')
+      ),
     ],
     components: [],
   })
@@ -198,12 +188,16 @@ export async function setupLogChannel(
   if (
     !target.permissionsFor(target.guild.members.me as any)?.has('SendMessages')
   )
-    return `Oops! I don't have permission to send messages to ${target}`
+    return mina.sayf('ticket.setup.message.noPermission', {
+      channel: target.toString(),
+    })
 
   settings.ticket.log_channel = target.id
   await settings.save()
 
-  return `Configuration saved! Ticket logs will be sent to ${target.toString()}`
+  return mina.sayf('ticket.setup.message.logChannelSaved', {
+    channel: target.toString(),
+  })
 }
 
 export async function setupLimit(
@@ -211,12 +205,14 @@ export async function setupLimit(
   settings: any
 ): Promise<string> {
   if (Number.parseInt(limit.toString(), 10) < 5)
-    return 'Ticket limit cannot be less than 5'
+    return mina.say('ticket.setup.message.limitTooLow')
 
   settings.ticket.limit = limit
   await settings.save()
 
-  return `Configuration saved. You can now have a maximum of \`${limit}\` open tickets`
+  return mina.sayf('ticket.setup.message.limitSaved', {
+    limit: limit.toString(),
+  })
 }
 
 export default 0

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 // Environment variable type definitions
 
 declare global {
@@ -19,6 +19,7 @@ declare global {
       OPENAI?: string
       HONEYBADGER_API_KEY?: string
       WEBHOOK_SECRET?: string
+      WAIFU_IT?: string
       // Lavalink Secrets
       LAVALINK_ID_1?: string
       LAVALINK_HOST_1?: string

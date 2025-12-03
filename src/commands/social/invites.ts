@@ -1,7 +1,6 @@
 import inviteHandler from '@handlers/invite'
-import { EMBED_COLORS, INVITE } from '@src/config'
+import { INVITE } from '@src/config'
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   Guild,
@@ -12,6 +11,7 @@ import {
 } from 'discord.js'
 import { getMember } from '@schemas/Member'
 import { stripIndent } from 'common-tags'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const {
   getEffectiveInvites,
@@ -191,7 +191,7 @@ const command: CommandData = {
   ) {
     const sub = interaction.options.getSubcommand()
     const group = interaction.options.getSubcommandGroup()
-    let response
+    let response: string | { embeds: MinaEmbed[] } = 'Invalid subcommand'
 
     if (!interaction.guild) {
       return interaction.followUp('This command can only be used in a server.')
@@ -307,7 +307,7 @@ const command: CommandData = {
       }
     }
 
-    await interaction.followUp(response)
+    return interaction.followUp(response)
   },
 }
 
@@ -322,26 +322,25 @@ async function getInvites(guild: Guild, user: User, settings: any) {
     return `No invite data found for ${user.username}`
   }
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: `Invites for ${user.username}` })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: `invites for ${user.username}` })
     .setThumbnail(user.displayAvatarURL())
     .setDescription(
       `${user.toString()} has ${getEffectiveInvites(inviteData)} invites`
     )
     .addFields(
       {
-        name: 'Total Invites',
+        name: 'total invites',
         value: `**${inviteData?.tracked + inviteData?.added || 0}**`,
         inline: true,
       },
       {
-        name: 'Fake Invites',
+        name: 'fake invites',
         value: `**${inviteData?.fake || 0}**`,
         inline: true,
       },
       {
-        name: 'Left Invites',
+        name: 'left invites',
         value: `**${inviteData?.left || 0}**`,
         inline: true,
       }
@@ -361,9 +360,8 @@ async function getInviteCodes(guild: Guild, user: User) {
     str += `❯ [${inv.code}](${inv.url}) : ${inv.uses} uses\n`
   })
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: `Invite code for ${user.username}` })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: `invite code for ${user.username}` })
     .setDescription(str)
 
   return { embeds: [embed] }
@@ -395,15 +393,14 @@ async function getInviter(guild: Guild, user: User, settings: any) {
   )) as any as IMember
   const inviterData = inviterDb.invite_data
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: `Invite data for ${user.username}` })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: `invite data for ${user.username}` })
     .setDescription(
       stripIndent`
-      Inviter: \`${inviter?.username || 'Deleted User'}\`
-      Inviter ID: \`${inviteData.inviter}\`
-      Invite Code: \`${inviteData.code || 'N/A'}\`
-      Inviter Invites: \`${getEffectiveInvites(inviterData)}\`
+      inviter: \`${inviter?.username || 'Deleted User'}\`
+      inviter id: \`${inviteData.inviter}\`
+      invite code: \`${inviteData.code || 'N/A'}\`
+      inviter invites: \`${getEffectiveInvites(inviterData)}\`
       `
     )
 
@@ -424,9 +421,8 @@ async function getInviteRanks(guild: Guild, settings: any) {
 
   if (!str) return 'No invite ranks configured in this server'
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'Invite Ranks' })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: 'invite ranks' })
     .setDescription(str)
   return { embeds: [embed] }
 }
@@ -446,10 +442,9 @@ async function addInvites(guild: Guild, user: User, amount: number) {
   memberDb.invite_data.added += amount
   await memberDb.save()
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: `Added invites to ${user.username}` })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: `added invites to ${user.username}` })
     .setThumbnail(user.displayAvatarURL())
-    .setColor(EMBED_COLORS.BOT_EMBED)
     .setDescription(
       `${user.username} now has ${getEffectiveInvites(memberDb.invite_data)} invites`
     )
@@ -484,11 +479,12 @@ async function importInvites(guild: Guild, user: User | null) {
 
   for (const invite of invites.values()) {
     const inviter = invite.inviter
-    if (!inviter || invite.uses === 0) continue
-    if (!tempMap.has(inviter.id)) tempMap.set(inviter.id, invite.uses)
+    const uses = invite.uses ?? 0
+    if (!inviter || uses === 0) continue
+    if (!tempMap.has(inviter.id)) tempMap.set(inviter.id, uses)
     else {
-      const uses = tempMap.get(inviter.id)! + invite.uses
-      tempMap.set(inviter.id, uses)
+      const currentUses = tempMap.get(inviter.id)! + uses
+      tempMap.set(inviter.id, currentUses)
     }
   }
 

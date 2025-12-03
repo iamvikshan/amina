@@ -2,15 +2,14 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ModalSubmitInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
 
 /**
  * Show leave server modal
@@ -49,21 +48,16 @@ export async function handleLeaveServerModal(
   const serverId = interaction.fields.getTextInputValue('server_id')
   const guild = interaction.client.guilds.cache.get(serverId)
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_leaveserver',
-    label: 'Back to Dev Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_leaveserver')
 
   if (!guild) {
-    const errorEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setTitle('❌ Error')
-      .setDescription(`No server found with ID: \`${serverId}\``)
+    const errorEmbed = MinaEmbed.error()
+      .setTitle('error')
+      .setDescription(`no server found with id: \`${serverId}\``)
 
     await interaction.editReply({
       embeds: [errorEmbed],
-      components: [backButton],
+      components: [backRow],
     })
     return
   }
@@ -72,24 +66,22 @@ export async function handleLeaveServerModal(
   try {
     await guild.leave()
 
-    const successEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setTitle('✅ Success')
-      .setDescription(`Successfully left server: **${name}** (\`${serverId}\`)`)
+    const successEmbed = MinaEmbed.success()
+      .setTitle('success')
+      .setDescription(`successfully left server: **${name}** (\`${serverId}\`)`)
 
     await interaction.editReply({
       embeds: [successEmbed],
-      components: [backButton],
+      components: [backRow],
     })
   } catch (err: any) {
-    const errorEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setTitle('❌ Error')
-      .setDescription(`Failed to leave **${name}**: ${err.message}`)
+    const errorEmbed = MinaEmbed.error()
+      .setTitle('error')
+      .setDescription(`failed to leave **${name}**: ${err.message}`)
 
     await interaction.editReply({
       embeds: [errorEmbed],
-      components: [backButton],
+      components: [backRow],
     })
   }
 }

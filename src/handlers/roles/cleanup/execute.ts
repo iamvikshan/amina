@@ -1,8 +1,8 @@
 import type { ButtonInteraction, Role } from 'discord.js'
-import { EmbedBuilder, MessageFlags } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MessageFlags } from 'discord.js'
+import { MinaRows } from '@helpers/componentHelper'
 import type { RoleCleanupMethod, RoleCleanupStats } from '@handlers/roles'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Filter roles based on cleanup criteria and permissions
@@ -86,7 +86,7 @@ export async function executeCleanup(
 ): Promise<void> {
   const guild = interaction.guild
   if (!guild) {
-    await interaction.editReply({ content: '❌ Guild not found' })
+    await interaction.editReply({ content: 'guild not found' })
     return
   }
 
@@ -103,41 +103,27 @@ export async function executeCleanup(
   // Safety cap
   const MAX_DELETE = 250
   if (stats.deletable.length > MAX_DELETE) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setTitle('❌ Cleanup Failed')
+    const embed = MinaEmbed.error()
+      .setTitle('cleanup failed')
       .setDescription(
-        `Safety limit exceeded! Cannot delete more than ${MAX_DELETE} roles in one operation.`
+        `safety limit exceeded! cannot delete more than ${MAX_DELETE} roles in one operation.`
       )
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'roles:btn:back',
-          label: 'Back to Roles Hub',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('roles:btn:back')],
     })
     return
   }
 
   if (stats.deletable.length === 0) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.WARNING)
-      .setTitle('⚠️ No Roles to Delete')
+    const embed = MinaEmbed.warning()
+      .setTitle('no roles to delete')
       .setDescription(
-        'No roles match your criteria or all matched roles are protected.'
+        'no roles match your criteria or all matched roles are protected.'
       )
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'roles:btn:back',
-          label: 'Back to Roles Hub',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('roles:btn:back')],
     })
     return
   }
@@ -158,22 +144,22 @@ export async function executeCleanup(
   }
 
   // Show results
-  const embed = new EmbedBuilder()
-    .setColor(errors.length > 0 ? EMBED_COLORS.WARNING : EMBED_COLORS.SUCCESS)
-    .setTitle('✅ Cleanup Complete')
+  const embed = errors.length > 0 ? MinaEmbed.warning() : MinaEmbed.success()
+  embed
+    .setTitle('cleanup complete')
     .setDescription(
-      `Successfully deleted **${deleted}** role${deleted !== 1 ? 's' : ''}.` +
+      `successfully deleted **${deleted}** role${deleted !== 1 ? 's' : ''}.` +
         (errors.length > 0
-          ? `\n\n⚠️ Failed to delete ${errors.length} role(s).`
+          ? `\n\nfailed to delete ${errors.length} role(s).`
           : '')
     )
     .addFields(
-      { name: '✅ Deleted', value: String(deleted), inline: true },
-      { name: '❌ Failed', value: String(errors.length), inline: true },
-      { name: '⏭️ Skipped', value: String(stats.skipped.length), inline: true }
+      { name: 'deleted', value: String(deleted), inline: true },
+      { name: 'failed', value: String(errors.length), inline: true },
+      { name: 'skipped', value: String(stats.skipped.length), inline: true }
     )
     .setFooter({
-      text: `Cleanup executed by ${interaction.user.tag}`,
+      text: `cleanup executed by ${interaction.user.tag}`,
       iconURL: interaction.user.displayAvatarURL(),
     })
     .setTimestamp()
@@ -181,23 +167,17 @@ export async function executeCleanup(
   if (errors.length > 0) {
     const errorList = errors
       .slice(0, 10)
-      .map(e => `• ${e.role.name} (${e.role.id})`)
+      .map(e => `- ${e.role.name} (${e.role.id})`)
       .join('\n')
     embed.addFields({
-      name: '❌ Failed Deletions',
+      name: 'failed deletions',
       value: errorList || 'N/A',
     })
   }
 
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      createSecondaryBtn({
-        customId: 'roles:btn:back',
-        label: 'Back to Roles Hub',
-        emoji: '◀️',
-      }),
-    ],
+    components: [MinaRows.backRow('roles:btn:back')],
   })
 }
 
@@ -213,7 +193,7 @@ export async function handleCleanupConfirm(
 
   if (!methodPart) {
     await interaction.reply({
-      content: '❌ Invalid interaction state',
+      content: 'invalid interaction state',
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -226,7 +206,7 @@ export async function handleCleanupConfirm(
     try {
       const decoded = Buffer.from(base64Params, 'base64').toString('utf-8')
       params = decoded ? JSON.parse(decoded) : {}
-    } catch (err) {
+    } catch (_err) {
       // Ignore parsing errors
     }
   }
@@ -242,21 +222,14 @@ export async function handleCleanupCancel(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('❌ Cleanup Cancelled')
+  const embed = MinaEmbed.primary()
+    .setTitle('cleanup cancelled')
     .setDescription(
-      'Role cleanup operation has been cancelled. No roles were deleted.'
+      'role cleanup operation has been cancelled. no roles were deleted.'
     )
 
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      createSecondaryBtn({
-        customId: 'roles:btn:back',
-        label: 'Back to Roles Hub',
-        emoji: '◀️',
-      }),
-    ],
+    components: [MinaRows.backRow('roles:btn:back')],
   })
 }

@@ -43,19 +43,25 @@ export default async (client: BotClient): Promise<void> => {
     } else {
       client.logger.warn('Memory Service disabled - missing configuration')
     }
-  } catch (error) {
+  } catch (_error) {
     client.logger.warn('Memory Service disabled - configuration error')
   }
 
   // Initialize Music Manager
   if (client.config.MUSIC.ENABLED) {
-    client.musicManager.init({ ...client.user!, shards: 'auto' })
-    client.logger.success('Music Manager initialized')
+    if (client.user) {
+      client.musicManager.init({ ...client.user, shards: 'auto' })
+      client.logger.success('Music Manager initialized')
+    } else {
+      client.logger.warn(
+        'Music Manager initialization skipped - client user not available'
+      )
+    }
   }
 
   // Initialize Giveaways Manager
   if (client.config.GIVEAWAYS.ENABLED) {
-    client.logger.log('Initializing the giveaways manager...')
+    //   client.logger.log('Initializing the giveaways manager...')
     client.giveawaysManager
       ._init()
       .then(() => client.logger.success('Giveaway Manager is up and running!'))
@@ -65,32 +71,7 @@ export default async (client: BotClient): Promise<void> => {
   const presenceConfig = await getPresenceConfig()
   if (presenceConfig.PRESENCE.ENABLED) {
     await presenceHandler(client)
-
-    const logPresence = () => {
-      let message = presenceConfig.PRESENCE.MESSAGE
-
-      // Process {servers} and {members} placeholders
-      if (message.includes('{servers}')) {
-        message = message.replaceAll(
-          '{servers}',
-          String(client.guilds.cache.size)
-        )
-      }
-
-      if (message.includes('{members}')) {
-        const members = client.guilds.cache
-          .map(g => g.memberCount)
-          .reduce((partial_sum, a) => partial_sum + a, 0)
-        message = message.replaceAll('{members}', String(members))
-      }
-
-      client.logger.log(
-        `Presence: STATUS:${presenceConfig.PRESENCE.STATUS}, TYPE:${presenceConfig.PRESENCE.TYPE}`
-      )
-    }
-
-    // Log the initial presence update when the bot starts
-    logPresence()
+    client.logger.success('Presence Handler initialized')
   }
 
   // Helper function to handle command registration with rate limit detection
@@ -261,18 +242,14 @@ export default async (client: BotClient): Promise<void> => {
     }
 
     // Register test guild commands (Wrapped in try-catch to prevent startup crash)
+    // Only register devOnly and testGuildOnly commands here - regular commands come from global registration
     const testGuild = client.guilds.cache.get(config.BOT.TEST_GUILD_ID || '')
     if (testGuild) {
       const testGuildCommands = client.slashCommands
         .filter(
           cmd =>
-            // Keep test and dev commands
-            cmd.testGuildOnly ||
-            (cmd.devOnly && devConfig.ENABLED) ||
-            // Only include regular commands if GLOBAL is true (include dmCommand - they're hybrid)
-            (client.config.INTERACTIONS.GLOBAL &&
-              !cmd.testGuildOnly &&
-              !cmd.devOnly)
+            // Only dev and test commands - regular commands come from global registration
+            cmd.testGuildOnly || (cmd.devOnly && devConfig.ENABLED)
         )
         .map(cmd => ({
           name: cmd.name,
@@ -331,11 +308,11 @@ export default async (client: BotClient): Promise<void> => {
       )
 
       if (globalCommands.length > 0) {
-        // Try global registration with shorter timeout (20s)
-        let globalSuccess = false
         try {
-          const needsUpdate = await shouldUpdateCommands(globalCommands, () =>
-            client.application!.commands.fetch()
+          const needsUpdate = await shouldUpdateCommands(
+            globalCommands,
+            () =>
+              client.application?.commands.fetch() ?? Promise.resolve(new Map())
           )
 
           if (needsUpdate) {
@@ -363,70 +340,15 @@ export default async (client: BotClient): Promise<void> => {
               'Global commands are up to date. Skipping registration.'
             )
           }
-          globalSuccess = true
         } catch (error: any) {
-          const isTimeout = error.message?.includes('timeout')
-
-          if (isTimeout) {
-            client.logger.warn(
-              'Global command registration timed out (likely rate limited)'
-            )
-            client.logger.log(
-              'Falling back to per-guild registration (each guild has separate rate limits)'
-            )
-          } else {
-            // Not a timeout, might be a real error - log it
-            client.logger.warn(
-              `Global command registration failed: ${error.message || error}`
-            )
-            client.logger.log('Falling back to per-guild registration')
-          }
-        }
-
-        // Fallback: Smart per-guild registration strategy (Runs in background to avoid blocking)
-        if (!globalSuccess) {
-          ;(async () => {
-            const allGuilds = Array.from(client.guilds.cache.values()).filter(
-              g => g.id !== config.BOT.TEST_GUILD_ID
-            ) // Exclude test guild
-
-            if (allGuilds.length === 0) {
-              client.logger.warn(
-                'No guilds to register commands in (excluding test guild)'
-              )
-              return
-            }
-
-            client.logger.log(
-              `Registering commands in ${allGuilds.length} guilds (fallback mode) - Running in background`
-            )
-
-            const promises = allGuilds.map(async guild => {
-              try {
-                await guild.commands.set(globalCommands)
-                client.logger.success(`✓ Registered commands in ${guild.name}`)
-                return true
-              } catch (error: any) {
-                client.logger.error(
-                  `Failed to register commands in ${guild.name}: ${error.message}`
-                )
-                return false
-              }
-            })
-
-            const results = await Promise.all(promises)
-            const successCount = results.filter(r => r).length
-            const failCount = results.filter(r => !r).length
-
-            client.logger.log(
-              `Per-guild registration complete: ${successCount} succeeded, ${failCount} failed`
-            )
-          })().catch(err => {
-            client.logger.error(
-              'Error in background registration fallback:',
-              err
-            )
-          })
+          // Log the error but don't fallback to per-guild registration
+          // Per-guild registration causes duplicates when global commands eventually propagate
+          client.logger.error(
+            `Failed to register global commands: ${error.message || error}`
+          )
+          client.logger.warn(
+            'Global commands may take up to 1 hour to propagate. Do not use per-guild fallback to avoid duplicates.'
+          )
         }
       } else {
         client.logger.warn(

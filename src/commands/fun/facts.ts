@@ -1,10 +1,11 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   User,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
+import responses from '@data/responses'
 import { getJson } from '@helpers/HttpUtils'
 
 // Amina's enthusiastic animal descriptions
@@ -19,15 +20,6 @@ const animalEmojis: Record<string, string> = {
   raccoon: '🦝',
   kangaroo: '🦘',
 }
-
-const aminaIntros = [
-  'Omg, check out this amazing',
-  "*bounces excitedly* Here's a super cool fact about",
-  "You won't BELIEVE what I found out about",
-  '*gasps dramatically* Did you know this about',
-  'Time for some mind-blowing facts about',
-  '*spinning with excitement* Let me tell you about',
-]
 
 const animals = [
   'cat',
@@ -76,31 +68,37 @@ const command: CommandData = {
 async function getFact(
   user: User,
   choice: string
-): Promise<{ content?: string; embeds?: EmbedBuilder[] }> {
+): Promise<{ content?: string; embeds?: MinaEmbed[] }> {
   const response = await getJson(`${BASE_URL}/${choice}`)
   if (!response.success) {
     return {
-      content:
-        "*droops sadly* Oh no! Something went wrong with my fact-finding mission! But don't worry, we can try again! 🎨✨",
+      content: mina.say('fun.facts.error'),
     }
   }
 
   const fact = response.data?.fact
   const imageUrl = response.data?.image
+  const aminaIntros = responses.fun.facts.intros
   const randomIntro =
     aminaIntros[Math.floor(Math.random() * aminaIntros.length)]
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
     .setTitle(
-      `${animalEmojis[choice] || '✨'} ${choice.toUpperCase()} FACTS! ${animalEmojis[choice] || '✨'}`
+      mina.sayf('fun.facts.embed.title', {
+        emoji: animalEmojis[choice] || '✨',
+        animal: choice.toUpperCase(),
+      })
     )
     .setImage(imageUrl)
     .setDescription(
-      `${randomIntro} ${choice}s!\n\n${fact}\n\n*✨ Isn't nature just absolutely amazing? ✨*`
+      mina.sayf('fun.facts.embed.description', {
+        intro: randomIntro,
+        animal: choice,
+        fact: fact,
+      })
     )
     .setFooter({
-      text: `Requested by ${user.tag}! Smarter every day with Amina!`,
+      text: mina.sayf('fun.facts.embed.footer', { user: user.tag }),
     })
 
   return { embeds: [embed] }

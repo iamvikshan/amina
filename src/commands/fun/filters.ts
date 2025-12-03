@@ -1,24 +1,24 @@
 import {
-  EmbedBuilder,
   AttachmentBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { getBuffer } from '@helpers/HttpUtils'
-import { EMBED_COLORS, IMAGE, secret } from '@src/config'
+import { IMAGE, secret } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const filterDescriptions: Record<string, string> = {
-  blur: "Let's add some dreamy mystique! ✨",
-  brighten: 'Time to make this shine\nlike my mood! ☀️',
-  burn: 'Adding some intense dramatic flair! 🔥',
-  darken: 'Making it moody and mysterious~ 🌙',
-  distort: 'Time for some crazy abstract vibes! 🎨',
-  greyscale: 'Going classic black and white! 🖤',
-  invert: 'Flipping the world upside down! 🙃',
-  pixelate: 'Making it retro-cool! 👾',
-  sepia: 'Adding some vintage magic! 📷',
-  sharpen: 'Making every detail pop! 💫',
-  threshold: 'Going totally experimental! 🎯',
+  blur: "let's add some dreamy mystique!",
+  brighten: 'time to make this shine\nlike my mood!',
+  burn: 'adding some intense dramatic flair!',
+  darken: 'making it moody and mysterious~',
+  distort: 'time for some crazy abstract vibes!',
+  greyscale: 'going classic black and white!',
+  invert: 'flipping the world upside down!',
+  pixelate: 'making it retro-cool!',
+  sepia: 'adding some vintage magic!',
+  sharpen: 'making every detail pop!',
+  threshold: 'going totally experimental!',
 }
 
 const availableFilters = [
@@ -60,11 +60,11 @@ const additionalParams: Record<
 }
 
 const creativeIntros = [
-  '*bouncing with artistic energy*\nTime to transform this image! ',
-  "*pulls out virtual paintbrush*\nLet's create something amazing! ",
-  '*spins excitedly*\nReady for some artistic magic? ',
-  "*eyes sparkling*\nOoh, let's make this extra special! ",
-  '*giggling with creative inspiration*\nWatch this transformation! ',
+  '*bouncing with artistic energy*\ntime to transform this image! ',
+  "*pulls out virtual paintbrush*\nlet's create something amazing! ",
+  '*spins excitedly*\nready for some artistic magic? ',
+  "*eyes sparkling*\nooh, let's make this extra special! ",
+  '*giggling with creative inspiration*\nwatch this transformation! ',
 ]
 
 const command: CommandData = {
@@ -127,24 +127,23 @@ const command: CommandData = {
 
     if (!response.success) {
       return interaction.followUp(
-        "*drops paintbrush sadly* Oh no! My artistic powers aren't working right now! Maybe we can try again in a bit? 🎨💔"
+        "*drops paintbrush sadly* oh no! my artistic powers aren't working right now! maybe we can try again in a bit?"
       )
     }
 
     const randomIntro =
       creativeIntros[Math.floor(Math.random() * creativeIntros.length)]
     const filterDesc =
-      filterDescriptions[filter] || "Let's make some art magic! ✨"
+      filterDescriptions[filter] || "let's make some art magic!"
 
     const attachment = new AttachmentBuilder(response.buffer!, {
       name: 'attachment.png',
     })
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
+    const embed = MinaEmbed.primary()
       .setTitle(`${randomIntro}${filterDesc}`)
       .setImage('attachment://attachment.png')
       .setFooter({
-        text: `Art piece inspired by ${author.username}'s request! 🎨✨`,
+        text: `art piece inspired by ${author.username}'s request!`,
       })
 
     await interaction.followUp({ embeds: [embed], files: [attachment] })

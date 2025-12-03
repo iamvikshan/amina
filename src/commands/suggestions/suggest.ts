@@ -1,16 +1,16 @@
 import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
   ApplicationCommandOptionType,
-  ButtonStyle,
   ChatInputCommandInteraction,
   GuildMember,
   TextChannel,
+  ButtonStyle,
 } from 'discord.js'
 import { SUGGESTIONS } from '@src/config'
 import { addSuggestion } from '@schemas/Suggestions'
 import { stripIndent } from 'common-tags'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'suggest',
@@ -34,20 +34,20 @@ const command: CommandData = {
     data: { settings: any }
   ) {
     if (!interaction.guild) {
-      return interaction.followUp('This command can only be used in a server.')
+      return interaction.followUp(mina.say('serverOnly'))
     }
 
     const member = interaction.member as GuildMember
     if (!member) {
-      return interaction.followUp('Could not find member information.')
+      return interaction.followUp(mina.say('notFound.user'))
     }
 
     const suggestion = interaction.options.getString('suggestion', true)
     const settings = data?.settings || {}
     const response = await suggest(member, suggestion, settings)
     if (typeof response === 'boolean')
-      await interaction.followUp('Your suggestion has been submitted!')
-    else await interaction.followUp(response)
+      return interaction.followUp(mina.say('suggestions.submit'))
+    else return interaction.followUp(response)
   },
 }
 
@@ -56,43 +56,42 @@ async function suggest(
   suggestion: string,
   settings: any
 ): Promise<boolean | string> {
-  if (!settings.suggestions?.enabled) return 'Suggestion system is disabled.'
+  if (!settings.suggestions?.enabled)
+    return mina.say('suggestions.error.disabled')
   if (!settings.suggestions.channel_id)
-    return 'Suggestion channel not configured!'
+    return mina.say('suggestions.error.channelNotSet')
 
   const channel = member.guild.channels.cache.get(
     settings.suggestions.channel_id
   ) as TextChannel | undefined
 
-  if (!channel) return 'Suggestion channel not found!'
+  if (!channel) return mina.say('suggestions.error.channelNotFound')
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'New Suggestion' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: mina.say('suggestions.submit') })
     .setThumbnail(member.user.displayAvatarURL())
-    .setColor(SUGGESTIONS.DEFAULT_EMBED as any)
     .setDescription(
       stripIndent`
         ${suggestion}
 
-        **Submitter** 
+        **submitter** 
         ${member.user.username} [${member.id}]
       `
     )
     .setTimestamp()
 
-  let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_APPROVE')
-      .setLabel('Approve')
-      .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_REJECT')
-      .setLabel('Reject')
-      .setStyle(ButtonStyle.Danger),
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_DELETE')
-      .setLabel('Delete')
-      .setStyle(ButtonStyle.Secondary)
+  const buttonsRow = MinaRows.from(
+    MinaButtons.yeah('SUGGEST_APPROVE').setLabel(
+      mina.say('suggestions.buttons.approve')
+    ),
+    MinaButtons.stop('SUGGEST_REJECT').setLabel(
+      mina.say('suggestions.buttons.reject')
+    ),
+    MinaButtons.custom(
+      'SUGGEST_DELETE',
+      mina.say('suggestions.buttons.delete'),
+      ButtonStyle.Secondary
+    )
   )
 
   try {
@@ -109,7 +108,7 @@ async function suggest(
     return true
   } catch (ex) {
     ;(member.client as any).logger.error('suggest', ex)
-    return 'Failed to send message to suggestions channel!'
+    return mina.say('suggestions.error.sendFailed')
   }
 }
 

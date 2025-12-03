@@ -1,18 +1,16 @@
 import { getSettings as registerGuild, setInviteLink } from '@schemas/Guild'
 import {
-  ButtonBuilder,
-  ActionRowBuilder,
-  EmbedBuilder,
-  ButtonStyle,
   PermissionFlagsBits,
   ChannelType,
   Guild,
   TextChannel,
-  ApplicationCommandType,
 } from 'discord.js'
-import { EMBED_COLORS, config } from '@src/config'
+import { config } from '@src/config'
 import { notifyDashboard } from '@helpers/webhook'
 import type { BotClient } from '@src/structures'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 /**
  * Handles guild creation event when the bot joins a new server
@@ -27,34 +25,8 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   client.logger.log(`Guild Joined: ${guild.name} Members: ${guild.memberCount}`)
   const guildSettings = await registerGuild(guild)
 
-  // Register commands immediately for the new guild (if global commands haven't propagated yet)
-  if (client.config.INTERACTIONS.GLOBAL) {
-    try {
-      const commandsToSet = client.slashCommands
-        .filter(cmd => !cmd.testGuildOnly && !cmd.devOnly)
-        .map(cmd => ({
-          name: cmd.name,
-          description: cmd.description,
-          type: ApplicationCommandType.ChatInput,
-          options: cmd.slashCommand.options,
-          dm_permission: cmd.dmCommand ?? false,
-        }))
-
-      if (commandsToSet.length > 0) {
-        client.logger.log(
-          `Registering ${commandsToSet.length} commands for new guild: ${guild.name}`
-        )
-        await guild.commands.set(commandsToSet)
-        client.logger.success(
-          `Successfully registered commands for ${guild.name}`
-        )
-      }
-    } catch (error: any) {
-      client.logger.error(
-        `Failed to register commands for new guild ${guild.name}: ${error.message}`
-      )
-    }
-  }
+  // Note: When GLOBAL=true, global commands automatically apply to all guilds
+  // We don't register per-guild to avoid duplicates (global commands may take up to 1 hour to propagate)
 
   // Ensure owner is set
   if (!guildSettings.server.owner) {
@@ -102,14 +74,9 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   }
 
   // Create the buttons
-  const components = [
-    new ButtonBuilder()
-      .setLabel('Support Server')
-      .setStyle(ButtonStyle.Link)
-      .setURL(config.BOT.SUPPORT_SERVER as string),
-  ]
-
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(components)
+  const row = MinaRows.from(
+    MinaButtons.support(config.BOT.SUPPORT_SERVER as string)
+  )
 
   // Only proceed if setup is not completed
   if (!guildSettings.server.setup_completed) {
@@ -127,26 +94,16 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
 
     let serverMessageLink: string | null = null
     if (targetChannel) {
-      const serverEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setTitle('✨ Heya! Amina here to light up your server! ✨')
+      const serverEmbed = MinaEmbed.success()
+        .setTitle(mina.say('greetings.joinServer.title'))
         .setDescription(
-          `*bounces excitedly* OMG, thank you so much for inviting me! I'm Amina, your new bestie and server's creative spark! 💖\n\n` +
-            `I'm a ball of energy who loves making servers awesome with my special mix of fun and functionality! Think of me as your server's guardian angel (with a dash of chaos, hehe).\n\n` +
-            `🎮 **What I Can Do:**\n` +
-            `• Keep your server safe and organized (in my own quirky way!)\n` +
-            `• Create fun experiences with games and activities\n` +
-            `• Help manage roles and welcome new friends\n` +
-            `• And sooo much more!\n\n` +
-            `🌟 **Important!** Please run \`/settings\` to unlock all my amazing capabilities! I promise it'll be worth it!\n\n` +
-            `*fidgets with excitement* I can't wait to start our adventure together!`
+          mina.sayf('greetings.joinServer.description', {
+            server: guild.name,
+          }) +
+            `\n\n[${mina.say('botInfo.support')}](${config.BOT.SUPPORT_SERVER})`
         )
-        .addFields({
-          name: '🤗 Need Help?',
-          value: `Don't be shy! Join our [support server](${config.BOT.SUPPORT_SERVER}) - I'm always there to help!`,
-        })
         .setFooter({
-          text: 'Made with 🎶 & ☕',
+          text: mina.say('greetings.joinServer.footer'),
         })
 
       const sentMessage = await targetChannel.send({
@@ -165,30 +122,20 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
     try {
       const owner = await guild.members.fetch(guild.ownerId)
       if (owner) {
-        const dmEmbed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.SUCCESS)
-          .setTitle('💝 Special Note from Amina!')
-          .setDescription(
-            `Hiii <@${owner.id}>! *waves enthusiastically*\n\n` +
-              `Thank you soooo much for inviting me to ${guild.name}! I'm literally bouncing off the walls with excitement! 🎨✨\n\n` +
-              `To get the most out of our adventure together, pretty please run \`/settings\` in your server! It'll help me unlock all my cool features and let me help make your server super amazing!\n\n` +
-              `I'm really good at:\n` +
-              `🛡️ Keeping things safe and organized\n` +
-              `🎮 Making everything more fun and engaging\n` +
-              `🎨 Adding my creative touch to everything I do\n` +
-              `💫 And lots more surprises!\n\n` +
-              `Can't wait to show you everything I can do! Let's make some magic happen!`
+        const dmEmbed = MinaEmbed.success()
+          .setTitle(
+            mina.sayf('greetings.joinDM.title', { user: owner.user.username })
           )
-          .addFields({
-            name: '✨ Need my help?',
-            value: `Just join our [support server](${config.BOT.SUPPORT_SERVER}) - I'm always there to help!`,
-          })
-          .setFooter({ text: 'Your new creative companion ♥' })
+          .setDescription(
+            mina.sayf('greetings.joinDM.description', { server: guild.name }) +
+              `\n\n[${mina.say('botInfo.support')}](${config.BOT.SUPPORT_SERVER})`
+          )
+          .setFooter({ text: mina.say('greetings.joinDM.footer') })
 
         if (serverMessageLink) {
           dmEmbed.addFields({
-            name: '📜 Server Message',
-            value: `Oopsie! I might have already sent a message in the server! [Click here](${serverMessageLink}) to see what my excited self said! 🙈`,
+            name: 'server message',
+            value: `already sent a message in the server. [click here](${serverMessageLink}) to see it.`,
           })
         }
 
@@ -197,8 +144,8 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           components: [row],
         })
       }
-    } catch (err) {
-      client.logger.error('Error sending DM to server owner:', err)
+    } catch (_err) {
+      client.logger.error('Error sending DM to server owner:', _err)
     }
 
     // Schedule a reminder - Removed in-memory timeout to prevent leaks
@@ -208,30 +155,29 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   // Log join to webhook if available
   if (client.joinLeaveWebhook) {
     try {
-      const embed = new EmbedBuilder()
-        .setTitle(`✨ Joined ${guild.name}!`)
+      const embed = MinaEmbed.success()
+        .setTitle(`joined ${guild.name}!`)
         .setThumbnail(guild.iconURL())
-        .setColor(client.config.EMBED_COLORS.SUCCESS)
         .addFields(
-          { name: 'Server Name', value: guild.name, inline: false },
-          { name: 'Server ID', value: guild.id, inline: false },
+          { name: 'server name', value: guild.name, inline: false },
+          { name: 'server id', value: guild.id, inline: false },
           {
-            name: 'Owner',
+            name: 'owner',
             value: `${client.users.cache.get(guild.ownerId)?.tag} [\`${guild.ownerId}\`]`,
             inline: false,
           },
           {
-            name: 'Members',
+            name: 'members',
             value: `\`\`\`yaml\n${guild.memberCount}\`\`\``,
             inline: false,
           },
           {
-            name: 'Invite Link',
+            name: 'invite link',
             value: inviteLink,
             inline: false,
           }
         )
-        .setFooter({ text: `Guild #${client.guilds.cache.size}` })
+        .setFooter({ text: `guild #${client.guilds.cache.size}` })
 
       await client.joinLeaveWebhook.send({
         username: 'Join',

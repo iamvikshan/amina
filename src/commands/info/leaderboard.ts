@@ -1,12 +1,12 @@
 import {
-  EmbedBuilder,
   escapeInlineCode,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   Guild,
   User,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 import { getInvitesLb } from '@schemas/Member'
 import { getXpLb } from '@schemas/MemberStats'
 import { getReputationLb } from '@schemas/User'
@@ -32,27 +32,25 @@ async function getXpLeaderboard(
 
   // Check if settings.stats is enabled
   if (!settings.stats || !settings.stats.enabled) {
-    return 'The leaderboard is disabled on this server'
+    return mina.say('infoCmd.leaderboard.xp.disabled')
   }
 
   const lb = await getXpLb(guild.id, 10)
-  if (lb.length === 0) return 'There are no users in the leaderboard'
+  if (lb.length === 0) return mina.say('infoCmd.leaderboard.xp.empty')
 
   let collector = ''
   for (let i = 0; i < lb.length; i++) {
     try {
       const user = await author.client.users.fetch(lb[i].member_id)
       collector += `**#${(i + 1).toString()}** - ${escapeInlineCode(user.tag)}\n`
-    } catch (ex) {
+    } catch (_ex) {
       // Ignore
     }
   }
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'XP Leaderboard' })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('infoCmd.leaderboard.xp.title') })
     .setDescription(collector)
-    .setFooter({ text: `Requested by ${author.tag}` })
 
   // Store the result in the cache for future requests
   cache.set(cacheKey, { embeds: [embed] })
@@ -75,32 +73,30 @@ async function getInviteLeaderboard(
 
   // Check if settings.invite.tracking is enabled
   if (!settings.invite || !settings.invite.tracking) {
-    return 'Invite tracking is disabled on this server'
+    return mina.say('infoCmd.leaderboard.invite.disabled')
   }
 
   const lb = await getInvitesLb(guild.id, 10)
-  if (lb.length === 0) return 'There are no users in the leaderboard'
+  if (lb.length === 0) return mina.say('infoCmd.leaderboard.invite.empty')
 
   let collector = ''
   for (let i = 0; i < lb.length; i++) {
     try {
       const memberId = lb[i].member_id
       if (memberId === 'VANITY') {
-        collector += `**#${(i + 1).toString()}** - Vanity URL [${lb[i].invites}]\n`
+        collector += `**#${(i + 1).toString()}** - vanity url [${lb[i].invites}]\n`
       } else {
         const user = await author.client.users.fetch(lb[i].member_id)
         collector += `**#${(i + 1).toString()}** - ${escapeInlineCode(user.tag)} [${lb[i].invites}]\n`
       }
-    } catch (ex) {
-      collector += `**#${(i + 1).toString()}** - DeletedUser#0000 [${lb[i].invites}]\n`
+    } catch (_ex) {
+      collector += `**#${(i + 1).toString()}** - deleted user [${lb[i].invites}]\n`
     }
   }
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'Invite Leaderboard' })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('infoCmd.leaderboard.invite.title') })
     .setDescription(collector)
-    .setFooter({ text: `Requested by ${author.tag}` })
 
   // Store the result in the cache for future requests
   cache.set(cacheKey, { embeds: [embed] })
@@ -118,23 +114,21 @@ async function getRepLeaderboard(author: User): Promise<any> {
   }
 
   const lb = await getReputationLb(10)
-  if (lb.length === 0) return 'There are no users in the leaderboard'
+  if (lb.length === 0) return mina.say('infoCmd.leaderboard.rep.empty')
 
   let collector = ''
   for (let i = 0; i < lb.length; i++) {
     try {
       const user = await author.client.users.fetch(lb[i].member_id)
       collector += `**#${(i + 1).toString()}** - ${escapeInlineCode(user.tag)} [${lb[i].rep}]\n`
-    } catch (ex) {
-      collector += `**#${(i + 1).toString()}** - DeletedUser#0000 [${lb[i].rep}]\n`
+    } catch (_ex) {
+      collector += `**#${(i + 1).toString()}** - deleted user [${lb[i].rep}]\n`
     }
   }
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'Reputation Leaderboard' })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('infoCmd.leaderboard.rep.title') })
     .setDescription(collector)
-    .setFooter({ text: `Requested by ${author.tag}` })
 
   // Store the result in the cache for future requests
   cache.set(cacheKey, { embeds: [embed] })
@@ -143,7 +137,7 @@ async function getRepLeaderboard(author: User): Promise<any> {
 
 const command: CommandData = {
   name: 'leaderboard',
-  description: 'display the XP, invite, and rep leaderboard',
+  description: 'display the xp, invite, and rep leaderboard',
   category: 'INFO',
   botPermissions: ['EmbedLinks'],
 
@@ -168,11 +162,11 @@ const command: CommandData = {
   ) {
     const type = interaction.options.getString('type')
     if (!type) {
-      return interaction.followUp('Please specify a leaderboard type.')
+      return interaction.followUp(mina.say('infoCmd.leaderboard.invalid'))
     }
 
     if (!interaction.guild) {
-      return interaction.followUp('This command can only be used in a server.')
+      return interaction.followUp(mina.say('serverOnly'))
     }
 
     const settings = data?.settings || {}
@@ -197,8 +191,7 @@ const command: CommandData = {
         response = await getRepLeaderboard(interaction.user)
         break
       default:
-        response =
-          'Invalid Leaderboard type. Choose either `xp`, `invite`, or `rep`'
+        response = mina.say('infoCmd.leaderboard.invalid')
     }
     await interaction.followUp(response)
     return

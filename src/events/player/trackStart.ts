@@ -1,11 +1,8 @@
-import {
-  EmbedBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ActionRowBuilder,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { ActionRowBuilder } from 'discord.js'
 import type { BotClient } from '@src/structures'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 import type { Player, Track } from 'lavalink-client'
 
 /**
@@ -42,53 +39,43 @@ export default async (
   const previous = await player.queue.shiftPrevious()
 
   const row = (player: Player) =>
-    new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId('previous')
-        .setEmoji('⏪')
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(!previous),
-      new ButtonBuilder()
-        .setCustomId('pause')
-        .setEmoji(player.paused ? '▶️' : '⏸️')
-        .setStyle(player.paused ? ButtonStyle.Success : ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setCustomId('stop')
-        .setEmoji('⏹️')
-        .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setCustomId('skip')
-        .setEmoji('⏩')
-        .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setCustomId('shuffle')
-        .setEmoji('🔀')
-        .setStyle(ButtonStyle.Secondary)
+    new ActionRowBuilder().addComponents(
+      MinaButtons.prev('previous', !previous),
+      player.paused
+        ? MinaButtons.go('pause')
+        : MinaButtons.custom('pause', 'pause', 2),
+      MinaButtons.stop('stop'),
+      MinaButtons.next('skip'),
+      MinaButtons.custom('shuffle', 'shuffle', 2)
     )
 
   const msg: any = await channel.safeSend({
     embeds: [
-      new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setAuthor({ name: 'Track Started' })
+      MinaEmbed.primary()
+        .setAuthor({ name: mina.say('music.nowPlaying.title') })
         .setDescription(
-          `🎶 **Now playing [${track.info.title}](${track.info.uri})**`
+          mina.sayf('music.nowPlaying.description', {
+            title: track.info.title,
+            uri: track.info.uri,
+          })
         )
         .setThumbnail(track.info.artworkUrl)
         .setFooter({
-          text: `Requested by: ${(track.requester as any).username}`,
+          text: mina.sayf('music.nowPlaying.requestedBy', {
+            user: (track.requester as any).username,
+          }),
         })
         .addFields(
           {
-            name: 'Duration',
+            name: 'duration',
             value: track.info.isStream
-              ? 'Live'
+              ? 'live'
               : client.utils.formatTime(track.info.duration),
             inline: true,
           },
           {
-            name: 'Author',
-            value: track.info.author || 'Unknown',
+            name: 'author',
+            value: track.info.author || 'unknown',
             inline: true,
           }
         ),
@@ -115,50 +102,46 @@ export default async (
     switch (int.customId) {
       case 'previous':
         description = previous
-          ? 'Playing the previous track...'
-          : 'No previous track available'
+          ? mina.say('music.controls.previous')
+          : mina.say('music.controls.noPrevious')
         if (previous) player.play({ clientTrack: previous })
         break
 
       case 'pause':
         if (player.paused) {
           player.resume()
-          description = 'Track resumed'
+          description = mina.say('music.controls.resumed')
         } else {
           player.pause()
-          description = 'Track paused'
+          description = mina.say('music.controls.paused')
         }
         await msg.edit({ components: [row(player)] })
         break
 
       case 'stop':
         player.stopPlaying(true, false)
-        description = 'Playback stopped'
+        description = mina.say('music.controls.stopped')
         break
 
       case 'skip':
         description =
           player.queue.tracks.length > 0
-            ? 'Skipped to the next track'
-            : 'The queue is empty!'
+            ? mina.say('music.controls.skipped')
+            : mina.say('music.controls.queueEmpty')
         if (player.queue.tracks.length > 0) player.skip()
         break
 
       case 'shuffle':
         if (player.queue.tracks.length < 2) {
-          description = 'The queue is too short to shuffle!'
+          description = mina.say('music.controls.tooShort')
         } else {
           player.queue.shuffle()
-          description = 'The queue has been shuffled!'
+          description = mina.say('music.controls.shuffled')
         }
         break
     }
     await int.followUp({
-      embeds: [
-        new EmbedBuilder()
-          .setDescription(description)
-          .setColor(EMBED_COLORS.BOT_EMBED),
-      ],
+      embeds: [MinaEmbed.primary().setDescription(description)],
     })
   })
 }

@@ -1,0 +1,223 @@
+{
+  "fun": {
+    "hack": [
+      "*mashes keyboard* hacking {target}...",
+      "breaking into {target}'s files.",
+      "*typing* accessing {target}'s data.",
+      "downloading {target}'s embarrassing selfies.",
+      "found their playlist. baby shark remixes. really?",
+      "email: {target_lower}@sus.uwu\npassword: iLovePineappleOnPizza123",
+      "they have how many cat videos?",
+      "found their dad joke collection. saving those.",
+      "breaking into their diary. i mean, personal docs.",
+      "found something interesting.",
+      "hack complete. here's what i got."
+    ],
+    "hackResult": {
+      "title": "hack results",
+      "description": "got some info on {target}.",
+      "fieldTitle": "the truth",
+      "fieldValue": "we're no strangers to love\nyou know the rules and so do i\na full commitment's what i'm thinking of\nyou wouldn't get this from any other bot",
+      "footer": "rick rolled. you're welcome.",
+      "dmSuccess": "sent you the secrets in dms.",
+      "dmFail": "dms locked. here's the info:"
+    },
+    "love": {
+      "perfect": [
+        "they're soulmates. stars aligned.",
+        "perfect match. like from an anime.",
+        "they're perfect together."
+      ],
+      "good": [
+        "good chemistry here.",
+        "nice vibes from this match.",
+        "could work out."
+      ],
+      "decent": [
+        "potential. needs work.",
+        "might work with effort.",
+        "decent match."
+      ],
+      "low": [
+        "opposites attract? maybe.",
+        "better as friends probably.",
+        "not great but who knows."
+      ],
+      "titles": {
+        "perfect": "perfect match",
+        "good": "good match",
+        "decent": "decent match",
+        "low": "low match"
+      },
+      "embed": {
+        "title": "love meter",
+        "description": "let's see how they match.",
+        "resultTitle": "result",
+        "resultValue": "**{user1}** and **{user2}** are a **{percent}%** match.\n{response}",
+        "statusTitle": "status",
+        "footer": "requested by {user}"
+      }
+    },
+    "coinflip": [
+      "heads.",
+      "tails.",
+      "it's heads.",
+      "landed on tails.",
+      "coin says: {result}."
+    ],
+    "dice": [
+      "rolled a {result}.",
+      "you got {result}.",
+      "dice says: {result}.",
+      "{result}. nice.",
+      "landed on {result}."
+    ],
+    "rps": [
+      "i chose {choice}.",
+      "{choice}. {outcome}.",
+      "my pick: {choice}. you {outcome}.",
+      "{choice}. gg.",
+      "went with {choice}."
+    ],
+    "flip": {
+      "intros": [
+        "time for a coin flip.",
+        "let's flip a coin.",
+        "coin toss time.",
+        "flipping a coin.",
+        "let's see what happens."
+      ],
+      "waiting": [
+        "the suspense...",
+        "up it goes.",
+        "where will it land?",
+        "just a moment...",
+        "almost there."
+      ],
+      "win": {
+        "HEAD": "heads. coin shows its face.",
+        "TAIL": "tails. coin shows its tail."
+      },
+      "embed": {
+        "description": "{user} started a coin toss.",
+        "resultTitle": "coin flip result",
+        "resultDescription": ">> **{toss} wins** <<"
+      },
+      "text": {
+        "noInput": "provide text to flip.",
+        "success": "here's your text, but flipped:\n{text}"
+      }
+    },
+    "facts": {
+      "intros": [
+        "check out this",
+        "here's a fact about",
+        "did you know this about",
+        "fun fact about",
+        "here's something about",
+        "let me tell you about"
+      ],
+      "error": "something went wrong. try again.",
+      "embed": {
+        "title": "{animal} facts",
+        "description": "{intro} {animal}s.\n\n{fact}",
+        "footer": "requested by {user}"
+      }
+    },
+    "hangman": {
+      "win": "you did it. the word was **{word}**.",
+      "lose": "not this time. the word was **{word}**.",
+      "playerOnly": "this game belongs to {player}. start your own with `/hangman`.",
+      "title": "hangman: {theme} theme"
+    },
+    "meme": {
+      "button": {
+        "regenerate": ["another one", "more", "next", "gimme more"]
+      },
+      "reactions": [
+        "(*≧▽≦) this one's gold!",
+        "look what i found!",
+        "this made me giggle~",
+        "quality meme incoming!"
+      ],
+      "error": {
+        "fetchFailed": [
+          "*pouts* aww, the memes are being shy! let's try again!",
+          "memes are hiding. try again.",
+          "couldn't get memes. retry?"
+        ],
+        "apiError": [
+          "*dramatic gasp* the memes escaped! don't worry, we can catch them next time!",
+          "memes got away. next time maybe.",
+          "meme api is being weird. try later."
+        ]
+      },
+      "footer": {
+        "upvotes": "{upvotes} upvotes | from r/{subreddit}",
+        "upvotesShort": "{upvotes} up | r/{subreddit}"
+      }
+    },
+    "tod": {
+      "ageCheck": {
+        "title": "✦ oops, age check needed!",
+        "underage": "sorry friend, that stuff is for the grown-ups only!",
+        "unknown": "i need to know your age for R-rated content! use `/profile hub` to set it."
+      },
+      "wrongPlace": {
+        "title": "✦ wrong place!",
+        "description": "psst! we need to be in an nsfw channel for that kind of fun!"
+      },
+      "noQuestions": {
+        "title": "✦ oh no!",
+        "description": "i searched everywhere but couldn't find any questions matching what you wanted!"
+      },
+      "embed": {
+        "truth": {
+          "title": "✦ TRUTH TIME!",
+          "description": "{user}, don't you lie!\n\n**{question}**\n"
+        },
+        "dare": {
+          "title": "✦ DARE TIME!",
+          "description": "{user}, don't chicken out!\n\n**{question}**\n"
+        },
+        "paranoia": {
+          "title": "✦ PARANOIA TIME!",
+          "description": "{user}, don't be scared!\n\n**{question}**\n"
+        },
+        "nhie": {
+          "title": "✦ NEVER HAVE I EVER!",
+          "description": "{user}, have you?\n\n**{question}**\n"
+        },
+        "wyr": {
+          "title": "✦ WOULD YOU RATHER!",
+          "description": "{user}, choose wisely!\n\n**{question}**\n"
+        },
+        "hye": {
+          "title": "✦ HAVE YOU EVER!",
+          "description": "{user}, spill the tea!\n\n**{question}**\n"
+        },
+        "wwyd": {
+          "title": "✦ WHAT WOULD YOU DO!",
+          "description": "{user}, what's the plan?\n\n**{question}**\n"
+        },
+        "random": {
+          "title": "✦ RANDOM SURPRISE!",
+          "description": "ooh, this is gonna be fun! ready?\n\n**{question}**\n\nwhat's your next move?"
+        }
+      },
+      "footer": "type: {type} | rating: {rating} | qid: {id} | player: {user}",
+      "buttons": {
+        "truth": ["truth", "truth!", "truth time"],
+        "dare": ["dare", "dare!", "dare time"],
+        "random": ["surprise me", "random", "surprise me!", "random!"]
+      },
+      "error": {
+        "memberNotFound": [
+          "could not find member information.",
+          "member info missing.",
+          "can't get member data."
+        ]
+      }
+    }
+  }
+}

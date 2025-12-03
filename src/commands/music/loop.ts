@@ -3,10 +3,12 @@ import {
   ApplicationCommandOptionType,
 } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'loop',
-  description: 'loops the song or queue',
+  description: 'loop the song or queue',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
@@ -15,21 +17,29 @@ const command: CommandData = {
       {
         name: 'type',
         type: ApplicationCommandOptionType.String,
-        description: 'Select loop type',
+        description: 'select loop type',
         required: false,
         choices: [
-          { name: 'Track', value: 'track' },
-          { name: 'Queue', value: 'queue' },
-          { name: 'Off', value: 'off' },
+          { name: 'track', value: 'track' },
+          { name: 'queue', value: 'queue' },
+          { name: 'off', value: 'off' },
         ],
       },
     ],
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
+    if (!interaction.guildId) {
+      return interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
+    }
     const type = interaction.options.getString('type') || 'track'
-    const response = await toggleLoop(interaction, type)
-    await interaction.followUp(response)
+    const response = await toggleLoop(
+      { client: interaction.client, guildId: interaction.guildId },
+      type
+    )
+    return await interaction.followUp(response)
   },
 }
 
@@ -42,32 +52,50 @@ async function toggleLoop(
     guildId: string
   },
   type: string
-): Promise<string> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return '🚫 No song is currently playing'
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   switch (type) {
     case 'track':
       player.setRepeatMode('track')
-      return 'Loop mode is set to `track`'
+      return {
+        embeds: [
+          MinaEmbed.success(
+            mina.sayf('music.success.looped', { mode: 'track' })
+          ),
+        ],
+      }
 
     case 'queue':
       if (player.queue.tracks.length > 1) {
         player.setRepeatMode('queue')
-        return 'Loop mode is set to `queue`'
+        return {
+          embeds: [
+            MinaEmbed.success(
+              mina.sayf('music.success.looped', { mode: 'queue' })
+            ),
+          ],
+        }
       } else {
-        return '🚫 Queue is too short to be looped'
+        return { embeds: [MinaEmbed.warning('queue is too short to loop.')] }
       }
 
     case 'off':
       player.setRepeatMode('off')
-      return 'Loop mode is disabled'
+      return {
+        embeds: [
+          MinaEmbed.info(mina.sayf('music.success.looped', { mode: 'off' })),
+        ],
+      }
 
     default:
-      return 'Invalid loop type'
+      return {
+        embeds: [MinaEmbed.error(mina.say('music.error.invalidLoopType'))],
+      }
   }
 }
 

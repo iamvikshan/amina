@@ -1,12 +1,12 @@
 import {
   ChatInputCommandInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
 
-import config from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'roles',
@@ -22,49 +22,38 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const guild = interaction.guild
     if (!guild) {
-      await interaction.followUp('This command can only be used in a server.')
+      await interaction.followUp(mina.say('serverOnly'))
       return
     }
 
     // Show the main roles hub menu
-    const embed = new EmbedBuilder()
-      .setColor(config.EMBED_COLORS.BOT_EMBED)
-      .setTitle('🎭 Roles Management Hub')
-      .setDescription(
-        'Welcome to the Mina roles management hub! Choose an operation below to get started.\n\n' +
-          '**Cleanup** - Bulk delete roles by various criteria\n' +
-          '**Create Role** - Create a new role \n' +
-          '**Autorole** - Manage automatic role assignment\n' +
-          '**Add to User** - Assign roles to users '
-      )
-      .setFooter({ text: 'Select an operation from the menu below' })
+    const embed = MinaEmbed.primary()
+      .setTitle(mina.say('roles.hub.title'))
+      .setDescription(mina.say('roles.hub.description'))
+      .setFooter({ text: mina.say('roles.hub.footer') })
 
     const menuRow =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId('roles:menu:operation')
-          .setPlaceholder('Choose a roles operation')
+          .setPlaceholder(mina.say('roles.hub.placeholder'))
           .addOptions([
             new StringSelectMenuOptionBuilder()
-              .setLabel('Cleanup Roles')
-              .setDescription('Bulk delete roles by criteria')
-              .setValue('cleanup')
-              .setEmoji('🧹'),
+              .setLabel(mina.say('roles.options.cleanup.label'))
+              .setDescription(mina.say('roles.options.cleanup.description'))
+              .setValue('cleanup'),
             new StringSelectMenuOptionBuilder()
-              .setLabel('Create Role')
-              .setDescription('Create a new role ')
-              .setValue('create')
-              .setEmoji('✨'),
+              .setLabel(mina.say('roles.options.create.label'))
+              .setDescription(mina.say('roles.options.create.description'))
+              .setValue('create'),
             new StringSelectMenuOptionBuilder()
-              .setLabel('Autorole')
-              .setDescription('Automatic role assignment')
-              .setValue('autorole')
-              .setEmoji('⚡'),
+              .setLabel(mina.say('roles.options.autorole.label'))
+              .setDescription(mina.say('roles.options.autorole.description'))
+              .setValue('autorole'),
             new StringSelectMenuOptionBuilder()
-              .setLabel('Add to User')
-              .setDescription('Assign roles to users ')
-              .setValue('add2user')
-              .setEmoji('👤'),
+              .setLabel(mina.say('roles.options.add2user.label'))
+              .setDescription(mina.say('roles.options.add2user.description'))
+              .setValue('add2user'),
           ])
       )
 

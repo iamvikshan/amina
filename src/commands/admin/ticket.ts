@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { TICKET } from '@src/config'
-import type { CommandData } from '@src/structures/Command'
+// CommandData is globally available - see types/commands.d.ts
 import { showTicketHub } from '@handlers/ticket/index'
 
 const command: CommandData = {

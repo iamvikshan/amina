@@ -13,7 +13,6 @@
 [![Forks](https://img.shields.io/github/forks/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=1E90FF)](https://github.com/iamvikshan/amina/network/members)
 [![Stars](https://img.shields.io/github/stars/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=FFD700)](https://github.com/iamvikshan/amina/stargazers)
 [![Issues](https://img.shields.io/github/issues/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=DC143C)](https://github.com/iamvikshan/amina/issues)
-[![License](https://img.shields.io/github/license/iamvikshan/amina.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white&color=00CED1)](https://github.com/iamvikshan/amina/blob/main/LICENSE)
 
   <p align="center">
     <strong> Protecting Communities • Creating Joy • Bringing People Together</strong>
@@ -175,11 +174,11 @@ Special thanks to our infrastructure partners who keep the Night Guard operation
 
 <div align="center">
 
-### ⚔️ Built with Purpose. Protected with Passion. ⚔️
+### Built with Purpose, To Protect w/out Passion, for some reason.
 
 **[Recruit Amina Now](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** • **[Documentation](https://docs.vikshan.me)** • **[Support Server](https://discord.gg/uMgS9evnmv)**
 
-<sub>Forged by [vikshan](https://vikshan.me) with 🎶 and ☕ | Licensed under MIT</sub>
+<sub>Forged by [vikshan](https://vikshan.me) with 🎶 and ☕ | Licensed under [ADL](./LICENSE)</sub>
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=DC143C&height=100&section=footer" />
 

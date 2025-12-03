@@ -1,10 +1,9 @@
 import {
   ApplicationCommandOptionType,
-  EmbedBuilder,
   ChatInputCommandInteraction,
   GuildMember,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const discordTogether = [
   'askaway',
@@ -64,17 +63,13 @@ const command: CommandData = {
   },
 }
 
-async function getTogetherInvite(
-  member: GuildMember,
-  choice: string | null
-): Promise<{ embeds: EmbedBuilder[] }> {
+async function getTogetherInvite(member: GuildMember, choice: string | null) {
   if (!choice) {
     return {
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('✦ oops!')
-          .setDescription('Please provide a valid game type!'),
+        MinaEmbed.error()
+          .setTitle('oops!')
+          .setDescription('please provide a valid game type!'),
       ],
     }
   }
@@ -84,9 +79,8 @@ async function getTogetherInvite(
   if (!member.voice.channel?.id) {
     return {
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('✦ oops, slight problem!')
+        MinaEmbed.error()
+          .setTitle('oops, slight problem!')
           .setDescription(
             "hey friend! looks like you need to hop into a voice channel first - i can't start the fun without knowing where to set it up!"
           ),
@@ -97,9 +91,8 @@ async function getTogetherInvite(
   if (!discordTogether.includes(choice)) {
     return {
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle("✦ hmm, that's not quite right")
+        MinaEmbed.error()
+          .setTitle("hmm, that's not quite right")
           .setDescription(
             `oh! that game isn't in my collection yet. here's what we can play:\n\n${discordTogether.join(', ')}`
           ),
@@ -113,9 +106,8 @@ async function getTogetherInvite(
 
   return {
     embeds: [
-      new EmbedBuilder()
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setTitle(`✦ time for ${choice}!`)
+      MinaEmbed.success()
+        .setTitle(`time for ${choice}!`)
         .setDescription(
           `quick, quick! [click here](${invite.code}) to jump into the fun! i've got everything set up and ready to go!`
         ),

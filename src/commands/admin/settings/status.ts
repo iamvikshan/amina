@@ -1,14 +1,9 @@
-import {
-  EmbedBuilder,
-  ChatInputCommandInteraction,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ComponentType,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { ChatInputCommandInteraction, ComponentType } from 'discord.js'
 import { model as ReactionRoleModel } from '@src/database/schemas/ReactionRoles'
 import { getSettings } from '@src/database/schemas/Guild'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 export default async function statusSettings(
   interaction: ChatInputCommandInteraction
@@ -19,45 +14,45 @@ export default async function statusSettings(
 
   // 1. Prefix setting
   allFields.push({
-    name: '1. Prefix 📝',
-    value: `Current prefix: \`${settings.prefix}\`\n> Use \`/settings prefix\` to change it!`,
+    name: '1. prefix',
+    value: `current prefix: \`${settings.prefix}\`\n> use \`/settings prefix\` to change it!`,
   })
 
   // 2. Log Channel
   const logChannel = settings.moderation.log_channel
     ? `<#${settings.moderation.log_channel}>`
-    : 'Not set yet'
+    : 'not set yet'
   allFields.push({
-    name: '2. Log Channel 📋',
-    value: `Current log channel: ${logChannel}\n> Use \`/logs channel\` to set it up!`,
+    name: '2. log channel',
+    value: `current log channel: ${logChannel}\n> use \`/logs channel\` to set it up!`,
   })
 
   // 3. Max Warns
   allFields.push({
-    name: '3. Max Warns ⚠️',
-    value: `Current max warns: ${settings.moderation.max_warns.limit}\nAction: ${settings.moderation.max_warns.action}\n> Use \`/maxwarn\` to configure it!`,
+    name: '3. max warns',
+    value: `current max warns: ${settings.moderation.max_warns.limit}\naction: ${settings.moderation.max_warns.action}\n> use \`/maxwarn\` to configure it!`,
   })
 
   // 4. Welcome/Farewell
   const welcomeChannel = settings.welcome.enabled
     ? `<#${settings.welcome.channel}>`
-    : 'Not enabled'
+    : 'not enabled'
   const farewellChannel = settings.farewell.enabled
     ? `<#${settings.farewell.channel}>`
-    : 'Not enabled'
+    : 'not enabled'
   allFields.push({
-    name: '4. Welcome & Farewell 👋',
-    value: `Welcome: ${welcomeChannel}\nFarewell: ${farewellChannel}\n> Use \`/welcome\` or \`/farewell\` to set them up!`,
+    name: '4. welcome & farewell',
+    value: `welcome: ${welcomeChannel}\nfarewell: ${farewellChannel}\n> use \`/welcome\` or \`/farewell\` to set them up!`,
   })
 
   // 5. Autorole
   const autoroles =
     settings.autorole && settings.autorole.length > 0
       ? settings.autorole.map((r: any) => `<@&${r}>`).join(', ')
-      : 'Not set yet'
+      : 'not set yet'
   allFields.push({
-    name: '5. Auto Role 🎭',
-    value: `Current autoroles: ${autoroles}\n> Use \`/autorole\` to manage them!`,
+    name: '5. auto role',
+    value: `current autoroles: ${autoroles}\n> use \`/autorole\` to manage them!`,
   })
 
   // 6. Counter Channels
@@ -69,46 +64,46 @@ export default async function statusSettings(
     })
 
   allFields.push({
-    name: '6. Counter Channels 📊',
+    name: '6. counter channels',
     value:
       counterInfo.length > 0
-        ? `${counterInfo.join('\n')}\n> Use \`/counter\` to set them up!`
-        : 'No counters set up yet\n> Use `/counter` to create some!',
+        ? `${counterInfo.join('\n')}\n> use \`/counter\` to set them up!`
+        : 'no counters set up yet\n> use `/counter` to create some!',
   })
 
   // 7. Ticket System
   const ticketChannel = settings.ticket.log_channel
     ? `<#${settings.ticket.log_channel}>`
-    : 'Not set yet'
+    : 'not set yet'
   const ticketCategories = settings.ticket.topics?.length || 0
   allFields.push({
-    name: '7. Ticket System 🎫',
-    value: `Log Channel: ${ticketChannel}\nCategories: ${ticketCategories}\n> Use \`/ticket\` to configure the system!`,
+    name: '7. ticket system',
+    value: `log channel: ${ticketChannel}\ncategories: ${ticketCategories}\n> use \`/ticket\` to configure the system!`,
   })
 
   // 8. Automod
   const automodSettings = settings.automod
   const automodStatus = [
-    `Anti-ghostping: ${automodSettings.anti_ghostping ? '✅' : '❌'}`,
-    `Anti-spam: ${automodSettings.anti_spam ? '✅' : '❌'}`,
-    `Anti-massmention: ${automodSettings.anti_massmention ? '✅' : '❌'}`,
-    `Auto-delete links: ${automodSettings.anti_links ? '✅' : '❌'}`,
-    `Auto-delete invites: ${automodSettings.anti_invites ? '✅' : '❌'}`,
-    `Auto-delete attachments: ${automodSettings.anti_attachments ? '✅' : '❌'}`,
+    `anti-ghostping: ${automodSettings.anti_ghostping ? 'enabled' : 'disabled'}`,
+    `anti-spam: ${automodSettings.anti_spam ? 'enabled' : 'disabled'}`,
+    `anti-massmention: ${automodSettings.anti_massmention ? 'enabled' : 'disabled'}`,
+    `auto-delete links: ${automodSettings.anti_links ? 'enabled' : 'disabled'}`,
+    `auto-delete invites: ${automodSettings.anti_invites ? 'enabled' : 'disabled'}`,
+    `auto-delete attachments: ${automodSettings.anti_attachments ? 'enabled' : 'disabled'}`,
   ].join('\n')
 
   allFields.push({
-    name: '8. Automod 🛡️',
-    value: `${automodStatus}\n> Use \`/automod\` to configure these settings!`,
+    name: '8. automod',
+    value: `${automodStatus}\n> use \`/automod\` to configure these settings!`,
   })
 
   // 9. Suggestions
   const suggestionChannel = settings.suggestions.channel_id
     ? `<#${settings.suggestions.channel_id}>`
-    : 'Not set yet'
+    : 'not set yet'
   allFields.push({
-    name: '9. Suggestions 💡',
-    value: `Channel: ${suggestionChannel}\nApproval: ${settings.suggestions.enabled ? '✅' : '❌'}\n> Use \`/suggestion\` to manage the system!`,
+    name: '9. suggestions',
+    value: `channel: ${suggestionChannel}\napproval: ${settings.suggestions.enabled ? 'enabled' : 'disabled'}\n> use \`/suggestion\` to manage the system!`,
   })
 
   // 10. Stats Channels
@@ -120,21 +115,21 @@ export default async function statusSettings(
     })
 
   allFields.push({
-    name: '10. Stats Channels 📈',
+    name: '10. stats channels',
     value:
       statsInfo.length > 0
-        ? `${statsInfo.join('\n')}\n> Use \`/stats\` to configure them!`
-        : 'No stats channels set up yet\n> Use `/stats` to create some!',
+        ? `${statsInfo.join('\n')}\n> use \`/stats\` to configure them!`
+        : 'no stats channels set up yet\n> use `/stats` to create some!',
   })
 
   // 11. Staff Roles
   const staffRoles =
     settings.server.staff_roles.length > 0
       ? settings.server.staff_roles.map((r: string) => `<@&${r}>`).join(', ')
-      : 'Not set yet'
+      : 'not set yet'
   allFields.push({
-    name: '11. Staff Roles 👮',
-    value: `Current staff roles: ${staffRoles}\n> Use \`/settings staffadd\` or \`/settings staffremove\` to manage them!`,
+    name: '11. staff roles',
+    value: `current staff roles: ${staffRoles}\n> use \`/settings staffadd\` or \`/settings staffremove\` to manage them!`,
   })
 
   // 12. Active Giveaways (if any)
@@ -151,22 +146,22 @@ export default async function statusSettings(
           .catch(() => null)
         const timeLeft = giveaway.endAt - Date.now()
 
-        let status = '🏁 Running'
+        let status = 'running'
         if (giveaway.pauseOptions && giveaway.pauseOptions.isPaused) {
-          status = '⏸️ Paused'
+          status = 'paused'
         } else if (timeLeft <= 0) {
-          status = '🎊 Ended'
+          status = 'ended'
         }
 
-        return `🎉 Prize: ${giveaway.prize}, [📨 Message](https://discord.com/channels/${giveaway.guildId}/${giveaway.channelId}/${giveaway.messageId}), 📍 Channel: ${channel ? `<#${channel.id}>` : 'IDK'}
-        🕒 Ends: ${timeLeft > 0 ? `<t:${Math.floor(giveaway.endAt / 1000)}:R>` : 'Ended'}, 👥 Winners: ${giveaway.winnerCount}
-        🏆 Hosted by: ${giveaway.hostedBy ? `${giveaway.hostedBy}` : 'IDK'}, 📊 Status: ${status}`
+        return `prize: ${giveaway.prize}, [message](https://discord.com/channels/${giveaway.guildId}/${giveaway.channelId}/${giveaway.messageId}), channel: ${channel ? `<#${channel.id}>` : 'unknown'}
+        ends: ${timeLeft > 0 ? `<t:${Math.floor(giveaway.endAt / 1000)}:R>` : 'ended'}, winners: ${giveaway.winnerCount}
+        hosted by: ${giveaway.hostedBy ? `${giveaway.hostedBy}` : 'unknown'}, status: ${status}`
       })
     )
 
     allFields.push({
-      name: '12. Active Giveaways 🎁',
-      value: `${activeGiveaways.length} active giveaway(s):\n\n${giveawayInfo.join('\n\n')}\n\n> Use \`/giveaway\` to manage giveaways!`,
+      name: '12. active giveaways',
+      value: `${activeGiveaways.length} active giveaway(s):\n\n${giveawayInfo.join('\n\n')}\n\n> use \`/giveaway\` to manage giveaways!`,
     })
   }
 
@@ -185,13 +180,13 @@ export default async function statusSettings(
           .map((role: any) => `${role.emote} <@&${role.role_id}>`)
           .join(', ')
 
-        return `📌 [Message](https://discord.com/channels/${rr.guild_id}/${rr.channel_id}/${rr.message_id}) in ${channel ? `<#${channel.id}>` : 'Unknown Channel'}\n   Roles: ${rolesMentions}`
+        return `[message](https://discord.com/channels/${rr.guild_id}/${rr.channel_id}/${rr.message_id}) in ${channel ? `<#${channel.id}>` : 'unknown channel'}\n   roles: ${rolesMentions}`
       })
     )
 
     allFields.push({
-      name: '13. Reaction Roles 🎭',
-      value: `${reactionRoles.length} reaction role message(s) set up:\n\n${rrInfo.join('\n\n')}\n\n> Use \`/reactionrole\` to manage reaction roles!`,
+      name: '13. reaction roles',
+      value: `${reactionRoles.length} reaction role message(s) set up:\n\n${rrInfo.join('\n\n')}\n\n> use \`/reactionrole\` to manage reaction roles!`,
     })
   }
 
@@ -203,42 +198,19 @@ export default async function statusSettings(
     const endIndex = startIndex + 4
     const fieldsToShow = allFields.slice(startIndex, endIndex)
 
-    return new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
-      .setTitle("Mina's current Settings")
+    return MinaEmbed.primary()
+      .setTitle("mina's current settings")
       .setDescription(
-        "Hey there! Let's take a peek at your current settings! I'm so excited to show you what we've got set up! 🎉"
+        "hey there! let's take a peek at your current settings! i'm so excited to show you what we've got set up!"
       )
       .addFields(fieldsToShow)
       .setFooter({
-        text: `Page ${page}/${totalPages} • Remember, I'm always here to help you set things up! Don't be shy to ask! 💖`,
+        text: `${mina.sayf('generic.pagination', { current: page.toString(), total: totalPages.toString() })} - remember, I'm always here to help you set things up! Don't be shy to ask!`,
       })
   }
 
   const generateButtons = (page: number) => {
-    const row = new ActionRowBuilder<ButtonBuilder>()
-
-    if (page > 1) {
-      row.addComponents(
-        new ButtonBuilder()
-          .setCustomId('prev')
-          .setLabel('Previous')
-          .setStyle(ButtonStyle.Primary)
-          .setEmoji('⬅️')
-      )
-    }
-
-    if (page < totalPages) {
-      row.addComponents(
-        new ButtonBuilder()
-          .setCustomId('next')
-          .setLabel('Next')
-          .setStyle(ButtonStyle.Primary)
-          .setEmoji('➡️')
-      )
-    }
-
-    return row
+    return MinaRows.prevNext(page === 1, page === totalPages)
   }
 
   const initialEmbed = generateEmbed(currentPage)
@@ -271,8 +243,7 @@ export default async function statusSettings(
       // Attempt to send a new message if updating fails
       try {
         await i.followUp({
-          content:
-            "Oopsie! 😅 I had a little hiccup updating the message. Here's a fresh one for you!",
+          content: mina.say('error'),
           embeds: [newEmbed],
           components: [newButtons],
           ephemeral: true,

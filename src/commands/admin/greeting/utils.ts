@@ -14,18 +14,21 @@ export async function sendPreview(
   const greetingSettings = settings[greetingKey]
 
   if (!greetingSettings?.enabled)
-    return `Oh no! The ${greetingKey} message is not enabled in this server. 💔`
+    return `the ${greetingKey} message is not enabled in this server.`
 
   const targetChannel = member.guild.channels.cache.get(
     greetingSettings.channel
   ) as TextChannel
   if (!targetChannel)
-    return `Hmm... No channel is configured to send the ${greetingKey} message. 😢`
+    return `no channel is configured to send the ${greetingKey} message.`
 
   const response = await buildGreeting(member, greetingType, greetingSettings)
+  if (!response) {
+    return `could not build the ${greetingKey} message. please check your settings.`
+  }
   await targetChannel.send(response)
 
-  return `✨ Sent a preview of the ${greetingKey} message to ${targetChannel.toString()}!`
+  return `sent a preview of the ${greetingKey} message to ${targetChannel.toString()}!`
 }
 
 export async function setStatus(
@@ -39,7 +42,7 @@ export async function setStatus(
   settings[greetingKey].enabled = enabled
   await settings.save()
 
-  return `🎉 Configuration saved! ${greetingType === 'WELCOME' ? 'Welcome' : 'Farewell'} message has been ${status === 'ON' ? 'enabled' : 'disabled'}.`
+  return `configuration saved! ${greetingType === 'WELCOME' ? 'welcome' : 'farewell'} message has been ${status === 'ON' ? 'enabled' : 'disabled'}.`
 }
 
 export async function setChannel(
@@ -54,13 +57,13 @@ export async function setChannel(
       .permissionsFor(channel.guild.members.me as any)
       ?.has(['SendMessages', 'EmbedLinks'])
   ) {
-    return `Oh no! I can't send ${greetingKey}s to that channel. I need the \`Write Messages\` and \`Embed Links\` permissions in ${channel.toString()}! 💦`
+    return `i can't send ${greetingKey}s to that channel. i need the \`Write Messages\` and \`Embed Links\` permissions in ${channel.toString()}!`
   }
 
   settings[greetingKey].channel = channel.id
   await settings.save()
 
-  return `📢 Configuration saved! ${greetingType === 'WELCOME' ? 'Welcome' : 'Farewell'} messages will now be sent to ${channel.toString()}!`
+  return `configuration saved! ${greetingType === 'WELCOME' ? 'welcome' : 'farewell'} messages will now be sent to ${channel.toString()}!`
 }
 
 export async function setDescription(
@@ -73,7 +76,7 @@ export async function setDescription(
   settings[greetingKey].embed.description = desc
   await settings.save()
 
-  return `💖 Configuration saved! The ${greetingKey} message description has been updated. 🌈`
+  return `configuration saved! the ${greetingKey} message description has been updated.`
 }
 
 export async function setThumbnail(
@@ -86,7 +89,7 @@ export async function setThumbnail(
   settings[greetingKey].embed.thumbnail = status.toUpperCase() === 'ON'
   await settings.save()
 
-  return `🌸 Configuration saved! The thumbnail for the ${greetingKey} message has been updated. 🎀`
+  return `configuration saved! the thumbnail for the ${greetingKey} message has been updated.`
 }
 
 export async function setColor(
@@ -99,7 +102,7 @@ export async function setColor(
   settings[greetingKey].embed.color = color
   await settings.save()
 
-  return `🎨 Configuration saved! The color for the ${greetingKey} message has been updated. 🌟`
+  return `configuration saved! the color for the ${greetingKey} message has been updated.`
 }
 
 export async function setFooter(
@@ -112,7 +115,7 @@ export async function setFooter(
   settings[greetingKey].embed.footer = content
   await settings.save()
 
-  return `📝 Configuration saved! The footer for the ${greetingKey} message has been updated. ✨`
+  return `configuration saved! the footer for the ${greetingKey} message has been updated.`
 }
 
 export async function setImage(
@@ -125,7 +128,7 @@ export async function setImage(
   settings[greetingKey].embed.image = url
   await settings.save()
 
-  return `🖼️ Configuration saved! The image for the ${greetingKey} message has been updated. 🎉`
+  return `configuration saved! the image for the ${greetingKey} message has been updated.`
 }
 
 export default 0

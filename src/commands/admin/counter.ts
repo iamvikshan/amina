@@ -108,7 +108,7 @@ async function setupCounter(
   settings.server.bots = stats[1]
   await settings.save()
 
-  return `Yay! 🎉 Configuration saved! Counter channel \`${channelName}\` created successfully! ✨`
+  return `configuration saved! counter channel \`${channelName}\` created successfully!`
 }
 
 export default command

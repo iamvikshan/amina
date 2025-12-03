@@ -1,12 +1,11 @@
 import {
   StringSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show cleanup method selection menu
@@ -14,56 +13,44 @@ import { createSecondaryBtn } from '@helpers/componentHelper'
 export async function showCleanupMethodMenu(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🧹 Role Cleanup')
+  const embed = MinaEmbed.primary()
+    .setTitle('role cleanup')
     .setDescription(
-      'Select a cleanup method to filter roles for deletion.\n\n' +
-        '**Empty Roles** - Remove roles with no members\n' +
-        '**Name Prefix** - Remove roles starting with a specific prefix\n' +
-        '**Below Position** - Remove roles below a hierarchy position\n' +
-        '**Older Than** - Remove roles created before a specific date'
+      'select a cleanup method to filter roles for deletion.\n\n' +
+        '**empty roles** - remove roles with no members\n' +
+        '**name prefix** - remove roles starting with a specific prefix\n' +
+        '**below position** - remove roles below a hierarchy position\n' +
+        '**older than** - remove roles created before a specific date'
     )
-    .setFooter({ text: 'Select a cleanup method from the menu below' })
+    .setFooter({ text: 'select a cleanup method from the menu below' })
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('roles:menu:cleanup_method')
-      .setPlaceholder('Choose a cleanup method')
+      .setPlaceholder('choose a cleanup method')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Empty Roles')
-          .setDescription('Delete roles with no members')
-          .setValue('empty')
-          .setEmoji('🗑️'),
+          .setLabel('empty roles')
+          .setDescription('delete roles with no members')
+          .setValue('empty'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Name Prefix')
-          .setDescription('Delete roles starting with a prefix')
-          .setValue('prefix')
-          .setEmoji('📝'),
+          .setLabel('name prefix')
+          .setDescription('delete roles starting with a prefix')
+          .setValue('prefix'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Below Position')
-          .setDescription('Delete roles below a hierarchy position')
-          .setValue('below')
-          .setEmoji('⬇️'),
+          .setLabel('below position')
+          .setDescription('delete roles below a hierarchy position')
+          .setValue('below'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Older Than')
-          .setDescription('Delete roles older than N days')
-          .setValue('older')
-          .setEmoji('📅'),
+          .setLabel('older than')
+          .setDescription('delete roles older than N days')
+          .setValue('older'),
       ])
   )
 
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      menuRow,
-      createSecondaryBtn({
-        customId: 'roles:btn:back',
-        label: 'Back to Roles Hub',
-        emoji: '◀️',
-      }),
-    ],
+    components: [menuRow, MinaRows.backRow('roles:btn:back')],
   })
 }
 

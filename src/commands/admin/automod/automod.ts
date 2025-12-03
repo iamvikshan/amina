@@ -1,12 +1,12 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChannelType,
   ChatInputCommandInteraction,
   Guild,
 } from 'discord.js'
-import { EMBED_COLORS, AUTOMOD } from '@src/config'
+import { AUTOMOD } from '@src/config'
 import { stripIndent } from 'common-tags'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'automod',
@@ -173,45 +173,44 @@ async function getStatus(settings: any, guild: Guild): Promise<any> {
 
   const logChannel = settings.logs_channel
     ? guild.channels.cache.get(settings.logs_channel)?.toString()
-    : 'Not Configured'
+    : 'not configured'
 
   // String Builder
   const desc = stripIndent`
-    ❯ **Max Lines**: ${automod.max_lines || 'NA'}
-    ❯ **Anti-Massmention**: ${automod.anti_massmention > 0 ? '✓' : '✕'}
-    ❯ **Anti-Attachment**: ${automod.anti_attachment ? '✓' : '✕'}
-    ❯ **Anti-Links**: ${automod.anti_links ? '✓' : '✕'}
-    ❯ **Anti-Invites**: ${automod.anti_invites ? '✓' : '✕'}
-    ❯ **Anti-Spam**: ${automod.anti_spam ? '✓' : '✕'}
-    ❯ **Anti-Ghostping**: ${automod.anti_ghostping ? '✓' : '✕'}
+    > **max lines**: ${automod.max_lines || 'NA'}
+    > **anti-massmention**: ${automod.anti_massmention > 0 ? 'yes' : 'no'}
+    > **anti-attachment**: ${automod.anti_attachment ? 'yes' : 'no'}
+    > **anti-links**: ${automod.anti_links ? 'yes' : 'no'}
+    > **anti-invites**: ${automod.anti_invites ? 'yes' : 'no'}
+    > **anti-spam**: ${automod.anti_spam ? 'yes' : 'no'}
+    > **anti-ghostping**: ${automod.anti_ghostping ? 'yes' : 'no'}
   `
 
-  const embed = new EmbedBuilder()
+  const embed = MinaEmbed.primary()
     .setAuthor({
-      name: 'Automod Configuration',
+      name: 'automod configuration',
       iconURL: guild.iconURL() || undefined,
     })
-    .setColor(EMBED_COLORS.BOT_EMBED)
     .setDescription(desc)
     .addFields(
       {
-        name: 'Log Channel',
-        value: logChannel || 'Not set',
+        name: 'log channel',
+        value: logChannel || 'not set',
         inline: true,
       },
       {
-        name: 'Max Strikes',
+        name: 'max strikes',
         value: automod.strikes.toString(),
         inline: true,
       },
       {
-        name: 'Action',
+        name: 'action',
         value: automod.action,
         inline: true,
       },
       {
-        name: 'Debug',
-        value: automod.debug ? '✓' : '✕',
+        name: 'debug',
+        value: automod.debug ? 'yes' : 'no',
         inline: true,
       }
     )

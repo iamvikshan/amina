@@ -1,19 +1,17 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   ModalBuilder,
   ModalSubmitInteraction,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
-import { handleProfileBackButton } from './main-hub'
+import { MinaRows } from '@helpers/componentHelper'
 import { createBasicModal, createMiscModal } from '@commands/utility/profile'
 import { updateProfile, getUser } from '@schemas/User'
 import { validateBirthdate, calculateAge } from './shared/utils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show edit profile menu
@@ -21,38 +19,31 @@ import { validateBirthdate, calculateAge } from './shared/utils'
 export async function showEditMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('✏️ Edit Profile')
+  const embed = MinaEmbed.primary()
+    .setTitle('edit profile')
     .setDescription(
-      'Choose what you want to edit:\n\n' +
-        '**Basic Info** - Pronouns, birthdate, region, languages, timezone\n' +
-        '**Misc Info** - Bio, interests, socials, favorites, goals'
+      'choose what you want to edit:\n\n' +
+        '**basic info** - pronouns, birthdate, region, languages, timezone\n' +
+        '**misc info** - bio, interests, socials, favorites, goals'
     )
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('profile:menu:edit')
-      .setPlaceholder('Choose what to edit')
+      .setPlaceholder('choose what to edit')
       .addOptions([
         new StringSelectMenuOptionBuilder()
           .setLabel('Basic Info')
           .setDescription('Pronouns, birthdate, region, languages, timezone')
-          .setValue('basic')
-          .setEmoji('📝'),
+          .setValue('basic'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Misc Info')
           .setDescription('Bio, interests, socials, favorites, goals')
-          .setValue('misc')
-          .setEmoji('🎨'),
+          .setValue('misc'),
       ])
   )
 
-  const backRow = createSecondaryBtn({
-    customId: 'profile:btn:back',
-    label: 'Back to Profile Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('profile:btn:back')
 
   if (interaction.deferred || interaction.replied) {
     await interaction.editReply({
@@ -111,17 +102,19 @@ export async function handleProfileModal(
       const birthdateValidation = validateBirthdate(birthdate)
 
       if (!birthdateValidation.isValid) {
-        return interaction.reply({
+        await interaction.reply({
           content: birthdateValidation.error,
           ephemeral: true,
         })
+        return
       }
 
       if (!birthdateValidation.date) {
-        return interaction.reply({
+        await interaction.reply({
           content: 'invalid date format! use DD/MM/YYYY or MM/YYYY',
           ephemeral: true,
         })
+        return
       }
 
       profileData = {
@@ -218,22 +211,21 @@ export async function handleProfileModal(
     // Update user profile in database
     await updateProfile(interaction.user.id, updatedProfile)
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setTitle('profile updated! ✨')
+    const embed = MinaEmbed.success()
+      .setTitle('profile updated!')
       .setDescription('your story has been beautifully updated!')
       .addFields({
         name: 'want to see?',
         value: 'use `/profile view` to see your masterpiece!',
       })
 
-    return interaction.reply({
+    await interaction.reply({
       embeds: [embed],
       ephemeral: true,
     })
   } catch (error) {
     console.error('Error handling profile modal:', error)
-    return interaction.reply({
+    await interaction.reply({
       content:
         'oops! something went wrong while updating your profile. want to try again?',
       ephemeral: true,

@@ -1,0 +1,218 @@
+{
+  "moderation": {
+    "ban": [
+      "banned.",
+      "{target} is gone. permanently.",
+      "removed: {target}.",
+      "{target} got the hammer.",
+      "bye forever, {target}."
+    ],
+    "kick": [
+      "kicked.",
+      "booted: {target}.",
+      "{target} shown the door.",
+      "out you go, {target}.",
+      "{target} removed."
+    ],
+    "timeout": [
+      "timed out.",
+      "{target} silenced.",
+      "take a break, {target}.",
+      "muted: {target}.",
+      "{target} on timeout."
+    ],
+    "untimeout": [
+      "unmuted.",
+      "{target} can talk again.",
+      "timeout lifted for {target}.",
+      "{target} freed.",
+      "welcome back to speaking, {target}."
+    ],
+    "warn": [
+      "warned.",
+      "noted: {target}.",
+      "strike added for {target}.",
+      "{target} has been warned.",
+      "warning issued."
+    ],
+    "unban": {
+      "success": [
+        "unbanned.",
+        "{target} allowed back.",
+        "ban lifted.",
+        "{target} can return.",
+        "second chance for {target}."
+      ],
+      "select": [
+        "select a user to unban.",
+        "pick who to unban.",
+        "choose a user to unban."
+      ]
+    },
+    "softban": [
+      "softbanned.",
+      "{target} pruned.",
+      "messages cleared, {target} can rejoin.",
+      "soft removal: {target}."
+    ],
+    "error": {
+      "noReason": ["no reason provided.", "no reason given.", "reason: none."],
+      "failed": [
+        "failed to {action} {target}.",
+        "couldn't {action} {target}.",
+        "{action} failed for {target}."
+      ],
+      "alreadyTimeout": [
+        "{target} is already timed out.",
+        "{target} is already muted.",
+        "already timed out: {target}."
+      ],
+      "invalidDuration": [
+        "invalid duration. use: 1d/1h/1m/1s",
+        "bad time format. try: 1d, 1h, 1m, 1s",
+        "wrong format. example: 1d/1h/1m/1s"
+      ],
+      "notInServer": [
+        "user not in this server.",
+        "they're not here.",
+        "can't find them in this server."
+      ],
+      "noTimeout": [
+        "{target} is not timed out.",
+        "{target} isn't muted.",
+        "no timeout found for {target}."
+      ],
+      "noMatch": [
+        "no user found matching {match}.",
+        "can't find anyone matching {match}.",
+        "no matches for {match}."
+      ],
+      "specifyUser": [
+        "specify a valid user.",
+        "need a user to {action}.",
+        "who should i {action}?"
+      ]
+    },
+    "warnings": {
+      "title": [
+        "{target}'s warnings",
+        "warnings for {target}",
+        "{target} warnings"
+      ],
+      "none": [
+        "{target} has no warnings.",
+        "no warnings for {target}.",
+        "{target} is clean."
+      ],
+      "cleared": [
+        "{target}'s warnings cleared.",
+        "warnings removed for {target}.",
+        "cleared all warnings for {target}."
+      ],
+      "noBots": [
+        "bots don't have warnings.",
+        "can't check bot warnings.",
+        "bots are exempt."
+      ]
+    },
+    "voice": {
+      "muted": [
+        "{target}'s voice is muted.",
+        "voice muted: {target}.",
+        "{target} is voice muted."
+      ],
+      "unmuted": [
+        "{target}'s voice is unmuted.",
+        "voice unmuted: {target}.",
+        "{target} can speak again."
+      ],
+      "deafened": [
+        "{target} is deafened.",
+        "deafened: {target}.",
+        "{target} can't hear."
+      ],
+      "undeafened": [
+        "{target} is undeafened.",
+        "undeafened: {target}.",
+        "{target} can hear again."
+      ],
+      "disconnected": [
+        "{target} disconnected from voice.",
+        "kicked from voice: {target}.",
+        "{target} removed from voice."
+      ],
+      "moved": [
+        "{target} moved to {channel}.",
+        "moved {target} to {channel}.",
+        "{target} → {channel}."
+      ],
+      "notInVoice": [
+        "{target} is not in a voice channel.",
+        "{target} isn't in voice.",
+        "can't find {target} in voice."
+      ],
+      "alreadyMuted": [
+        "{target} is already muted.",
+        "{target} is already voice muted.",
+        "already muted: {target}."
+      ],
+      "notMuted": [
+        "{target} is not voice muted.",
+        "{target} isn't muted.",
+        "not muted: {target}."
+      ],
+      "alreadyDeafened": [
+        "{target} is already deafened.",
+        "already deafened: {target}.",
+        "{target} is deafened already."
+      ],
+      "notDeafened": [
+        "{target} is not deafened.",
+        "{target} isn't deafened.",
+        "not deafened: {target}."
+      ],
+      "sameChannel": [
+        "{target} is already in that channel.",
+        "already there: {target}.",
+        "{target} is in that channel already."
+      ]
+    },
+    "nick": {
+      "changed": [
+        "nickname changed for {target}.",
+        "set {target}'s nickname.",
+        "updated {target}'s nickname."
+      ],
+      "reset": [
+        "nickname reset for {target}.",
+        "removed {target}'s nickname.",
+        "cleared {target}'s nickname."
+      ],
+      "cannotManage": [
+        "can't manage {target}'s nickname.",
+        "no permission to change {target}'s nickname.",
+        "can't modify {target}'s nickname."
+      ],
+      "botCannotManage": [
+        "i can't manage {target}'s nickname.",
+        "missing perms to change {target}'s nickname.",
+        "can't modify {target}'s nickname."
+      ],
+      "failedChange": [
+        "failed to change {target}'s nickname. invalid name?",
+        "couldn't change nickname for {target}.",
+        "nickname change failed for {target}."
+      ],
+      "failedReset": [
+        "failed to reset {target}'s nickname.",
+        "couldn't reset nickname for {target}.",
+        "nickname reset failed for {target}."
+      ],
+      "specifyUser": [
+        "specify a valid user.",
+        "need a user to {action}.",
+        "who should i {action}?"
+      ]
+    }
+  }
+}

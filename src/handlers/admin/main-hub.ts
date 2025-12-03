@@ -1,17 +1,16 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { getSettings } from '@schemas/Guild'
 import { showServerSettingsMenu } from './settings'
 import { showMinaAIMenu } from './ai'
 import { showLoggingMenu } from './logging'
 import { showStatusEmbed } from './settings/embeds'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handle admin category selection from main hub
@@ -53,17 +52,16 @@ export async function handleAdminBackButton(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('⚙️ Admin Hub')
+  const embed = MinaEmbed.primary()
+    .setTitle('admin hub')
     .setDescription(
-      'Welcome to the Mina admin hub! Choose a category below to get started.\n\n' +
-        '**Server Settings** - Manage updates channel and staff roles\n' +
-        '**Mina AI** - Configure AI responses and behavior\n' +
-        '**Logging** - Set up moderation logs\n' +
-        '**Status** - View current configuration'
+      'welcome to the mina admin hub! choose a category below to get started.\n\n' +
+        '**server settings** - manage updates channel and staff roles\n' +
+        '**mina ai** - configure ai responses and behavior\n' +
+        '**logging** - set up moderation logs\n' +
+        '**status** - view current configuration'
     )
-    .setFooter({ text: 'Select a category from the menu below' })
+    .setFooter({ text: 'select a category from the menu below' })
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()

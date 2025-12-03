@@ -1,9 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'leave',
-  description: 'Disconnects the bot from the voice channel',
+  description: 'disconnects the bot from the voice channel',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
@@ -12,8 +14,16 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const response = await leave(interaction)
-    await interaction.followUp(response)
+    if (!interaction.guildId) {
+      return interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
+    }
+    const response = await leave({
+      client: interaction.client,
+      guildId: interaction.guildId,
+    })
+    return interaction.followUp(response)
   },
 }
 
@@ -23,15 +33,15 @@ async function leave({
 }: {
   client: any
   guildId: string
-}): Promise<string> {
+}): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player) {
-    return '🚫 I am not in a voice channel'
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notInVoice'))] }
   }
 
   player.destroy()
-  return '👋 Disconnected from the voice channel'
+  return { embeds: [MinaEmbed.success(mina.say('music.success.left'))] }
 }
 
 export default command
