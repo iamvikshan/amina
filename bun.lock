@@ -14,7 +14,7 @@
         "@preline/collapse": "^3.0.0",
         "@preline/dropdown": "^3.0.0",
         "@preline/overlay": "^3.0.0",
-        "@preline/tabs": "^2.6.0",
+        "@preline/tabs": "^3.0.0",
         "@tailwindcss/forms": "^0.5.10",
         "@types/alpinejs": "^3.13.11",
         "alpinejs": "^3.15.1",
@@ -280,7 +280,7 @@
 
     "@preline/overlay": ["@preline/overlay@3.2.3", "", {}, "sha512-/MI5++XAezbVFReVw65KxLeiDJL62lWDywPxvWmH/EHMyOQ/N3d9SXC/VBQ/nyozQOwckv1ym2vw0wGbTfI+5w=="],
 
-    "@preline/tabs": ["@preline/tabs@2.6.0", "", {}, "sha512-7zL1TAwRHjYyhMAX7HrJ56Xa8wgTnWBXl+5PsGKJsAeHrv09k5DbRKLYvAMbAROXg/ZRz8Z5Dko96/AUhuNecg=="],
+    "@preline/tabs": ["@preline/tabs@3.2.3", "", {}, "sha512-ipXFqluOmE/FHLroMCChDHCcdtda0jr7s+2qeBv+DsIaLYilcWTlNVrnM+2/RCiKgtdhVtvDckFWYcei8xrlXA=="],
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.0-beta.27", "", {}, "sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA=="],
 
