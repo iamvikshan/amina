@@ -10,10 +10,12 @@ const { getInviteCache } = inviteHandler
  * @param {Invite} invite - The deleted invite
  */
 export default async (_client: BotClient, invite: Invite): Promise<void> => {
-  const cachedInvites = getInviteCache(invite?.guild as any)
+  if (!invite?.guild) return
+  const cachedInvites = getInviteCache(invite.guild as any)
 
   // Check if invite code exists in the cache
-  if (cachedInvites && cachedInvites.get(invite.code)) {
-    cachedInvites.get(invite.code).deletedTimestamp = Date.now()
+  const cached = cachedInvites?.get(invite.code)
+  if (cached) {
+    cached.deletedTimestamp = Date.now()
   }
 }

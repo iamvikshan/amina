@@ -1,6 +1,7 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 import { updateSettings } from '@schemas/Guild'
-import { EMBED_COLORS, config } from '@src/config'
+import { config } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 function isTestGuild(guildId: string | null): boolean {
   if (!guildId) return false
@@ -53,14 +54,12 @@ export default async function freewillHandler(
   )
 
   if (action === 'limit_reached') {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        `❌ **Limit Reached!**\n\n` +
-          `You can only have up to 2 free-will channels. Current channels:\n` +
-          newChannels.map(id => `<#${id}>`).join(', ') +
-          `\n\nRemove a channel first to add a new one.`
-      )
+    const embed = MinaEmbed.error().setDescription(
+      `**limit reached!**\n\n` +
+        `you can only have up to 2 free-will channels. current channels:\n` +
+        newChannels.map(id => `<#${id}>`).join(', ') +
+        `\n\nremove a channel first to add a new one.`
+    )
     await interaction.followUp({ embeds: [embed] })
     return
   }
@@ -77,18 +76,17 @@ export default async function freewillHandler(
   })
 
   const channelList = newChannels.map(id => `<#${id}>`).join(', ')
-  const embed = new EmbedBuilder()
-    .setColor(action === 'added' ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-    .setDescription(
-      action === 'added'
-        ? `🌊 **Free-will channel added!**\n\n` +
-            `Added ${channel} to free-will channels.\n` +
-            `Current channels: ${channelList}\n\n` +
-            `I'll respond to all messages in these channels without needing @mentions! ✨`
-        : `🌊 **Free-will channel removed!**\n\n` +
-            `Removed ${channel} from free-will channels.\n` +
-            `Current channels: ${channelList || 'None'}`
-    )
+  const embed = action === 'added' ? MinaEmbed.success() : MinaEmbed.warning()
+  embed.setDescription(
+    action === 'added'
+      ? `**free-will channel added!**\n\n` +
+          `added ${channel} to free-will channels.\n` +
+          `current channels: ${channelList}\n\n` +
+          `i'll respond to all messages in these channels without needing @mentions!`
+      : `**free-will channel removed!**\n\n` +
+          `removed ${channel} from free-will channels.\n` +
+          `current channels: ${channelList || 'none'}`
+  )
 
   await interaction.followUp({ embeds: [embed] })
 }

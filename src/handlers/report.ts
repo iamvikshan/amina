@@ -1,15 +1,16 @@
 import {
-  EmbedBuilder,
   WebhookClient,
   PermissionFlagsBits,
   ChannelType,
   ModalSubmitInteraction,
   User,
 } from 'discord.js'
-import { EMBED_COLORS, FEEDBACK } from '@src/config'
+import { FEEDBACK } from '@src/config'
 import { getSettings, setInviteLink } from '@schemas/Guild'
 import { getQuestionById } from '@schemas/TruthOrDare'
 import type BotClient from '@structures/BotClient'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 async function handleReportModal(
   interaction: ModalSubmitInteraction
@@ -24,40 +25,15 @@ async function handleReportModal(
     try {
       const guildSettings = await getSettings({ id: serverId } as any)
       if (!guildSettings) {
-        const errorEmbed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('Oopsie! Server Not Found 🕵️‍♀️')
+        const errorEmbed = MinaEmbed.error()
+          .setAuthor({ name: mina.say('report.error.serverNotFound') })
           .setDescription(
-            "Mina couldn't find this server. Here's what might be happening:"
+            'check the server id.\n\n' +
+              '**how to find it:**\n' +
+              '1. enable developer mode in settings > advanced\n' +
+              '2. right-click the server icon and copy id\n\n' +
+              "i can only report on servers i'm in."
           )
-          .addFields(
-            {
-              name: 'Double-check the Server ID',
-              value:
-                "Make sure you've entered the correct server ID. Here's how to find it:",
-            },
-            {
-              name: '1. Enable Developer Mode',
-              value:
-                'Go to User Settings > Appearance > Advanced and turn on Developer Mode.',
-            },
-            {
-              name: '2. Get the Server ID',
-              value:
-                'Right-click on the server icon and select "Copy ID" at the bottom of the menu.',
-            },
-            {
-              name: 'Mina Not in Server',
-              value:
-                "If the ID is correct, it's possible that Mina isn't a member of that server. Unfortunately, Mina can only report on servers she's a part of.",
-            },
-            {
-              name: 'Need Help?',
-              value:
-                "If you're sure the ID is correct and Mina should be in the server, please try again later or contact support.",
-            }
-          )
-          .setFooter({ text: 'Mina is always here to help! 💖' })
 
         await interaction.reply({
           embeds: [errorEmbed],
@@ -85,14 +61,14 @@ async function handleReportModal(
 
             if (targetChannel) {
               const invite = await (targetChannel as any).createInvite({
-                maxAge: 0, // 0 = infinite expiration
-                maxUses: 0, // 0 = infinite uses
+                maxAge: 0,
+                maxUses: 0,
               })
               inviteLink = invite.url
               await setInviteLink(guild.id, inviteLink)
             }
-          } catch (error) {
-            console.error('Error creating invite:', error)
+          } catch (_error) {
+            console.error('error creating invite:', _error)
           }
         }
       }
@@ -109,22 +85,25 @@ async function handleReportModal(
       )
 
       if (success) {
-        const confirmationEmbed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.SUCCESS)
-          .setTitle('Report Submitted! 📣')
-          .setDescription(
-            "Yay! Mina received your report! You're the best for helping make our community super awesome~ 💖✨"
-          )
+        const confirmationEmbed = MinaEmbed.success()
+          .setAuthor({ name: mina.say('report.success.report') })
           .addFields(
-            { name: 'Title', value: title },
-            { name: 'Description', value: description }
+            {
+              name: mina.say('report.fields.title'),
+              value: title,
+              inline: false,
+            },
+            {
+              name: mina.say('report.fields.description'),
+              value: description,
+              inline: false,
+            }
           )
-          .setFooter({ text: 'Thank you for your contribution!' })
           .setTimestamp()
 
         if (additionalInfo) {
           confirmationEmbed.addFields({
-            name: 'Additional Information',
+            name: mina.say('report.fields.additionalInfo'),
             value: additionalInfo
               .split('\n')
               .filter(line => !line.startsWith('Server Invite:'))
@@ -137,46 +116,15 @@ async function handleReportModal(
           ephemeral: true,
         })
       } else {
-        const errorEmbed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('Oh no! Something Went Wrong 😟')
-          .setDescription(
-            "Mina couldn't send your report/feedback. But don't worry, it's not your fault!"
-          )
-          .addFields(
-            {
-              name: 'What to Do',
-              value:
-                'Please try again later. Mina believes in you! If the problem continues, it would be super helpful if you could let the support team know.',
-            },
-            {
-              name: 'Error Details',
-              value:
-                "There was an issue sending the report/feedback to Mina's team. This is likely a temporary problem.",
-            }
-          )
-          .setFooter({ text: 'Mina appreciates your patience and effort! 🌟' })
         await interaction.reply({
-          embeds: [errorEmbed],
+          embeds: [MinaEmbed.error(mina.say('report.error.sendFailed'))],
           ephemeral: true,
         })
       }
-    } catch (error) {
-      console.error('Error fetching guild settings:', error)
-      const errorEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setTitle('Oh no! Something Went Wrong 😟')
-        .setDescription(
-          "Mina couldn't process your report. But don't worry, it's not your fault!"
-        )
-        .addFields({
-          name: 'What to Do',
-          value:
-            'Please try again later. If the problem continues, it would be super helpful if you could let the support team know.',
-        })
-        .setFooter({ text: 'Mina appreciates your patience! 🌟' })
+    } catch (_error) {
+      console.error('error fetching guild settings:', _error)
       await interaction.reply({
-        embeds: [errorEmbed],
+        embeds: [MinaEmbed.error(mina.say('report.error.processFailed'))],
         ephemeral: true,
       })
     }
@@ -186,40 +134,15 @@ async function handleReportModal(
     if (user) {
       additionalInfo = `Reported User: ${user.tag} (${userId})`
     } else {
-      const errorEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setTitle('Uh-oh! User Not Found 👻')
+      const errorEmbed = MinaEmbed.error()
+        .setAuthor({ name: mina.say('report.error.userNotFound') })
         .setDescription(
-          "Mina couldn't find this user. Here's what might be happening:"
+          'check the user id.\n\n' +
+            '**how to find it:**\n' +
+            '1. enable developer mode in settings > advanced\n' +
+            "2. right-click the user's name and copy id\n\n" +
+            "the user might not be in any server i'm in."
         )
-        .addFields(
-          {
-            name: 'Double-check the User ID',
-            value:
-              "Make sure you've entered the correct user ID. Here's how to find it:",
-          },
-          {
-            name: '1. Enable Developer Mode',
-            value:
-              'Go to User Settings > Appearance > Advanced and turn on Developer Mode.',
-          },
-          {
-            name: '2. Get the User ID',
-            value:
-              'Right-click on the user\'s name and select "Copy ID" at the bottom of the menu.',
-          },
-          {
-            name: 'User Not Visible',
-            value:
-              "If the ID is correct, it's possible that the user is not in any servers that Mina is in, or their privacy settings prevent Mina from seeing them.",
-          },
-          {
-            name: 'Need Help?',
-            value:
-              "If you're sure the ID is correct and Mina should be able to see the user, please try again later or contact support.",
-          }
-        )
-        .setFooter({ text: 'Mina is always here to help! 💖' })
 
       await interaction.reply({
         embeds: [errorEmbed],
@@ -234,39 +157,16 @@ async function handleReportModal(
       if (question) {
         additionalInfo = `Question ID: ${questionId}\nCategory: ${question.category}\nQuestion: ${question.question}`
       }
-    } catch (error) {
-      console.error('Error fetching question:', error)
-      const errorEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setTitle('Hmm, Question Not Found 🙈')
+    } catch (_error) {
+      console.error('error fetching question:', _error)
+      const errorEmbed = MinaEmbed.error()
+        .setAuthor({ name: mina.say('report.error.questionNotFound') })
         .setDescription(
-          "Mina couldn't find a question with that ID. Here's what you can do:"
+          'check the question id.\n\n' +
+            '**where to find it:**\n' +
+            'look in the footer of the question after **qid:**\n' +
+            'example: if it says "qid: T123", enter "T123"'
         )
-        .addFields(
-          {
-            name: 'Double-check the Question ID',
-            value:
-              "Make sure you've entered the correct Question ID. You can find this in the footer of the question, after **QID:**.",
-          },
-          {
-            name: 'Example',
-            value:
-              'If the footer says "**QID: T123**", then "T123" is the Question ID you should enter.',
-          },
-          {
-            name: 'Question Removed?',
-            value:
-              "If you're sure the ID is correct, it's possible that the question has been removed from the database.",
-          },
-          {
-            name: 'Need Help?',
-            value:
-              "If you're sure the ID is correct and the question should exist, please try again later or contact support.",
-          }
-        )
-        .setFooter({
-          text: 'Mina appreciates your help in making our ToD games awesome! 💖',
-        })
 
       await interaction.reply({
         embeds: [errorEmbed],
@@ -292,42 +192,45 @@ async function handleReportModal(
     )
 
     if (success) {
-      const confirmationEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setTitle(
-          type === 'feedback'
-            ? 'Feedback Received! 💖'
-            : type === 'bug'
-              ? 'Bug Report Logged! 🐞'
-              : 'Report Submitted! 📣'
-        )
-        .setDescription(
-          type === 'feedback'
-            ? "Yay! Mina received your feedback! You're the best for helping make our community super awesome~ 💖✨"
-            : type === 'bug'
-              ? `Bzzt! Mina's bug detectors are tingling! Thanks for helping squash those pesky bugs! 🕷️💪\nYou can also add/check this to amina's [GitHub issues](https://github.com/iamvikshan/amina/issues/new/choose) page.`
-              : "Yay! Mina received your report! You're the best for helping make our community super awesome~ 💖✨"
-        )
+      const successKey =
+        type === 'feedback'
+          ? 'report.success.feedback'
+          : type === 'bug'
+            ? 'report.success.bug'
+            : 'report.success.report'
+
+      const confirmationEmbed = MinaEmbed.success()
+        .setAuthor({ name: mina.say(successKey) })
         .addFields(
-          { name: 'Title', value: title },
-          { name: 'Description', value: description }
+          {
+            name: mina.say('report.fields.title'),
+            value: title,
+            inline: false,
+          },
+          {
+            name: mina.say('report.fields.description'),
+            value: description,
+            inline: false,
+          }
         )
-        .setFooter({
-          text:
-            type === 'bug' || type === 'feedback'
-              ? 'Thank you for helping make Mina better!'
-              : 'Thank you for your contribution!',
-        })
         .setTimestamp()
 
+      if (type === 'bug') {
+        confirmationEmbed.setDescription(
+          `you can also check [github issues](https://github.com/iamvikshan/amina/issues/new/choose).`
+        )
+      }
+
       if (additionalInfo) {
+        const fieldName =
+          type === 'bug'
+            ? mina.say('report.fields.reproSteps')
+            : type === 'feedback'
+              ? mina.say('report.fields.additionalThoughts')
+              : mina.say('report.fields.additionalInfo')
+
         confirmationEmbed.addFields({
-          name:
-            type === 'bug'
-              ? 'Reproduction Steps'
-              : type === 'feedback'
-                ? 'Additional Thoughts'
-                : 'Additional Information',
+          name: fieldName,
           value: additionalInfo,
         })
       }
@@ -337,31 +240,8 @@ async function handleReportModal(
         ephemeral: true,
       })
     } else {
-      const errorEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setTitle('Oh no! Something Went Wrong 😟')
-        .setDescription(
-          type === 'feedback'
-            ? "Mina couldn't send your feedback. But don't worry, it's not your fault! 💖"
-            : type === 'bug'
-              ? "Mina couldn't log your bug report. But don't worry, it's not your fault! 🐞"
-              : "Mina couldn't send your report. But don't worry, it's not your fault!"
-        )
-        .addFields(
-          {
-            name: 'What to Do',
-            value:
-              'Please try again later. Mina believes in you! If the problem continues, it would be super helpful if you could let the support team know.',
-          },
-          {
-            name: 'Error Details',
-            value:
-              "There was an issue sending the report/feedback to Mina's team. This is likely a temporary problem.",
-          }
-        )
-        .setFooter({ text: 'Mina appreciates your patience and effort! 🌟' })
       await interaction.reply({
-        embeds: [errorEmbed],
+        embeds: [MinaEmbed.error(mina.say('report.error.sendFailed'))],
         ephemeral: true,
       })
     }
@@ -377,51 +257,52 @@ async function sendWebhook(
   user: User,
   inviteLink?: string
 ): Promise<boolean> {
+  if (!FEEDBACK.URL) {
+    return false
+  }
   const webhookClient = new WebhookClient({ url: FEEDBACK.URL })
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle(
-      `New ${type === 'feedback' ? 'Feedback' : `${type.charAt(0).toUpperCase() + type.slice(1)} Report`} 📣`
-    )
-    .setDescription(`**Title:** ${title}\n\n**Description:** ${description}`)
+  const embed = MinaEmbed.primary()
+    .setAuthor({
+      name: `new ${type === 'feedback' ? 'feedback' : `${type} report`}`,
+    })
+    .setDescription(`**title:** ${title}\n\n**description:** ${description}`)
     .setTimestamp()
-
-  embed.setFooter({
-    text:
-      type === 'bug' || type === 'feedback'
-        ? `Submitted by: ${user.tag} (${user.id})`
-        : `Reported by: ${user.tag} (${user.id})`,
-  })
+    .setFooter({
+      text:
+        type === 'bug' || type === 'feedback'
+          ? `submitted by: ${user.tag} (${user.id})`
+          : `reported by: ${user.tag} (${user.id})`,
+    })
 
   if (additionalInfo) {
     embed.addFields({
       name:
         type === 'bug'
-          ? 'Reproduction Steps 🐞'
+          ? 'reproduction steps'
           : type === 'feedback'
-            ? 'Additional Thoughts 💭'
-            : 'Extra Deets 🔍',
+            ? 'additional thoughts'
+            : 'extra info',
       value: additionalInfo,
     })
   }
 
   if (inviteLink) {
     embed.addFields({
-      name: 'Server Invite',
+      name: 'server invite',
       value: inviteLink,
     })
   }
 
   try {
     await webhookClient.send({
-      username: "Mina's Report System",
-      avatarURL: client.user?.displayAvatarURL(),
+      username: 'mina reports',
+      avatarURL: client.user?.displayAvatarURL() ?? undefined,
       embeds: [embed],
     })
     return true
-  } catch (error) {
-    console.error('Oopsie! Error sending webhook:', error)
+  } catch (_error) {
+    console.error('error sending webhook:', _error)
     return false
   }
 }

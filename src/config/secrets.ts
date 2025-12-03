@@ -64,12 +64,8 @@ function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
  * @throws Error if any required secret is missing
  */
 export function validateSecrets(): void {
-  try {
-    getRequiredSecret('BOT_TOKEN')
-    getRequiredSecret('MONGO_CONNECTION')
-  } catch (error) {
-    throw error
-  }
+  getRequiredSecret('BOT_TOKEN')
+  getRequiredSecret('MONGO_CONNECTION')
 }
 
 /**
@@ -118,6 +114,9 @@ export const secrets: Secrets = {
   },
   get WEBHOOK_SECRET() {
     return getOptionalSecret('WEBHOOK_SECRET')
+  },
+  get WAIFU_IT() {
+    return getOptionalSecret('WAIFU_IT')
   },
 
   // Lavalink Nodes

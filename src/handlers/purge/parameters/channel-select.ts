@@ -3,13 +3,13 @@ import {
   StringSelectMenuInteraction,
   ModalSubmitInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ChannelSelectMenuBuilder,
   ChannelType,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn, createPrimaryBtn } from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 // PurgeType is now globally available - see types/handlers.d.ts
 
 /**
@@ -25,19 +25,18 @@ export async function showChannelSelect(
   additionalData?: { token?: string; userId?: string },
   isManualSelection?: boolean // true if user manually selected amount (not default flow)
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('📺 Channel Selection')
+  const embed = MinaEmbed.primary()
+    .setTitle('channel selection')
     .setDescription(
-      'Select a channel to purge messages from, or use the current channel.\n\n' +
-        `**Type:** ${getPurgeTypeLabel(purgeType)}\n` +
-        `**Amount:** ${amount} messages\n` +
-        (additionalData?.token ? `**Token:** ${additionalData.token}\n` : '') +
+      'select a channel to purge messages from, or use the current channel.\n\n' +
+        `**type:** ${getPurgeTypeLabel(purgeType)}\n` +
+        `**amount:** ${amount} messages\n` +
+        (additionalData?.token ? `**token:** ${additionalData.token}\n` : '') +
         (additionalData?.userId
-          ? `**User:** <@${additionalData.userId}>\n`
+          ? `**user:** <@${additionalData.userId}>\n`
           : '')
     )
-    .setFooter({ text: 'Select a channel or use current channel' })
+    .setFooter({ text: 'select a channel or use current channel' })
 
   const menu = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
     new ChannelSelectMenuBuilder()
@@ -48,7 +47,7 @@ export async function showChannelSelect(
             : ''
         }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`
       )
-      .setPlaceholder('📺 Select a channel (optional)')
+      .setPlaceholder('select a channel (optional)')
       .setChannelTypes([ChannelType.GuildText])
   )
 
@@ -58,36 +57,36 @@ export async function showChannelSelect(
   // For manual selection, show "Use Current Channel" button
   if (isManualSelection !== false) {
     // Manual selection - show "Use Current Channel" button
-    const useCurrentButton = createPrimaryBtn({
-      customId: `purge:btn:use_current|type:${purgeType}|amount:${amount}${
-        additionalData?.token
-          ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
-          : ''
-      }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
-      label: 'Use Current Channel',
-      emoji: '✅',
-    })
-    components.push(useCurrentButton)
+    const useCurrentRow = MinaRows.single(
+      MinaButtons.custom(
+        `purge:btn:use_current|type:${purgeType}|amount:${amount}${
+          additionalData?.token
+            ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
+            : ''
+        }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
+        'use current channel',
+        ButtonStyle.Primary
+      )
+    )
+    components.push(useCurrentRow)
   } else {
     // Default flow - show Proceed button (current channel is preselected)
-    const proceedButton = createPrimaryBtn({
-      customId: `purge:btn:proceed_channel|type:${purgeType}|amount:${amount}${
-        additionalData?.token
-          ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
-          : ''
-      }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
-      label: 'Proceed',
-      emoji: '➡️',
-    })
-    components.push(proceedButton)
+    const proceedRow = MinaRows.single(
+      MinaButtons.custom(
+        `purge:btn:proceed_channel|type:${purgeType}|amount:${amount}${
+          additionalData?.token
+            ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
+            : ''
+        }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
+        'proceed',
+        ButtonStyle.Primary
+      )
+    )
+    components.push(proceedRow)
   }
 
-  const backButton = createSecondaryBtn({
-    customId: 'purge:btn:back',
-    label: 'Back',
-    emoji: '◀️',
-  })
-  components.push(backButton)
+  const backRow = MinaRows.backRow('purge:btn:back')
+  components.push(backRow)
 
   await interaction.editReply({
     embeds: [embed],
@@ -106,7 +105,7 @@ export async function handleChannelSelect(
 
   if (!channel || !channel.isTextBased()) {
     await interaction.followUp({
-      content: '❌ Invalid channel selected.',
+      content: 'invalid channel selected.',
       ephemeral: true,
     })
     return
@@ -147,7 +146,7 @@ export async function handleUseCurrentChannel(
 
   if (!channelId) {
     await interaction.followUp({
-      content: '❌ Could not determine current channel.',
+      content: 'could not determine current channel.',
       ephemeral: true,
     })
     return
@@ -188,7 +187,7 @@ export async function handleProceedChannel(
 
   if (!channelId) {
     await interaction.followUp({
-      content: '❌ Could not determine current channel.',
+      content: 'could not determine current channel.',
       ephemeral: true,
     })
     return

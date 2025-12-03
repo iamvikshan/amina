@@ -4,9 +4,10 @@ import {
   ChatInputCommandInteraction,
   GuildMember,
 } from 'discord.js'
-import { EMBED_COLORS, IMAGE, STATS, secret } from '@src/config'
+import { IMAGE, STATS, secret } from '@src/config'
 import { getBuffer } from '@helpers/HttpUtils'
 import { getMemberStats, getXpLb } from '@schemas/MemberStats'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'rank',
@@ -39,7 +40,7 @@ const command: CommandData = {
     let member: GuildMember
     try {
       member = await interaction.guild.members.fetch(user.id)
-    } catch (ex) {
+    } catch (_ex) {
       return interaction.followUp(
         'Failed to fetch member information. The user might not be in this server.'
       )
@@ -47,18 +48,17 @@ const command: CommandData = {
 
     const settings = data?.settings || {}
     const response = await getRank(interaction.guild, member, settings)
-    await interaction.followUp(response)
+    return interaction.followUp(response)
   },
 }
 
 async function getRank(guild: any, member: GuildMember, settings: any) {
   const { user } = member
-  if (!settings.stats?.enabled)
-    return 'Stats Tracking is disabled on this server'
+  if (!settings.stats?.enabled) return mina.say('statsCmd.disabled')
 
   const memberStats = await getMemberStats(guild.id, user.id)
   if (!memberStats || !memberStats.xp)
-    return `${user.username} is not ranked yet!`
+    return mina.sayf('statsCmd.notRanked', { user: user.username })
 
   const lb = await getXpLb(guild.id, 100)
   let pos = -1
@@ -82,7 +82,7 @@ async function getRank(guild: any, member: GuildMember, settings: any) {
   url.searchParams.append('currentxp', memberStats.xp.toString())
   url.searchParams.append('reqxp', xpNeeded.toString())
   url.searchParams.append('level', memberStats.level.toString())
-  url.searchParams.append('barcolor', String(EMBED_COLORS.BOT_EMBED))
+  url.searchParams.append('barcolor', mina.color.primary)
   url.searchParams.append(
     'status',
     member?.presence?.status?.toString() || 'idle'
@@ -95,7 +95,7 @@ async function getRank(guild: any, member: GuildMember, settings: any) {
     },
   })
   if (!response.success || !response.buffer)
-    return 'Failed to generate rank-card'
+    return mina.say('statsCmd.rankFailed')
 
   const attachment = new AttachmentBuilder(response.buffer, {
     name: 'rank.png',

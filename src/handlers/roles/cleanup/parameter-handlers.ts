@@ -2,17 +2,17 @@ import {
   StringSelectMenuInteraction,
   ModalSubmitInteraction,
   RoleSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
   RoleSelectMenuBuilder,
   MessageFlags,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import type { RoleCleanupMethod } from '@handlers/roles'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show parameter input for the selected cleanup method
@@ -48,11 +48,11 @@ async function showPrefixModal(
 ): Promise<void> {
   const modal = new ModalBuilder()
     .setCustomId('roles:modal:prefix')
-    .setTitle('Cleanup Roles by Prefix')
+    .setTitle('cleanup roles by prefix')
 
   const prefixInput = new TextInputBuilder()
     .setCustomId('prefix')
-    .setLabel('Role Name Prefix')
+    .setLabel('role name prefix')
     .setStyle(TextInputStyle.Short)
     .setPlaceholder('e.g., temp-, old-')
     .setRequired(true)
@@ -74,11 +74,11 @@ async function showPositionModal(
 ): Promise<void> {
   const modal = new ModalBuilder()
     .setCustomId('roles:modal:position')
-    .setTitle('Cleanup Roles Below Position')
+    .setTitle('cleanup roles below position')
 
   const positionInput = new TextInputBuilder()
     .setCustomId('position')
-    .setLabel('Position Threshold')
+    .setLabel('position threshold')
     .setStyle(TextInputStyle.Short)
     .setPlaceholder('e.g., 5 (roles below position 5)')
     .setRequired(true)
@@ -100,11 +100,11 @@ async function showOlderModal(
 ): Promise<void> {
   const modal = new ModalBuilder()
     .setCustomId('roles:modal:older')
-    .setTitle('Cleanup Roles Older Than')
+    .setTitle('cleanup roles older than')
 
   const daysInput = new TextInputBuilder()
     .setCustomId('days')
-    .setLabel('Age in Days')
+    .setLabel('age in days')
     .setStyle(TextInputStyle.Short)
     .setPlaceholder('e.g., 30 (roles older than 30 days)')
     .setRequired(true)
@@ -133,7 +133,7 @@ export async function handleCleanupModal(
       const prefix = interaction.fields.getTextInputValue('prefix')
       if (!prefix || prefix.trim().length === 0) {
         await interaction.editReply({
-          content: '❌ Please provide a valid prefix',
+          content: 'please provide a valid prefix',
         })
         return
       }
@@ -147,7 +147,7 @@ export async function handleCleanupModal(
       const position = parseInt(positionStr, 10)
       if (isNaN(position) || position < 0) {
         await interaction.editReply({
-          content: '❌ Please provide a valid positive number for position',
+          content: 'please provide a valid positive number for position',
         })
         return
       }
@@ -159,7 +159,7 @@ export async function handleCleanupModal(
       const days = parseInt(daysStr, 10)
       if (isNaN(days) || days < 1) {
         await interaction.editReply({
-          content: '❌ Please provide a valid positive number of days',
+          content: 'please provide a valid positive number of days',
         })
         return
       }
@@ -177,14 +177,13 @@ async function showRoleKeepSelect(
   method: RoleCleanupMethod,
   params?: any
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🧹 Role Cleanup - Select Roles to Keep')
+  const embed = MinaEmbed.primary()
+    .setTitle('role cleanup - select roles to keep')
     .setDescription(
-      'Optionally select roles you want to **keep** (exclude from deletion).\n\n' +
-        'If you don\'t want to exclude any roles, click "Continue Without Exclusions".'
+      'optionally select roles you want to **keep** (exclude from deletion).\n\n' +
+        'if you don\'t want to exclude any roles, click "continue without exclusions".'
     )
-    .setFooter({ text: 'Select roles to exclude from cleanup' })
+    .setFooter({ text: 'select roles to exclude from cleanup' })
 
   // Encode method and params in custom_id
   const stateParams = params ? JSON.stringify(params) : ''
@@ -194,32 +193,24 @@ async function showRoleKeepSelect(
     new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
       new RoleSelectMenuBuilder()
         .setCustomId(customId.substring(0, 100)) // Discord limit
-        .setPlaceholder('Select roles to keep (optional)')
+        .setPlaceholder('select roles to keep (optional)')
         .setMinValues(0)
         .setMaxValues(25)
     )
 
-  const continueBtn = createSecondaryBtn({
-    customId:
-      `roles:btn:continue|method:${method}|params:${Buffer.from(stateParams).toString('base64')}`.substring(
-        0,
-        100
-      ),
-    label: 'Continue Without Exclusions',
-    emoji: '▶️',
-  })
+  const continueBtn = MinaButtons.custom(
+    `roles:btn:continue|method:${method}|params:${Buffer.from(stateParams).toString('base64')}`.substring(
+      0,
+      100
+    ),
+    'continue without exclusions',
+    ButtonStyle.Secondary
+  )
 
-  const backBtn = createSecondaryBtn({
-    customId: 'roles:btn:back_cleanup',
-    label: 'Back',
-    emoji: '◀️',
-  })
+  const backBtn = MinaButtons.back('roles:btn:back_cleanup')
 
   // Create a combined row for both buttons
-  const buttonRow = new ActionRowBuilder<any>().addComponents(
-    continueBtn.components[0],
-    backBtn.components[0]
-  )
+  const buttonRow = MinaRows.from(continueBtn, backBtn)
 
   await interaction.editReply({
     embeds: [embed],
@@ -242,7 +233,7 @@ export async function handleRoleKeepSelect(
 
   if (!methodPart) {
     await interaction.followUp({
-      content: '❌ Invalid interaction state',
+      content: 'invalid interaction state',
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -255,7 +246,7 @@ export async function handleRoleKeepSelect(
     try {
       const decoded = Buffer.from(base64Params, 'base64').toString('utf-8')
       params = decoded ? JSON.parse(decoded) : {}
-    } catch (err) {
+    } catch (_err) {
       // Ignore parsing errors
     }
   }
@@ -279,7 +270,7 @@ export async function handleContinueButton(interaction: any): Promise<void> {
 
   if (!methodPart) {
     await interaction.followUp({
-      content: '❌ Invalid interaction state',
+      content: 'invalid interaction state',
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -292,7 +283,7 @@ export async function handleContinueButton(interaction: any): Promise<void> {
     try {
       const decoded = Buffer.from(base64Params, 'base64').toString('utf-8')
       params = decoded ? JSON.parse(decoded) : {}
-    } catch (err) {
+    } catch (_err) {
       // Ignore parsing errors
     }
   }

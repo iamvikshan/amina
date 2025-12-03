@@ -1,6 +1,6 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 import { updateSettings } from '@schemas/Guild'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function dmsHandler(
   interaction: ChatInputCommandInteraction,
@@ -17,11 +17,10 @@ export default async function dmsHandler(
     },
   })
 
-  const embed = new EmbedBuilder()
-    .setColor(enabled ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-    .setDescription(
-      `📬 DM support **${enabled ? 'enabled' : 'disabled'}** for server members!`
-    )
+  const embed = enabled ? MinaEmbed.success() : MinaEmbed.warning()
+  embed.setDescription(
+    `dm support **${enabled ? 'enabled' : 'disabled'}** for server members!`
+  )
 
   await interaction.followUp({ embeds: [embed] })
 }

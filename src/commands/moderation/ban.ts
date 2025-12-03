@@ -6,6 +6,8 @@ import {
   User,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'ban',
@@ -37,7 +39,9 @@ const command: CommandData = {
     const reason = interaction.options.getString('reason')
 
     if (!target) {
-      await interaction.followUp('Please specify a valid user to ban.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('notFound.user'))],
+      })
       return
     }
 
@@ -55,18 +59,41 @@ async function ban(
   issuer: GuildMember,
   target: User,
   reason: string | null
-): Promise<string> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await banTarget(
     issuer,
     target,
-    reason || 'No reason provided'
+    reason || mina.say('moderation.error.noReason')
   )
-  if (typeof response === 'boolean') return `${target.username} is banned!`
-  if (response === 'BOT_PERM')
-    return `I do not have permission to ban ${target.username}`
-  else if (response === 'MEMBER_PERM')
-    return `You do not have permission to ban ${target.username}`
-  else return `Failed to ban ${target.username}`
+  if (typeof response === 'boolean') {
+    return {
+      embeds: [
+        MinaEmbed.mod('ban').setDescription(
+          mina.sayf('moderation.ban', { target: target.username })
+        ),
+      ],
+    }
+  }
+  if (response === 'BOT_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.botMissing'))],
+    }
+  } else if (response === 'MEMBER_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.missing'))],
+    }
+  } else {
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.error.failed', {
+            action: 'ban',
+            target: target.username,
+          })
+        ),
+      ],
+    }
+  }
 }
 
 export default command

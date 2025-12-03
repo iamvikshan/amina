@@ -5,11 +5,9 @@ import {
   TextInputBuilder,
   TextInputStyle,
   ActionRowBuilder,
-  EmbedBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { deleteQuestion } from '@schemas/TruthOrDare'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show modal for removing a ToD question
@@ -53,21 +51,17 @@ export async function handleRemoveTodModal(
   try {
     const deletedQuestion = await deleteQuestion(questionId)
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        `Question deleted successfully! 🗑️\n` +
-          `**ID**: \`${deletedQuestion.questionId}\`\n` +
-          `**Category**: ${deletedQuestion.category}\n` +
-          `**Question**: "${deletedQuestion.question}"\n` +
-          `**Rating**: ${deletedQuestion.rating}`
-      )
+    const embed = MinaEmbed.success(
+      `question deleted successfully!\n` +
+        `**id**: \`${deletedQuestion.questionId}\`\n` +
+        `**category**: ${deletedQuestion.category}\n` +
+        `**question**: "${deletedQuestion.question}"\n` +
+        `**rating**: ${deletedQuestion.rating}`
+    )
 
     await interaction.editReply({ embeds: [embed] })
   } catch (error: any) {
-    const errorEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(`❌ ${error.message}`)
+    const errorEmbed = MinaEmbed.error(error.message)
 
     await interaction.editReply({ embeds: [errorEmbed] })
   }

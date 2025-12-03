@@ -5,6 +5,7 @@ import {
   ChatInputCommandInteraction,
   TextChannel,
 } from 'discord.js'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'levelup',
@@ -63,7 +64,7 @@ const command: CommandData = {
       ) as TextChannel
       response = await setChannel(channel, settings)
     } else {
-      response = 'Invalid subcommand'
+      response = mina.say('statsCmd.error.invalidSubcommand')
     }
 
     await interaction.followUp(response)
@@ -71,7 +72,7 @@ const command: CommandData = {
 }
 
 async function setMessage(message: string, settings: any) {
-  if (!message) return 'Invalid message. Please provide a message'
+  if (!message) return mina.say('statsCmd.error.invalidMessage')
 
   if (!settings.stats) {
     settings.stats = { enabled: false, xp: { message: '', channel: null } }
@@ -82,11 +83,11 @@ async function setMessage(message: string, settings: any) {
 
   settings.stats.xp.message = message
   await settings.save()
-  return `Configuration saved. Level up message updated!`
+  return mina.say('statsCmd.config.messageUpdated')
 }
 
 async function setChannel(channel: TextChannel, settings: any) {
-  if (!channel) return 'Invalid channel. Please provide a channel'
+  if (!channel) return mina.say('statsCmd.error.invalidChannel')
 
   if (!settings.stats) {
     settings.stats = { enabled: false, xp: { message: '', channel: null } }
@@ -97,7 +98,7 @@ async function setChannel(channel: TextChannel, settings: any) {
 
   settings.stats.xp.channel = channel.id
   await settings.save()
-  return `Configuration saved. Level up channel updated!`
+  return mina.say('statsCmd.config.channelUpdated')
 }
 
 export default command

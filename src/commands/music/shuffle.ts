@@ -1,5 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'shuffle',
@@ -14,7 +16,7 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const response = shuffle(interaction)
+    const response = shuffle(interaction as any)
     await interaction.followUp(response)
   },
 }
@@ -25,19 +27,19 @@ function shuffle({
 }: {
   client: any
   guildId: string
-}): string {
+}): string | { embeds: MinaEmbed[] } {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return "🚫 There's no music currently playing"
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   if (player.queue.tracks.length < 2) {
-    return '🚫 Not enough tracks to shuffle'
+    return { embeds: [MinaEmbed.warning('not enough tracks to shuffle.')] }
   }
 
   player.queue.shuffle()
-  return '🎶 Queue has been shuffled'
+  return { embeds: [MinaEmbed.success(mina.say('music.success.shuffled'))] }
 }
 
 export default command

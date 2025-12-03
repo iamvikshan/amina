@@ -1,10 +1,10 @@
 import { automodHandler, statsHandler } from '@src/handlers'
-import { EMBED_COLORS } from '@src/config'
 import { getSettings } from '@schemas/Guild'
 import { getUser, removeAfk } from '@schemas/User'
-import { EmbedBuilder, Message } from 'discord.js'
+import type { Message } from 'discord.js'
 import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/aiResponder'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Fetches pronouns for multiple users from PronounsDB API v2 (batched)
@@ -136,12 +136,10 @@ export default async (client: BotClient, message: Message): Promise<void> => {
     const verb = getVerbConjugation(subject)
 
     await removeAfk(message.author.id)
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        `*Bounces excitedly* Welcome back ${message.author.toString()}! 🌟\n` +
-          `${Subject}${verb} faster than a shooting star! ✨`
-      )
+    const embed = MinaEmbed.success().setDescription(
+      `*bounces excitedly* welcome back ${message.author.toString()}!\n` +
+        `${Subject}${verb} faster than a shooting star!`
+    )
     const response: any = await (message.channel as any).send({
       embeds: [embed],
     })
@@ -221,9 +219,8 @@ export default async (client: BotClient, message: Message): Promise<void> => {
       }
 
       if (afkMentions.length > 0) {
-        const embed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('🌟 AFK Alert! 🌟')
+        const embed = MinaEmbed.error()
+          .setTitle('afk alert')
           .setDescription(
             afkMentions
               .map(

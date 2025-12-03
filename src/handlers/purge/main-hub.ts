@@ -2,13 +2,13 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createPrimaryBtn, createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main purge hub with type selection
@@ -21,21 +21,19 @@ export async function showPurgeHub(
 ): Promise<void> {
   // Command handler already defers ChatInputCommandInteraction, so we use editReply
   // For other interactions, they should already be in a state where editReply works
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🧹 Message Purge Hub')
+  const embed = MinaEmbed.primary()
+    .setTitle('message purge hub')
     .setDescription(
-      'Welcome to the Message Purge Hub! 🗑️\n\n' +
-        '**Select a purge type:**\n' +
-        '📝 **All Messages** - Delete all messages\n' +
-        '📎 **Attachments** - Delete messages with attachments\n' +
-        '🤖 **Bot Messages** - Delete messages from bots\n' +
-        '🔗 **Links** - Delete messages containing links\n' +
-        '🔍 **Token** - Delete messages containing a keyword/token\n' +
-        '👤 **User** - Delete messages from a specific user\n\n' +
-        '⚠️ **Note:** Messages older than 14 days cannot be bulk deleted.'
+      'select a purge type:\n\n' +
+        '**all messages** - delete all messages\n' +
+        '**attachments** - delete messages with attachments\n' +
+        '**bot messages** - delete messages from bots\n' +
+        '**links** - delete messages containing links\n' +
+        '**token** - delete messages containing a keyword/token\n' +
+        '**user** - delete messages from a specific user\n\n' +
+        'note: messages older than 14 days cannot be bulk deleted.'
     )
-    .setFooter({ text: 'Select a purge type to begin' })
+    .setFooter({ text: 'select a purge type to begin' })
 
   // Check if this is a fresh command (ChatInputCommandInteraction) for default flow
   const isDefaultFlow = interaction.isChatInputCommand()
@@ -43,39 +41,33 @@ export async function showPurgeHub(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('purge:menu:type')
-      .setPlaceholder('🔍 Select a purge type...')
+      .setPlaceholder('select a purge type...')
       .addOptions([
         new StringSelectMenuOptionBuilder()
           .setLabel('All Messages')
           .setDescription('Delete all messages in the channel')
           .setValue('all')
-          .setEmoji('📝')
           .setDefault(isDefaultFlow), // Preselect for default flow
         new StringSelectMenuOptionBuilder()
           .setLabel('Attachments')
           .setDescription('Delete messages with attachments')
-          .setValue('attachments')
-          .setEmoji('📎'),
+          .setValue('attachments'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Bot Messages')
           .setDescription('Delete messages from bots')
-          .setValue('bots')
-          .setEmoji('🤖'),
+          .setValue('bots'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Links')
           .setDescription('Delete messages containing links')
-          .setValue('links')
-          .setEmoji('🔗'),
+          .setValue('links'),
         new StringSelectMenuOptionBuilder()
           .setLabel('Token/Keyword')
           .setDescription('Delete messages containing a keyword')
-          .setValue('token')
-          .setEmoji('🔍'),
+          .setValue('token'),
         new StringSelectMenuOptionBuilder()
           .setLabel('User Messages')
           .setDescription('Delete messages from a specific user')
-          .setValue('user')
-          .setEmoji('👤'),
+          .setValue('user'),
       ])
   )
 
@@ -83,12 +75,14 @@ export async function showPurgeHub(
 
   // Add Proceed button for default flow (All Messages preselected)
   if (isDefaultFlow) {
-    const proceedButton = createPrimaryBtn({
-      customId: 'purge:btn:proceed_type|default:true',
-      label: 'Proceed',
-      emoji: '➡️',
-    })
-    components.push(proceedButton)
+    const proceedRow = MinaRows.single(
+      MinaButtons.custom(
+        'purge:btn:proceed_type|default:true',
+        'proceed',
+        ButtonStyle.Primary
+      )
+    )
+    components.push(proceedRow)
   }
 
   // Command handler already defers, so use editReply for all cases
@@ -133,7 +127,7 @@ export async function handlePurgeTypeMenu(
     }
     default:
       await interaction.followUp({
-        content: '❌ Invalid purge type selected',
+        content: 'invalid purge type selected',
         ephemeral: true,
       })
   }

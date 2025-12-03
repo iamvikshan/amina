@@ -2,20 +2,20 @@ import {
   StringSelectMenuInteraction,
   ChannelSelectMenuInteraction,
   ModalSubmitInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ChannelSelectMenuBuilder,
   ModalBuilder,
   TextInputBuilder,
-  ButtonBuilder,
   TextInputStyle,
-  ButtonStyle,
   ChannelType,
   TextChannel,
   MessageFlags,
+  ButtonBuilder,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
@@ -24,28 +24,20 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 export async function showMessageChannelSelect(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '📨 Setup Ticket Message' })
-    .setDescription(
-      'Please select the channel where you want to create the ticket message.\n\n' +
-        'Users will be able to click a button in this channel to create tickets.'
-    )
-    .setFooter({ text: 'Select a text channel below' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: mina.say('ticket.setup.message.title') })
+    .setDescription(mina.say('ticket.setup.message.description'))
+    .setFooter({ text: mina.say('ticket.setup.message.footer') })
 
   const channelSelect =
     new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
       new ChannelSelectMenuBuilder()
         .setCustomId('ticket:channel:message')
-        .setPlaceholder('📝 Select a channel...')
+        .setPlaceholder('select a channel...')
         .setChannelTypes(ChannelType.GuildText)
     )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_setup',
-    label: 'Back to Setup',
-    emoji: '◀️',
-  })
+  const backButton = MinaRows.backRow('ticket:btn:back_setup')
 
   await interaction.update({
     embeds: [embed],
@@ -63,7 +55,7 @@ export async function handleMessageChannelSelect(
 
   if (!channel) {
     await interaction.reply({
-      content: '❌ Invalid channel selected',
+      content: mina.say('ticket.setup.message.invalidChannel'),
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -75,11 +67,11 @@ export async function handleMessageChannelSelect(
   ) {
     await interaction.reply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `Oops! I don't have permission to send messages in ${channel}. Could you please give me that permission? Pretty please? 🙏`
-          ),
+        MinaEmbed.error(
+          mina.sayf('ticket.setup.message.noPermission', {
+            channel: channel.toString(),
+          })
+        ),
       ],
       flags: MessageFlags.Ephemeral,
     })
@@ -99,14 +91,14 @@ async function showTicketMessageModal(
 ): Promise<void> {
   const modal = new ModalBuilder({
     customId: `ticket:modal:message|ch:${channel.id}`,
-    title: 'Ticket Message Setup',
+    title: 'ticket message setup',
     components: [
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder({
           customId: 'title',
-          label: 'Embed Title',
+          label: 'embed title',
           style: TextInputStyle.Short,
-          placeholder: 'Support Ticket',
+          placeholder: 'support ticket',
           required: false,
           maxLength: 256,
         })
@@ -114,9 +106,9 @@ async function showTicketMessageModal(
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder({
           customId: 'description',
-          label: 'Embed Description',
+          label: 'embed description',
           style: TextInputStyle.Paragraph,
-          placeholder: 'Please use the button below to create a ticket',
+          placeholder: 'please use the button below to create a ticket',
           required: false,
           maxLength: 2048,
         })
@@ -124,9 +116,9 @@ async function showTicketMessageModal(
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder({
           customId: 'footer',
-          label: 'Embed Footer',
+          label: 'embed footer',
           style: TextInputStyle.Short,
-          placeholder: 'You can only have 1 open ticket at a time!',
+          placeholder: 'you can only have 1 open ticket at a time',
           required: false,
           maxLength: 2048,
         })
@@ -151,7 +143,7 @@ export async function handleTicketMessageModal(
 
   if (!channelId) {
     await interaction.reply({
-      content: '❌ Invalid channel data',
+      content: 'invalid channel data',
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -163,7 +155,7 @@ export async function handleTicketMessageModal(
 
   if (!channel) {
     await interaction.reply({
-      content: '❌ Channel not found',
+      content: 'channel not found',
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -172,13 +164,13 @@ export async function handleTicketMessageModal(
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
   const title =
-    interaction.fields.getTextInputValue('title') || 'Support Ticket'
+    interaction.fields.getTextInputValue('title') || 'support ticket'
   const description =
     interaction.fields.getTextInputValue('description') ||
-    'Please use the button below to create a ticket'
+    'please use the button below to create a ticket'
   const footer =
     interaction.fields.getTextInputValue('footer') ||
-    'You can only have 1 open ticket at a time!'
+    'you can only have 1 open ticket at a time'
 
   // Get or create ticket category
   const settings = await getSettings(interaction.guild!)
@@ -233,14 +225,12 @@ export async function handleTicketMessageModal(
       settings.ticket.category = ticketCategory.id
       settings.ticket.enabled = true
       await updateSettings(interaction.guild!.id, settings)
-    } catch (error) {
+    } catch (_error) {
       await interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setColor(EMBED_COLORS.ERROR)
-            .setDescription(
-              "Oops! I couldn't create the Tickets category. Please check my permissions! 😔"
-            ),
+          MinaEmbed.error(
+            "i couldn't create the tickets category. please check my permissions."
+          ),
         ],
       })
       return
@@ -248,18 +238,16 @@ export async function handleTicketMessageModal(
   }
 
   // Create ticket message embed
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
     .setAuthor({ name: title })
     .setDescription(description)
     .setFooter({ text: footer })
 
   const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
-      .setLabel('Open a ticket')
+      .setLabel('open a ticket')
       .setCustomId('TICKET_CREATE')
       .setStyle(ButtonStyle.Success)
-      .setEmoji('🎫')
   )
 
   try {
@@ -272,31 +260,23 @@ export async function handleTicketMessageModal(
     ;(settings.ticket as any).setup_message_id = ticketMessage.id
     await updateSettings(interaction.guild!.id, settings)
 
-    const successEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        `Yay! Ticket message created successfully in ${channel}! 🎉\n\n` +
-          `Users can now click the button to create tickets.`
-      )
+    const successEmbed = MinaEmbed.success(
+      `ticket message created successfully in ${channel}.\n\n` +
+        `users can now click the button to create tickets.`
+    )
 
-    const backButton = createSecondaryBtn({
-      customId: 'ticket:btn:back_setup',
-      label: 'Back to Setup',
-      emoji: '◀️',
-    })
+    const backRow = MinaRows.backRow('ticket:btn:back_setup')
 
     await interaction.editReply({
       embeds: [successEmbed],
-      components: [backButton],
+      components: [backRow],
     })
-  } catch (error) {
+  } catch (_error) {
     await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `Failed to send ticket message to ${channel}. Please check my permissions! 😔`
-          ),
+        MinaEmbed.error(
+          `failed to send ticket message to ${channel}. please check my permissions.`
+        ),
       ],
     })
   }

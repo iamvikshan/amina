@@ -1,13 +1,12 @@
 import {
   ApplicationCommandOptionType,
-  EmbedBuilder,
   ChatInputCommandInteraction,
   GuildMember,
   TextChannel,
 } from 'discord.js'
 import { getUser, setAfk, removeAfk } from '@schemas/User'
-import { EMBED_COLORS } from '@src/config'
 import { Logger } from '@helpers/Logger'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'afk',
@@ -55,13 +54,11 @@ const command: CommandData = {
 
       await setAfk(member.id, reason, duration || null)
 
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setDescription(
-          `You are now AFK${reason ? `: ${reason}` : ''}${duration ? `\nDuration: ${duration} minutes` : ''}\n\nNote: Your AFK status will be removed when you send a message.`
-        )
+      const embed = MinaEmbed.primary().setDescription(
+        `you are now afk${reason ? `: ${reason}` : ''}${duration ? `\nduration: ${duration} minutes` : ''}\n\nnote: your afk status will be removed when you send a message.`
+      )
 
-      await interaction.followUp({ embeds: [embed] })
+      const reply = await interaction.followUp({ embeds: [embed] })
 
       // If duration is set, schedule AFK removal
       if (duration) {
@@ -89,6 +86,8 @@ const command: CommandData = {
           }
         }, duration * 60000)
       }
+
+      return reply
     } catch (ex) {
       Logger.error('AFK command', ex)
       return interaction.followUp(

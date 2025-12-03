@@ -2,15 +2,14 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ChannelSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ChannelSelectMenuBuilder,
   ChannelType,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { getSettings } from '@schemas/Guild'
-import { createSecondaryBtn, createSuccessBtn } from '@helpers/componentHelper'
-import type { Client, Guild } from 'discord.js'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import type { Client, Guild, ButtonBuilder } from 'discord.js'
 
 /**
  * Show trigger settings menu
@@ -18,16 +17,15 @@ import type { Client, Guild } from 'discord.js'
 export async function showTrigSettings(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('⚡ Trigger Settings')
+  const embed = MinaEmbed.primary()
+    .setTitle('trigger settings')
     .setDescription(
-      'Trigger server onboarding for servers! ⚡\n\n' +
-        '**Select a server (optional):**\n' +
-        "If no server is selected, onboarding will be triggered for all servers that haven't completed setup.\n\n" +
-        '⚠️ **Note:** This will trigger the `guildCreate` event for the selected server(s).'
+      'trigger server onboarding for servers\n\n' +
+        '**select a server (optional):**\n' +
+        "if no server is selected, onboarding will be triggered for all servers that haven't completed setup.\n\n" +
+        '**note:** this will trigger the `guildCreate` event for the selected server(s).'
     )
-    .setFooter({ text: 'Select a server channel (optional)' })
+    .setFooter({ text: 'select a server channel (optional)' })
 
   const channelSelect =
     new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
@@ -39,21 +37,17 @@ export async function showTrigSettings(
         .setMaxValues(1)
     )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_trig',
-    label: 'Back to Dev Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_trig')
 
-  const confirmButton = createSuccessBtn({
-    customId: 'dev:btn:trig_confirm',
-    label: 'Trigger for All Servers',
-    emoji: '⚡',
-  })
+  const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    MinaButtons.yeah()
+      .setCustomId('dev:btn:trig_confirm')
+      .setLabel('trigger for all servers')
+  )
 
   await interaction.editReply({
     embeds: [embed],
-    components: [channelSelect, backButton, confirmButton],
+    components: [channelSelect, backRow, confirmRow],
   })
 }
 
@@ -98,57 +92,37 @@ async function triggerOnboarding(
   if (serverId) {
     const guild = client.guilds.cache.get(serverId)
     if (!guild) {
-      const errorEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setDescription('❌ Guild not found')
+      const errorEmbed = MinaEmbed.error().setDescription('guild not found')
 
       await interaction.editReply({
         embeds: [errorEmbed],
-        components: [
-          createSecondaryBtn({
-            customId: 'dev:btn:back_trig',
-            label: 'Back to Dev Hub',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('dev:btn:back_trig')],
       })
       return
     }
 
     const settings = await getSettings(guild)
     if (settings.server.setup_completed) {
-      const errorEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.WARNING)
-        .setDescription(`❌ Guild ${guild.name} already set up`)
+      const errorEmbed = MinaEmbed.warning().setDescription(
+        `guild ${guild.name} already set up`
+      )
 
       await interaction.editReply({
         embeds: [errorEmbed],
-        components: [
-          createSecondaryBtn({
-            customId: 'dev:btn:back_trig',
-            label: 'Back to Dev Hub',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('dev:btn:back_trig')],
       })
       return
     }
 
     guildCreateEvent(guild)
 
-    const successEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(`✅ Triggered settings for ${guild.name}`)
+    const successEmbed = MinaEmbed.success().setDescription(
+      `triggered settings for ${guild.name}`
+    )
 
     await interaction.editReply({
       embeds: [successEmbed],
-      components: [
-        createSecondaryBtn({
-          customId: 'dev:btn:back_trig',
-          label: 'Back to Dev Hub',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('dev:btn:back_trig')],
     })
     return
   }
@@ -163,20 +137,12 @@ async function triggerOnboarding(
     }
   }
 
-  const successEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(
-      `✅ Triggered settings for ${count} guild${count !== 1 ? 's' : ''}`
-    )
+  const successEmbed = MinaEmbed.success().setDescription(
+    `triggered settings for ${count} guild${count !== 1 ? 's' : ''}`
+  )
 
   await interaction.editReply({
     embeds: [successEmbed],
-    components: [
-      createSecondaryBtn({
-        customId: 'dev:btn:back_trig',
-        label: 'Back to Dev Hub',
-        emoji: '◀️',
-      }),
-    ],
+    components: [MinaRows.backRow('dev:btn:back_trig')],
   })
 }

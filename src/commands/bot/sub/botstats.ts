@@ -1,15 +1,12 @@
-import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js'
-import { EMBED_COLORS, config } from '@src/config'
+import { config } from '@src/config'
 import { timeformat } from '@helpers/Utils'
 import { updateBotStats } from '@schemas/Dev'
 import os from 'os'
 import { stripIndent } from 'common-tags'
 import type { BotClient } from '@structures/BotClient'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 export default function botstats(client: BotClient) {
   // STATS
@@ -33,54 +30,53 @@ export default function botstats(client: BotClient) {
   const overallUsage = `${Math.floor(((os.totalmem() - os.freemem()) / os.totalmem()) * 100)}%`
 
   let desc = ''
-  desc += `❒ Total guilds: ${guilds}\n`
-  desc += `❒ Total users: ${users}\n`
-  desc += `❒ Total channels: ${channels}\n`
+  desc += `total guilds: ${guilds}\n`
+  desc += `total users: ${users}\n`
+  desc += `total channels: ${channels}\n`
   // Use validated websocket ping (default to 0 when not available)
   const wsPing = client.ws.ping > 0 ? client.ws.ping : 0
-  desc += `❒ Websocket Ping: ${wsPing} ms\n`
+  desc += `websocket ping: ${wsPing} ms\n`
   desc += '\n'
 
-  const embed = new EmbedBuilder()
-    .setTitle('Bot Information')
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setThumbnail(client.user.displayAvatarURL())
+  const embed = MinaEmbed.primary()
+    .setTitle(mina.say('botInfo.stats.title'))
+    .setThumbnail(client.user?.displayAvatarURL() ?? '')
     .setDescription(desc)
     .addFields(
       {
-        name: 'CPU',
+        name: mina.say('botInfo.stats.fields.cpu'),
         value: stripIndent`
-        ❯ **OS:** ${platform} [${architecture}]
-        ❯ **Cores:** ${cores}
-        ❯ **Usage:** ${cpuUsage}
+        ❯ **os:** ${platform} [${architecture}]
+        ❯ **cores:** ${cores}
+        ❯ **usage:** ${cpuUsage}
         `,
         inline: true,
       },
       {
-        name: "Bot's RAM",
+        name: mina.say('botInfo.stats.fields.botRam'),
         value: stripIndent`
-        ❯ **Used:** ${botUsed}
-        ❯ **Available:** ${botAvailable}
-        ❯ **Usage:** ${botUsage}
+        ❯ **used:** ${botUsed}
+        ❯ **available:** ${botAvailable}
+        ❯ **usage:** ${botUsage}
         `,
         inline: true,
       },
       {
-        name: 'Overall RAM',
+        name: mina.say('botInfo.stats.fields.overallRam'),
         value: stripIndent`
-        ❯ **Used:** ${overallUsed}
-        ❯ **Available:** ${overallAvailable}
-        ❯ **Usage:** ${overallUsage}
+        ❯ **used:** ${overallUsed}
+        ❯ **available:** ${overallAvailable}
+        ❯ **usage:** ${overallUsage}
         `,
         inline: true,
       },
       {
-        name: 'Node Js version',
+        name: mina.say('botInfo.stats.fields.nodeVersion'),
         value: process.versions.node,
         inline: false,
       },
       {
-        name: 'Uptime',
+        name: mina.say('botInfo.stats.fields.uptime'),
         value: '```' + timeformat(process.uptime()) + '```',
         inline: false,
       }
@@ -113,20 +109,17 @@ export default function botstats(client: BotClient) {
   }
 
   // Buttons
-  let components = []
-  components.push(
-    new ButtonBuilder()
-      .setLabel('Invite Link')
-      .setURL(client.getInvite())
-      .setStyle(ButtonStyle.Link)
+  const buttons = []
+  buttons.push(
+    MinaButtons.link(client.getInvite(), mina.say('botInfo.invite.button'))
   )
 
   if (config.BOT.SUPPORT_SERVER) {
-    components.push(
-      new ButtonBuilder()
-        .setLabel('Support Server')
-        .setURL(config.BOT.SUPPORT_SERVER)
-        .setStyle(ButtonStyle.Link)
+    buttons.push(
+      MinaButtons.link(
+        config.BOT.SUPPORT_SERVER,
+        mina.say('botInfo.invite.support')
+      )
     )
   }
 
@@ -135,17 +128,12 @@ export default function botstats(client: BotClient) {
       ? config.BOT.DASHBOARD_URL
       : `https://${config.BOT.DASHBOARD_URL}`
 
-    components.push(
-      new ButtonBuilder()
-        .setLabel('Dashboard Link')
-        .setURL(dashboardUrl)
-        .setStyle(ButtonStyle.Link)
+    buttons.push(
+      MinaButtons.link(dashboardUrl, mina.say('botInfo.invite.dashboard'))
     )
   }
 
-  let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    components
-  )
+  const buttonsRow = MinaRows.from(...buttons)
 
   return { embeds: [embed], components: [buttonsRow] }
 }

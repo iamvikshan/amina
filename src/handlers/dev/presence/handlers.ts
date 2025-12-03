@@ -2,7 +2,6 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ModalSubmitInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -10,9 +9,9 @@ import {
   ModalBuilder,
   TextInputStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { getPresenceConfig, updatePresenceConfig } from '@schemas/Dev'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
 import { updatePresence } from './update'
 
 /**
@@ -27,20 +26,19 @@ export async function showPresenceMenu(
   const currentConfig = await getPresenceConfig()
   const { ENABLED, STATUS, TYPE, MESSAGE, URL } = currentConfig.PRESENCE
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🎭 Presence Management')
+  const embed = MinaEmbed.primary()
+    .setTitle('presence management')
     .setDescription(
-      'Configure bot presence/status! 🎭\n\n' +
-        '**Current Configuration:**\n' +
-        `**Enabled**: ${ENABLED ? '✅' : '❌'}\n` +
-        `**Status**: \`${STATUS}\`\n` +
-        `**Type**: \`${TYPE}\`\n` +
-        `**Message**: \`${MESSAGE}\`\n` +
-        `**URL**: ${URL || 'N/A'}\n\n` +
-        '**Select an operation to update:**'
+      'configure bot presence/status\n\n' +
+        '**current configuration:**\n' +
+        `**enabled**: ${ENABLED ? 'yes' : 'no'}\n` +
+        `**status**: \`${STATUS}\`\n` +
+        `**type**: \`${TYPE}\`\n` +
+        `**message**: \`${MESSAGE}\`\n` +
+        `**url**: ${URL || 'n/a'}\n\n` +
+        '**select an operation to update:**'
     )
-    .setFooter({ text: 'Changes are applied immediately' })
+    .setFooter({ text: 'changes are applied immediately' })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -72,22 +70,18 @@ export async function showPresenceMenu(
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_presence',
-    label: 'Back to Dev Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_presence')
 
   // If called from a modal submit, we must use editReply or update
   if (interaction.isModalSubmit()) {
     await interaction.editReply({
       embeds: [embed],
-      components: [menu, backButton],
+      components: [menu, backRow],
     })
   } else {
     await interaction.editReply({
       embeds: [embed],
-      components: [menu, backButton],
+      components: [menu, backRow],
     })
   }
 }
@@ -217,10 +211,9 @@ async function showTypeSelection(
   await interaction.deferUpdate()
   const config = await getPresenceConfig()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🎮 Select Activity Type')
-    .setDescription(`Current Type: \`${config.PRESENCE.TYPE}\``)
+  const embed = MinaEmbed.primary()
+    .setTitle('select activity type')
+    .setDescription(`current type: \`${config.PRESENCE.TYPE}\``)
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -260,15 +253,11 @@ async function showTypeSelection(
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_presence_menu',
-    label: 'Back to Presence Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_presence_menu')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components: [menu, backRow],
   })
 }
 
@@ -302,10 +291,9 @@ async function showStatusSelection(
   await interaction.deferUpdate()
   const config = await getPresenceConfig()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🟢 Select Status')
-    .setDescription(`Current Status: \`${config.PRESENCE.STATUS}\``)
+  const embed = MinaEmbed.primary()
+    .setTitle('select status')
+    .setDescription(`current status: \`${config.PRESENCE.STATUS}\``)
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -339,15 +327,11 @@ async function showStatusSelection(
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_presence_menu',
-    label: 'Back to Presence Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_presence_menu')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components: [menu, backRow],
   })
 }
 

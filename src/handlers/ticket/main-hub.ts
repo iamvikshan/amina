@@ -1,13 +1,13 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 /**
  * Show main ticket hub with operation selection
@@ -15,33 +15,24 @@ import { EMBED_COLORS } from '@src/config'
 export async function showTicketHub(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '🎫 Ticket Management Hub' })
-    .setDescription(
-      'Welcome to the Ticket Management Hub! 🌟\n\n' +
-        '**Choose an operation:**\n' +
-        '🛠️ **Setup** - Configure ticket system (message, logs, limits, topics)\n' +
-        '📋 **Manage** - Runtime operations (close, add/remove users)\n\n' +
-        'Select an option below to get started!'
-    )
-    .setFooter({ text: 'Thank you for using Amina! 💕' })
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('ticket.hub.title') })
+    .setDescription(mina.say('ticket.hub.description'))
+    .setFooter({ text: mina.say('ticket.hub.footer') })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('ticket:menu:category')
-      .setPlaceholder('📂 Select a category...')
+      .setPlaceholder(mina.say('ticket.hub.selectPlaceholder'))
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Setup')
-          .setDescription('Configure ticket system settings')
-          .setValue('setup')
-          .setEmoji('🛠️'),
+          .setLabel(mina.say('ticket.hub.setup.label'))
+          .setDescription(mina.say('ticket.hub.setup.description'))
+          .setValue('setup'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Manage')
-          .setDescription('Runtime ticket operations')
+          .setLabel(mina.say('ticket.hub.manage.label'))
+          .setDescription(mina.say('ticket.hub.manage.description'))
           .setValue('manage')
-          .setEmoji('📋')
       )
   )
 
@@ -72,7 +63,7 @@ export async function handleTicketCategoryMenu(
       break
     default:
       await interaction.followUp({
-        content: '❌ Invalid category selected',
+        content: mina.say('ticket.error.invalidCategory'),
         flags: MessageFlags.Ephemeral,
       })
   }

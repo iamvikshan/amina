@@ -191,7 +191,10 @@ export default class BotClient extends Client {
   // Load and register a single command
   loadCommand(cmd: any): void {
     // First check category
-    if (cmd.category && CommandCategory[cmd.category]?.enabled === false) {
+    if (
+      cmd.category &&
+      (CommandCategory as any)[cmd.category]?.enabled === false
+    ) {
       this.logger.debug(
         `Skipping Command ${cmd.name}. Category ${cmd.category} is disabled`
       )

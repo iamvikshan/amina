@@ -1,9 +1,10 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { postToBin } from '@helpers/HttpUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'paste',
@@ -34,7 +35,7 @@ const command: CommandData = {
     const content = interaction.options.getString('content', true)
 
     if (!title || !content) {
-      await interaction.followUp('Please provide both title and content.')
+      await interaction.followUp(mina.say('utility.paste.error.missingFields'))
       return
     }
 
@@ -47,13 +48,18 @@ const command: CommandData = {
 async function paste(
   content: string,
   title: string
-): Promise<{ embeds: EmbedBuilder[] } | string> {
+): Promise<{ embeds: any[] } | string> {
   const response = await postToBin(content, title)
-  if (!response) return '❌ Something went wrong'
+  if (!response) return mina.say('utility.paste.error.failed')
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'Paste links' })
-    .setDescription(`🔸 Normal: ${response.url}\n🔹 Raw: ${response.raw}`)
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: mina.say('utility.paste.title') })
+    .setDescription(
+      mina.sayf('utility.paste.description', {
+        normal: response.url,
+        raw: response.raw,
+      })
+    )
 
   return { embeds: [embed] }
 }

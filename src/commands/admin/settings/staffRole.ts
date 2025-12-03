@@ -1,13 +1,8 @@
-import {
-  EmbedBuilder,
-  ChatInputCommandInteraction,
-  Role,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { ChatInputCommandInteraction, Role } from 'discord.js'
 import { updateSetupStatus, createSetupEmbed } from './setupEmbed'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 export async function addStaffRole(
   interaction: ChatInputCommandInteraction,
@@ -15,21 +10,19 @@ export async function addStaffRole(
   settings: any
 ): Promise<void> {
   if (settings.server.staff_roles.includes(role.id)) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        `Oops! ${role.toString()} is already a staff role. You can't add it twice!`
-      )
+    const embed = MinaEmbed.error().setDescription(
+      mina.sayf('admin.settings.staffRole.alreadyAdded', {
+        role: role.toString(),
+      })
+    )
     await interaction.editReply({ embeds: [embed] })
     return
   }
 
   if (settings.server.staff_roles.length >= 5) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        'Whoa there! You already have 5 staff roles. Please remove one before adding another.'
-      )
+    const embed = MinaEmbed.error().setDescription(
+      mina.say('admin.settings.staffRole.maxReached')
+    )
     await interaction.editReply({ embeds: [embed] })
     return
   }
@@ -40,13 +33,7 @@ export async function addStaffRole(
 
   const setupEmbed = createSetupEmbed(settings)
 
-  const backButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('admin:btn:back')
-      .setLabel('Back to Admin Hub')
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji('◀️')
-  )
+  const backButton = MinaRows.backRow('admin:btn:back')
 
   await interaction.editReply({
     embeds: [setupEmbed],
@@ -60,11 +47,9 @@ export async function removeStaffRole(
   settings: any
 ): Promise<void> {
   if (!settings.server.staff_roles.includes(role.id)) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        `Hmm... ${role.toString()} is not a staff role. Are you sure you selected the right role?`
-      )
+    const embed = MinaEmbed.error().setDescription(
+      mina.sayf('admin.settings.staffRole.notFound', { role: role.toString() })
+    )
     await interaction.editReply({ embeds: [embed] })
     return
   }
@@ -77,13 +62,7 @@ export async function removeStaffRole(
 
   const setupEmbed = createSetupEmbed(settings)
 
-  const backButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('admin:btn:back')
-      .setLabel('Back to Admin Hub')
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji('◀️')
-  )
+  const backButton = MinaRows.backRow('admin:btn:back')
 
   await interaction.editReply({
     embeds: [setupEmbed],

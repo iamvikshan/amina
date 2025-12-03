@@ -3,14 +3,10 @@ import {
   ModalSubmitInteraction,
   StringSelectMenuInteraction,
   MessageFlags,
-  EmbedBuilder,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import {
-  createPrimaryBtn,
-  createSecondaryBtn,
-  createDangerBtn,
-} from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show the create role menu
@@ -18,39 +14,42 @@ import {
 export async function showCreateRoleMenu(
   interaction: ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setTitle('🎨 Create New Role')
-    .setDescription('Configure a new role for your server.')
+  const embed = MinaEmbed.primary()
+    .setTitle('create new role')
+    .setDescription('configure a new role for your server.')
     .addFields(
       {
-        name: '📝 Setup Process',
+        name: 'setup process',
         value:
-          '1️⃣ Provide a role name and color\n' +
-          '2️⃣ (Optional) Configure permissions\n' +
-          '3️⃣ Review and create',
+          '1. provide a role name and color\n' +
+          '2. (optional) configure permissions\n' +
+          '3. review and create',
       },
       {
-        name: '⚙️ Options',
+        name: 'options',
         value:
-          '**Basic** - Name and color only\n**Advanced** - Include permission configuration',
+          '**basic** - name and color only\n**advanced** - include permission configuration',
       }
     )
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setFooter({ text: 'Select an option to begin' })
+    .setFooter({ text: 'select an option to begin' })
 
-  const row1 = createPrimaryBtn({
-    label: 'Basic Setup',
-    customId: 'roles:btn:create_basic',
-  })
-  const row2 = createSecondaryBtn({
-    label: 'Advanced Setup',
-    customId: 'roles:btn:create_advanced',
-  })
-  const row3 = createDangerBtn({ label: 'Cancel', customId: 'roles:btn:back' })
+  const buttons = MinaRows.from(
+    MinaButtons.custom(
+      'roles:btn:create_basic',
+      'basic setup',
+      ButtonStyle.Primary
+    ),
+    MinaButtons.custom(
+      'roles:btn:create_advanced',
+      'advanced setup',
+      ButtonStyle.Secondary
+    ),
+    MinaButtons.custom('roles:btn:back', 'cancel', ButtonStyle.Danger)
+  )
 
   await interaction.update({
     embeds: [embed],
-    components: [row1, row2, row3],
+    components: [buttons],
   })
 }
 
@@ -62,7 +61,7 @@ export async function showCreateRoleModal(
   advanced: boolean = false
 ): Promise<void> {
   const modal = {
-    title: advanced ? 'Create Role - Advanced' : 'Create Role - Basic',
+    title: advanced ? 'create role - advanced' : 'create role - basic',
     custom_id: `roles:modal:create|${advanced ? 'advanced' : 'basic'}`,
     components: [
       {
@@ -71,9 +70,9 @@ export async function showCreateRoleModal(
           {
             type: 4,
             custom_id: 'name',
-            label: 'Role Name',
+            label: 'role name',
             style: 1,
-            placeholder: 'Enter role name...',
+            placeholder: 'enter role name...',
             required: true,
             max_length: 100,
           },
@@ -85,7 +84,7 @@ export async function showCreateRoleModal(
           {
             type: 4,
             custom_id: 'color',
-            label: 'Role Color (Hex)',
+            label: 'role color (hex)',
             style: 1,
             placeholder: '#5865F2 or 5865F2',
             required: false,
@@ -99,9 +98,9 @@ export async function showCreateRoleModal(
           {
             type: 4,
             custom_id: 'reason',
-            label: 'Reason (Audit Log)',
+            label: 'reason (audit log)',
             style: 1,
-            placeholder: 'Optional reason for creating this role...',
+            placeholder: 'optional reason for creating this role...',
             required: false,
             max_length: 200,
           },
@@ -135,7 +134,7 @@ export async function handleCreateRoleModal(
     if (!hexMatch) {
       await interaction.reply({
         content:
-          '❌ Invalid color format. Use hex format like `#5865F2` or `5865F2`',
+          'invalid color format. use hex format like `#5865F2` or `5865F2`',
         flags: MessageFlags.Ephemeral,
       })
       return
@@ -150,7 +149,7 @@ export async function handleCreateRoleModal(
   )
   if (existingRole) {
     await interaction.reply({
-      content: `❌ A role named **${name}** already exists.`,
+      content: `a role named **${name}** already exists.`,
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -167,35 +166,38 @@ export async function handleCreateRoleModal(
         reason,
       })
 
-      const embed = new EmbedBuilder()
-        .setTitle('✅ Role Created')
-        .setDescription(`Successfully created role ${newRole}`)
+      const embed = MinaEmbed.success()
+        .setTitle('role created')
+        .setDescription(`successfully created role ${newRole}`)
         .addFields(
           {
-            name: 'Name',
+            name: 'name',
             value: newRole.name,
             inline: true,
           },
           {
-            name: 'Color',
+            name: 'color',
             value: newRole.hexColor,
             inline: true,
           },
           {
-            name: 'Position',
+            name: 'position',
             value: `${newRole.position}`,
             inline: true,
           }
         )
-        .setColor(color || EMBED_COLORS.SUCCESS)
-        .setFooter({ text: 'Use /roles to configure autorole or manage roles' })
+        .setFooter({ text: 'use /roles to configure autorole or manage roles' })
+
+      if (color) {
+        embed.setColor(color)
+      }
 
       await interaction.editReply({
         embeds: [embed],
       })
     } catch (error: any) {
       await interaction.editReply({
-        content: `❌ Failed to create role: ${error.message}`,
+        content: `failed to create role: ${error.message}`,
       })
     }
     return
@@ -214,19 +216,22 @@ async function showPermissionSelector(
   color: number | undefined,
   reason: string
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setTitle('🔐 Configure Permissions')
-    .setDescription(`Setting up role: **${name}**`)
+  const embed = MinaEmbed.primary()
+    .setTitle('configure permissions')
+    .setDescription(`setting up role: **${name}**`)
     .addFields({
-      name: '📋 Common Permission Sets',
+      name: 'common permission sets',
       value:
-        '**Admin** - Full server permissions\n' +
-        '**Moderator** - Manage messages, kick, ban, timeout\n' +
-        '**Support** - Manage messages, view audit log\n' +
-        '**None** - No special permissions',
+        '**admin** - full server permissions\n' +
+        '**moderator** - manage messages, kick, ban, timeout\n' +
+        '**support** - manage messages, view audit log\n' +
+        '**none** - no special permissions',
     })
-    .setColor(color || EMBED_COLORS.BOT_EMBED)
-    .setFooter({ text: 'Select a permission preset' })
+    .setFooter({ text: 'select a permission preset' })
+
+  if (color) {
+    embed.setColor(color)
+  }
 
   // Encode role data in custom_id
   const roleData = Buffer.from(
@@ -239,45 +244,36 @@ async function showPermissionSelector(
       {
         type: 3,
         custom_id: `roles:menu:perms|${roleData}`,
-        placeholder: 'Select permission preset...',
+        placeholder: 'select permission preset...',
         options: [
           {
-            label: 'Administrator',
+            label: 'administrator',
             value: 'admin',
-            description: 'Full server permissions',
-            emoji: '👑',
+            description: 'full server permissions',
           },
           {
-            label: 'Moderator',
+            label: 'moderator',
             value: 'moderator',
-            description: 'Manage messages, members, and channels',
-            emoji: '🛡️',
+            description: 'manage messages, members, and channels',
           },
           {
-            label: 'Support',
+            label: 'support',
             value: 'support',
-            description: 'Manage messages and view logs',
-            emoji: '🎫',
+            description: 'manage messages and view logs',
           },
           {
-            label: 'None',
+            label: 'none',
             value: 'none',
-            description: 'No special permissions',
-            emoji: '📝',
+            description: 'no special permissions',
           },
         ],
       },
     ],
   }
 
-  const buttonRow = createDangerBtn({
-    label: 'Cancel',
-    customId: 'roles:btn:back',
-  })
-
   await interaction.reply({
     embeds: [embed],
-    components: [row, buttonRow],
+    components: [row, MinaRows.single(MinaButtons.nah('roles:btn:back'))],
     flags: MessageFlags.Ephemeral,
   })
 }
@@ -340,35 +336,38 @@ export async function handlePermissionSelect(
       reason,
     })
 
-    const embed = new EmbedBuilder()
-      .setTitle('✅ Role Created')
-      .setDescription(`Successfully created role ${newRole}`)
+    const embed = MinaEmbed.success()
+      .setTitle('role created')
+      .setDescription(`successfully created role ${newRole}`)
       .addFields(
         {
-          name: 'Name',
+          name: 'name',
           value: newRole.name,
           inline: true,
         },
         {
-          name: 'Color',
+          name: 'color',
           value: newRole.hexColor,
           inline: true,
         },
         {
-          name: 'Position',
+          name: 'position',
           value: `${newRole.position}`,
           inline: true,
         },
         {
-          name: 'Permissions',
+          name: 'permissions',
           value:
             permissionSet === 'none'
-              ? 'None'
+              ? 'none'
               : permissionSet.charAt(0).toUpperCase() + permissionSet.slice(1),
         }
       )
-      .setColor(color || EMBED_COLORS.SUCCESS)
-      .setFooter({ text: 'Use /roles to configure autorole or manage roles' })
+      .setFooter({ text: 'use /roles to configure autorole or manage roles' })
+
+    if (color) {
+      embed.setColor(color)
+    }
 
     await interaction.editReply({
       embeds: [embed],
@@ -376,7 +375,7 @@ export async function handlePermissionSelect(
     })
   } catch (error: any) {
     await interaction.editReply({
-      content: `❌ Failed to create role: ${error.message}`,
+      content: `failed to create role: ${error.message}`,
       components: [],
     })
   }

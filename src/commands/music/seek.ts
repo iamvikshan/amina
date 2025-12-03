@@ -3,10 +3,12 @@ import {
   ApplicationCommandOptionType,
 } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'seek',
-  description: 'Sets the position of the current track',
+  description: 'set position of the current track',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
@@ -14,7 +16,7 @@ const command: CommandData = {
     options: [
       {
         name: 'time',
-        description: 'The time you want to seek to',
+        description: 'the time you want to seek to',
         type: ApplicationCommandOptionType.String,
         required: true,
       },
@@ -24,19 +26,21 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const timeString = interaction.options.getString('time')
     if (!timeString) {
-      return await interaction.followUp(
-        'Invalid time format. Use 10s, 1m 50s, 1h'
-      )
+      await interaction.followUp({
+        embeds: [MinaEmbed.warning(mina.say('music.error.invalidTimeFormat'))],
+      })
+      return
     }
 
     const time = (interaction.client as any).utils.parseTime(timeString)
     if (!time) {
-      return await interaction.followUp(
-        'Invalid time format. Use 10s, 1m 50s, 1h'
-      )
+      await interaction.followUp({
+        embeds: [MinaEmbed.warning(mina.say('music.error.invalidTimeFormat'))],
+      })
+      return
     }
 
-    const response = await seekTo(interaction, time)
+    const response = await seekTo(interaction as any, time)
     await interaction.followUp(response)
   },
 }
@@ -50,19 +54,23 @@ async function seekTo(
     guildId: string
   },
   time: number
-): Promise<string> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return "🚫 There's no music currently playing"
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   if (time > player.queue.current.info.duration) {
-    return 'The duration you provided exceeds the duration of the current track'
+    return { embeds: [MinaEmbed.warning('time exceeds track duration.')] }
   }
 
   player.seek(time)
-  return `Seeked song duration to **${client.utils.formatTime(time)}**`
+  return {
+    embeds: [
+      MinaEmbed.success(`seeked to **${client.utils.formatTime(time)}**.`),
+    ],
+  }
 }
 
 export default command

@@ -1,31 +1,70 @@
 import { unDeafenTarget } from '@helpers/ModUtils'
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 export default async (
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
   reason: string | null
-): Promise<string> => {
+): Promise<string | { embeds: MinaEmbed[] }> => {
   const { member } = interaction
   const response = await unDeafenTarget(
     member as GuildMember,
     target,
-    reason || 'No reason provided'
+    reason || mina.say('moderation.error.noReason')
   )
   if (typeof response === 'boolean') {
-    return `${target.user.username} is undeafened in this server`
+    return {
+      embeds: [
+        MinaEmbed.success(
+          mina.sayf('moderation.voice.undeafened', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
   if (response === 'MEMBER_PERM') {
-    return `You do not have permission to undeafen ${target.user.username}`
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.missing'))],
+    }
   }
   if (response === 'BOT_PERM') {
-    return `I do not have permission to undeafen ${target.user.username}`
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.botMissing'))],
+    }
   }
   if (response === 'NO_VOICE') {
-    return `${target.user.username} is not in any voice channel`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.voice.notInVoice', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
   if (response === 'NOT_DEAFENED') {
-    return `${target.user.username} is not deafened`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.voice.notDeafened', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
-  return `Failed to undeafen ${target.user.username}`
+  return {
+    embeds: [
+      MinaEmbed.error(
+        mina.sayf('moderation.error.failed', {
+          action: 'undeafen',
+          target: target.user.username,
+        })
+      ),
+    ],
+  }
 }

@@ -1,9 +1,10 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
+import responses from '@data/responses'
 
 const command: CommandData = {
   name: 'hack',
@@ -34,25 +35,15 @@ const command: CommandData = {
         "Eeek! I can't hack another bot - we might cause a paradox! 🌀"
       )
 
-    const chaoticHackStages = [
-      `*frantically mashes keyboard* INITIALIZING HACK ON ${target.toString()}! HERE WE GOOOOO! 🚀`,
-      `Ohoho! Sneaking into ${target.toString()}'s super-secret digital fortress... *tippy-toes past firewalls*`,
-      `*giggles maniacally* Breaking through security with the power of CHAOS! ✨`,
-      `Downloading all their embarrassing selfies... Oh. My. GOSH. 📸`,
-      `Found their secret playlist! It's full of... BABY SHARK REMIXES?! 🦈`,
-      `EMAIL ACQUIRED! ${target.username.toLowerCase()}@totally-not-sus.uwu\nPassword: iLovePineappleOnPizza123`,
-      `*gasps* They have HOW MANY cat videos saved? This is GOLD! 😻`,
-      `JACKPOT! Found their secret collection of horrible dad jokes! Saving those for later... 📦`,
-      `Breaking into their diary- I mean, "personal documentation system" 📔`,
-      `OH OH OH! You won't BELIEVE what I just found! *bouncing excitedly*`,
-      `MISSION ACCOMPLISHED! Time to spill the tea! ☕`,
-    ]
+    const chaoticHackStages = responses.fun.hack.map(stage =>
+      stage
+        .replace('{target}', target.toString())
+        .replace('{target_lower}', target.username.toLowerCase())
+    )
 
-    const initialEmbed = new EmbedBuilder()
+    const initialEmbed = MinaEmbed.loading()
       .setTitle("🎮 Amina's Super Special Hack Attack!")
       .setDescription(chaoticHackStages[0])
-      .setColor(EMBED_COLORS.BOT_EMBED)
-      .setTimestamp(Date.now())
 
     const message = await interaction.followUp({ embeds: [initialEmbed] })
 
@@ -62,34 +53,27 @@ const command: CommandData = {
         setTimeout(resolve, 2500 + Math.random() * 1000)
       )
 
-      const embed = new EmbedBuilder()
+      const embed = MinaEmbed.loading()
         .setTitle("🎮 Amina's Super Special Hack Attack!")
         .setDescription(chaoticHackStages[i])
-        .setColor(EMBED_COLORS.WARNING)
-        .setTimestamp(Date.now())
 
       await message.edit({ embeds: [embed] })
     }
 
-    const resultsEmbed = new EmbedBuilder()
-      .setTitle('🌟 OMG, Look What I Found!')
+    const resultsEmbed = MinaEmbed.success()
+      .setTitle(mina.say('fun.hackResult.title'))
       .setDescription(
-        `The super-secret files about ${target.toString()} have been secured! *evil laughter*`
+        mina.sayf('fun.hackResult.description', { target: target.toString() })
       )
       .addFields([
         {
-          name: '🎭 The Ultimate Truth!',
-          value:
-            "We're no strangers to love~ 🎵\n" +
-            'You know the rules and so do I~ 🎵\n' +
-            "A full commitment's what I'm thinking of~ 🎵\n" +
-            "You wouldn't get this from any other bot! 🎵",
+          name: mina.say('fun.hackResult.fieldTitle'),
+          value: mina.say('fun.hackResult.fieldValue'),
         },
       ])
-      .setColor(EMBED_COLORS.SUCCESS)
       .setImage('https://media.tenor.com/x8v1oNUOmg4AAAAd/rickroll-roll.gif')
       .setFooter({
-        text: "Teeheehee! Get Rick Roll'd! My greatest hack yet! 🎀",
+        text: mina.say('fun.hackResult.footer'),
       })
 
     try {
@@ -98,19 +82,14 @@ const command: CommandData = {
         embeds: [resultsEmbed],
       })
 
-      const finalEmbed = new EmbedBuilder()
+      const finalEmbed = MinaEmbed.success()
         .setTitle('✨ Mission Complete! ✨')
-        .setDescription(
-          'I sent you some juicy secrets in your DMs! *winks conspiratorially* 📨'
-        )
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setTimestamp(Date.now())
+        .setDescription(mina.say('fun.hackResult.dmSuccess'))
 
       await message.edit({ embeds: [finalEmbed] })
     } catch (error) {
       await message.edit({
-        content:
-          "Aw man, your DMs are locked tight! Here's the tea right here instead:",
+        content: mina.say('fun.hackResult.dmFail'),
         embeds: [resultsEmbed],
       })
     }

@@ -160,9 +160,8 @@ export default async (
       }
       if (action === 'back_cleanup') {
         // Import dynamically to show cleanup method menu
-        const { showCleanupMethodMenu } = await import(
-          '@handlers/roles/cleanup/method-select'
-        )
+        const { showCleanupMethodMenu } =
+          await import('@handlers/roles/cleanup/method-select')
         await interaction.deferUpdate()
         await showCleanupMethodMenu(interaction as any)
         return
@@ -261,9 +260,8 @@ export default async (
         const userId = userPart?.split(':')[1]
 
         await interaction.deferUpdate()
-        const { showChannelSelect } = await import(
-          '@handlers/purge/parameters/channel-select'
-        )
+        const { showChannelSelect } =
+          await import('@handlers/purge/parameters/channel-select')
         await showChannelSelect(
           interaction,
           purgeType,
@@ -319,9 +317,8 @@ export default async (
         return
       }
       if (action === 'trig_confirm') {
-        const { handleTrigSettingsConfirm } = await import(
-          '@handlers/dev/trig-settings'
-        )
+        const { handleTrigSettingsConfirm } =
+          await import('@handlers/dev/trig-settings')
         await handleTrigSettingsConfirm(interaction)
         return
       }
@@ -337,9 +334,8 @@ export default async (
       const [, , action] = interaction.customId.split(':')
 
       if (action === 'back') {
-        const { handleTicketBackButton } = await import(
-          '@handlers/ticket/main-hub'
-        )
+        const { handleTicketBackButton } =
+          await import('@handlers/ticket/main-hub')
         await handleTicketBackButton(interaction)
         return
       }
@@ -356,46 +352,40 @@ export default async (
         return
       }
       if (action === 'back_topics') {
-        const { handleBackToTopics } = await import(
-          '@handlers/ticket/setup/topics'
-        )
+        const { handleBackToTopics } =
+          await import('@handlers/ticket/setup/topics')
         await handleBackToTopics(interaction)
         return
       }
       if (action === 'closeall_confirm') {
-        const { handleCloseAllConfirm } = await import(
-          '@handlers/ticket/manage/close-all'
-        )
+        const { handleCloseAllConfirm } =
+          await import('@handlers/ticket/manage/close-all')
         await handleCloseAllConfirm(interaction)
         return
       }
       if (action === 'closeall_cancel') {
-        const { handleCloseAllCancel } = await import(
-          '@handlers/ticket/manage/close-all'
-        )
+        const { handleCloseAllCancel } =
+          await import('@handlers/ticket/manage/close-all')
         await handleCloseAllCancel(interaction)
         return
       }
       if (action?.startsWith('topic_remove_confirm')) {
-        const { handleRemoveTopicConfirm } = await import(
-          '@handlers/ticket/setup/topics'
-        )
+        const { handleRemoveTopicConfirm } =
+          await import('@handlers/ticket/setup/topics')
         await handleRemoveTopicConfirm(interaction)
         return
       }
       if (action === 'topic_remove_cancel') {
-        const { handleRemoveTopicCancel } = await import(
-          '@handlers/ticket/setup/topics'
-        )
+        const { handleRemoveTopicCancel } =
+          await import('@handlers/ticket/setup/topics')
         await handleRemoveTopicCancel(interaction)
         return
       }
       // Handle delete button - custom_id format: ticket:btn:delete|ch:${channelId}
       // Split by : gives ['ticket', 'btn', 'delete|ch', 'channelId'], so check if action starts with 'delete'
       if (action?.startsWith('delete')) {
-        const { handleTicketDelete } = await import(
-          '@handlers/ticket/shared/buttons'
-        )
+        const { handleTicketDelete } =
+          await import('@handlers/ticket/shared/buttons')
         await handleTicketDelete(interaction)
         return
       }
@@ -442,23 +432,20 @@ export default async (
     if (interaction.customId.startsWith('ticket:modal:')) {
       const [, , action] = interaction.customId.split(':')
       if (action.startsWith('message')) {
-        const { handleTicketMessageModal } = await import(
-          '@handlers/ticket/setup/message'
-        )
+        const { handleTicketMessageModal } =
+          await import('@handlers/ticket/setup/message')
         await handleTicketMessageModal(interaction)
         return
       }
       if (action === 'limit') {
-        const { handleLimitModal } = await import(
-          '@handlers/ticket/setup/limit'
-        )
+        const { handleLimitModal } =
+          await import('@handlers/ticket/setup/limit')
         await handleLimitModal(interaction)
         return
       }
       if (action === 'topic_add') {
-        const { handleAddTopicModal } = await import(
-          '@handlers/ticket/setup/topics'
-        )
+        const { handleAddTopicModal } =
+          await import('@handlers/ticket/setup/topics')
         await handleAddTopicModal(interaction)
         return
       }
@@ -572,16 +559,14 @@ export default async (
         return
       }
       if (submenu === 'presence_type') {
-        const { handlePresenceTypeMenu } = await import(
-          '@handlers/dev/presence'
-        )
+        const { handlePresenceTypeMenu } =
+          await import('@handlers/dev/presence')
         await handlePresenceTypeMenu(interaction)
         return
       }
       if (submenu === 'presence_status') {
-        const { handlePresenceStatusMenu } = await import(
-          '@handlers/dev/presence'
-        )
+        const { handlePresenceStatusMenu } =
+          await import('@handlers/dev/presence')
         await handlePresenceStatusMenu(interaction)
         return
       }
@@ -618,29 +603,24 @@ export default async (
       const [, type, submenu] = interaction.customId.split(':')
       if (type === 'menu') {
         if (submenu === 'category') {
-          const { handleTicketCategoryMenu } = await import(
-            '@handlers/ticket/main-hub'
-          )
+          const { handleTicketCategoryMenu } =
+            await import('@handlers/ticket/main-hub')
           await handleTicketCategoryMenu(interaction)
         } else if (submenu === 'setup') {
-          const { handleSetupMenu } = await import(
-            '@handlers/ticket/setup/menu'
-          )
+          const { handleSetupMenu } =
+            await import('@handlers/ticket/setup/menu')
           await handleSetupMenu(interaction)
         } else if (submenu === 'manage') {
-          const { handleManageMenu } = await import(
-            '@handlers/ticket/manage/menu'
-          )
+          const { handleManageMenu } =
+            await import('@handlers/ticket/manage/menu')
           await handleManageMenu(interaction)
         } else if (submenu === 'topics') {
-          const { handleTopicsMenu } = await import(
-            '@handlers/ticket/setup/topics'
-          )
+          const { handleTopicsMenu } =
+            await import('@handlers/ticket/setup/topics')
           await handleTopicsMenu(interaction)
         } else if (submenu === 'topic_remove') {
-          const { handleRemoveTopicSelect } = await import(
-            '@handlers/ticket/setup/topics'
-          )
+          const { handleRemoveTopicSelect } =
+            await import('@handlers/ticket/setup/topics')
           await handleRemoveTopicSelect(interaction)
         }
         return
@@ -662,9 +642,8 @@ export default async (
           } else if (submenu === 'logs') {
             await adminHandler.handleLoggingMenu(interaction)
           } else if (submenu === 'remove_freewill') {
-            const { handleRemoveFreeWillChannel } = await import(
-              '@handlers/admin/ai'
-            )
+            const { handleRemoveFreeWillChannel } =
+              await import('@handlers/admin/ai')
             await handleRemoveFreeWillChannel(interaction)
           }
           return
@@ -707,9 +686,8 @@ export default async (
       const [, type, submenu] = interaction.customId.split(':')
       if (type === 'menu') {
         if (submenu === 'operation') {
-          const { handleProfileOperationMenu } = await import(
-            '@handlers/profile'
-          )
+          const { handleProfileOperationMenu } =
+            await import('@handlers/profile')
           await handleProfileOperationMenu(interaction)
         } else if (submenu === 'edit') {
           const { handleEditMenu } = await import('@handlers/profile')
@@ -737,9 +715,8 @@ export default async (
     if (interaction.customId.startsWith('dev:channel:')) {
       const [, , action] = interaction.customId.split(':')
       if (action === 'trig_settings') {
-        const { handleTrigSettingsChannelSelect } = await import(
-          '@handlers/dev/trig-settings'
-        )
+        const { handleTrigSettingsChannelSelect } =
+          await import('@handlers/dev/trig-settings')
         await handleTrigSettingsChannelSelect(interaction)
         return
       }
@@ -752,14 +729,12 @@ export default async (
     if (interaction.customId.startsWith('ticket:channel:')) {
       const [, , action] = interaction.customId.split(':')
       if (action === 'message') {
-        const { handleMessageChannelSelect } = await import(
-          '@handlers/ticket/setup/message'
-        )
+        const { handleMessageChannelSelect } =
+          await import('@handlers/ticket/setup/message')
         await handleMessageChannelSelect(interaction)
       } else if (action === 'log') {
-        const { handleLogChannelSelect } = await import(
-          '@handlers/ticket/setup/log-channel'
-        )
+        const { handleLogChannelSelect } =
+          await import('@handlers/ticket/setup/log-channel')
         await handleLogChannelSelect(interaction)
       }
       return
@@ -781,14 +756,12 @@ export default async (
     if (interaction.customId.startsWith('ticket:user:')) {
       const [, , action] = interaction.customId.split(':')
       if (action === 'add') {
-        const { handleAddUserSelect } = await import(
-          '@handlers/ticket/manage/add-user'
-        )
+        const { handleAddUserSelect } =
+          await import('@handlers/ticket/manage/add-user')
         await handleAddUserSelect(interaction)
       } else if (action === 'remove') {
-        const { handleRemoveUserSelect } = await import(
-          '@handlers/ticket/manage/remove-user'
-        )
+        const { handleRemoveUserSelect } =
+          await import('@handlers/ticket/manage/remove-user')
         await handleRemoveUserSelect(interaction)
       }
       return

@@ -89,12 +89,13 @@ export async function getUser(user: any) {
 
   let userDb = await Model.findById(user.id)
   if (!userDb) {
-    userDb = await Model.create({
+    const newUser = new Model({
       _id: user.id,
       username: user.username,
       discriminator: user.discriminator,
       flags: [],
     })
+    userDb = await newUser.save()
   }
 
   cache.add(user.id, userDb)
@@ -320,7 +321,7 @@ export async function getUsersWithBirthdayToday() {
   })
 
   return users.filter(user => {
-    const birthdate = new Date(user.profile.birthdate)
+    const birthdate = new Date((user.profile as any).birthdate)
     return (
       birthdate.getDate() === today.getDate() &&
       birthdate.getMonth() === today.getMonth()

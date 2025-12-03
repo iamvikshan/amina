@@ -1,13 +1,14 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   GuildMember,
   Client,
   Collection,
   MessageFlags,
+  EmbedBuilder,
 } from 'discord.js'
 import config from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import Utils from '@helpers/Utils'
 import { getSettings } from '@schemas/Guild'
 import Honeybadger from '@helpers/Honeybadger'
@@ -71,7 +72,11 @@ export const handleSlashCommand = async (
   }
 
   // user permissions
-  if (interaction.member && cmd.userPermissions?.length > 0) {
+  if (
+    interaction.member &&
+    cmd.userPermissions &&
+    cmd.userPermissions.length > 0
+  ) {
     const member = interaction.member as GuildMember
     if (!member.permissions.has(cmd.userPermissions)) {
       await interaction.reply({
@@ -185,9 +190,7 @@ export const getSlashUsage = (cmd: CommandData): EmbedBuilder => {
     desc += `\n**Cooldown:** ${Utils.timeformat(cmd.cooldown)}`
   }
 
-  return new EmbedBuilder()
-    .setColor(config.EMBED_COLORS.BOT_EMBED)
-    .setDescription(desc)
+  return MinaEmbed.primary().setDescription(desc)
 }
 
 function applyCooldown(memberId: string, cmd: CommandData): void {

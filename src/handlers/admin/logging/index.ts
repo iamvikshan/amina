@@ -1,16 +1,15 @@
 import {
   StringSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   ChannelSelectMenuBuilder,
   ChannelType,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { getSettings } from '@schemas/Guild'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
 import { handleAdminBackButton } from '../main-hub'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Logging Configuration menu
@@ -24,27 +23,26 @@ export async function showLoggingMenu(
     : '❌ Not set'
   const logsEnabled = settings.logs?.enabled ? '✅ Enabled' : '❌ Disabled'
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('📋 Logging Configuration')
+  const embed = MinaEmbed.primary()
+    .setTitle('logging configuration')
     .setDescription(
-      'Configure moderation and event logging.\n\n' +
-        `**Log Channel:** ${logsChannel}\n` +
-        `**Status:** ${logsEnabled}\n\n` +
-        `**Member Logs:**\n` +
-        `• Message Edit: ${settings.logs?.member?.message_edit ? '✅' : '❌'}\n` +
-        `• Message Delete: ${settings.logs?.member?.message_delete ? '✅' : '❌'}\n` +
-        `• Role Changes: ${settings.logs?.member?.role_changes ? '✅' : '❌'}\n\n` +
-        `**Channel Logs:**\n` +
-        `• Create: ${settings.logs?.channel?.create ? '✅' : '❌'}\n` +
-        `• Edit: ${settings.logs?.channel?.edit ? '✅' : '❌'}\n` +
-        `• Delete: ${settings.logs?.channel?.delete ? '✅' : '❌'}\n\n` +
-        `**Role Logs:**\n` +
-        `• Create: ${settings.logs?.role?.create ? '✅' : '❌'}\n` +
-        `• Edit: ${settings.logs?.role?.edit ? '✅' : '❌'}\n` +
-        `• Delete: ${settings.logs?.role?.delete ? '✅' : '❌'}`
+      'configure moderation and event logging.\n\n' +
+        `**log channel:** ${logsChannel}\n` +
+        `**status:** ${logsEnabled}\n\n` +
+        `**member logs:**\n` +
+        `- message edit: ${settings.logs?.member?.message_edit ? 'yes' : 'no'}\n` +
+        `- message delete: ${settings.logs?.member?.message_delete ? 'yes' : 'no'}\n` +
+        `- role changes: ${settings.logs?.member?.role_changes ? 'yes' : 'no'}\n\n` +
+        `**channel logs:**\n` +
+        `- create: ${settings.logs?.channel?.create ? 'yes' : 'no'}\n` +
+        `- edit: ${settings.logs?.channel?.edit ? 'yes' : 'no'}\n` +
+        `- delete: ${settings.logs?.channel?.delete ? 'yes' : 'no'}\n\n` +
+        `**role logs:**\n` +
+        `- create: ${settings.logs?.role?.create ? 'yes' : 'no'}\n` +
+        `- edit: ${settings.logs?.role?.edit ? 'yes' : 'no'}\n` +
+        `- delete: ${settings.logs?.role?.delete ? 'yes' : 'no'}`
     )
-    .setFooter({ text: 'Select an action from the menu below' })
+    .setFooter({ text: 'select an action from the menu below' })
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -119,11 +117,9 @@ export async function handleLoggingMenu(
 
   switch (action) {
     case 'setchannel': {
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setDescription(
-          '📢 **Select a channel for moderation logs**\n\nAll logging events will be sent here. Make sure I have Send Messages and Embed Links permissions!'
-        )
+      const embed = MinaEmbed.primary().setDescription(
+        'select a channel for moderation logs... all logging events will be sent there. make sure i have send messages and embed links permissions!'
+      )
 
       const channelSelect =
         new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
@@ -167,20 +163,12 @@ export async function handleLoggingMenu(
       settings.logs.enabled = newState
       await settings.save()
 
-      const embed = new EmbedBuilder()
-        .setColor(newState ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-        .setDescription(
-          `📋 All logging has been **${newState ? 'enabled' : 'disabled'}**!`
-        )
+      const embed = newState
+        ? MinaEmbed.success('all logging has been enabled!')
+        : MinaEmbed.warning('all logging has been disabled')
       await interaction.editReply({
         embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back',
-            label: 'Back to Admin Hub',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('admin:btn:back')],
       })
       break
     }
@@ -221,20 +209,12 @@ export async function handleLoggingMenu(
         await settings.save()
 
         const settingName = lastPart.replace(/_/g, ' ')
-        const embed = new EmbedBuilder()
-          .setColor(newValue ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-          .setDescription(
-            `${newValue ? '✅' : '❌'} **${settingName}** logging has been **${newValue ? 'enabled' : 'disabled'}**!`
-          )
+        const embed = newValue
+          ? MinaEmbed.success(`${settingName} logging has been enabled!`)
+          : MinaEmbed.warning(`${settingName} logging has been disabled`)
         await interaction.editReply({
           embeds: [embed],
-          components: [
-            createSecondaryBtn({
-              customId: 'admin:btn:back',
-              label: 'Back to Admin Hub',
-              emoji: '◀️',
-            }),
-          ],
+          components: [MinaRows.backRow('admin:btn:back')],
         })
       }
       break

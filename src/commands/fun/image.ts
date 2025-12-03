@@ -1,12 +1,12 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   User,
 } from 'discord.js'
-import { MESSAGES, EMBED_COLORS } from '@src/config'
+import { MESSAGES } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
 import axios from 'axios'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const BASE_URL = 'https://some-random-api.com/animal'
 
@@ -101,7 +101,7 @@ const AMINA_RESPONSES: Record<string, string[]> = {
 
 const command: CommandData = {
   name: 'image',
-  description: 'Let Amina find you amazing pictures! 🎨✨',
+  description: 'let me find you amazing pictures!',
   cooldown: 1,
   category: 'FUN',
   botPermissions: ['EmbedLinks'],
@@ -110,7 +110,7 @@ const command: CommandData = {
     options: [
       {
         name: 'animal',
-        description: 'Get cute animal pictures! 🐾',
+        description: 'get cute animal pictures!',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
@@ -127,7 +127,7 @@ const command: CommandData = {
       },
       {
         name: 'anime',
-        description: 'Get awesome anime pictures! ✨',
+        description: 'get awesome anime pictures!',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
@@ -169,56 +169,47 @@ const command: CommandData = {
   },
 }
 
-async function getAnimalImage(
-  user: User,
-  choice: string
-): Promise<{ content?: string; embeds?: EmbedBuilder[] }> {
+async function getAnimalImage(user: User, choice: string) {
   const response = await getJson(`${BASE_URL}/${choice}`)
   if (!response.success) return { content: MESSAGES.API_ERROR }
 
   const imageUrl = response.data?.image
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
     .setTitle(getRandomResponse(choice))
     .setImage(imageUrl)
     .setFooter({
-      text: `Requested by ${user.tag} | Amina's happy to help! ✨`,
+      text: `requested by ${user.tag} | mina's happy to help!`,
       iconURL: user.displayAvatarURL(),
     })
 
   return { embeds: [embed] }
 }
 
-async function getAnimeImage(
-  user: User,
-  type: string
-): Promise<{ embeds: EmbedBuilder[] }> {
+async function getAnimeImage(user: User, type: string) {
   try {
     const response = await axios.get(`https://api.waifu.pics/sfw/${type}`)
 
     return {
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.BOT_EMBED)
+        MinaEmbed.primary()
           .setTitle(getRandomResponse(type))
           .setImage(response.data.url)
           .setFooter({
-            text: `Requested by ${user.tag} | Amina's creative pick! 🎨`,
+            text: `requested by ${user.tag} | mina's creative pick!`,
             iconURL: user.displayAvatarURL(),
           }),
       ],
     }
-  } catch (ex) {
-    console.error('Error fetching image:', ex)
+  } catch (_ex) {
+    console.error('Error fetching image:', _ex)
     return {
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
+        MinaEmbed.error()
           .setDescription(
-            "Oh no! My creative energy must've been too strong! Let's try again! 🎨✨"
+            "oh no! my creative energy must've been too strong! let's try again!"
           )
           .setFooter({
-            text: `Requested by ${user.tag} | Don't worry, we'll get it next time!`,
+            text: `requested by ${user.tag} | don't worry, we'll get it next time!`,
             iconURL: user.displayAvatarURL(),
           }),
       ],

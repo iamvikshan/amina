@@ -1,12 +1,8 @@
-import {
-  EmbedBuilder,
-  ButtonBuilder,
-  ActionRowBuilder,
-  ButtonStyle,
-  ComponentType,
-} from 'discord.js'
-import type { BotClient } from '@structures/BotClient'
+import { ComponentType } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 export default async function listservers(
   interaction: ChatInputCommandInteraction
@@ -31,7 +27,7 @@ export default async function listservers(
   const totalPages = Math.ceil(total / maxPerPage)
 
   if (totalPages === 0) {
-    await interaction.followUp('No servers found')
+    await interaction.followUp(mina.say('dev.listservers.empty'))
     return
   }
 
@@ -42,11 +38,14 @@ export default async function listservers(
     const start = (currentPage - 1) * maxPerPage
     const end = start + maxPerPage < total ? start + maxPerPage : total
 
-    const embed = new EmbedBuilder()
-      .setColor((client as BotClient).config.EMBED_COLORS.BOT_EMBED)
-      .setAuthor({ name: 'List of servers' })
+    const embed = MinaEmbed.primary()
+      .setAuthor({ name: mina.say('dev.listservers.title') })
       .setFooter({
-        text: `${match ? 'Matched' : 'Total'} Servers: ${total} • Page ${currentPage} of ${totalPages}`,
+        text: mina.sayf('dev.listservers.footer', {
+          total: total.toString(),
+          page: currentPage.toString(),
+          totalPages: totalPages.toString(),
+        }),
       })
 
     const fields = []
@@ -67,17 +66,9 @@ export default async function listservers(
   const sentMsg = await interaction.followUp({
     embeds: [embed],
     components: [
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId('prevBtn')
-          .setEmoji('⬅️')
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(true),
-        new ButtonBuilder()
-          .setCustomId('nxtBtn')
-          .setEmoji('➡️')
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(totalPages === 1)
+      MinaRows.from(
+        MinaButtons.prev('prevBtn', true),
+        MinaButtons.next('nxtBtn', totalPages === 1)
       ),
     ],
   })

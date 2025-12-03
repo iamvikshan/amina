@@ -2,15 +2,15 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ModalSubmitInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
+  ChatInputCommandInteraction,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import {
   toggleGlobal,
   setModel,
@@ -22,7 +22,7 @@ import {
 } from '@commands/dev/sub/minaAi'
 import { getAiConfig } from '@schemas/Dev'
 import { postToBin } from '@helpers/HttpUtils'
-import { createSecondaryBtn, createLinkBtn } from '@helpers/componentHelper'
+import { MinaRows, MinaButtons } from '@helpers/componentHelper'
 
 /**
  * Show Mina AI operations menu with current settings
@@ -49,68 +49,65 @@ export async function showMinaAiMenu(
       'Amina AI System Prompt'
     )
     if (binResponse) {
-      promptLinkButton = createLinkBtn({
-        url: binResponse.url,
-        label: 'View Full Prompt',
-        emoji: '📄',
-      })
+      promptLinkButton = MinaRows.single(
+        MinaButtons.link(binResponse.url, 'view full prompt')
+      )
     }
   }
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🤖 Mina AI Configuration')
-    .setDescription('**Current Settings:**')
+  const embed = MinaEmbed.primary()
+    .setTitle('mina ai configuration')
+    .setDescription('**current settings:**')
     .addFields(
       {
-        name: '⚡ Global Status',
-        value: config.globallyEnabled ? '✅ Enabled' : '❌ Disabled',
+        name: 'global status',
+        value: config.globallyEnabled ? 'enabled' : 'disabled',
         inline: true,
       },
       {
-        name: '🌐 DM Support',
-        value: config.dmEnabledGlobally ? '✅ Enabled' : '❌ Disabled',
+        name: 'dm support',
+        value: config.dmEnabledGlobally ? 'enabled' : 'disabled',
         inline: true,
       },
       {
-        name: '🧠 Model',
-        value: `\`${config.model || 'Not set'}\``,
+        name: 'model',
+        value: `\`${config.model || 'not set'}\``,
         inline: true,
       },
       {
-        name: '📝 Max Tokens',
-        value: `${config.maxTokens || 'Not set'}`,
+        name: 'max tokens',
+        value: `${config.maxTokens || 'not set'}`,
         inline: true,
       },
       {
-        name: '⏱️ Timeout',
-        value: `${config.timeoutMs || 'Not set'}ms`,
+        name: 'timeout',
+        value: `${config.timeoutMs || 'not set'}ms`,
         inline: true,
       },
       {
-        name: '🌡️ Temperature',
-        value: `${config.temperature || 'Not set'}`,
+        name: 'temperature',
+        value: `${config.temperature || 'not set'}`,
         inline: true,
       },
       {
-        name: '💬 System Prompt',
+        name: 'system prompt',
         value: promptField,
         inline: false,
       },
       {
-        name: '📅 Last Updated',
+        name: 'last updated',
         value: config.updatedAt
           ? `<t:${Math.floor(config.updatedAt.getTime() / 1000)}:R>`
-          : 'Never',
+          : 'never',
         inline: true,
       },
       {
-        name: '👤 Updated By',
-        value: config.updatedBy ? `<@${config.updatedBy}>` : 'N/A',
+        name: 'updated by',
+        value: config.updatedBy ? `<@${config.updatedBy}>` : 'n/a',
         inline: true,
       }
     )
-    .setFooter({ text: 'Select an operation below to edit settings' })
+    .setFooter({ text: 'select an operation below to edit settings' })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -155,13 +152,9 @@ export async function showMinaAiMenu(
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_minaai',
-    label: 'Back to Dev Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_minaai')
 
-  const components: ActionRowBuilder<any>[] = [menu, backButton]
+  const components: ActionRowBuilder<any>[] = [menu, backRow]
   if (promptLinkButton) {
     components.splice(1, 0, promptLinkButton) // Insert before back button
   }
@@ -191,11 +184,10 @@ export async function handleMinaAiOperation(
   operation: string
 ): Promise<void> {
   // Define a partial interface for what we need from the interaction
-  interface MockInteraction
-    extends Pick<
-      ChatInputCommandInteraction,
-      'editReply' | 'followUp' | 'user' | 'guild' | 'client'
-    > {
+  interface MockInteraction extends Pick<
+    ChatInputCommandInteraction,
+    'editReply' | 'followUp' | 'user' | 'guild' | 'client'
+  > {
     options: {
       getBoolean: (name: string, required?: boolean) => boolean | null
       getString: (name: string, required?: boolean) => string | null
@@ -282,11 +274,7 @@ export async function handleMinaAiOperation(
       }
 
       // Create editReply that preserves embeds and adds back button
-      const backButton = createSecondaryBtn({
-        customId: 'dev:btn:back_minaai_menu',
-        label: 'Back to Mina AI Menu',
-        emoji: '◀️',
-      })
+      const backRow = MinaRows.backRow('dev:btn:back_minaai_menu')
 
       const statsMockInteraction = {
         ...mockInteraction,
@@ -300,7 +288,7 @@ export async function handleMinaAiOperation(
               )
             )
           ) {
-            components.push(backButton)
+            components.push(backRow)
           }
           return interaction.editReply({
             ...options,
@@ -333,10 +321,9 @@ async function showBooleanSelect(
   operation: string,
   title: string
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle(`🤖 ${title}`)
-    .setDescription('Select whether to enable or disable:')
+  const embed = MinaEmbed.primary()
+    .setTitle(`${title}`)
+    .setDescription('select whether to enable or disable:')
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -356,15 +343,11 @@ async function showBooleanSelect(
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_minaai_menu',
-    label: 'Back to Mina AI Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_minaai_menu')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components: [menu, backRow],
   })
 }
 
@@ -380,11 +363,7 @@ export async function handleMinaAiToggle(
   const enabled = interaction.values[0] === 'true'
 
   // Create editReply that preserves embeds and adds back button
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_minaai_menu',
-    label: 'Back to Mina AI Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_minaai_menu')
 
   const mockInteraction = {
     ...interaction,
@@ -401,7 +380,7 @@ export async function handleMinaAiToggle(
           )
         )
       ) {
-        components.push(backButton)
+        components.push(backRow)
       }
       return interaction.editReply({
         ...options,
@@ -542,11 +521,7 @@ export async function handleMinaAiModal(
   const customId = interaction.customId
 
   // Create editReply that preserves embeds and adds back button
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_minaai_menu',
-    label: 'Back to Mina AI Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_minaai_menu')
 
   const mockInteraction = {
     ...interaction,
@@ -573,7 +548,7 @@ export async function handleMinaAiModal(
           )
         )
       ) {
-        components.push(backButton)
+        components.push(backRow)
       }
       return interaction.editReply({
         ...options,

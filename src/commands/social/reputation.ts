@@ -1,12 +1,11 @@
 import { getUser } from '@schemas/User'
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   User,
 } from 'discord.js'
 import { diffHours, getRemainingTime } from '@helpers/Utils'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'rep',
@@ -48,7 +47,7 @@ const command: CommandData = {
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
-    let response
+    let response: string | { embeds: MinaEmbed[] } = 'Invalid subcommand'
 
     // status
     if (sub === 'view') {
@@ -67,8 +66,7 @@ const command: CommandData = {
       response = await giveReputation(interaction.user, target)
     }
 
-    await interaction.followUp(response)
-    return
+    return interaction.followUp(response)
   },
 }
 
@@ -76,18 +74,17 @@ async function viewReputation(target: User) {
   const userData = await getUser(target)
   if (!userData) return `${target.username} has no reputation yet`
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: `Reputation for ${target.username}` })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: `reputation for ${target.username}` })
     .setThumbnail(target.displayAvatarURL())
     .addFields(
       {
-        name: 'Given',
+        name: 'given',
         value: (userData.reputation?.given || 0).toString(),
         inline: true,
       },
       {
-        name: 'Received',
+        name: 'received',
         value: (userData.reputation?.received || 0).toString(),
         inline: true,
       }
@@ -109,7 +106,7 @@ async function giveReputation(user: User, target: User) {
     userData.reputation = {
       received: 0,
       given: 0,
-      timestamp: null,
+      timestamp: undefined,
     }
   }
 
@@ -131,7 +128,7 @@ async function giveReputation(user: User, target: User) {
     targetData.reputation = {
       received: 0,
       given: 0,
-      timestamp: null,
+      timestamp: undefined,
     }
   }
 
@@ -142,10 +139,9 @@ async function giveReputation(user: User, target: User) {
   await userData.save()
   await targetData.save()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription(`${target.toString()} +1 Rep!`)
-    .setFooter({ text: `By ${user.username}` })
+  const embed = MinaEmbed.primary()
+    .setDescription(`${target.toString()} +1 rep!`)
+    .setFooter({ text: `by ${user.username}` })
     .setTimestamp(Date.now())
 
   return { embeds: [embed] }

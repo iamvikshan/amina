@@ -1,6 +1,5 @@
 import {
   StringSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -8,9 +7,9 @@ import {
   RoleSelectMenuBuilder,
   ChannelType,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { getSettings } from '@schemas/Guild'
 import { handleAdminBackButton } from '../main-hub'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Server Settings submenu
@@ -28,15 +27,14 @@ export async function showServerSettingsMenu(
       ? settings.server.staff_roles.map((r: string) => `<@&${r}>`).join(', ')
       : 'None'
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🔧 Server Settings')
+  const embed = MinaEmbed.primary()
+    .setTitle('server settings')
     .setDescription(
-      'Manage server-wide settings for Mina.\n\n' +
-        `**Updates Channel:** ${updatesChannel}\n` +
-        `**Staff Roles:** ${staffRoles}`
+      'manage server-wide settings for mina.\n\n' +
+        `**updates channel:** ${updatesChannel}\n` +
+        `**staff roles:** ${staffRoles}`
     )
-    .setFooter({ text: 'Select an action from the menu below' })
+    .setFooter({ text: 'select an action from the menu below' })
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -113,14 +111,13 @@ async function showChannelSelector(
   interaction: StringSelectMenuInteraction,
   action: string
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('📢 Select Updates Channel')
+  const embed = MinaEmbed.primary()
+    .setTitle('select updates channel')
     .setDescription(
-      'Choose a channel where Mina will post bot updates and announcements.\n\n' +
-        '**Requirements:**\n' +
-        '• Must be a text or announcement channel\n' +
-        '• Mina must have permission to send messages'
+      'choose a channel where mina will post bot updates and announcements.\n\n' +
+        '**requirements:**\n' +
+        '- must be a text or announcement channel\n' +
+        '- mina must have permission to send messages'
     )
 
   const channelSelectRow =
@@ -145,14 +142,13 @@ async function showRoleSelector(
   action: string
 ): Promise<void> {
   const isAdding = action === 'staffadd'
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle(isAdding ? '➕ Add Staff Role' : '➖ Remove Staff Role')
+  const embed = MinaEmbed.primary()
+    .setTitle(isAdding ? 'add staff role' : 'remove staff role')
     .setDescription(
       isAdding
-        ? 'Select a role to add to the staff list. Staff roles have access to certain moderation features.\n\n' +
-            '**Note:** You can have up to 5 staff roles.'
-        : 'Select a role to remove from the staff list.'
+        ? 'select a role to add to the staff list. staff roles have access to certain moderation features.\n\n' +
+            '**note:** you can have up to 5 staff roles'
+        : 'select a role to remove from the staff list'
     )
 
   const roleSelectRow =

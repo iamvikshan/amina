@@ -1,9 +1,10 @@
-import { ChannelSelectMenuInteraction, EmbedBuilder } from 'discord.js'
-import { EMBED_COLORS, config } from '@src/config'
+import { ChannelSelectMenuInteraction } from 'discord.js'
+import { config } from '@src/config'
 import { getSettings, updateSettings } from '@schemas/Guild'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
 import updateChannel from '@commands/admin/settings/updateChannel'
 import setChannel from '@commands/admin/logs/setChannel'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Check if guild is test guild
@@ -86,43 +87,25 @@ export async function handleChannelSelect(
       const maxChannels = isTest ? Infinity : 2
 
       if (currentChannels.includes(channel.id)) {
-        const embed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.WARNING)
-          .setDescription(
-            `⚠️ **Already Added**\n\n` +
-              `${channel} is already in your free-will channels list.`
-          )
+        const embed = MinaEmbed.warning(
+          `${channel} is already in your free-will channels list`
+        )
         await interaction.editReply({
           embeds: [embed],
-          components: [
-            createSecondaryBtn({
-              customId: 'admin:btn:back_minaai',
-              label: 'Back to AI Menu',
-              emoji: '◀️',
-            }),
-          ],
+          components: [MinaRows.backRow('admin:btn:back_minaai')],
         })
         break
       }
 
       if (!isTest && currentChannels.length >= maxChannels) {
-        const embed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `❌ **Limit Reached!**\n\n` +
-              `You can only have up to ${maxChannels} free-will channels. Current channels:\n` +
-              currentChannels.map(id => `<#${id}>`).join(', ') +
-              `\n\nRemove a channel first to add a new one.`
-          )
+        const embed = MinaEmbed.error(
+          `you can only have up to ${maxChannels} free-will channels\n` +
+            `current channels: ${currentChannels.map(id => `<#${id}>`).join(', ')}\n\n` +
+            `remove a channel first to add a new one`
+        )
         await interaction.editReply({
           embeds: [embed],
-          components: [
-            createSecondaryBtn({
-              customId: 'admin:btn:back_minaai',
-              label: 'Back to AI Menu',
-              emoji: '◀️',
-            }),
-          ],
+          components: [MinaRows.backRow('admin:btn:back_minaai')],
         })
         break
       }
@@ -140,23 +123,14 @@ export async function handleChannelSelect(
       })
 
       const channelList = newChannels.map(id => `<#${id}>`).join(', ')
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setDescription(
-          `➕ **Channel Added!**\n\n` +
-            `Added ${channel} to free-will channels.\n` +
-            `**Current channels:** ${channelList}\n\n` +
-            `I'll respond to all messages in these channels without needing @mentions! ✨`
-        )
+      const embed = MinaEmbed.success(
+        `added ${channel} to free-will channels\n` +
+          `**current channels:** ${channelList}\n\n` +
+          `i'll respond to all messages in these channels without needing @mentions!`
+      )
       await interaction.editReply({
         embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back_minaai',
-            label: 'Back to AI Menu',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('admin:btn:back_minaai')],
       })
       break
     }
@@ -164,21 +138,12 @@ export async function handleChannelSelect(
       const currentChannels = getFreeWillChannels(settings)
 
       if (!currentChannels.includes(channel.id)) {
-        const embed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `❌ **Channel Not Found**\n\n` +
-              `${channel} is not in your free-will channels list.`
-          )
+        const embed = MinaEmbed.error(
+          `${channel} is not in your free-will channels list`
+        )
         await interaction.editReply({
           embeds: [embed],
-          components: [
-            createSecondaryBtn({
-              customId: 'admin:btn:back_minaai',
-              label: 'Back to AI Menu',
-              emoji: '◀️',
-            }),
-          ],
+          components: [MinaRows.backRow('admin:btn:back_minaai')],
         })
         break
       }
@@ -199,22 +164,13 @@ export async function handleChannelSelect(
           ? newChannels.map(id => `<#${id}>`).join(', ')
           : 'None'
 
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setDescription(
-          `🗑️ **Channel Removed!**\n\n` +
-            `Removed ${channel} from free-will channels.\n` +
-            `**Remaining channels:** ${channelList}`
-        )
+      const embed = MinaEmbed.success(
+        `removed ${channel} from free-will channels\n` +
+          `**remaining channels:** ${channelList}`
+      )
       await interaction.editReply({
         embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back_minaai',
-            label: 'Back to AI Menu',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('admin:btn:back_minaai')],
       })
       break
     }
@@ -227,23 +183,14 @@ export async function handleChannelSelect(
       )
 
       if (action === 'limit_reached') {
-        const embed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `❌ **Limit Reached!**\n\n` +
-              `You can only have up to 2 free-will channels. Current channels:\n` +
-              newChannels.map(id => `<#${id}>`).join(', ') +
-              `\n\nRemove a channel first to add a new one.`
-          )
+        const embed = MinaEmbed.error(
+          `you can only have up to 2 free-will channels\n` +
+            `current channels: ${newChannels.map(id => `<#${id}>`).join(', ')}\n\n` +
+            `remove a channel first to add a new one`
+        )
         await interaction.editReply({
           embeds: [embed],
-          components: [
-            createSecondaryBtn({
-              customId: 'admin:btn:back_minaai',
-              label: 'Back to AI Menu',
-              emoji: '◀️',
-            }),
-          ],
+          components: [MinaRows.backRow('admin:btn:back_minaai')],
         })
         break
       }
@@ -260,46 +207,29 @@ export async function handleChannelSelect(
       })
 
       const channelList = newChannels.map(id => `<#${id}>`).join(', ')
-      const embed = new EmbedBuilder()
-        .setColor(
-          action === 'added' ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING
-        )
-        .setDescription(
-          action === 'added'
-            ? `🌊 **Free-will channel added!**\n\n` +
-                `Added ${channel} to free-will channels.\n` +
-                `Current channels: ${channelList}\n\n` +
-                `I'll respond to all messages in these channels without needing @mentions! ✨`
-            : `🌊 **Free-will channel removed!**\n\n` +
-                `Removed ${channel} from free-will channels.\n` +
-                `Current channels: ${channelList || 'None'}`
-        )
+      const embed =
+        action === 'added'
+          ? MinaEmbed.success(
+              `added ${channel} to free-will channels\n` +
+                `current channels: ${channelList}\n\n` +
+                `i'll respond to all messages in these channels without needing @mentions!`
+            )
+          : MinaEmbed.warning(
+              `removed ${channel} from free-will channels\n` +
+                `current channels: ${channelList || 'none'}`
+            )
       await interaction.editReply({
         embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back_minaai',
-            label: 'Back to AI Menu',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('admin:btn:back_minaai')],
       })
       break
     }
     case 'logchannel': {
       const result = await setChannel(channel as any, settings)
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.SUCCESS)
-        .setDescription(result)
+      const embed = MinaEmbed.success(result)
       await interaction.editReply({
         embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back',
-            label: 'Back to Admin Hub',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('admin:btn:back')],
       })
       break
     }

@@ -2,11 +2,10 @@ import {
   ApplicationCommandOptionType,
   AutocompleteInteraction,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   PermissionFlagsBits,
 } from 'discord.js'
 import { getSettings, updateSettings } from '@src/database/schemas/Guild'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command = {
   name: 'color',
@@ -136,11 +135,9 @@ const command = {
         })
         await updateSettings(interaction.guild!.id, { colors })
 
-        const embed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.SUCCESS)
-          .setDescription(
-            `Successfully added color **${name}** (${hex}) and created role ${role.toString()}`
-          )
+        const embed = MinaEmbed.success().setDescription(
+          `successfully added color **${name}** (${hex}) and created role ${role.toString()}`
+        )
 
         return interaction.editReply({ embeds: [embed] })
       } catch (err: any) {
@@ -203,9 +200,8 @@ const command = {
         })
       }
 
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setTitle('Available Colors')
+      const embed = MinaEmbed.primary()
+        .setTitle('available colors')
         .setDescription(
           colors.map((c: any) => `• **${c.name}** (${c.hex})`).join('\n')
         )
@@ -291,6 +287,11 @@ const command = {
         return interaction.editReply(`Failed to remove color: ${err.message}`)
       }
     }
+
+    return interaction.reply({
+      content: 'Invalid subcommand.',
+      ephemeral: true,
+    })
   },
 
   async autocomplete(interaction: AutocompleteInteraction) {

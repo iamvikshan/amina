@@ -1,14 +1,8 @@
-import {
-  StringSelectMenuInteraction,
-  ButtonInteraction,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { StringSelectMenuInteraction, ButtonInteraction } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import type { BotClient } from '@src/structures'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 /**
  * Show list of servers with pagination
@@ -24,19 +18,13 @@ export async function showListservers(
   const totalPages = Math.ceil(total / maxPerPage)
 
   if (totalPages === 0) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
-      .setDescription('No servers found')
+    const embed = MinaEmbed.primary().setDescription(
+      mina.say('dev.listservers.empty')
+    )
 
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'dev:btn:back_listservers',
-          label: 'Back to Dev Hub',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('dev:btn:back_listservers')],
     })
     return
   }
@@ -46,11 +34,14 @@ export async function showListservers(
   const start = (currentPage - 1) * maxPerPage
   const end = start + maxPerPage < total ? start + maxPerPage : total
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: 'List of servers' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: mina.say('dev.listservers.title') })
     .setFooter({
-      text: `Total Servers: ${total} • Page ${currentPage} of ${totalPages}`,
+      text: mina.sayf('dev.listservers.footer', {
+        total: total.toString(),
+        page: currentPage.toString(),
+        totalPages: totalPages.toString(),
+      }),
     })
 
   const fields = []
@@ -65,24 +56,18 @@ export async function showListservers(
   embed.addFields(fields)
 
   // Build pagination buttons with state in custom_id
-  const paginationRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`dev:btn:listservers_page|${currentPage - 1}`)
-      .setEmoji('⬅️')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(currentPage === 1),
-    new ButtonBuilder()
-      .setCustomId(`dev:btn:listservers_page|${currentPage + 1}`)
-      .setEmoji('➡️')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(currentPage === totalPages)
+  const paginationRow = MinaRows.from(
+    MinaButtons.prev(
+      `dev:btn:listservers_page|${currentPage - 1}`,
+      currentPage === 1
+    ),
+    MinaButtons.next(
+      `dev:btn:listservers_page|${currentPage + 1}`,
+      currentPage === totalPages
+    )
   )
 
-  const backRow = createSecondaryBtn({
-    customId: 'dev:btn:back_listservers',
-    label: 'Back to Dev Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_listservers')
 
   await interaction.editReply({
     embeds: [embed],

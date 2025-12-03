@@ -48,11 +48,15 @@ Honeybadger.beforeNotify(notice => {
   }
 
   // Add any default context you want on all errors
-  notice.context = {
-    ...notice.context,
-    bot_name: 'Amina',
-    node_version: process.version,
+  if (notice) {
+    notice.context = {
+      ...notice.context,
+      bot_name: 'Amina',
+      node_version: process.version,
+    }
   }
+
+  return true // Allow notification to proceed
 })
 
 // Create a wrapper that does nothing in development

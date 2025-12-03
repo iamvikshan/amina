@@ -1,7 +1,9 @@
-import { EmbedBuilder, ChatInputCommandInteraction, User } from 'discord.js'
+import { ChatInputCommandInteraction, User } from 'discord.js'
 import { getUser } from '@schemas/User'
-import { EMBED_COLORS, ECONOMY } from '@src/config'
+import { ECONOMY } from '@src/config'
 import { diffHours, getRemainingTime } from '@helpers/Utils'
+import { mina } from '@helpers/mina'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'daily',
@@ -29,7 +31,9 @@ async function daily(user: User) {
       const nextUsage = new Date(
         lastUpdated.setHours(lastUpdated.getHours() + 24)
       )
-      return `You can again run this command in \`${getRemainingTime(nextUsage)}\``
+      return mina.sayf('economy.cooldown.daily', {
+        time: getRemainingTime(nextUsage),
+      })
     }
     streak = userDb.daily.streak || streak
     if (difference < 48) streak += 1
@@ -41,12 +45,14 @@ async function daily(user: User) {
   userDb.daily.timestamp = new Date()
   await userDb.save()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.success()
     .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
     .setDescription(
-      `You got ${ECONOMY.DAILY_COINS}${ECONOMY.CURRENCY} as your daily reward\n` +
-        `**Updated Balance:** ${userDb.coins}${ECONOMY.CURRENCY}`
+      `${mina.sayf('economy.daily', { amount: `${ECONOMY.DAILY_COINS}${ECONOMY.CURRENCY}` })}\n` +
+        `${mina.sayf('economy.updatedBalance', { amount: `${userDb.coins}${ECONOMY.CURRENCY}` })}` +
+        (streak > 0
+          ? `\n${mina.sayf('economy.streak', { count: streak.toString() })}`
+          : '')
     )
 
   return { embeds: [embed] }

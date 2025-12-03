@@ -5,6 +5,8 @@ import {
   ChatInputCommandInteraction,
   GuildMember,
 } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'untimeout',
@@ -36,14 +38,20 @@ const command: CommandData = {
     const reason = interaction.options.getString('reason')
 
     if (!user) {
-      await interaction.followUp(
-        'Please specify a valid user to remove timeout from.'
-      )
+      await interaction.followUp({
+        embeds: [
+          MinaEmbed.error(
+            mina.sayf('moderation.error.specifyUser', { action: 'untimeout' })
+          ),
+        ],
+      })
       return
     }
 
     if (!interaction.guild) {
-      await interaction.followUp('This command can only be used in a server.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
       return
     }
 
@@ -63,21 +71,51 @@ async function untimeout(
   issuer: GuildMember,
   target: GuildMember,
   reason: string | null
-): Promise<string> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await unTimeoutTarget(
     issuer,
     target,
-    reason || 'No reason provided'
+    reason || mina.say('moderation.error.noReason')
   )
-  if (typeof response === 'boolean')
-    return `Timeout of ${target.user.username} is removed!`
-  if (response === 'BOT_PERM')
-    return `I do not have permission to remove timeout of ${target.user.username}`
-  else if (response === 'MEMBER_PERM')
-    return `You do not have permission to remove timeout of ${target.user.username}`
-  else if (response === 'NO_TIMEOUT')
-    return `${target.user.username} is not timed out!`
-  else return `Failed to remove timeout of ${target.user.username}`
+  if (typeof response === 'boolean') {
+    return {
+      embeds: [
+        MinaEmbed.mod('untimeout').setDescription(
+          mina.sayf('moderation.untimeout', { target: target.user.username })
+        ),
+      ],
+    }
+  }
+  if (response === 'BOT_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.botMissing'))],
+    }
+  } else if (response === 'MEMBER_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.missing'))],
+    }
+  } else if (response === 'NO_TIMEOUT') {
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.error.noTimeout', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
+  } else {
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.error.failed', {
+            action: 'untimeout',
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
+  }
 }
 
 export default command

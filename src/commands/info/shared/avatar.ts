@@ -1,5 +1,6 @@
-import { EmbedBuilder, User } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { User } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 export default function avatar(user: User) {
   const x64 = user.displayAvatarURL({ extension: 'png', size: 64 })
@@ -9,18 +10,14 @@ export default function avatar(user: User) {
   const x1024 = user.displayAvatarURL({ extension: 'png', size: 1024 })
   const x2048 = user.displayAvatarURL({ extension: 'png', size: 2048 })
 
-  const embed = new EmbedBuilder()
-    .setTitle(`Avatar of ${user.username}`)
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const links = `[x64](${x64}) | [x128](${x128}) | [x256](${x256}) | [x512](${x512}) | [x1024](${x1024}) | [x2048](${x2048})`
+
+  const embed = MinaEmbed.info()
+    .setAuthor({
+      name: mina.sayf('infoCmd.avatar.title', { user: user.username }),
+    })
     .setImage(x256)
-    .setDescription(
-      `Links: • [x64](${x64}) ` +
-        `• [x128](${x128}) ` +
-        `• [x256](${x256}) ` +
-        `• [x512](${x512}) ` +
-        `• [x1024](${x1024}) ` +
-        `• [x2048](${x2048}) `
-    )
+    .setDescription(links)
 
   return {
     embeds: [embed],

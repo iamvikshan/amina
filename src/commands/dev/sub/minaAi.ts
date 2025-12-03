@@ -1,65 +1,64 @@
 // @root/src/commands/dev/sub/minaAi.ts
 
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 import { updateAiConfig, getAiConfig } from '@schemas/Dev'
 import { configCache } from '@src/config/aiResponder'
 import { aiResponderService } from '@src/services/aiResponder'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export async function aiStatus(interaction: ChatInputCommandInteraction) {
   const config = await getAiConfig()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🤖 Amina AI Configuration Status')
+  const embed = MinaEmbed.primary()
+    .setTitle('amina ai configuration status')
     .addFields(
       {
-        name: '⚡ Global Status',
-        value: config.globallyEnabled ? '✅ Enabled' : '❌ Disabled',
+        name: 'global status',
+        value: config.globallyEnabled ? 'enabled' : 'disabled',
         inline: true,
       },
       {
-        name: '🌐 DM Support',
-        value: config.dmEnabledGlobally ? '✅ Enabled' : '❌ Disabled',
+        name: 'dm support',
+        value: config.dmEnabledGlobally ? 'enabled' : 'disabled',
         inline: true,
       },
       {
-        name: '🧠 Model',
+        name: 'model',
         value: `\`${config.model}\``,
         inline: true,
       },
       {
-        name: '📝 Max Tokens',
+        name: 'max tokens',
         value: `${config.maxTokens}`,
         inline: true,
       },
       {
-        name: '⏱️ Timeout',
+        name: 'timeout',
         value: `${config.timeoutMs}ms`,
         inline: true,
       },
       {
-        name: '🌡️ Temperature',
+        name: 'temperature',
         value: `${config.temperature}`,
         inline: true,
       },
       {
-        name: '💬 System Prompt',
+        name: 'system prompt',
         value: config.systemPrompt
           ? `${config.systemPrompt.substring(0, 100)}${config.systemPrompt.length > 100 ? '...' : ''}`
-          : 'Not set',
+          : 'not set',
         inline: false,
       },
       {
-        name: '📅 Last Updated',
+        name: 'last updated',
         value: config.updatedAt
           ? `<t:${Math.floor(config.updatedAt.getTime() / 1000)}:R>`
-          : 'Never',
+          : 'never',
         inline: true,
       },
       {
-        name: '👤 Updated By',
-        value: config.updatedBy ? `<@${config.updatedBy}>` : 'N/A',
+        name: 'updated by',
+        value: config.updatedBy ? `<@${config.updatedBy}>` : 'n/a',
         inline: true,
       }
     )
@@ -88,11 +87,10 @@ export async function toggleGlobal(
   // Re-initialize service (needed for globallyEnabled change)
   await aiResponderService.initialize()
 
-  const embed = new EmbedBuilder()
-    .setColor(enabled ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-    .setDescription(
-      `✨ AI has been globally **${enabled ? 'enabled' : 'disabled'}**${enabled ? '!' : ' 🌙'}`
-    )
+  const embed = enabled ? MinaEmbed.success() : MinaEmbed.warning()
+  embed.setDescription(
+    `ai has been globally **${enabled ? 'enabled' : 'disabled'}**${enabled ? '!' : ''}`
+  )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
   if (
@@ -118,9 +116,9 @@ export async function setModel(
   // Re-initialize service (needed for model change)
   await aiResponderService.initialize()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(`🧠 Model updated to \`${model}\``)
+  const embed = MinaEmbed.success().setDescription(
+    `model updated to \`${model}\``
+  )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
   if (
@@ -138,9 +136,9 @@ export async function setTokens(
   tokens: number
 ) {
   if (tokens < 100 || tokens > 4096) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription('❌ Tokens must be between 100 and 4096')
+    const embed = MinaEmbed.error().setDescription(
+      'tokens must be between 100 and 4096'
+    )
     // Use editReply if available (hub context), otherwise followUp (command context)
     if (
       'editReply' in interaction &&
@@ -159,18 +157,18 @@ export async function setTokens(
   await configCache.forceRefresh()
   // No re-initialization needed - maxTokens is used per-request
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(`📝 Max tokens set to ${tokens}`)
+  const embed = MinaEmbed.success().setDescription(
+    `max tokens set to ${tokens}`
+  )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
   if (
     'editReply' in interaction &&
     typeof interaction.editReply === 'function'
   ) {
-    await interaction.editReply({ embeds: [embed] })
+    return interaction.editReply({ embeds: [embed] })
   } else {
-    await interaction.followUp({ embeds: [embed] })
+    return interaction.followUp({ embeds: [embed] })
   }
 }
 
@@ -185,20 +183,18 @@ export async function setPrompt(
   await configCache.forceRefresh()
   // No re-initialization needed - systemPrompt is passed per-request
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(
-      `💬 System prompt updated!\n\n**New prompt:**\n${prompt.substring(0, 200)}${prompt.length > 200 ? '...' : ''}`
-    )
+  const embed = MinaEmbed.success().setDescription(
+    `system prompt updated!\n\n**new prompt:**\n${prompt.substring(0, 200)}${prompt.length > 200 ? '...' : ''}`
+  )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
   if (
     'editReply' in interaction &&
     typeof interaction.editReply === 'function'
   ) {
-    await interaction.editReply({ embeds: [embed] })
+    return interaction.editReply({ embeds: [embed] })
   } else {
-    await interaction.followUp({ embeds: [embed] })
+    return interaction.followUp({ embeds: [embed] })
   }
 }
 
@@ -207,9 +203,9 @@ export async function setTemperature(
   temperature: number
 ) {
   if (temperature < 0 || temperature > 2) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription('❌ Temperature must be between 0 and 2')
+    const embed = MinaEmbed.error().setDescription(
+      'temperature must be between 0 and 2'
+    )
     // Use editReply if available (hub context), otherwise followUp (command context)
     if (
       'editReply' in interaction &&
@@ -228,18 +224,18 @@ export async function setTemperature(
   await configCache.forceRefresh()
   // No re-initialization needed - temperature is used per-request
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(`🌡️ Temperature set to ${temperature}`)
+  const embed = MinaEmbed.success().setDescription(
+    `temperature set to ${temperature}`
+  )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
   if (
     'editReply' in interaction &&
     typeof interaction.editReply === 'function'
   ) {
-    await interaction.editReply({ embeds: [embed] })
+    return interaction.editReply({ embeds: [embed] })
   } else {
-    await interaction.followUp({ embeds: [embed] })
+    return interaction.followUp({ embeds: [embed] })
   }
 }
 
@@ -254,20 +250,19 @@ export async function toggleDm(
   await configCache.forceRefresh()
   // No re-initialization needed - dmEnabledGlobally is checked per-request
 
-  const embed = new EmbedBuilder()
-    .setColor(enabled ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-    .setDescription(
-      `📬 Global DM support **${enabled ? 'enabled' : 'disabled'}**`
-    )
+  const embed = enabled ? MinaEmbed.success() : MinaEmbed.warning()
+  embed.setDescription(
+    `global dm support **${enabled ? 'enabled' : 'disabled'}**`
+  )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
   if (
     'editReply' in interaction &&
     typeof interaction.editReply === 'function'
   ) {
-    await interaction.editReply({ embeds: [embed] })
+    return interaction.editReply({ embeds: [embed] })
   } else {
-    await interaction.followUp({ embeds: [embed] })
+    return interaction.followUp({ embeds: [embed] })
   }
 }
 
@@ -278,35 +273,34 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
   try {
     const stats = await memoryService.getStats()
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
-      .setTitle('🧠 Memory System Statistics')
+    const embed = MinaEmbed.primary()
+      .setTitle('memory system statistics')
       .addFields(
         {
-          name: '📊 Total Memories',
+          name: 'total memories',
           value: `${stats.totalMemories.toLocaleString()} stored`,
           inline: true,
         },
         {
-          name: '👥 Unique Users',
+          name: 'unique users',
           value: `${stats.uniqueUsers.toLocaleString()} tracked`,
           inline: true,
         },
         {
-          name: '🏛️ Guilds',
+          name: 'guilds',
           value: `${stats.uniqueGuilds.toLocaleString()} servers`,
           inline: true,
         },
         {
-          name: '📝 By Type',
+          name: 'by type',
           value:
             Object.entries(stats.byType)
               .map(([type, count]) => `${type}: ${count}`)
-              .join('\n') || 'No memories yet',
+              .join('\n') || 'no memories yet',
           inline: false,
         },
         {
-          name: '🔝 Top Users',
+          name: 'top users',
           value:
             stats.topUsers.length > 0
               ? stats.topUsers
@@ -314,21 +308,21 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
                     (u, i) => `${i + 1}. <@${u.userId}> - ${u.count} memories`
                   )
                   .join('\n')
-              : 'No users yet',
+              : 'no users yet',
           inline: false,
         },
         {
-          name: '⭐ Average Importance',
+          name: 'average importance',
           value: `${stats.avgImportance.toFixed(2)} / 5.0`,
           inline: true,
         },
         {
-          name: '🎯 Total Access Count',
+          name: 'total access count',
           value: `${stats.totalAccessCount.toLocaleString()} recalls`,
           inline: true,
         }
       )
-      .setFooter({ text: 'Memory system powered by Upstash Vector + MongoDB' })
+      .setFooter({ text: 'memory system powered by upstash vector + mongodb' })
       .setTimestamp()
 
     // Use editReply if available (hub context), otherwise followUp (command context)
@@ -340,12 +334,10 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
     } else {
       await interaction.followUp({ embeds: [embed] })
     }
-  } catch (error) {
-    const errorEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        '❌ Failed to fetch memory statistics. Check logs for details.'
-      )
+  } catch (_error) {
+    const errorEmbed = MinaEmbed.error().setDescription(
+      'failed to fetch memory statistics. check logs for details.'
+    )
 
     // Use editReply if available (hub context), otherwise followUp (command context)
     if (

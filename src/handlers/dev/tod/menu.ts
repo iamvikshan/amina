@@ -1,13 +1,12 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Truth or Dare operations menu
@@ -15,17 +14,16 @@ import { createSecondaryBtn } from '@helpers/componentHelper'
 export async function showTodMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🎲 Truth or Dare Management')
+  const embed = MinaEmbed.primary()
+    .setTitle('truth or dare management')
     .setDescription(
-      'Manage Truth or Dare questions! 🎯\n\n' +
-        '**Select an operation:**\n' +
-        '➕ **Add Question** - Add a new ToD question\n' +
-        '➖ **Remove Question** - Delete a question by ID\n\n' +
-        '⚠️ **Note:** Question IDs follow the format: T1, D2, NHIE3, etc.'
+      'manage truth or dare questions!\n\n' +
+        '**select an operation:**\n' +
+        '**add question** - add a new tod question\n' +
+        '**remove question** - delete a question by id\n\n' +
+        'note: question ids follow the format: T1, D2, NHIE3, etc.'
     )
-    .setFooter({ text: 'Select an operation to begin' })
+    .setFooter({ text: 'select an operation to begin' })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -45,15 +43,11 @@ export async function showTodMenu(
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'dev:btn:back_tod',
-    label: 'Back to Dev Hub',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('dev:btn:back_tod')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components: [menu, backRow],
   })
 }
 

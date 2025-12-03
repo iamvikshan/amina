@@ -7,6 +7,8 @@ import deposit from './sub/deposit'
 import transfer from './sub/transfer'
 import withdraw from './sub/withdraw'
 import { ECONOMY } from '@src/config'
+import { mina } from '@helpers/mina'
+import type { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'bank',
@@ -79,7 +81,7 @@ const command: CommandData = {
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
-    let response
+    let response: string | { embeds: MinaEmbed[] }
 
     // balance
     if (sub === 'balance') {
@@ -91,7 +93,7 @@ const command: CommandData = {
     else if (sub === 'deposit') {
       const coins = interaction.options.getInteger('coins')
       if (coins === null) {
-        response = 'Please provide a valid coin amount'
+        response = mina.say('economy.error.invalidAmount')
       } else {
         response = await deposit(interaction.user, coins)
       }
@@ -101,7 +103,7 @@ const command: CommandData = {
     else if (sub === 'withdraw') {
       const coins = interaction.options.getInteger('coins')
       if (coins === null) {
-        response = 'Please provide a valid coin amount'
+        response = mina.say('economy.error.invalidAmount')
       } else {
         response = await withdraw(interaction.user, coins)
       }
@@ -112,12 +114,17 @@ const command: CommandData = {
       const user = interaction.options.getUser('user')
       const coins = interaction.options.getInteger('coins')
       if (!user) {
-        response = 'Please provide a valid user'
+        response = mina.say('notFound.user')
       } else if (coins === null) {
-        response = 'Please provide a valid coin amount'
+        response = mina.say('economy.error.invalidAmount')
       } else {
         response = await transfer(interaction.user, user, coins)
       }
+    }
+
+    // fallback
+    else {
+      response = mina.say('error')
     }
 
     await interaction.followUp(response)

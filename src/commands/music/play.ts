@@ -1,13 +1,14 @@
 import {
   ChatInputCommandInteraction,
   ApplicationCommandOptionType,
-  EmbedBuilder,
 } from 'discord.js'
 import config from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'play',
-  description: 'Play or queue your favorite song!',
+  description: 'play or queue a song',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -25,7 +26,10 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const searchQuery = interaction.options.getString('query')
     if (!searchQuery) {
-      return await interaction.followUp('🚫 Please provide a song name or URL')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('music.error.provideSong'))],
+      })
+      return
     }
 
     const member = interaction.member as any
@@ -48,13 +52,17 @@ async function play(
     channel: any
   },
   searchQuery: string
-): Promise<string | { embeds: EmbedBuilder[] }> {
-  if (!member.voice.channel) return '🚫 You need to join a voice channel first'
+): Promise<string | { embeds: MinaEmbed[] }> {
+  if (!member.voice.channel) {
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notInVoice'))] }
+  }
 
   let player = guild.client.musicManager.getPlayer(guild.id)
 
   if (player && member.voice.channel !== guild.members.me.voice.channel) {
-    return '🚫 You must be in the same voice channel as mine'
+    return {
+      embeds: [MinaEmbed.error(mina.say('music.error.differentChannel'))],
+    }
   }
 
   if (!player) {
@@ -73,7 +81,9 @@ async function play(
       await player.connect()
     } catch (error: any) {
       guild.client.logger?.error('Player Connect Error', error)
-      return '🚫 Failed to connect to voice channel'
+      return {
+        embeds: [MinaEmbed.error(mina.say('music.error.connectFailed'))],
+      }
     }
   }
 
@@ -81,30 +91,35 @@ async function play(
     const res = await player.search({ query: searchQuery }, member.user)
 
     if (!res || res.loadType === 'empty') {
-      return `🚫 No results found for "${searchQuery}"`
+      return {
+        embeds: [
+          MinaEmbed.error(
+            mina.sayf('music.error.noResults', { query: searchQuery })
+          ),
+        ],
+      }
     }
 
     switch (res?.loadType) {
       case 'error':
         guild.client.logger?.error('Search Exception', res.exception)
-        return '🚫 There was an error while searching'
+        return { embeds: [MinaEmbed.error(mina.say('music.error.loadFailed'))] }
 
-      case 'playlist':
+      case 'playlist': {
         player.queue.add(res.tracks)
 
-        const playlistEmbed = new EmbedBuilder()
-          .setAuthor({ name: 'Added Playlist to queue' })
+        const playlistEmbed = MinaEmbed.success()
+          .setAuthor({ name: mina.say('music.success.queued.playlist') })
           .setThumbnail(res.playlist.thumbnail)
-          .setColor(config.EMBED_COLORS.BOT_EMBED)
           .setDescription(`[${res.playlist.name}](${res.playlist.uri})`)
           .addFields(
             {
-              name: 'Enqueued',
-              value: `${res.tracks.length} songs`,
+              name: 'tracks',
+              value: `${res.tracks.length} ${mina.say('music.success.songs')}`,
               inline: true,
             },
             {
-              name: 'Playlist duration',
+              name: 'duration',
               value:
                 '`' +
                 guild.client.utils.formatTime(
@@ -116,35 +131,43 @@ async function play(
               inline: true,
             }
           )
-          .setFooter({ text: `Requested By: ${member.user.username}` })
+          .setFooter({
+            text: mina.sayf('generic.requestedBy', {
+              user: member.user.username,
+            }),
+          })
 
         if (!player.playing && player.queue.tracks.length > 0) {
           await player.play({ paused: false })
         }
 
         return { embeds: [playlistEmbed] }
+      }
 
       case 'track':
       case 'search': {
         const track = res.tracks[0]
         player.queue.add(track)
 
-        const trackEmbed = new EmbedBuilder()
-          .setAuthor({ name: 'Added Track to queue' })
-          .setColor(config.EMBED_COLORS.BOT_EMBED)
+        const trackEmbed = MinaEmbed.success()
+          .setAuthor({ name: mina.say('music.success.queued.track') })
           .setDescription(`[${track.info.title}](${track.info.uri})`)
           .setThumbnail(track.info.artworkUrl)
           .addFields({
-            name: 'Song Duration',
+            name: 'duration',
             value:
               '`' + guild.client.utils.formatTime(track.info.duration) + '`',
             inline: true,
           })
-          .setFooter({ text: `Requested By: ${track.requester.username}` })
+          .setFooter({
+            text: mina.sayf('generic.requestedBy', {
+              user: track.requester.username,
+            }),
+          })
 
         if (player.queue?.tracks?.length > 1) {
           trackEmbed.addFields({
-            name: 'Position in Queue',
+            name: 'position',
             value: player.queue.tracks.length.toString(),
             inline: true,
           })
@@ -159,11 +182,11 @@ async function play(
 
       default:
         guild.client.logger?.debug('Unknown loadType', res)
-        return '🚫 An error occurred while searching for the song'
+        return { embeds: [MinaEmbed.error(mina.say('music.error.loadFailed'))] }
     }
   } catch (error: any) {
     guild.client.logger?.error('Search Exception', JSON.stringify(error))
-    return '🚫 An error occurred while searching for the song'
+    return { embeds: [MinaEmbed.error(mina.say('music.error.loadFailed'))] }
   }
 }
 

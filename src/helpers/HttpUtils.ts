@@ -1,5 +1,6 @@
 // src/helpers/HttpUtils.ts
-import sourcebin from 'sourcebin_js'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const sourcebin = require('sourcebin_js')
 import { error, debug } from '@helpers/Logger'
 import fetch from 'node-fetch'
 
@@ -69,7 +70,7 @@ export default class HttpUtils {
     try {
       const response = options ? await fetch(url, options) : await fetch(url)
       const buffer = await response.buffer()
-      if (response.status !== 200) debug(response)
+      if (response.status !== 200) debug(`Response status: ${response.status}`)
       return {
         success: response.status === 200 ? true : false,
         status: response.status,

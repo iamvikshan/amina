@@ -4,10 +4,12 @@ import {
 } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
 import { EQList } from 'lavalink-client'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'bassboost',
-  description: 'Set bassboost level',
+  description: 'set bassboost level',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
@@ -19,10 +21,10 @@ const command: CommandData = {
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: [
-          { name: 'High', value: 'high' },
-          { name: 'Medium', value: 'medium' },
-          { name: 'Low', value: 'low' },
-          { name: 'Off', value: 'off' },
+          { name: 'high', value: 'high' },
+          { name: 'medium', value: 'medium' },
+          { name: 'low', value: 'low' },
+          { name: 'off', value: 'off' },
         ],
       },
     ],
@@ -31,9 +33,12 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const level = interaction.options.getString('level')
     if (!level) {
-      return await interaction.followUp('🚫 Please select a bassboost level')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('music.error.selectLevel'))],
+      })
+      return
     }
-    const response = await setBassBoost(interaction, level)
+    const response = await setBassBoost(interaction as any, level)
     await interaction.followUp(response)
   },
 }
@@ -47,11 +52,11 @@ async function setBassBoost(
     guildId: string
   },
   level: string
-): Promise<string> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return '🚫 No song is currently playing'
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   switch (level) {
@@ -71,10 +76,14 @@ async function setBassBoost(
       await player.filterManager.clearEQ()
       break
     default:
-      return 'Invalid bassboost level'
+      return { embeds: [MinaEmbed.error(mina.say('music.error.invalidLevel'))] }
   }
 
-  return `> Set the bassboost level to \`${level}\``
+  return {
+    embeds: [
+      MinaEmbed.success(mina.sayf('music.success.bassboostSet', { level })),
+    ],
+  }
 }
 
 export default command

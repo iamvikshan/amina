@@ -1,12 +1,10 @@
 import {
   ChannelType,
-  ButtonBuilder,
-  ActionRowBuilder,
   ComponentType,
   TextInputStyle,
   TextInputBuilder,
   ModalBuilder,
-  ButtonStyle,
+  ActionRowBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   GuildMember,
@@ -17,6 +15,8 @@ import type { GuildTextBasedChannel, PermissionResolvable } from 'discord.js'
 import { parsePermissions } from '@helpers/Utils'
 import ems from 'enhanced-ms'
 import { GIVEAWAYS } from '@src/config'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 import start from './sub/start'
 import pause from './sub/pause'
@@ -150,67 +150,69 @@ const command: CommandData = {
     if (sub === 'start') {
       const channel = interaction.options.getChannel('channel')
       if (!channel) {
-        return interaction.followUp('Please provide a channel!')
+        return interaction.followUp(mina.say('giveaway.start.error.noChannel'))
       }
-      await interaction.followUp('Starting Giveaway system...')
+      await interaction.followUp(mina.say('giveaway.start.processing'))
       return await runModalSetup(interaction, channel as GuildTextBasedChannel)
     } else if (sub === 'pause') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp('Please provide a message ID!')
+        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp('Could not find member information!')
+        return interaction.followUp(mina.say('errors.memberNotFound'))
       }
       response = await pause(member, messageId)
     } else if (sub === 'resume') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp('Please provide a message ID!')
+        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp('Could not find member information!')
+        return interaction.followUp(mina.say('errors.memberNotFound'))
       }
       response = await resume(member, messageId)
     } else if (sub === 'end') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp('Please provide a message ID!')
+        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp('Could not find member information!')
+        return interaction.followUp(mina.say('errors.memberNotFound'))
       }
       response = await end(member, messageId)
     } else if (sub === 'reroll') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp('Please provide a message ID!')
+        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp('Could not find member information!')
+        return interaction.followUp(mina.say('errors.memberNotFound'))
       }
       response = await reroll(member, messageId)
     } else if (sub === 'list') {
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp('Could not find member information!')
+        return interaction.followUp(mina.say('errors.memberNotFound'))
       }
       response = await list(member)
     } else if (sub === 'edit') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp('Please provide a message ID!')
+        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
       }
       const addDur = interaction.options.getString('add_duration')
       let addDurationMs: number | null = null
       if (addDur !== null) {
         const parsed = ems(addDur)
         if (isNaN(parsed)) {
-          return interaction.followUp('Not a valid duration')
+          return interaction.followUp(
+            mina.say('giveaway.edit.error.invalidDuration')
+          )
         }
         addDurationMs = parsed
       }
@@ -218,7 +220,7 @@ const command: CommandData = {
       const newWinnerCount = interaction.options.getInteger('new_winners')
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp('Could not find member information!')
+        return interaction.followUp(mina.say('errors.memberNotFound'))
       }
       response = await edit(
         member,
@@ -228,7 +230,7 @@ const command: CommandData = {
         newWinnerCount
       )
     } else {
-      response = 'Invalid subcommand'
+      response = mina.say('errors.invalidSubcommand')
     }
 
     await interaction.followUp(response)
@@ -245,7 +247,7 @@ async function runModalSetup(
   const guild = interaction.guild as Guild
 
   if (!member || !channel || !guild) {
-    return channel.safeSend('Missing required information!')
+    return channel.safeSend(mina.say('errors.missingInfo'))
   }
 
   const SETUP_PERMS: PermissionResolvable[] = [
@@ -256,9 +258,7 @@ async function runModalSetup(
 
   // validate channel perms
   if (!targetCh) {
-    return channel.safeSend(
-      'Giveaway setup has been cancelled. You did not mention a channel'
-    )
+    return channel.safeSend(mina.say('giveaway.setup.error.noChannel'))
   }
 
   // FIX: Correct the channel type and permission check logic
@@ -268,19 +268,19 @@ async function runModalSetup(
     !targetCh.permissionsFor(guild.members.me!)?.has(SETUP_PERMS)
   ) {
     return channel.safeSend(
-      `Giveaway setup has been cancelled.\nI need ${parsePermissions(SETUP_PERMS)} in ${targetCh}`
+      mina.sayf('giveaway.setup.error.noPermission', {
+        perms: parsePermissions(SETUP_PERMS),
+        channel: targetCh.toString(),
+      })
     )
   }
 
-  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('giveaway_btnSetup')
-      .setLabel('Setup Giveaway')
-      .setStyle(ButtonStyle.Primary)
+  const buttonRow = MinaRows.from(
+    MinaButtons.custom('giveaway_btnSetup', mina.say('giveaway.setup.button'))
   )
 
   const sentMsg = await channel.safeSend({
-    content: 'Please click the button below to setup new giveaway',
+    content: mina.say('giveaway.setup.prompt'),
     components: [buttonRow],
   })
 
@@ -299,7 +299,7 @@ async function runModalSetup(
 
   if (!btnInteraction) {
     return sentMsg.edit({
-      content: 'No response received, cancelling setup',
+      content: mina.say('giveaway.setup.cancelled'),
       components: [],
     })
   }
@@ -308,13 +308,13 @@ async function runModalSetup(
   await btnInteraction.showModal(
     new ModalBuilder({
       customId: 'giveaway-modalSetup',
-      title: 'Giveaway Setup',
+      title: mina.say('giveaway.setup.modal.title'),
       components: [
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
             customId: 'duration',
-            label: 'What is the duration?',
-            placeholder: '1h / 1d / 1w',
+            label: mina.say('giveaway.setup.modal.duration.label'),
+            placeholder: mina.say('giveaway.setup.modal.duration.placeholder'),
             style: TextInputStyle.Short,
             required: true,
           })
@@ -322,8 +322,8 @@ async function runModalSetup(
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
             customId: 'prize',
-            label: 'What is the prize?',
-            placeholder: 'Nitro / Steam Gift Card / etc',
+            label: mina.say('giveaway.setup.modal.prize.label'),
+            placeholder: mina.say('giveaway.setup.modal.prize.placeholder'),
             style: TextInputStyle.Short,
             required: true,
           })
@@ -331,8 +331,8 @@ async function runModalSetup(
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
             customId: 'winners',
-            label: 'Number of winners?',
-            placeholder: '1, 20',
+            label: mina.say('giveaway.setup.modal.winners.label'),
+            placeholder: mina.say('giveaway.setup.modal.winners.placeholder'),
             style: TextInputStyle.Short,
             required: true,
           })
@@ -340,8 +340,8 @@ async function runModalSetup(
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
             customId: 'roles',
-            label: "RoleId's that can take part in the giveaway",
-            placeholder: '1161271489446809611, 1167163232117600256',
+            label: mina.say('giveaway.setup.modal.roles.label'),
+            placeholder: mina.say('giveaway.setup.modal.roles.placeholder'),
             style: TextInputStyle.Short,
             required: false,
           })
@@ -349,8 +349,8 @@ async function runModalSetup(
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
             customId: 'host',
-            label: 'User Id hosting the giveaway',
-            placeholder: '929835843479302204',
+            label: mina.say('giveaway.setup.modal.host.label'),
+            placeholder: mina.say('giveaway.setup.modal.host.placeholder'),
             style: TextInputStyle.Short,
             required: false,
           })
@@ -372,20 +372,18 @@ async function runModalSetup(
 
   if (!modal) {
     return sentMsg.edit({
-      content: 'No response received, cancelling setup',
+      content: mina.say('giveaway.setup.cancelled'),
       components: [],
     })
   }
 
   sentMsg.delete().catch(() => {})
-  await modal.reply('Setting up giveaway...')
+  await modal.reply(mina.say('giveaway.setup.processing'))
 
   // duration
   const durationValue = ems(modal.fields.getTextInputValue('duration'))
   if (typeof durationValue !== 'number' || isNaN(durationValue)) {
-    return modal.editReply(
-      'Setup has been cancelled. You did not specify a valid duration'
-    )
+    return modal.editReply(mina.say('giveaway.setup.error.invalidDuration'))
   }
   const duration = durationValue
 
@@ -395,9 +393,7 @@ async function runModalSetup(
   // winner count
   const winnersValue = parseInt(modal.fields.getTextInputValue('winners'))
   if (typeof winnersValue !== 'number' || isNaN(winnersValue)) {
-    return modal.editReply(
-      'Setup has been cancelled. You did not specify a valid winner count'
-    )
+    return modal.editReply(mina.say('giveaway.setup.error.invalidWinners'))
   }
   const winners = winnersValue
 
@@ -415,9 +411,7 @@ async function runModalSetup(
     try {
       host = await guild.client.users.fetch(hostId)
     } catch (ex) {
-      return modal.editReply(
-        'Setup has been cancelled. You need to provide a valid userId for host'
-      )
+      return modal.editReply(mina.say('giveaway.setup.error.invalidHost'))
     }
   }
 

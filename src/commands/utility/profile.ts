@@ -1,5 +1,4 @@
 import {
-  EmbedBuilder,
   ActionRowBuilder,
   ModalBuilder,
   TextInputBuilder,
@@ -7,9 +6,9 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { getUser } from '@schemas/User'
 import { Logger } from '@helpers/Logger'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'profile',
@@ -272,12 +271,11 @@ async function handleView(
 
     // Check if profile exists and has content
     if (!hasContent(profile)) {
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
+      const embed = MinaEmbed.error()
         .setDescription(
-          `${isOwnProfile ? "You haven't" : "This user hasn't"} set up a profile yet!`
+          `${isOwnProfile ? "you haven't" : "this user hasn't"} set up a profile yet!`
         )
-        .setFooter({ text: 'Use /profile hub to create your profile!' })
+        .setFooter({ text: 'use /profile hub to create your profile!' })
 
       // Check if already deferred/replied (command handler may have deferred)
       if (interaction.deferred || interaction.replied) {
@@ -288,10 +286,9 @@ async function handleView(
       return
     }
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
+    const embed = MinaEmbed.primary()
       .setAuthor({
-        name: `${target.username}'s Profile`,
+        name: `${target.username}'s profile`,
         iconURL: target.displayAvatarURL(),
       })
       .setThumbnail(target.displayAvatarURL())
@@ -421,9 +418,9 @@ async function handleView(
 
     // Check if there's any visible content for other users
     if (!isOwnProfile && !hasVisibleContent) {
-      const privateEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setDescription(`${target.username}'s profile is private.`)
+      const privateEmbed = MinaEmbed.error().setDescription(
+        `${target.username}'s profile is private.`
+      )
 
       // Check if already deferred/replied (command handler may have deferred)
       if (interaction.deferred || interaction.replied) {

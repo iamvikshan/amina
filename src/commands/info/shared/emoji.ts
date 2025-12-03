@@ -1,19 +1,19 @@
-import { parseEmoji, EmbedBuilder } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { parseEmoji } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 export default function emojiInfo(emoji: string) {
-  let custom = parseEmoji(emoji)
-  if (!custom.id) return 'This is not a valid guild emoji'
+  const custom = parseEmoji(emoji)
+  if (!custom || !custom.id) return mina.say('infoCmd.emoji.error.invalid')
 
-  let url = `https://cdn.discordapp.com/emojis/${custom.id}.${custom.animated ? 'gif?v=1' : 'png'}`
+  const url = `https://cdn.discordapp.com/emojis/${custom.id}.${custom.animated ? 'gif?v=1' : 'png'}`
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: 'Emoji Info' })
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('infoCmd.emoji.title') })
     .setDescription(
-      `**Id:** ${custom.id}\n` +
-        `**Name:** ${custom.name}\n` +
-        `**Animated:** ${custom.animated ? 'Yes' : 'No'}`
+      `> id: **${custom.id}**\n` +
+        `> name: **${custom.name}**\n` +
+        `> animated: **${custom.animated ? 'yes' : 'no'}**`
     )
     .setImage(url)
 

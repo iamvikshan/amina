@@ -5,16 +5,16 @@ import {
   ActionRowBuilder,
   TextInputBuilder,
   TextInputStyle,
-  ButtonBuilder,
-  ButtonStyle,
   ComponentType,
-  EmbedBuilder,
   ChatInputCommandInteraction,
   GuildMember,
   Message,
 } from 'discord.js'
 import type { TextBasedChannel } from 'discord.js'
 import { isValidColor, isHex } from '@helpers/Utils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'embed',
@@ -38,12 +38,10 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const channel = interaction.options.getChannel('channel', true)
     if (!(channel as any).canSendEmbeds()) {
-      return interaction.followUp(
-        "Oh no! 😢 I can't send embeds in that channel! Please choose another one."
-      )
+      return interaction.followUp(mina.say('embed.setup.cannotSend'))
     }
     interaction.followUp(
-      `✨ Embed setup started in ${channel}! Let's create something pretty!`
+      mina.sayf('embed.setup.started', { channel: channel.toString() })
     )
     await embedSetup(
       channel as TextBasedChannel,
@@ -58,13 +56,12 @@ async function embedSetup(
   member: GuildMember
 ): Promise<void> {
   const sentMsg = await (channel as any).send({
-    content: 'Click the button below to get started! 🚀',
+    content: mina.say('embed.setup.getStarted'),
     components: [
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId('EMBED_ADD')
-          .setLabel('Create Embed 💖')
-          .setStyle(ButtonStyle.Primary)
+      MinaRows.from(
+        MinaButtons.go('EMBED_ADD').setLabel(
+          mina.say('embed.setup.createButton')
+        )
       ),
     ],
   })
@@ -83,7 +80,7 @@ async function embedSetup(
 
   if (!btnInteraction) {
     return sentMsg.edit({
-      content: 'No response received 😔. Embed setup cancelled.',
+      content: mina.say('embed.setup.noResponse'),
       components: [],
     })
   }
@@ -91,40 +88,40 @@ async function embedSetup(
   await btnInteraction.showModal(
     new ModalBuilder({
       customId: 'EMBED_MODAL',
-      title: '✨ Embed Generator ✨',
+      title: mina.say('embed.modal.title'),
       components: [
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('title')
-            .setLabel('Embed Title 🎉')
+            .setLabel(mina.say('embed.modal.embedTitle'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('author')
-            .setLabel('Embed Author 👩‍🎨')
+            .setLabel(mina.say('embed.modal.embedAuthor'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('description')
-            .setLabel('Embed Description 📝')
+            .setLabel(mina.say('embed.modal.embedDescription'))
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('color')
-            .setLabel('Embed Color 🎨 (Hex code)')
+            .setLabel(mina.say('embed.modal.embedColor'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('footer')
-            .setLabel('Embed Footer ✍️')
+            .setLabel(mina.say('embed.modal.embedFooter'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
@@ -146,12 +143,14 @@ async function embedSetup(
 
   if (!modal) {
     return sentMsg.edit({
-      content: 'No response received, cancelling setup 🥺',
+      content: mina.say('embed.setup.cancelled'),
       components: [],
     })
   }
 
-  modal.reply({ content: '🌟 Embed sent!', ephemeral: true }).catch(_ex => {})
+  modal
+    .reply({ content: mina.say('embed.setup.sent'), ephemeral: true })
+    .catch(_ex => {})
 
   const title = modal.fields.getTextInputValue('title')
   const author = modal.fields.getTextInputValue('author')
@@ -161,13 +160,12 @@ async function embedSetup(
 
   if (!title && !author && !description && !footer) {
     return sentMsg.edit({
-      content:
-        "Oops! 🙈 You can't send an empty embed! Please add some content.",
+      content: mina.say('embed.setup.empty'),
       components: [],
     })
   }
 
-  const embed = new EmbedBuilder()
+  const embed = MinaEmbed.plain()
   if (title) embed.setTitle(title)
   if (author) embed.setAuthor({ name: author })
   if (description) embed.setDescription(description)
@@ -177,24 +175,18 @@ async function embedSetup(
   }
 
   // Add/remove field button
-  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('EMBED_FIELD_ADD')
-      .setLabel('Add Field 🌟')
-      .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-      .setCustomId('EMBED_FIELD_REM')
-      .setLabel('Remove Field ❌')
-      .setStyle(ButtonStyle.Danger),
-    new ButtonBuilder()
-      .setCustomId('EMBED_FIELD_DONE')
-      .setLabel('Done ✅')
-      .setStyle(ButtonStyle.Primary)
+  const buttonRow = MinaRows.from(
+    MinaButtons.go('EMBED_FIELD_ADD').setLabel(
+      mina.say('embed.buttons.addField')
+    ),
+    MinaButtons.delete('EMBED_FIELD_REM').setLabel(
+      mina.say('embed.buttons.removeField')
+    ),
+    MinaButtons.done('EMBED_FIELD_DONE')
   )
 
   await sentMsg.edit({
-    content:
-      '✨ Please add fields using the buttons below. Click "Done" when you are ready! ✨',
+    content: mina.say('embed.setup.addFields'),
     embeds: [embed],
     components: [buttonRow],
   })
@@ -211,26 +203,26 @@ async function embedSetup(
       await interaction.showModal(
         new ModalBuilder({
           customId: 'EMBED_ADD_FIELD_MODAL',
-          title: '🌟 Add Field 🌟',
+          title: mina.say('embed.modal.addField'),
           components: [
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
                 .setCustomId('name')
-                .setLabel('Field Name 🏷️')
+                .setLabel(mina.say('embed.modal.fieldName'))
                 .setStyle(TextInputStyle.Short)
                 .setRequired(true)
             ),
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
                 .setCustomId('value')
-                .setLabel('Field Value 📖')
+                .setLabel(mina.say('embed.modal.fieldValue'))
                 .setStyle(TextInputStyle.Paragraph)
                 .setRequired(true)
             ),
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
                 .setCustomId('inline')
-                .setLabel('Inline? (true/false) 🌈')
+                .setLabel(mina.say('embed.modal.fieldInline'))
                 .setStyle(TextInputStyle.Short)
                 .setValue('true')
                 .setRequired(true)
@@ -243,9 +235,9 @@ async function embedSetup(
       const modal = await interaction
         .awaitModalSubmit({
           time: 5 * 60 * 1000,
-          filter: m =>
+          filter: (m): boolean =>
             m.customId === 'EMBED_ADD_FIELD_MODAL' &&
-            m.member &&
+            !!m.member &&
             (m.member as GuildMember).id === member.id,
         })
         .catch(_ex => undefined)
@@ -253,7 +245,7 @@ async function embedSetup(
       if (!modal) return sentMsg.edit({ components: [] })
 
       modal
-        .reply({ content: '🎉 Field added!', ephemeral: true })
+        .reply({ content: mina.say('embed.setup.fieldAdded'), ephemeral: true })
         .catch(_ex => {})
 
       const name = modal.fields.getTextInputValue('name')
@@ -277,10 +269,13 @@ async function embedSetup(
       if (fields) {
         fields.pop()
         embed.setFields(fields)
-        interaction.reply({ content: '🔴 Field removed!', ephemeral: true })
+        interaction.reply({
+          content: mina.say('embed.setup.fieldRemoved'),
+          ephemeral: true,
+        })
       } else {
         interaction.reply({
-          content: 'Oops! 😅 There are no fields to remove!',
+          content: mina.say('embed.setup.noFields'),
           ephemeral: true,
         })
       }

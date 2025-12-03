@@ -1,15 +1,13 @@
 import {
   StringSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 /**
  * Show manage menu with runtime operations
@@ -17,52 +15,36 @@ import { createSecondaryBtn } from '@helpers/componentHelper'
 export async function showManageMenu(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '📋 Ticket Management' })
-    .setDescription(
-      'Runtime ticket operations:\n\n' +
-        '🔒 **Close Ticket** - Close the current ticket channel\n' +
-        '🗑️ **Close All** - Close all open tickets (bulk operation)\n' +
-        '➕ **Add User** - Add users to current ticket\n' +
-        '➖ **Remove User** - Remove users from current ticket\n\n' +
-        'Select an operation below:'
-    )
-    .setFooter({ text: 'Use the back button to return to main hub' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: mina.say('ticket.manage.title') })
+    .setDescription(mina.say('ticket.manage.description'))
+    .setFooter({ text: mina.say('ticket.manage.footer') })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('ticket:menu:manage')
-      .setPlaceholder('⚙️ Select an operation...')
+      .setPlaceholder('select an operation...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Close Ticket')
-          .setDescription('Close the current ticket channel')
-          .setValue('close')
-          .setEmoji('🔒'),
+          .setLabel('close ticket')
+          .setDescription('close the current ticket channel')
+          .setValue('close'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Close All')
-          .setDescription('Close all open tickets (bulk)')
-          .setValue('closeall')
-          .setEmoji('🗑️'),
+          .setLabel('close all')
+          .setDescription('close all open tickets (bulk)')
+          .setValue('closeall'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Add User')
-          .setDescription('Add users to current ticket')
-          .setValue('add')
-          .setEmoji('➕'),
+          .setLabel('add user')
+          .setDescription('add users to current ticket')
+          .setValue('add'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Remove User')
-          .setDescription('Remove users from current ticket')
+          .setLabel('remove user')
+          .setDescription('remove users from current ticket')
           .setValue('remove')
-          .setEmoji('➖')
       )
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back',
-    label: 'Back to Ticket Hub',
-    emoji: '◀️',
-  })
+  const backButton = MinaRows.backRow('ticket:btn:back')
 
   await interaction.editReply({
     embeds: [embed],
@@ -85,12 +67,7 @@ export async function handleManageMenu(
     if (!channel || !isTicketChannel(channel)) {
       await interaction.deferUpdate()
 
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.ERROR)
-        .setDescription(
-          '❌ You need to be in a ticket channel to use this operation!\n\n' +
-            'Please navigate to the ticket channel you want to manage and run the command from there.'
-        )
+      const embed = MinaEmbed.error(mina.say('ticket.manage.notInTicket'))
 
       // Try to find any ticket channel to provide as example
       const ticketChannels = interaction.guild!.channels.cache.filter(ch =>
@@ -99,31 +76,21 @@ export async function handleManageMenu(
 
       if (ticketChannels.size > 0) {
         const exampleChannel = ticketChannels.first()!
-        const linkButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setLabel('View Example Ticket')
-            .setURL(
-              `https://discord.com/channels/${interaction.guild!.id}/${exampleChannel.id}`
-            )
-            .setStyle(ButtonStyle.Link)
+        const linkButton = MinaRows.from(
+          MinaButtons.link(
+            `https://discord.com/channels/${interaction.guild!.id}/${exampleChannel.id}`,
+            mina.say('ticket.manage.button')
+          )
         )
 
-        const backButton = createSecondaryBtn({
-          customId: 'ticket:btn:back_manage',
-          label: 'Back to Manage',
-          emoji: '◀️',
-        })
+        const backButton = MinaRows.backRow('ticket:btn:back_manage')
 
         await interaction.editReply({
           embeds: [embed],
           components: [linkButton, backButton],
         })
       } else {
-        const backButton = createSecondaryBtn({
-          customId: 'ticket:btn:back_manage',
-          label: 'Back to Manage',
-          emoji: '◀️',
-        })
+        const backButton = MinaRows.backRow('ticket:btn:back_manage')
 
         await interaction.editReply({
           embeds: [embed],
@@ -155,7 +122,7 @@ export async function handleManageMenu(
       break
     default:
       await interaction.reply({
-        content: '❌ Invalid manage option',
+        content: 'invalid manage option',
         flags: MessageFlags.Ephemeral,
       })
   }

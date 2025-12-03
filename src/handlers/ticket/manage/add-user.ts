@@ -1,14 +1,13 @@
 import {
   StringSelectMenuInteraction,
   UserSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   UserSelectMenuBuilder,
   TextChannel,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
 import { isTicketChannel } from '@handlers/ticket/shared/utils'
 
 /**
@@ -23,51 +22,38 @@ export async function showAddUserSelect(
   if (!isTicketChannel(channel)) {
     await interaction.update({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            '❌ This operation can only be used in ticket channels!\n\n' +
-              'Please run this command from within an active ticket channel.'
-          ),
+        MinaEmbed.error(
+          'this operation can only be used in ticket channels.\n\n' +
+            'please run this command from within an active ticket channel.'
+        ),
       ],
-      components: [
-        createSecondaryBtn({
-          customId: 'ticket:btn:back_manage',
-          label: 'Back to Manage',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('ticket:btn:back_manage')],
     })
     return
   }
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '➕ Add Users to Ticket' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: 'add users to ticket' })
     .setDescription(
-      'Select the users you want to add to this ticket channel.\n\n' +
-        'Selected users will be able to view and send messages in this ticket.'
+      'select the users you want to add to this ticket channel.\n\n' +
+        'selected users will be able to view and send messages in this ticket.'
     )
-    .setFooter({ text: 'You can select up to 10 users at once' })
+    .setFooter({ text: 'you can select up to 10 users at once' })
 
   const userSelect =
     new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
       new UserSelectMenuBuilder()
         .setCustomId('ticket:user:add')
-        .setPlaceholder('👥 Select users to add...')
+        .setPlaceholder('select users to add...')
         .setMinValues(1)
         .setMaxValues(10)
     )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_manage',
-    label: 'Back to Manage',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_manage')
 
   await interaction.update({
     embeds: [embed],
-    components: [userSelect, backButton],
+    components: [userSelect, backRow],
   })
 }
 
@@ -84,7 +70,7 @@ export async function handleAddUserSelect(
 
   if (users.size === 0) {
     await interaction.followUp({
-      content: '❌ No users selected',
+      content: 'no users selected',
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -100,7 +86,7 @@ export async function handleAddUserSelect(
         results.push({
           user: user.tag,
           success: false,
-          reason: 'Cannot add bots to tickets',
+          reason: 'cannot add bots to tickets',
         })
         continue
       }
@@ -112,11 +98,11 @@ export async function handleAddUserSelect(
       })
 
       results.push({ user: user.tag, success: true })
-    } catch (error) {
+    } catch (_error) {
       results.push({
         user: user.tag,
         success: false,
-        reason: 'Failed to update permissions',
+        reason: 'failed to update permissions',
       })
     }
   }
@@ -125,40 +111,35 @@ export async function handleAddUserSelect(
   const successCount = results.filter(r => r.success).length
   const failedCount = results.length - successCount
 
-  const embed = new EmbedBuilder()
-    .setColor(successCount > 0 ? EMBED_COLORS.SUCCESS : EMBED_COLORS.ERROR)
-    .setAuthor({ name: '➕ Add Users Result' })
+  const embed = successCount > 0 ? MinaEmbed.success() : MinaEmbed.error()
+  embed.setAuthor({ name: 'add users result' })
 
   const successList = results
     .filter(r => r.success)
-    .map(r => `✅ ${r.user}`)
+    .map(r => `${r.user}`)
     .join('\n')
 
   const failedList = results
     .filter(r => !r.success)
-    .map(r => `❌ ${r.user} - ${r.reason}`)
+    .map(r => `${r.user} - ${r.reason}`)
     .join('\n')
 
-  let description = `**Summary:**\n✅ Added: ${successCount}\n❌ Failed: ${failedCount}\n\n`
+  let description = `**summary:**\nadded: ${successCount}\nfailed: ${failedCount}\n\n`
 
   if (successList) {
-    description += `**Successfully Added:**\n${successList}\n\n`
+    description += `**successfully added:**\n${successList}\n\n`
   }
 
   if (failedList) {
-    description += `**Failed to Add:**\n${failedList}`
+    description += `**failed to add:**\n${failedList}`
   }
 
   embed.setDescription(description)
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_manage',
-    label: 'Back to Manage',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_manage')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [backButton],
+    components: [backRow],
   })
 }

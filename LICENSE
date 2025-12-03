@@ -1,12 +1,12 @@
-# Amina Discord Bot Dual License
+                    Amina Dual License
 
 This project is licensed under a Dual License model. Choose the license that best fits your use case:
 
-## 1. Non-Commercial License (FREE)
+1. Non-Commercial License (FREE)
 
 For non-commercial use, this software is licensed under the **Amina Non-Commercial License v1.0** (based on Apache License 2.0).
 
-### Grant of Rights
+a) Grant of Rights
 
 Subject to the terms and conditions of this license, the copyright owner hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright and patent license to:
 
@@ -21,7 +21,7 @@ Subject to the terms and conditions of this license, the copyright owner hereby 
 - Internal business use that does not generate revenue from the software itself
 - Community contributions and improvements
 
-### Prohibited Commercial Uses
+b) Prohibited Commercial Uses
 
 The following activities are considered Commercial Use and are NOT permitted under this license:
 
@@ -31,7 +31,7 @@ The following activities are considered Commercial Use and are NOT permitted und
 - Offering hosting services, SaaS versions, or managed instances for profit
 - Sublicensing to other parties (except for non-commercial open-source projects)
 
-### Conditions for Non-Commercial Use
+c) Conditions for Non-Commercial Use
 
 When distributing this software or derivative works for non-commercial purposes, you must:
 
@@ -41,17 +41,17 @@ When distributing this software or derivative works for non-commercial purposes,
 4. Include the NOTICE file with attribution information
 5. Provide clear notice that modifications have been made
 
-### Grant of Patent License
+d)Grant of Patent License
 
 Each contributor grants you a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable patent license to make, use, have made, and import the software, limited to non-commercial purposes as defined above.
 
 ---
 
-## 2. Commercial License (REQUIRES PERMISSION)
+2. Commercial License (REQUIRES PERMISSION)
 
 For commercial use, you must obtain explicit written permission from the copyright owner by contacting: [vixshan@gmail.com](mailto:vixshan@gmail.com)
 
-### What Requires a Commercial License
+a) What Requires a Commercial License
 
 You need a commercial license if you intend to:
 
@@ -62,7 +62,7 @@ You need a commercial license if you intend to:
 - Use Amina for internal business operations that generate profit
 - Sublicense Amina to other commercial entities
 
-### Commercial License Terms
+b) Commercial License Terms
 
 Commercial licenses are negotiated on a case-by-case basis and may include:
 
@@ -76,38 +76,37 @@ Contact the copyright owner to discuss commercial licensing options.
 
 ---
 
-## Disclaimer of Warranty
+3. Disclaimer of Warranty
 
 The software is provided "AS IS" without warranties of any kind, either express or implied, including but not limited to warranties of title, non-infringement, merchantability, or fitness for a particular purpose.
 
-## Limitation of Liability
-
+4. Limitation of Liability
 In no event shall the copyright owner be liable for any direct, indirect, special, incidental, or consequential damages arising from the use of or inability to use this software, even if advised of the possibility of such damages.
 
-## How This Works in Practice
+How This Works in Practice
 
-### Example 1: Personal Use ✅ FREE
+Example 1: Personal Use ✅ FREE
 You want to modify Amina for your personal Discord server. You can do this under the Non-Commercial License at no cost. Simply include the license file and attribution (as long as you do not gain any profit, even through modules like premium features).
 
-### Example 2: Open-Source Contribution ✅ FREE
+Example 2: Open-Source Contribution ✅ FREE
 You want to contribute improvements to Amina that will be merged back into the main project. This is free under the Non-Commercial License since it's for non-commercial purposes.
 
-### Example 3: Hosting Service ❌ REQUIRES COMMERCIAL LICENSE
+Example 3: Hosting Service ❌ REQUIRES COMMERCIAL LICENSE
 You want to offer "Amina as a Service" where users pay you to host and manage Amina instances. This requires a Commercial License. Contact the copyright owner to negotiate terms.
 
-### Example 4: Discord Bot Marketplace ❌ REQUIRES COMMERCIAL LICENSE
+Example 4: Discord Bot Marketplace ❌ REQUIRES COMMERCIAL LICENSE
 You want to sell Amina or a heavily modified version on a Discord bot marketplace. This requires a Commercial License negotiation.
 
-### Example 5: Internal Company Use ⚖️ DEPENDS
+Example 5: Internal Company Use ⚖️ DEPENDS
 You want to use Amina internally at your company for operational purposes that doesn't generate direct revenue. This is likely covered under Non-Commercial. If Amina directly contributes to revenue generation (e.g., it's core to your SaaS offering), you need a Commercial License.
 
 ---
 
-## Termination
+Termination
 
 If you violate the terms of this license (particularly using Amina commercially without permission), the copyright owner may terminate your license and require you to cease using the software.
 
-## Modifications to This License
+Modifications to This License
 
 The copyright owner reserves the right to modify these license terms in the future. Existing deployments under previous versions remain valid, but new deployments must comply with the updated license.
 

@@ -1,16 +1,16 @@
 import {
   ChatInputCommandInteraction,
   ApplicationCommandOptionType,
-  EmbedBuilder,
 } from 'discord.js'
 import { getJson } from '@helpers/HttpUtils'
-import config from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const BASE_URL = 'https://some-random-api.com/lyrics'
 
 const command: CommandData = {
   name: 'lyric',
-  description: 'find lyric of the song',
+  description: 'find lyrics of a song',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -19,7 +19,7 @@ const command: CommandData = {
       {
         name: 'query',
         type: ApplicationCommandOptionType.String,
-        description: 'find lyric of the song',
+        description: 'song name to search',
         required: true,
       },
     ],
@@ -28,7 +28,10 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const choice = interaction.options.getString('query')
     if (!choice) {
-      return await interaction.followUp('🚫 Please provide a song name')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('music.error.provideSong'))],
+      })
+      return
     }
     const response = await getLyric(interaction.user, choice)
     await interaction.followUp(response)
@@ -38,9 +41,11 @@ const command: CommandData = {
 async function getLyric(
   user: any,
   choice: string
-): Promise<string | { embeds: EmbedBuilder[] }> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const lyric = await getJson(`${BASE_URL}?title=${choice}`)
-  if (!lyric.success) return config.MESSAGES.API_ERROR
+  if (!lyric.success) {
+    return { embeds: [MinaEmbed.error(mina.say('error'))] }
+  }
 
   const thumbnail = lyric.data?.thumbnail?.genius
   const author = lyric.data?.author
@@ -48,15 +53,21 @@ async function getLyric(
   const title = lyric.data?.title
 
   if (!author || !lyrics || !title) {
-    return '🚫 Could not find lyrics for this song'
+    return {
+      embeds: [
+        MinaEmbed.error(mina.sayf('music.error.noResults', { query: choice })),
+      ],
+    }
   }
 
-  const embed = new EmbedBuilder()
-  embed
-    .setColor(config.EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.info()
     .setTitle(`${author} - ${title}`)
-    .setDescription(lyrics)
-    .setFooter({ text: `Request By: ${user.username}` })
+    .setDescription(
+      lyrics.length > 4000 ? lyrics.slice(0, 4000) + '...' : lyrics
+    )
+    .setFooter({
+      text: mina.sayf('generic.requestedBy', { user: user.username }),
+    })
 
   if (thumbnail) {
     embed.setThumbnail(thumbnail)

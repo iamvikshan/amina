@@ -1,10 +1,9 @@
 import {
   ApplicationCommandOptionType,
-  EmbedBuilder,
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { TicTacToe } from 'discord-gamecord'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'tictactoe',
@@ -24,7 +23,7 @@ const command: CommandData = {
     options: [
       {
         name: 'user',
-        description: 'Pick your worthy opponent! 🎯',
+        description: 'pick your worthy opponent!',
         type: ApplicationCommandOptionType.User,
         required: true,
       },
@@ -41,7 +40,7 @@ const command: CommandData = {
     if (opponent.bot) {
       return interaction.followUp({
         content:
-          "💫 Oopsie! Bots can't play games yet - trust me, I've tried teaching them! Pick a human friend instead! ✨",
+          "bots can't play games yet - trust me, i've tried teaching them! pick a human friend instead!",
         ephemeral: true,
       })
     }
@@ -50,7 +49,7 @@ const command: CommandData = {
     if (opponent.id === interaction.user.id) {
       return interaction.followUp({
         content:
-          "✨ Hey silly! You can't play against yourself - where's the fun in that? Invite a friend to join the adventure! 🎮",
+          "you can't play against yourself - where's the fun in that? invite a friend to join the adventure!",
         ephemeral: true,
       })
     }
@@ -60,10 +59,10 @@ const command: CommandData = {
       isSlashGame: true,
       opponent: opponent,
       embed: {
-        title: '✨ Tic Tac Toe Challenge! ✨',
-        color: EMBED_COLORS.BOT_EMBED,
-        statusTitle: '💫 Current Status',
-        overTitle: '🎮 Game Over!',
+        title: 'tic tac toe challenge!',
+        color: MinaEmbed.primary().data.color,
+        statusTitle: 'current status',
+        overTitle: 'game over!',
       },
       emojis: {
         xButton: '❌',
@@ -75,14 +74,14 @@ const command: CommandData = {
       xButtonStyle: 'DANGER',
       oButtonStyle: 'PRIMARY',
       turnMessage:
-        "{emoji} | *bounces excitedly* It's **{player}**'s turn to make a move! ✨",
+        "{emoji} | *bounces excitedly* it's **{player}**'s turn to make a move!",
       winMessage:
-        '{emoji} | *jumps with joy* **{player}** won the game! That was amazing! 🎉',
-      tieMessage: "*spins around* It's a tie! You're both equally awesome! 🌟",
+        '{emoji} | *jumps with joy* **{player}** won the game! that was amazing!',
+      tieMessage: "*spins around* it's a tie! you're both equally awesome!",
       timeoutMessage:
-        "*droops* Aww, the game timed out! Don't leave me hanging next time! 💫",
+        "*droops* aww, the game timed out! don't leave me hanging next time!",
       playerOnlyMessage:
-        'Hey there! Only {player} and {opponent} can play in this game! But you can start your own adventure with `/tictactoe`! ✨',
+        'hey there! only {player} and {opponent} can play in this game! but you can start your own adventure with `/tictactoe`!',
     })
 
     Game.startGame()
@@ -91,21 +90,19 @@ const command: CommandData = {
       const winner = `<@${winners}>`
 
       if (result.result === 'tie') {
-        const embed = new EmbedBuilder()
-          .setTitle('🌟 Tic Tac Toe Results 🌟')
+        const embed = MinaEmbed.warning()
+          .setTitle('tic tac toe results')
           .setDescription(
-            "*spins in circles* What an amazing battle! It's a perfect tie! Both of you played brilliantly! ✨"
+            "*spins in circles* what an amazing battle! it's a perfect tie! both of you played brilliantly!"
           )
-          .setColor(EMBED_COLORS.ERROR) // Gold color for ties
           .setTimestamp()
         interaction.followUp({ embeds: [embed] })
       } else if (result.result === 'win') {
-        const embed = new EmbedBuilder()
-          .setTitle('🎉 Tic Tac Toe Champion! 🎉')
+        const embed = MinaEmbed.success()
+          .setTitle('tic tac toe champion!')
           .setDescription(
-            `*jumps excitedly* Congratulations ${winner}! That was an epic victory! 🌟`
+            `*jumps excitedly* congratulations ${winner}! that was an epic victory!`
           )
-          .setColor(EMBED_COLORS.SUCCESS) // Green color for wins
           .setTimestamp()
 
         interaction.followUp({ embeds: [embed] })

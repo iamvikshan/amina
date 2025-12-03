@@ -1,10 +1,6 @@
-import {
-  StringSelectMenuInteraction,
-  EmbedBuilder,
-  TextChannel,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { StringSelectMenuInteraction, TextChannel } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
 import { isTicketChannel, closeTicket } from '@handlers/ticket/shared/utils'
 
 /**
@@ -17,22 +13,16 @@ export async function handleCloseTicket(
 
   // Check if in ticket channel
   if (!isTicketChannel(channel)) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        '❌ This command can only be used in ticket channels!\n\n' +
-          'Please run this command from within an active ticket channel.'
-      )
+    const embed = MinaEmbed.error().setDescription(
+      'this command can only be used in ticket channels\n\n' +
+        'please run this command from within an active ticket channel.'
+    )
 
-    const backButton = createSecondaryBtn({
-      customId: 'ticket:btn:back_manage',
-      label: 'Back to Manage',
-      emoji: '◀️',
-    })
+    const backRow = MinaRows.backRow('ticket:btn:back_manage')
 
     await interaction.editReply({
       embeds: [embed],
-      components: [backButton],
+      components: [backRow],
     })
     return
   }
@@ -45,43 +35,31 @@ export async function handleCloseTicket(
   )
 
   if (status === 'MISSING_PERMISSIONS') {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        "❌ I don't have permission to close tickets!\n\n" +
-          'Please make sure I have the **Manage Channels** permission.'
-      )
+    const embed = MinaEmbed.error().setDescription(
+      "i don't have permission to close tickets\n\n" +
+        'please make sure i have the **manage channels** permission.'
+    )
 
-    const backButton = createSecondaryBtn({
-      customId: 'ticket:btn:back_manage',
-      label: 'Back to Manage',
-      emoji: '◀️',
-    })
+    const backRow = MinaRows.backRow('ticket:btn:back_manage')
 
     await interaction.editReply({
       embeds: [embed],
-      components: [backButton],
+      components: [backRow],
     })
     return
   }
 
   if (status === 'ERROR') {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        '❌ An error occurred while closing the ticket.\n\n' +
-          'Please try again or contact a server administrator.'
-      )
+    const embed = MinaEmbed.error().setDescription(
+      'an error occurred while closing the ticket\n\n' +
+        'please try again or contact a server administrator.'
+    )
 
-    const backButton = createSecondaryBtn({
-      customId: 'ticket:btn:back_manage',
-      label: 'Back to Manage',
-      emoji: '◀️',
-    })
+    const backRow = MinaRows.backRow('ticket:btn:back_manage')
 
     await interaction.editReply({
       embeds: [embed],
-      components: [backButton],
+      components: [backRow],
     })
     return
   }

@@ -6,7 +6,7 @@ export async function setupTicketCategory(
   category: CategoryChannel
 ): Promise<string> {
   if (category.type !== ChannelType.GuildCategory) {
-    return "Oopsie! 😅 That's not a category channel. Can you try again with a proper category? Pretty please? 💖"
+    return "that's not a category channel. try again with a proper category?"
   }
 
   const settings = await getSettings(guild)
@@ -14,13 +14,13 @@ export async function setupTicketCategory(
   settings.ticket.enabled = true
   await updateSettings(guild.id, settings)
 
-  return `Yay! 🎉 I've set the ticket category to ${category.name}. All new tickets will appear there now!`
+  return `i've set the ticket category to ${category.name}. all new tickets will appear there now!`
 }
 
 export async function removeTicketCategory(guild: Guild): Promise<string> {
   const settings = await getSettings(guild)
   if (!settings.ticket.category) {
-    return "Oh no! 😮 There's no ticket category set right now. Nothing to remove!"
+    return "there's no ticket category set right now. nothing to remove!"
   }
 
   settings.ticket.category = ''
@@ -28,10 +28,10 @@ export async function removeTicketCategory(guild: Guild): Promise<string> {
   await updateSettings(guild.id, settings)
 
   let response =
-    "I've removed the ticket category and disabled the ticket system. 🎈\n\n"
-  response += 'To set up a new category, please use `/ticket category add`.\n'
+    "i've removed the ticket category and disabled the ticket system.\n\n"
+  response += 'to set up a new category, please use `/ticket category add`.\n'
   response +=
-    "If you don't, I'll create a new 'Tickets' category when someone opens a ticket. 📁"
+    "if you don't, i'll create a new 'Tickets' category when someone opens a ticket."
 
   return response
 }

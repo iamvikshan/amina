@@ -3,6 +3,7 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'statstracking',
@@ -21,11 +22,11 @@ const command: CommandData = {
         type: ApplicationCommandOptionType.String,
         choices: [
           {
-            name: 'ON',
+            name: 'on',
             value: 'ON',
           },
           {
-            name: 'OFF',
+            name: 'off',
             value: 'OFF',
           },
         ],
@@ -54,7 +55,9 @@ async function setStatus(input: string, settings: any) {
   settings.stats.enabled = status
   await settings.save()
 
-  return `Configuration saved! Stats Tracking is now ${status ? 'enabled' : 'disabled'}`
+  return status
+    ? mina.say('statsCmd.config.enabled')
+    : mina.say('statsCmd.config.disabled')
 }
 
 export default command

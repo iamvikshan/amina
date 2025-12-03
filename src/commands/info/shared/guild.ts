@@ -1,10 +1,6 @@
-import {
-  EmbedBuilder,
-  ChannelType,
-  GuildVerificationLevel,
-  Guild,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
+import { ChannelType, GuildVerificationLevel, Guild } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 import moment from 'moment'
 
 export default async function guildInfo(guild: Guild) {
@@ -13,8 +9,7 @@ export default async function guildInfo(guild: Guild) {
   let owner
   try {
     owner = await guild.members.fetch(ownerId)
-  } catch (ex) {
-    // Owner might have left the guild
+  } catch (_ex) {
     owner = null
   }
 
@@ -78,51 +73,58 @@ export default async function guildInfo(guild: Guild) {
       break
   }
 
-  let desc = ''
-  desc = `${desc + '❯'} **Id:** ${id}\n`
-  desc = `${desc + '❯'} **Name:** ${name}\n`
-  desc = `${desc + '❯'} **Owner:** ${owner ? owner.user.username : 'Unknown'}\n`
-  desc = `${desc + '❯'} **Region:** ${preferredLocale}\n`
-  desc += '\n'
+  let desc = `> id: **${id}**\n`
+  desc += `> name: **${name}**\n`
+  desc += `> owner: **${owner ? owner.user.username : 'unknown'}**\n`
+  desc += `> region: **${preferredLocale}**\n`
 
-  const embed = new EmbedBuilder()
-    .setTitle('GUILD INFORMATION')
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('infoCmd.guild.title') })
     .setThumbnail(guild.iconURL())
-    .setColor(EMBED_COLORS.BOT_EMBED)
     .setDescription(desc)
     .addFields(
       {
-        name: `Server Members [${all}]`,
-        value: `\`\`\`Members: ${users}\nBots: ${bots}\`\`\``,
+        name: mina.sayf('infoCmd.guild.fields.members', {
+          count: all.toString(),
+        }),
+        value: `\`\`\`members: ${users}\nbots: ${bots}\`\`\``,
         inline: true,
       },
       {
-        name: `Online Stats [${onlineAll}]`,
-        value: `\`\`\`Members: ${onlineUsers}\nBots: ${onlineBots}\`\`\``,
+        name: mina.sayf('infoCmd.guild.fields.online', {
+          count: onlineAll.toString(),
+        }),
+        value: `\`\`\`members: ${onlineUsers}\nbots: ${onlineBots}\`\`\``,
         inline: true,
       },
       {
-        name: `Categories and channels [${totalChannels}]`,
-        value: `\`\`\`Categories: ${categories} | Text: ${textChannels} | Voice: ${voiceChannels} | Thread: ${threadChannels}\`\`\``,
+        name: mina.sayf('infoCmd.guild.fields.channels', {
+          count: totalChannels.toString(),
+        }),
+        value: `\`\`\`categories: ${categories} | text: ${textChannels} | voice: ${voiceChannels} | thread: ${threadChannels}\`\`\``,
         inline: false,
       },
       {
-        name: `Roles [${rolesCount}]`,
+        name: mina.sayf('infoCmd.guild.fields.roles', {
+          count: rolesCount.toString(),
+        }),
         value: `\`\`\`${rolesString}\`\`\``,
         inline: false,
       },
       {
-        name: 'Verification',
+        name: mina.say('infoCmd.guild.fields.verification'),
         value: `\`\`\`${verificationLevel}\`\`\``,
         inline: true,
       },
       {
-        name: 'Boost Count',
+        name: mina.say('infoCmd.guild.fields.boosts'),
         value: `\`\`\`${guild.premiumSubscriptionCount}\`\`\``,
         inline: true,
       },
       {
-        name: `Server Created [${createdAt.fromNow()}]`,
+        name: mina.sayf('infoCmd.guild.fields.created', {
+          time: createdAt.fromNow(),
+        }),
         value: `\`\`\`${createdAt.format('dddd, Do MMMM YYYY')}\`\`\``,
         inline: false,
       }

@@ -64,7 +64,7 @@ const command: CommandData = {
 
       if (duration <= 0) {
         return interaction.followUp(
-          "Oopsie-daisy! 🌼 You can't add negative or zero days. That's like trying to eat a sandwich backwards - fun idea, but it just doesn't work! Try a positive number, you silly goose! 🦢"
+          "you can't add negative or zero days... try a positive number?"
         )
       }
 
@@ -74,21 +74,23 @@ const command: CommandData = {
       await updatePremium(targetUser.id, true, expirationDate)
 
       return interaction.followUp(
-        `✨🎉 Woohoo! ${targetUser.tag} just got a golden ticket to the premium party! 🎫✨ They're now part of our super-secret, ultra-cool, totally-not-made-up VIP club until <t:${Math.floor(expirationDate.getTime() / 1000)}:F>. That's ${duration} days of pure awesomeness! Maybe they'll finally learn the secret handshake! 🤫🤝`
+        `${targetUser.tag} now has premium until <t:${Math.floor(expirationDate.getTime() / 1000)}:F>. that's ${duration} days of premium access!`
       )
     } else if (subcommand === 'remove') {
       if (!(userDb as any).premium.enabled) {
         return interaction.followUp(
-          `Uh-oh! Looks like ${targetUser.tag} never got invited to the premium party in the first place! 🎭 They're about as premium as a cardboard crown right now. Can't remove what's not there, you know? It's like trying to erase an invisible ink drawing! 🖍️`
+          `${targetUser.tag} doesn't have premium status. can't remove what's not there.`
         )
       }
 
       await updatePremium(targetUser.id, false, null)
 
       return interaction.followUp(
-        `Aw, snap! 📸 ${targetUser.tag}'s premium status just went 'poof'! 💨 They've been gently escorted from the VIP lounge back to the regular party. But hey, the regular party is pretty cool too! We've got snacks and everything! 🍿🥤`
+        `${targetUser.tag}'s premium status has been removed.`
       )
     }
+
+    return interaction.followUp('Invalid subcommand')
   },
 }
 

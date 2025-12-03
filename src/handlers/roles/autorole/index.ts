@@ -4,17 +4,10 @@ import type {
   ButtonInteraction,
   Role,
 } from 'discord.js'
-import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  RoleSelectMenuBuilder,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import {
-  createSuccessBtn,
-  createDangerBtn,
-  createSecondaryBtn,
-} from '@helpers/componentHelper'
+import { ActionRowBuilder, RoleSelectMenuBuilder } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { ButtonStyle } from 'discord.js'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
@@ -37,51 +30,41 @@ export async function showAutoroleMenu(
     currentRole = guild.roles.cache.get(currentAutoroleId) || null
   }
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('⚡ Autorole Management')
+  const embed = MinaEmbed.primary()
+    .setTitle('autorole management')
     .setDescription(
-      'Configure automatic role assignment for new members.\n\n' +
-        '**Current Status:** ' +
-        (currentRole ? `Enabled - ${currentRole}` : '❌ Disabled') +
+      'configure automatic role assignment for new members.\n\n' +
+        '**current status:** ' +
+        (currentRole ? `enabled - ${currentRole}` : 'disabled') +
         '\n\n' +
-        'Use the buttons below to enable or disable autorole.'
+        'use the buttons below to enable or disable autorole.'
     )
-    .setFooter({ text: 'Automatically assign roles to new members' })
+    .setFooter({ text: 'automatically assign roles to new members' })
 
   if (currentRole) {
     embed.addFields({
-      name: '📋 Current Autorole',
+      name: 'current autorole',
       value: `${currentRole.name} (${currentRole.id})`,
       inline: false,
     })
   }
 
-  const enableBtn = createSuccessBtn({
-    customId: 'roles:btn:autorole_enable',
-    label: currentRole ? 'Change Autorole' : 'Enable Autorole',
-    emoji: '✅',
-  })
+  const enableBtn = MinaButtons.custom(
+    'roles:btn:autorole_enable',
+    currentRole ? 'change autorole' : 'enable autorole',
+    ButtonStyle.Success
+  )
 
-  const disableBtn = createDangerBtn({
-    customId: 'roles:btn:autorole_disable',
-    label: 'Disable Autorole',
-    emoji: '❌',
-    disabled: !currentRole,
-  })
+  const disableBtn = MinaButtons.custom(
+    'roles:btn:autorole_disable',
+    'disable autorole',
+    ButtonStyle.Danger
+  ).setDisabled(!currentRole)
 
-  const backBtn = createSecondaryBtn({
-    customId: 'roles:btn:back',
-    label: 'Back to Roles Hub',
-    emoji: '◀️',
-  })
+  const backBtn = MinaButtons.back('roles:btn:back')
 
   // Create a combined row for all buttons
-  const buttonRow = new ActionRowBuilder<any>().addComponents(
-    enableBtn.components[0],
-    disableBtn.components[0],
-    backBtn.components[0]
-  )
+  const buttonRow = MinaRows.from(enableBtn, disableBtn, backBtn)
 
   await interaction.editReply({
     embeds: [embed],
@@ -97,17 +80,16 @@ export async function handleAutoroleEnableButton(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('⚡ Enable Autorole')
+  const embed = MinaEmbed.primary()
+    .setTitle('enable autorole')
     .setDescription(
-      'Select the role you want to automatically assign to new members.\n\n' +
-        '⚠️ **Requirements:**\n' +
-        '• Role must be below my highest role\n' +
-        '• Role cannot be managed by an integration\n' +
-        '• Role cannot be @everyone'
+      'select the role you want to automatically assign to new members.\n\n' +
+        '**requirements:**\n' +
+        '- role must be below my highest role\n' +
+        '- role cannot be managed by an integration\n' +
+        '- role cannot be @everyone'
     )
-    .setFooter({ text: 'Select a role from the menu below' })
+    .setFooter({ text: 'select a role from the menu below' })
 
   const roleSelectRow =
     new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
@@ -118,15 +100,11 @@ export async function handleAutoroleEnableButton(
         .setMaxValues(1)
     )
 
-  const cancelBtn = createSecondaryBtn({
-    customId: 'roles:btn:autorole_cancel',
-    label: 'Cancel',
-    emoji: '❌',
-  })
+  const cancelBtn = MinaButtons.nah('roles:btn:autorole_cancel')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [roleSelectRow, cancelBtn],
+    components: [roleSelectRow, MinaRows.single(cancelBtn)],
   })
 }
 
@@ -160,26 +138,23 @@ export async function handleAutoroleRoleSelect(
   // Validate role
   const validation = validateAutorole(guild, role)
   if (!validation.valid) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setTitle('❌ Invalid Role')
+    const embed = MinaEmbed.error()
+      .setTitle('invalid role')
       .setDescription(
-        validation.reason || 'This role cannot be used as autorole.'
+        validation.reason || 'this role cannot be used as autorole.'
       )
 
     await interaction.editReply({
       embeds: [embed],
       components: [
-        createSecondaryBtn({
-          customId: 'roles:btn:autorole_enable',
-          label: 'Try Again',
-          emoji: '🔄',
-        }),
-        createSecondaryBtn({
-          customId: 'roles:btn:back',
-          label: 'Back to Roles Hub',
-          emoji: '◀️',
-        }),
+        MinaRows.from(
+          MinaButtons.custom(
+            'roles:btn:autorole_enable',
+            'try again',
+            ButtonStyle.Secondary
+          ),
+          MinaButtons.back('roles:btn:back')
+        ),
       ],
     })
     return
@@ -188,33 +163,26 @@ export async function handleAutoroleRoleSelect(
   // Save autorole
   await updateSettings(guild.id, { autorole: role.id })
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setTitle('✅ Autorole Enabled')
+  const embed = MinaEmbed.success()
+    .setTitle('autorole enabled')
     .setDescription(
-      `Successfully set ${role} as the autorole!\n\n` +
-        `New members will automatically receive this role when they join the server. 🎉`
+      `successfully set ${role} as the autorole\n\n` +
+        `new members will automatically receive this role when they join the server.`
     )
     .addFields({
-      name: '⚡ Autorole',
+      name: 'autorole',
       value: `${role.name} (${role.id})`,
       inline: false,
     })
     .setFooter({
-      text: `Configured by ${interaction.user.tag}`,
+      text: `configured by ${interaction.user.tag}`,
       iconURL: interaction.user.displayAvatarURL(),
     })
     .setTimestamp()
 
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      createSecondaryBtn({
-        customId: 'roles:btn:back',
-        label: 'Back to Roles Hub',
-        emoji: '◀️',
-      }),
-    ],
+    components: [MinaRows.backRow('roles:btn:back')],
   })
 }
 
@@ -238,33 +206,25 @@ export async function handleAutoroleDisableButton(
     ? guild.roles.cache.get(currentAutoroleId)
     : null
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.WARNING)
-    .setTitle('⚠️ Disable Autorole')
+  const embed = MinaEmbed.warning()
+    .setTitle('disable autorole')
     .setDescription(
-      'Are you sure you want to disable autorole?\n\n' +
+      'are you sure you want to disable autorole?\n\n' +
         (currentRole
-          ? `**Current Role:** ${currentRole}\n\n`
-          : 'Autorole is currently disabled.\n\n') +
-        'New members will no longer automatically receive a role.'
+          ? `**current role:** ${currentRole}\n\n`
+          : 'autorole is currently disabled.\n\n') +
+        'new members will no longer automatically receive a role.'
     )
 
-  const confirmBtn = createDangerBtn({
-    customId: 'roles:btn:autorole_disable_confirm',
-    label: 'Confirm Disable',
-    emoji: '⚠️',
-  })
-
-  const cancelBtn = createSecondaryBtn({
-    customId: 'roles:btn:autorole_cancel',
-    label: 'Cancel',
-    emoji: '❌',
-  })
-
-  const buttonRow = new ActionRowBuilder<any>().addComponents(
-    confirmBtn.components[0],
-    cancelBtn.components[0]
+  const confirmBtn = MinaButtons.custom(
+    'roles:btn:autorole_disable_confirm',
+    'confirm disable',
+    ButtonStyle.Danger
   )
+
+  const cancelBtn = MinaButtons.nah('roles:btn:autorole_cancel')
+
+  const buttonRow = MinaRows.from(confirmBtn, cancelBtn)
 
   await interaction.editReply({
     embeds: [embed],
@@ -289,28 +249,21 @@ export async function handleAutoroleDisableConfirm(
   // Disable autorole
   await updateSettings(guild.id, { autorole: null })
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setTitle('✅ Autorole Disabled')
+  const embed = MinaEmbed.success()
+    .setTitle('autorole disabled')
     .setDescription(
-      'Autorole has been disabled successfully.\n\n' +
-        'New members will no longer automatically receive a role.'
+      'autorole has been disabled successfully.\n\n' +
+        'new members will no longer automatically receive a role.'
     )
     .setFooter({
-      text: `Disabled by ${interaction.user.tag}`,
+      text: `disabled by ${interaction.user.tag}`,
       iconURL: interaction.user.displayAvatarURL(),
     })
     .setTimestamp()
 
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      createSecondaryBtn({
-        customId: 'roles:btn:back',
-        label: 'Back to Roles Hub',
-        emoji: '◀️',
-      }),
-    ],
+    components: [MinaRows.backRow('roles:btn:back')],
   })
 }
 

@@ -1,6 +1,6 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 import { getAiConfig } from '@schemas/Dev'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function statusHandler(
   interaction: ChatInputCommandInteraction,
@@ -9,52 +9,51 @@ export default async function statusHandler(
   const globalConfig = await getAiConfig()
   const aiConfig = settings.aiResponder || {}
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🤖 Amina AI Status - ' + interaction.guild?.name)
+  const embed = MinaEmbed.primary()
+    .setTitle('amina ai status - ' + interaction.guild?.name)
     .addFields(
       {
-        name: '⚡ Server Status',
-        value: aiConfig.enabled ? '✅ Enabled' : '❌ Disabled',
+        name: 'server status',
+        value: aiConfig.enabled ? 'enabled' : 'disabled',
         inline: true,
       },
       {
-        name: '🌐 Global Status',
-        value: globalConfig.globallyEnabled ? '✅ Enabled' : '❌ Disabled',
+        name: 'global status',
+        value: globalConfig.globallyEnabled ? 'enabled' : 'disabled',
         inline: true,
       },
       {
-        name: '💬 Mode',
-        value: aiConfig.mentionOnly ? '📢 Mention Only' : '🌊 Free Will',
+        name: 'mode',
+        value: aiConfig.mentionOnly ? 'mention only' : 'free will',
         inline: true,
       },
       {
-        name: '📍 Free-Will Channels',
+        name: 'free-will channels',
         value: (() => {
           const channels = aiConfig.freeWillChannels || []
           return channels.length > 0
             ? channels.map((id: string) => `<#${id}>`).join(', ')
-            : 'Not set'
+            : 'not set'
         })(),
         inline: true,
       },
       {
-        name: '📬 DM Support',
-        value: aiConfig.allowDMs ? '✅ Enabled' : '❌ Disabled',
+        name: 'dm support',
+        value: aiConfig.allowDMs ? 'enabled' : 'disabled',
         inline: true,
       },
       {
-        name: '📅 Last Updated',
+        name: 'last updated',
         value: aiConfig.updatedAt
           ? `<t:${Math.floor(aiConfig.updatedAt.getTime() / 1000)}:R>`
-          : 'Never',
+          : 'never',
         inline: true,
       }
     )
 
   if (!globalConfig.globallyEnabled) {
     embed.setFooter({
-      text: '⚠️ AI is globally disabled by the bot owner',
+      text: 'ai is globally disabled by the bot owner',
     })
   }
 

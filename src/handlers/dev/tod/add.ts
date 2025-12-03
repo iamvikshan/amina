@@ -5,11 +5,9 @@ import {
   TextInputBuilder,
   TextInputStyle,
   ActionRowBuilder,
-  EmbedBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { addQuestion } from '@schemas/TruthOrDare'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show modal for adding a ToD question
@@ -84,17 +82,15 @@ export async function handleAddTodModal(
   try {
     await addQuestion(category.toLowerCase(), question, rating)
 
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        `Yay! 🎉 Your new *${category}* question has been added: "${question}" [${rating}]! So fun, right? 😄`
-      )
+    const embed = MinaEmbed.success(
+      `yay! your new *${category}* question has been added: "${question}" [${rating}]! so fun, right?`
+    )
 
     await interaction.editReply({ embeds: [embed] })
   } catch (error: any) {
-    const errorEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(`❌ Failed to add question: ${error.message}`)
+    const errorEmbed = MinaEmbed.error(
+      `failed to add question: ${error.message}`
+    )
 
     await interaction.editReply({ embeds: [errorEmbed] })
   }

@@ -1,33 +1,24 @@
-import {
-  EmbedBuilder,
-  ChannelType,
-  GuildChannel,
-  ThreadChannel,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { stripIndent } from 'common-tags'
+import { ChannelType, GuildChannel, ThreadChannel } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 import channelTypes from '@helpers/channelTypes'
 
 export default function channelInfo(channel: GuildChannel | ThreadChannel) {
   const { id, name, parent, type } = channel
   const position = 'position' in channel ? channel.position : undefined
 
-  let desc = stripIndent`
-      ❯ ID: **${id}**
-      ❯ Name: **${name}**
-      ❯ Type: **${channelTypes(channel.type)}**
-      ❯ Category: **${parent || 'NA'}**\n
-      `
+  let desc = `> id: **${id}**\n`
+  desc += `> name: **${name}**\n`
+  desc += `> type: **${channelTypes(channel.type)}**\n`
+  desc += `> category: **${parent || 'n/a'}**\n`
 
   if (type === ChannelType.GuildText) {
     const textChannel = channel as any
     const { rateLimitPerUser, nsfw } = textChannel
-    desc += stripIndent`
-      ❯ Topic: **${textChannel.topic || 'No topic set'}**
-      ❯ Position: **${position}**
-      ❯ Slowmode: **${rateLimitPerUser}**
-      ❯ isNSFW: **${nsfw ? '✓' : '✕'}**\n
-      `
+    desc += `> topic: **${textChannel.topic || 'none'}**\n`
+    desc += `> position: **${position}**\n`
+    desc += `> slowmode: **${rateLimitPerUser}s**\n`
+    desc += `> nsfw: **${nsfw ? 'yes' : 'no'}**\n`
   }
 
   if (
@@ -37,11 +28,9 @@ export default function channelInfo(channel: GuildChannel | ThreadChannel) {
   ) {
     const threadChannel = channel as ThreadChannel
     const { ownerId, archived, locked } = threadChannel
-    desc += stripIndent`
-      ❯ Owner Id: **${ownerId || 'Unknown'}**
-      ❯ Is Archived: **${archived ? '✓' : '✕'}**
-      ❯ Is Locked: **${locked ? '✓' : '✕'}**\n
-      `
+    desc += `> owner: **${ownerId || 'unknown'}**\n`
+    desc += `> archived: **${archived ? 'yes' : 'no'}**\n`
+    desc += `> locked: **${locked ? 'yes' : 'no'}**\n`
   }
 
   if (
@@ -50,25 +39,20 @@ export default function channelInfo(channel: GuildChannel | ThreadChannel) {
   ) {
     const newsChannel = channel as any
     const { nsfw } = newsChannel
-    desc += stripIndent`
-      ❯ isNSFW: **${nsfw ? '✓' : '✕'}**\n
-      `
+    desc += `> nsfw: **${nsfw ? 'yes' : 'no'}**\n`
   }
 
   if (type === ChannelType.GuildVoice || type === ChannelType.GuildStageVoice) {
     const voiceChannel = channel as any
     const { bitrate, userLimit, full } = voiceChannel
-    desc += stripIndent`
-      ❯ Position: **${position}**
-      ❯ Bitrate: **${bitrate}**
-      ❯ User Limit: **${userLimit}**
-      ❯ isFull: **${full ? '✓' : '✕'}**\n
-      `
+    desc += `> position: **${position}**\n`
+    desc += `> bitrate: **${bitrate}**\n`
+    desc += `> user limit: **${userLimit}**\n`
+    desc += `> full: **${full ? 'yes' : 'no'}**\n`
   }
 
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'Channel Details' })
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('infoCmd.channel.title') })
     .setDescription(desc)
 
   return { embeds: [embed] }

@@ -1,24 +1,28 @@
-import { EmbedBuilder, User } from 'discord.js'
+import { User } from 'discord.js'
 import { getUser } from '@schemas/User'
-import { ECONOMY, EMBED_COLORS } from '@src/config'
+import { ECONOMY } from '@src/config'
+import { mina } from '@helpers/mina'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function transfer(
   self: User,
   target: User,
   coins: number
-): Promise<string | { embeds: EmbedBuilder[] }> {
-  if (isNaN(coins) || coins <= 0)
-    return 'Please enter a valid amount of coins to transfer'
-  if (target.bot) return 'You cannot transfer coins to bots!'
-  if (target.id === self.id) return 'You cannot transfer coins to self!'
+): Promise<string | { embeds: MinaEmbed[] }> {
+  if (isNaN(coins) || coins <= 0) return mina.say('economy.error.invalidAmount')
+  if (target.bot) return mina.say('economy.transfer.noBots')
+  if (target.id === self.id) return mina.say('economy.transfer.noSelf')
 
   const userDb = await getUser(self)
 
   if (userDb.bank < coins) {
-    return `Insufficient bank balance! You only have ${userDb.bank}${ECONOMY.CURRENCY} in your bank account.${
-      userDb.coins > 0 &&
-      '\nYou must deposit your coins in bank before you can transfer'
-    } `
+    const hint =
+      userDb.coins > 0 ? '\n' + mina.say('economy.error.depositHint') : ''
+    return (
+      mina.sayf('economy.error.insufficientBank', {
+        amount: `${userDb.bank}${ECONOMY.CURRENCY}`,
+      }) + hint
+    )
   }
 
   const targetDb = await getUser(target)
@@ -29,11 +33,13 @@ export default async function transfer(
   await userDb.save()
   await targetDb.save()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: 'Updated Balance' })
+  const embed = MinaEmbed.success()
+    .setAuthor({ name: mina.say('economy.transfer.complete') })
     .setDescription(
-      `You have successfully transferred ${coins}${ECONOMY.CURRENCY} to ${target.username}`
+      mina.sayf('economy.transfer.success', {
+        amount: `${coins}${ECONOMY.CURRENCY}`,
+        target: target.username,
+      })
     )
     .setTimestamp(Date.now())
 

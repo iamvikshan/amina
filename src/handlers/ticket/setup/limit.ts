@@ -1,15 +1,14 @@
 import {
   StringSelectMenuInteraction,
   ModalSubmitInteraction,
-  EmbedBuilder,
   ModalBuilder,
   ActionRowBuilder,
   TextInputBuilder,
   TextInputStyle,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaRows } from '@helpers/componentHelper'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
@@ -23,14 +22,14 @@ export async function showLimitModal(
 
   const modal = new ModalBuilder()
     .setCustomId('ticket:modal:limit')
-    .setTitle('Set Ticket Limit')
+    .setTitle('set ticket limit')
     .addComponents(
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder()
           .setCustomId('limit')
-          .setLabel('Maximum Open Tickets Per User')
+          .setLabel('maximum open tickets per user')
           .setStyle(TextInputStyle.Short)
-          .setPlaceholder('Enter a number (minimum: 5)')
+          .setPlaceholder('enter a number (minimum: 5)')
           .setValue(currentLimit.toString())
           .setRequired(true)
           .setMaxLength(3)
@@ -55,12 +54,10 @@ export async function handleLimitModal(
   if (isNaN(limit)) {
     await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            '❌ Invalid input! Please enter a valid number.\n\n' +
-              'Try the command again and enter a number like `5`, `10`, or `15`.'
-          ),
+        MinaEmbed.error(
+          'invalid input. please enter a valid number.\n\n' +
+            'try the command again and enter a number like `5`, `10`, or `15`.'
+        ),
       ],
     })
     return
@@ -69,12 +66,10 @@ export async function handleLimitModal(
   if (limit < 5) {
     await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            '❌ Ticket limit cannot be less than 5.\n\n' +
-              'Please set a limit of at least 5 open tickets per user.'
-          ),
+        MinaEmbed.error(
+          'ticket limit cannot be less than 5.\n\n' +
+            'please set a limit of at least 5 open tickets per user.'
+        ),
       ],
     })
     return
@@ -83,12 +78,10 @@ export async function handleLimitModal(
   if (limit > 100) {
     await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            '❌ Ticket limit cannot exceed 100.\n\n' +
-              'Please set a reasonable limit to avoid spam.'
-          ),
+        MinaEmbed.error(
+          'ticket limit cannot exceed 100.\n\n' +
+            'please set a reasonable limit to avoid spam.'
+        ),
       ],
     })
     return
@@ -99,21 +92,15 @@ export async function handleLimitModal(
   settings.ticket.limit = limit
   await updateSettings(interaction.guild!.id, settings)
 
-  const successEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(
-      `Configuration saved! Users can now have a maximum of \`${limit}\` open tickets. 🎉\n\n` +
-        'This limit helps prevent spam and keeps your support system organized.'
-    )
+  const successEmbed = MinaEmbed.success(
+    `configuration saved. users can now have a maximum of \`${limit}\` open tickets.\n\n` +
+      'this limit helps prevent spam and keeps your support system organized.'
+  )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_setup',
-    label: 'Back to Setup',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_setup')
 
   await interaction.editReply({
     embeds: [successEmbed],
-    components: [backButton],
+    components: [backRow],
   })
 }

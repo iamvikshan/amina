@@ -1,16 +1,16 @@
 import {
   StringSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   ChannelSelectMenuBuilder,
   ChannelType,
 } from 'discord.js'
-import { EMBED_COLORS, config } from '@src/config'
+import { config } from '@src/config'
 import { getSettings, updateSettings } from '@schemas/Guild'
 import { getAiConfig } from '@schemas/Dev'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Mina AI Settings menu
@@ -42,18 +42,17 @@ export async function showMinaAIMenu(
 
   const isTestGuild = interaction.guild?.id === config.BOT.TEST_GUILD_ID
   const channelLimit = isTestGuild ? 'Unlimited' : 'Max 2'
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🤖 Mina AI Configuration')
+  const embed = MinaEmbed.primary()
+    .setTitle('mina ai configuration')
     .setDescription(
-      'Configure AI response behavior for your server.\n\n' +
-        `**Server Status:** ${status}\n` +
-        `**Global Status:** ${globalStatus}\n` +
-        `**Mode:** ${mode}\n` +
-        `**Free-Will Channels:** ${freeWillChannelList} ${isTestGuild ? '(Test Guild - Unlimited)' : `(${channelLimit})`}\n\n` +
-        `💡 **Note:** DM support is now controlled by users via \`/mina-ai\` → Settings.`
+      'configure ai response behavior for your server.\n\n' +
+        `**server status:** ${status}\n` +
+        `**global status:** ${globalStatus}\n` +
+        `**mode:** ${mode}\n` +
+        `**free-will channels:** ${freeWillChannelList} ${isTestGuild ? '(test guild - unlimited)' : `(${channelLimit})`}\n\n` +
+        `note: dm support is now controlled by users via \`/mina-ai\` -> settings.`
     )
-    .setFooter({ text: 'Select an action from the menu below' })
+    .setFooter({ text: 'select an action from the menu below' })
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -100,18 +99,10 @@ export async function handleRemoveFreeWillChannel(
   const channel = interaction.guild?.channels.cache.get(channelId)
 
   if (!channel) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription('❌ **Channel Not Found**\n\nChannel no longer exists.')
+    const embed = MinaEmbed.error('channel no longer exists')
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'admin:btn:back_minaai',
-          label: 'Back to AI Menu',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('admin:btn:back_minaai')],
     })
     return
   }
@@ -120,28 +111,21 @@ export async function handleRemoveFreeWillChannel(
   const currentChannels = settings.aiResponder?.freeWillChannels || []
 
   if (!currentChannels.includes(channelId)) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
-      .setDescription(
-        `❌ **Channel Not Found**\n\n` +
-          `${channel} is not in your free-will channels list.`
-      )
+    const embed = MinaEmbed.error(
+      `${channel} is not in your free-will channels list`
+    )
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'admin:btn:back_minaai',
-          label: 'Back to AI Menu',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('admin:btn:back_minaai')],
     })
     return
   }
 
   const newChannels = currentChannels.filter(id => id !== channelId)
+  const guildId = interaction.guild?.id
+  if (!guildId) return
 
-  await updateSettings(interaction.guild!.id, {
+  await updateSettings(guildId, {
     aiResponder: {
       ...settings.aiResponder,
       freeWillChannels: newChannels,
@@ -155,22 +139,13 @@ export async function handleRemoveFreeWillChannel(
       ? newChannels.map(id => `<#${id}>`).join(', ')
       : 'None'
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(
-      `🗑️ **Channel Removed!**\n\n` +
-        `Removed ${channel} from free-will channels.\n` +
-        `**Remaining channels:** ${channelList}`
-    )
+  const embed = MinaEmbed.success(
+    `removed ${channel} from free-will channels\n` +
+      `**remaining channels:** ${channelList}`
+  )
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      createSecondaryBtn({
-        customId: 'admin:btn:back_minaai',
-        label: 'Back to AI Menu',
-        emoji: '◀️',
-      }),
-    ],
+    components: [MinaRows.backRow('admin:btn:back_minaai')],
   })
 }
 
@@ -181,6 +156,8 @@ export async function handleMinaAIMenu(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
   const action = interaction.values[0]
+  const guildId = interaction.guild?.id
+  if (!guildId) return
 
   await interaction.deferUpdate()
   const settings = await getSettings(interaction.guild)
@@ -191,25 +168,17 @@ export async function handleMinaAIMenu(
       const globalConfig = await getAiConfig()
 
       if (newState && !globalConfig.globallyEnabled) {
-        const embed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            '❌ AI is currently disabled globally by the bot owner. Please try again later!'
-          )
+        const embed = MinaEmbed.error(
+          'ai is currently disabled globally by the bot owner... please try again later!'
+        )
         await interaction.editReply({
           embeds: [embed],
-          components: [
-            createSecondaryBtn({
-              customId: 'admin:btn:back_minaai',
-              label: 'Back to AI Menu',
-              emoji: '◀️',
-            }),
-          ],
+          components: [MinaRows.backRow('admin:btn:back_minaai')],
         })
         return
       }
 
-      await updateSettings(interaction.guild!.id, {
+      await updateSettings(guildId, {
         aiResponder: {
           ...settings.aiResponder,
           enabled: newState,
@@ -218,29 +187,19 @@ export async function handleMinaAIMenu(
         },
       })
 
-      const embed = new EmbedBuilder()
-        .setColor(newState ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-        .setDescription(
-          `✨ AI has been **${newState ? 'enabled' : 'disabled'}** for this server!`
-        )
+      const embed = newState
+        ? MinaEmbed.success(`ai has been enabled for this server!`)
+        : MinaEmbed.warning(`ai has been disabled for this server`)
       await interaction.editReply({
         embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back_minaai',
-            label: 'Back to AI Menu',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('admin:btn:back_minaai')],
       })
       break
     }
     case 'freewill': {
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setDescription(
-          "🌊 **Select a channel for Free-Will AI chat**\n\nI'll respond to all messages in this channel without needing @mentions!"
-        )
+      const embed = MinaEmbed.primary().setDescription(
+        "select a channel for free-will ai chat... i'll respond to all messages there without needing @mentions!"
+      )
 
       const channelSelect =
         new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
@@ -261,7 +220,7 @@ export async function handleMinaAIMenu(
     }
     case 'mentiononly': {
       const newState = !settings.aiResponder?.mentionOnly
-      await updateSettings(interaction.guild!.id, {
+      await updateSettings(guildId, {
         aiResponder: {
           ...settings.aiResponder,
           mentionOnly: newState,
@@ -270,22 +229,16 @@ export async function handleMinaAIMenu(
         },
       })
 
-      const embed = new EmbedBuilder()
-        .setColor(newState ? EMBED_COLORS.WARNING : EMBED_COLORS.SUCCESS)
-        .setDescription(
-          newState
-            ? "📢 Mention-only mode enabled! I'll only respond when @mentioned."
-            : "🌊 Free-will mode enabled! I'll respond to all messages in the configured channel."
-        )
+      const embed = newState
+        ? MinaEmbed.warning(
+            "mention-only mode enabled! i'll only respond when @mentioned"
+          )
+        : MinaEmbed.success(
+            "free-will mode enabled! i'll respond to all messages in the configured channel"
+          )
       await interaction.editReply({
         embeds: [embed],
-        components: [
-          createSecondaryBtn({
-            customId: 'admin:btn:back_minaai',
-            label: 'Back to AI Menu',
-            emoji: '◀️',
-          }),
-        ],
+        components: [MinaRows.backRow('admin:btn:back_minaai')],
       })
       break
     }
@@ -297,12 +250,11 @@ export async function handleMinaAIMenu(
       const maxChannels = isTestGuild ? Infinity : 2
       const canAddMore = allChannels.length < maxChannels
 
-      const embed = new EmbedBuilder()
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setTitle('🌊 Manage Free-Will Channels')
+      const embed = MinaEmbed.primary()
+        .setTitle('manage free-will channels')
         .setDescription(
-          `**Current Channels:** ${allChannels.length > 0 ? allChannels.map(id => `<#${id}>`).join(', ') : 'None'}\n\n` +
-            `Use the dropdowns below to add or remove channels.${!isTestGuild ? ` (Max ${maxChannels})` : ''}`
+          `**current channels:** ${allChannels.length > 0 ? allChannels.map(id => `<#${id}>`).join(', ') : 'none'}\n\n` +
+            `use the dropdowns below to add or remove channels${!isTestGuild ? ` (max ${maxChannels})` : ''}`
         )
 
       const components: ActionRowBuilder<any>[] = []
@@ -357,13 +309,7 @@ export async function handleMinaAIMenu(
       }
 
       // Back button
-      components.push(
-        createSecondaryBtn({
-          customId: 'admin:btn:back_minaai',
-          label: 'Back to AI Menu',
-          emoji: '◀️',
-        })
-      )
+      components.push(MinaRows.backRow('admin:btn:back_minaai'))
 
       await interaction.editReply({
         embeds: [embed],

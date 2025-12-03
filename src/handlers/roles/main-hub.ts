@@ -1,17 +1,16 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
 import { showCleanupMethodMenu } from './cleanup/method-select'
 import { showAutoroleMenu } from './autorole'
 import { showCreateRoleMenu } from './create'
 import { showAddToUserMenu } from './add-to-user'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handle roles operation selection from main hub
@@ -40,7 +39,7 @@ export async function handleRolesOperationMenu(
       break
     default:
       await interaction.followUp({
-        content: '❌ Invalid operation selected',
+        content: 'invalid operation selected',
         flags: MessageFlags.Ephemeral,
       })
   }
@@ -54,17 +53,16 @@ export async function handleRolesBackButton(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('🎭 Roles Management Hub')
+  const embed = MinaEmbed.primary()
+    .setTitle('roles management hub')
     .setDescription(
-      'Welcome to the Mina roles management hub! Choose an operation below to get started.\n\n' +
-        '**Cleanup** - Bulk delete roles by various criteria\n' +
-        '**Create Role** - Create a new role with custom settings\n' +
-        '**Autorole** - Manage automatic role assignment\n' +
-        '**Add to User** - Assign roles to multiple users'
+      'choose an operation below to get started.\n\n' +
+        '**cleanup** - bulk delete roles by various criteria\n' +
+        '**create role** - create a new role with custom settings\n' +
+        '**autorole** - manage automatic role assignment\n' +
+        '**add to user** - assign roles to multiple users'
     )
-    .setFooter({ text: 'Select an operation from the menu below' })
+    .setFooter({ text: 'select an operation from the menu below' })
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -72,25 +70,21 @@ export async function handleRolesBackButton(
       .setPlaceholder('Choose a roles operation')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Cleanup Roles')
-          .setDescription('Bulk delete roles by criteria')
-          .setValue('cleanup')
-          .setEmoji('🧹'),
+          .setLabel('cleanup roles')
+          .setDescription('bulk delete roles by criteria')
+          .setValue('cleanup'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Create Role')
-          .setDescription('Create a new role with custom settings')
-          .setValue('create')
-          .setEmoji('✨'),
+          .setLabel('create role')
+          .setDescription('create a new role with custom settings')
+          .setValue('create'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Autorole')
-          .setDescription('Automatic role assignment')
-          .setValue('autorole')
-          .setEmoji('⚡'),
+          .setLabel('autorole')
+          .setDescription('automatic role assignment')
+          .setValue('autorole'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Add to User')
-          .setDescription('Assign roles to multiple users')
-          .setValue('add2user')
-          .setEmoji('👤'),
+          .setLabel('add to user')
+          .setDescription('assign roles to multiple users')
+          .setValue('add2user'),
       ])
   )
 

@@ -1,10 +1,6 @@
-import {
-  StringSelectMenuInteraction,
-  ButtonInteraction,
-  EmbedBuilder,
-} from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createDangerBtn, createSecondaryBtn } from '@helpers/componentHelper'
+import { StringSelectMenuInteraction, ButtonInteraction } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { closeAllTickets } from '@handlers/ticket/shared/utils'
 
 /**
@@ -13,38 +9,27 @@ import { closeAllTickets } from '@handlers/ticket/shared/utils'
 export async function showCloseAllConfirmation(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.WARNING)
-    .setAuthor({ name: '⚠️ Confirm Close All Tickets' })
+  const embed = MinaEmbed.warning()
+    .setAuthor({ name: 'confirm close all tickets' })
     .setDescription(
-      '**Warning:** This will close ALL open tickets in this server!\n\n' +
-        '⚠️ This is a destructive operation that cannot be undone.\n' +
-        '📊 All ticket channels will be archived and deleted.\n' +
-        '📝 Transcripts will be saved to the log channel if configured.\n\n' +
-        'Are you sure you want to proceed?'
+      '**warning:** this will close all open tickets in this server.\n\n' +
+        'this is a destructive operation that cannot be undone.\n' +
+        'all ticket channels will be archived and deleted.\n' +
+        'transcripts will be saved to the log channel if configured.\n\n' +
+        'are you sure you want to proceed?'
     )
-    .setFooter({ text: 'This action affects all open tickets' })
+    .setFooter({ text: 'this action affects all open tickets' })
 
-  const confirmButton = createDangerBtn({
-    customId: 'ticket:btn:closeall_confirm',
-    label: 'Confirm Close All',
-    emoji: '⚠️',
-  })
-
-  const cancelButton = createSecondaryBtn({
-    customId: 'ticket:btn:closeall_cancel',
-    label: 'Cancel',
-    emoji: '❌',
-  })
+  const buttonRow = MinaRows.from(
+    MinaButtons.stop('ticket:btn:closeall_confirm').setLabel(
+      'confirm close all'
+    ),
+    MinaButtons.nah('ticket:btn:closeall_cancel')
+  )
 
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      {
-        type: 1,
-        components: [confirmButton.components[0], cancelButton.components[0]],
-      },
-    ],
+    components: [buttonRow],
   })
 }
 
@@ -56,9 +41,9 @@ export async function handleCloseAllConfirm(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const loadingEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription('⏳ Closing all tickets... This may take a moment.')
+  const loadingEmbed = MinaEmbed.primary(
+    'closing all tickets... this may take a moment.'
+  )
 
   await interaction.editReply({
     embeds: [loadingEmbed],
@@ -69,27 +54,24 @@ export async function handleCloseAllConfirm(
   const stats = await closeAllTickets(interaction.guild!, interaction.user)
   const [successCount, failedCount] = stats
 
-  const resultEmbed = new EmbedBuilder()
-    .setColor(successCount > 0 ? EMBED_COLORS.SUCCESS : EMBED_COLORS.WARNING)
-    .setAuthor({ name: '✅ Close All Tickets Complete' })
+  const resultEmbed =
+    successCount > 0 ? MinaEmbed.success() : MinaEmbed.warning()
+  resultEmbed
+    .setAuthor({ name: 'close all tickets complete' })
     .setDescription(
-      `Bulk ticket closure completed!\n\n` +
-        `✅ **Successfully Closed:** ${successCount}\n` +
-        `❌ **Failed:** ${failedCount}\n\n` +
+      `bulk ticket closure completed.\n\n` +
+        `**successfully closed:** ${successCount}\n` +
+        `**failed:** ${failedCount}\n\n` +
         (successCount > 0
-          ? 'All tickets have been archived and deleted.'
-          : 'No tickets were found or all closures failed.')
+          ? 'all tickets have been archived and deleted.'
+          : 'no tickets were found or all closures failed.')
     )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_manage',
-    label: 'Back to Manage',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_manage')
 
   await interaction.editReply({
     embeds: [resultEmbed],
-    components: [backButton],
+    components: [backRow],
   })
 }
 

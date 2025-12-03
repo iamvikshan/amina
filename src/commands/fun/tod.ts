@@ -1,9 +1,5 @@
 import {
   ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-  ActionRowBuilder,
-  EmbedBuilder,
   ChatInputCommandInteraction,
   ButtonInteraction,
   TextChannel,
@@ -11,7 +7,9 @@ import {
 import { getQuestions } from '@schemas/TruthOrDare'
 import { getUser } from '@schemas/User'
 import todHandler from '@handlers/tod'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 
 // Helper function to create rating choices with Amina's style
 // Ratings: PG (default, 13+), PG-16 (16+), R (18+ NSFW only)
@@ -79,7 +77,9 @@ const command: CommandData = {
     const requestedRating = chatInteraction.options.getString('rating')
     const member = chatInteraction.member
     if (!member || !('user' in member)) {
-      return chatInteraction.followUp('Could not find member information!')
+      return chatInteraction.followUp({
+        embeds: [MinaEmbed.error(mina.say('fun.tod.error.memberNotFound'))],
+      })
     }
     const user = (await getUser(member.user)) as any
     const userAge = user.profile?.age || null
@@ -98,13 +98,12 @@ const command: CommandData = {
       if (!userAge || userAge < 18) {
         return chatInteraction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setColor(EMBED_COLORS.ERROR)
-              .setTitle('✦ oops, age check needed!')
+            MinaEmbed.error()
+              .setTitle(mina.say('fun.tod.ageCheck.title'))
               .setDescription(
                 userAge
-                  ? 'sorry friend, that stuff is for the grown-ups only!'
-                  : 'i need to know your age for R-rated content! use `/profile hub` to set it.'
+                  ? mina.say('fun.tod.ageCheck.underage')
+                  : mina.say('fun.tod.ageCheck.unknown')
               ),
           ],
           ephemeral: true,
@@ -115,12 +114,9 @@ const command: CommandData = {
       if (!channel?.nsfw) {
         return chatInteraction.followUp({
           embeds: [
-            new EmbedBuilder()
-              .setColor(EMBED_COLORS.ERROR)
-              .setTitle('✦ wrong place!')
-              .setDescription(
-                'psst! we need to be in an nsfw channel for that kind of fun!'
-              ),
+            MinaEmbed.error()
+              .setTitle(mina.say('fun.tod.wrongPlace.title'))
+              .setDescription(mina.say('fun.tod.wrongPlace.description')),
           ],
           ephemeral: true,
         })
@@ -172,12 +168,9 @@ async function sendQuestion(
   if (questions.length === 0) {
     await interaction.followUp({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('✦ oh no!')
-          .setDescription(
-            "i searched everywhere but couldn't find any questions matching what you wanted!"
-          ),
+        MinaEmbed.error()
+          .setTitle(mina.say('fun.tod.noQuestions.title'))
+          .setDescription(mina.say('fun.tod.noQuestions.description')),
       ],
     })
     return
@@ -186,33 +179,27 @@ async function sendQuestion(
   const question = questions[0]
   // Display rating: use effective rating, or 'PG' for null/legacy questions
   const displayRating = question.rating || 'PG'
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle(`✦ ${category.toUpperCase()} TIME!`)
+  const embed = MinaEmbed.primary()
+    .setTitle(mina.say(`fun.tod.embed.${category}.title`))
     .setDescription(
-      category === 'truth'
-        ? `${interaction.user.username}, don't you lie!\n\n**${question.question}**\n`
-        : category === 'dare'
-          ? `${interaction.user.username}, don't chicken out!\n\n**${question.question}**\n`
-          : `${interaction.user.username}, don't be scared!\n\n**${question.question}**\n`
+      mina.sayf(`fun.tod.embed.${category}.description`, {
+        user: interaction.user.username,
+        question: question.question,
+      })
     )
     .setFooter({
-      text: `type: ${category} | rating: ${displayRating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
+      text: mina.sayf('fun.tod.footer', {
+        type: category,
+        rating: displayRating,
+        id: question.questionId,
+        user: interaction.user.tag,
+      }),
     })
 
-  const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('truthBtn')
-      .setStyle(ButtonStyle.Primary)
-      .setLabel('truth!'),
-    new ButtonBuilder()
-      .setCustomId('dareBtn')
-      .setStyle(ButtonStyle.Success)
-      .setLabel('dare!'),
-    new ButtonBuilder()
-      .setCustomId('randomBtn')
-      .setStyle(ButtonStyle.Danger)
-      .setLabel('surprise me!')
+  const buttons = MinaRows.from(
+    MinaButtons.truth('truthBtn').setLabel(mina.say('fun.tod.buttons.truth')),
+    MinaButtons.dare('dareBtn').setLabel(mina.say('fun.tod.buttons.dare')),
+    MinaButtons.random('randomBtn').setLabel(mina.say('fun.tod.buttons.random'))
   )
 
   await interaction.followUp({
@@ -230,12 +217,9 @@ async function sendRandomQuestion(
   if (questions.length === 0) {
     await interaction.followUp({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setTitle('✦ oh no!')
-          .setDescription(
-            "i searched everywhere but couldn't find any questions matching what you wanted!"
-          ),
+        MinaEmbed.error()
+          .setTitle(mina.say('fun.tod.noQuestions.title'))
+          .setDescription(mina.say('fun.tod.noQuestions.description')),
       ],
       ephemeral: true,
     })
@@ -245,29 +229,26 @@ async function sendRandomQuestion(
   const question = questions[0]
   // Display rating: use effective rating, or 'PG' for null/legacy questions
   const displayRating = question.rating || 'PG'
-  const embed = new EmbedBuilder()
-    .setColor('Random')
-    .setTitle('✦ RANDOM SURPRISE!')
+  const embed = MinaEmbed.primary()
+    .setTitle(mina.say('fun.tod.embed.random.title'))
     .setDescription(
-      `ooh, this is gonna be fun! ready?\n\n**${question.question}**\n\nwhat's your next move?`
+      mina.sayf('fun.tod.embed.random.description', {
+        question: question.question,
+      })
     )
     .setFooter({
-      text: `type: ${question.category} | rating: ${displayRating} | qid: ${question.questionId} | player: ${interaction.user.tag}`,
+      text: mina.sayf('fun.tod.footer', {
+        type: question.category,
+        rating: displayRating,
+        id: question.questionId,
+        user: interaction.user.tag,
+      }),
     })
 
-  const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('truthBtn')
-      .setStyle(ButtonStyle.Primary)
-      .setLabel('truth!'),
-    new ButtonBuilder()
-      .setCustomId('dareBtn')
-      .setStyle(ButtonStyle.Success)
-      .setLabel('dare!'),
-    new ButtonBuilder()
-      .setCustomId('randomBtn')
-      .setStyle(ButtonStyle.Danger)
-      .setLabel('surprise me!')
+  const buttons = MinaRows.from(
+    MinaButtons.truth('truthBtn').setLabel(mina.say('fun.tod.buttons.truth')),
+    MinaButtons.dare('dareBtn').setLabel(mina.say('fun.tod.buttons.dare')),
+    MinaButtons.random('randomBtn').setLabel(mina.say('fun.tod.buttons.random'))
   )
 
   await interaction.followUp({ embeds: [embed], components: [buttons] })

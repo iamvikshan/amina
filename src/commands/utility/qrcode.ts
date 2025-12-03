@@ -1,9 +1,10 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   Guild,
 } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'qrcode',
@@ -31,11 +32,10 @@ const command: CommandData = {
 
     if (!text.match(regex)) {
       const guild = interaction.guild as Guild | null
-      const embed = new EmbedBuilder()
-        .setColor('Red')
-        .setTitle(`Invalid URL`)
-        .setDescription(`Please provide a valid URL.`)
-        .setFooter({ text: guild?.name || 'QR Code Generator' })
+      const embed = MinaEmbed.error()
+        .setTitle(mina.say('utility.qrcode.error.invalidUrl'))
+        .setDescription(mina.say('utility.qrcode.error.provideValid'))
+        .setFooter({ text: guild?.name || 'qr code generator' })
         .setTimestamp()
 
       return interaction.followUp({ embeds: [embed] })
@@ -44,21 +44,18 @@ const command: CommandData = {
     const encodedURL =
       `${baseURL}/create-qr-code/?size=150x150&data=` + encodeURIComponent(text)
 
-    const embedqr = new EmbedBuilder()
+    const embedqr = MinaEmbed.success()
       .setAuthor({
         name: interaction.user.tag,
         iconURL: interaction.user.displayAvatarURL(),
       })
-      .setColor('Green')
-      .setTitle(`QR Code`)
-      .setDescription(
-        `Here is your QR code for the URL:  [click here](${text})`
-      )
+      .setTitle(mina.say('utility.qrcode.title'))
+      .setDescription(mina.sayf('utility.qrcode.description', { url: text }))
       .setImage(encodedURL)
       .setThumbnail(
         'https://img.freepik.com/vector-premium/personaje-dibujos-animados-codigo-qr-buscando-lupa-diseno-lindo_152558-13614.jpg?w=826'
       )
-      .setFooter({ text: interaction.guild?.name || 'QR Code Generator' })
+      .setFooter({ text: interaction.guild?.name || 'qr code generator' })
       .setTimestamp()
 
     await interaction.followUp({ embeds: [embedqr] })

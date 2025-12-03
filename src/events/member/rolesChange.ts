@@ -1,7 +1,7 @@
-import { EmbedBuilder, AuditLogEvent, GuildMember } from 'discord.js'
+import { AuditLogEvent, GuildMember } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
-import { EMBED_COLORS } from '@src/config'
 import type { BotClient } from '@src/structures'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handles member role changes event
@@ -48,33 +48,32 @@ export default async (
   const roleUpdateLog = auditLogs.entries.first()
   const executor = roleUpdateLog ? roleUpdateLog.executor : null
 
-  const embed = new EmbedBuilder()
-    .setTitle('Member Roles Updated')
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription(`Roles were updated for ${newMember.user.tag}`)
+  const embed = MinaEmbed.primary()
+    .setTitle('member roles updated')
+    .setDescription(`roles were updated for ${newMember.user.tag}`)
     .addFields(
       {
-        name: 'Member',
+        name: 'member',
         value: `${newMember.user.tag} (${newMember.id})`,
         inline: true,
       },
       {
-        name: 'Updated by',
-        value: executor ? `${executor.tag} (${executor.id})` : 'Unknown',
+        name: 'updated by',
+        value: executor ? `${executor.tag} (${executor.id})` : 'unknown',
         inline: true,
       },
       {
-        name: 'Added Roles',
+        name: 'added roles',
         value:
-          addedRoles.size > 0 ? addedRoles.map(r => r.name).join(', ') : 'None',
+          addedRoles.size > 0 ? addedRoles.map(r => r.name).join(', ') : 'none',
         inline: false,
       },
       {
-        name: 'Removed Roles',
+        name: 'removed roles',
         value:
           removedRoles.size > 0
             ? removedRoles.map(r => r.name).join(', ')
-            : 'None',
+            : 'none',
         inline: false,
       }
     )

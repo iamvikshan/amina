@@ -1,11 +1,11 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { MESSAGES, EMBED_COLORS } from '@src/config'
+import { MESSAGES } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
 import moment from 'moment'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'urban',
@@ -32,9 +32,7 @@ const command: CommandData = {
   },
 }
 
-async function urban(
-  word: string
-): Promise<{ embeds: EmbedBuilder[] } | string> {
+async function urban(word: string): Promise<{ embeds: MinaEmbed[] } | string> {
   const response = await getJson(
     `http://api.urbandictionary.com/v0/define?term=${encodeURIComponent(word)}`
   )
@@ -58,29 +56,28 @@ async function urban(
     example = example.substring(0, 1000) + '...'
   }
 
-  const embed = new EmbedBuilder()
+  const embed = MinaEmbed.primary()
     .setTitle(data.word)
     .setURL(data.permalink)
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setDescription(`**Definition**\`\`\`css\n${definition}\`\`\``)
+    .setDescription(`**definition**\`\`\`css\n${definition}\`\`\``)
     .addFields(
       {
-        name: 'Author',
+        name: 'author',
         value: data.author || 'Unknown',
         inline: true,
       },
       {
-        name: 'ID',
+        name: 'id',
         value: data.defid?.toString() || 'N/A',
         inline: true,
       },
       {
-        name: 'Likes / Dislikes',
-        value: `👍 ${data.thumbs_up || 0} | 👎 ${data.thumbs_down || 0}`,
+        name: 'likes / dislikes',
+        value: `${data.thumbs_up || 0} / ${data.thumbs_down || 0}`,
         inline: true,
       },
       {
-        name: 'Example',
+        name: 'example',
         value: example || 'No example provided',
         inline: false,
       }

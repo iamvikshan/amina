@@ -1,10 +1,10 @@
 import {
-  EmbedBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { MESSAGES, EMBED_COLORS, secret } from '@src/config'
+import { MESSAGES, secret } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'weather',
@@ -34,7 +34,7 @@ const command: CommandData = {
 
 async function weather(
   place: string
-): Promise<{ embeds: EmbedBuilder[] } | string> {
+): Promise<{ embeds: MinaEmbed[] } | string> {
   if (!secret.WEATHERSTACK_KEY) {
     return 'Weather API key is not configured.'
   }
@@ -47,9 +47,7 @@ async function weather(
   const json = response.data
   if (!json || !json.request) return `No city found matching \`${place}\``
 
-  const embed = new EmbedBuilder()
-    .setTitle('Weather')
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary().setTitle('weather')
 
   if (json.current?.weather_icons?.[0]) {
     embed.setThumbnail(json.current.weather_icons[0])
@@ -57,85 +55,85 @@ async function weather(
 
   embed.addFields(
     {
-      name: 'City',
+      name: 'city',
       value: json.location?.name || 'NA',
       inline: true,
     },
     {
-      name: 'Region',
+      name: 'region',
       value: json.location?.region || 'NA',
       inline: true,
     },
     {
-      name: 'Country',
+      name: 'country',
       value: json.location?.country || 'NA',
       inline: true,
     },
     {
-      name: 'Weather condition',
+      name: 'weather condition',
       value: json.current?.weather_descriptions?.[0] || 'NA',
       inline: true,
     },
     {
-      name: 'Date',
+      name: 'date',
       value: json.location?.localtime
         ? json.location.localtime.slice(0, 10)
         : 'NA',
       inline: true,
     },
     {
-      name: 'Time',
+      name: 'time',
       value: json.location?.localtime
         ? json.location.localtime.slice(11, 16)
         : 'NA',
       inline: true,
     },
     {
-      name: 'Temperature',
+      name: 'temperature',
       value: json.current?.temperature ? `${json.current.temperature}°C` : 'NA',
       inline: true,
     },
     {
-      name: 'CloudCover',
+      name: 'cloud cover',
       value: json.current?.cloudcover ? `${json.current.cloudcover}%` : 'NA',
       inline: true,
     },
     {
-      name: 'Wind Speed',
+      name: 'wind speed',
       value: json.current?.wind_speed
         ? `${json.current.wind_speed} km/h`
         : 'NA',
       inline: true,
     },
     {
-      name: 'Wind Direction',
+      name: 'wind direction',
       value: json.current?.wind_dir || 'NA',
       inline: true,
     },
     {
-      name: 'Pressure',
+      name: 'pressure',
       value: json.current?.pressure ? `${json.current.pressure} mb` : 'NA',
       inline: true,
     },
     {
-      name: 'Precipitation',
+      name: 'precipitation',
       value: json.current?.precip
         ? `${json.current.precip.toString()} mm`
         : '0 mm',
       inline: true,
     },
     {
-      name: 'Humidity',
+      name: 'humidity',
       value: json.current?.humidity ? json.current.humidity.toString() : 'NA',
       inline: true,
     },
     {
-      name: 'Visual Distance',
+      name: 'visual distance',
       value: json.current?.visibility ? `${json.current.visibility} km` : 'NA',
       inline: true,
     },
     {
-      name: 'UV Index',
+      name: 'uv index',
       value: json.current?.uv_index ? json.current.uv_index.toString() : 'NA',
       inline: true,
     }

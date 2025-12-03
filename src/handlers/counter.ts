@@ -23,7 +23,7 @@ export async function updateCounterChannels(client: BotClient): Promise<void> {
         const vc = guild.channels.cache.get(chId)
         if (!vc) continue
 
-        let channelName
+        let channelName: string | undefined
         if (config.counter_type.toUpperCase() === 'USERS')
           channelName = `${config.name} : ${all}`
         if (config.counter_type.toUpperCase() === 'MEMBERS')
@@ -31,7 +31,7 @@ export async function updateCounterChannels(client: BotClient): Promise<void> {
         if (config.counter_type.toUpperCase() === 'BOTS')
           channelName = `${config.name} : ${bots}`
 
-        if (vc.manageable)
+        if (vc.manageable && channelName)
           vc.setName(channelName).catch(err =>
             (vc.client as BotClient).logger.log('Set Name error: ', err)
           )

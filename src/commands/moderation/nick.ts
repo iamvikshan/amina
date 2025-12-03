@@ -5,6 +5,8 @@ import {
   GuildMember,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'nick',
@@ -56,12 +58,16 @@ const command: CommandData = {
     const user = interaction.options.getUser('user')
 
     if (!user) {
-      await interaction.followUp('Please specify a valid user.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('notFound.user'))],
+      })
       return
     }
 
     if (!interaction.guild) {
-      await interaction.followUp('This command can only be used in a server.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
       return
     }
 
@@ -77,21 +83,57 @@ async function nickname(
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
   name: string | null
-): Promise<string> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const { member, guild } = interaction
 
   if (!ModUtils.canModerate(member as GuildMember, target)) {
-    return `Oops! You cannot manage nickname of ${target.user.username}`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.nick.cannotManage', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
   if (!ModUtils.canModerate(guild?.members.me as GuildMember, target)) {
-    return `Oops! I cannot manage nickname of ${target.user.username}`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.nick.botCannotManage', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
 
   try {
     await target.setNickname(name)
-    return `Successfully ${name ? 'changed' : 'reset'} nickname of ${target.user.username}`
+    return {
+      embeds: [
+        MinaEmbed.success(
+          mina.sayf(
+            name ? 'moderation.nick.changed' : 'moderation.nick.reset',
+            { target: target.user.username }
+          )
+        ),
+      ],
+    }
   } catch (_ex) {
-    return `Failed to ${name ? 'change' : 'reset'} nickname for ${target.displayName}. Did you provide a valid name?`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf(
+            name
+              ? 'moderation.nick.failedChange'
+              : 'moderation.nick.failedReset',
+            { target: target.displayName }
+          )
+        ),
+      ],
+    }
   }
 }
 

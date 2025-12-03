@@ -1,20 +1,20 @@
 import {
   StringSelectMenuInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
   User,
 } from 'discord.js'
 import { Model as AiMemoryModel } from '@src/database/schemas/AiMemory'
 import Logger from '@helpers/Logger'
 import {
-  createSecondaryBtn,
+  MinaButtons,
+  MinaRows,
   parseCustomIdState,
 } from '@helpers/componentHelper'
 import { postToBin } from '@helpers/HttpUtils'
-import { showMinaAiHub } from './main-hub'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const logger = Logger
 
@@ -62,22 +62,24 @@ export async function showMemoriesView(
       .limit(200)
 
     if (memories.length === 0) {
-      const embed = new EmbedBuilder()
-        .setColor('#ffaa00')
-        .setTitle(`🧠 Your ${memoryType === 'dm' ? 'DM' : 'Server'} Memories`)
+      const embed = MinaEmbed.warning()
+        .setTitle(
+          mina.sayf('minaai.memories.empty.title', {
+            type: memoryType === 'dm' ? 'dm' : 'server',
+          })
+        )
         .setDescription(
-          `I don't have any ${memoryType === 'dm' ? 'DM' : 'server'} memories about you yet. Chat with me more and I'll learn about you!\n\n` +
-            '💡 **Note:** Memories cannot be manually edited. If you want to update or remove a memory, simply ask me in chat to forget something or remember something new!'
+          mina.sayf('minaai.memories.empty.description', {
+            type: memoryType === 'dm' ? 'dm' : 'server',
+          }) +
+            '\n\n' +
+            mina.say('minaai.memories.empty.note')
         )
         .setFooter({
-          text: 'Use the menu to navigate back',
+          text: mina.say('minaai.memories.empty.footer'),
         })
 
-      const backButton = createSecondaryBtn({
-        customId: 'minaai:btn:back',
-        label: 'Back to Main Menu',
-        emoji: '◀️',
-      })
+      const backButton = MinaRows.backRow('minaai:btn:back')
 
       await interaction.editReply({
         embeds: [embed],
@@ -109,17 +111,22 @@ export async function showMemoriesView(
     })
 
     // Build embed
-    const embed = new EmbedBuilder()
-      .setColor('#00aaff')
+    const embed = MinaEmbed.info()
       .setTitle(
-        `🧠 Your ${memoryType === 'dm' ? 'DM' : 'Server'} Memories (${memories.length} total)`
+        mina.sayf('minaai.memories.view.title', {
+          type: memoryType === 'dm' ? 'dm' : 'server',
+          count: memories.length.toString(),
+        })
       )
       .setDescription(
-        `Showing ${memoryType === 'dm' ? 'DM' : 'server'} memories.\n\n` +
-          '💡 **Note:** Memories cannot be manually edited. If you want to update or remove a memory, simply ask me in chat to forget something or remember something new!'
+        mina.sayf('minaai.memories.view.description', {
+          type: memoryType === 'dm' ? 'dm' : 'server',
+        }) +
+          '\n\n' +
+          mina.say('minaai.memories.view.note')
       )
       .setFooter({
-        text: '⭐ = importance • Use buttons to view categories',
+        text: mina.say('minaai.memories.view.footer'),
       })
 
     // Add fields for each memory type (showing only 2 per type)
@@ -130,31 +137,31 @@ export async function showMemoriesView(
       const previewMems = mems.slice(0, MEMORIES_PER_TYPE_PREVIEW)
 
       const lines = previewMems.map(m => {
-        const stars = '⭐'.repeat(Math.min(m.importance, 3))
+        const stars = '*'.repeat(Math.min(m.importance, 3))
         const age = getRelativeTime(m.createdAt)
         return `${stars} **${m.key}**: ${m.value}\n_${age}_`
       })
 
       const remaining = mems.length - MEMORIES_PER_TYPE_PREVIEW
       if (remaining > 0) {
-        lines.push(`_...and ${remaining} more ${type} memories_`)
+        lines.push(
+          `_${mina.sayf('minaai.memories.more', { count: remaining.toString(), type })}_`
+        )
       }
 
       embed.addFields({
-        name: `${getTypeEmoji(type)} ${capitalizeFirst(type)} (${mems.length})`,
-        value: lines.join('\n\n') || 'None',
+        name: `${capitalizeFirst(type)} (${mems.length})`,
+        value: lines.join('\n\n') || 'none',
         inline: false,
       })
 
       // Add category button (short name only)
-      const categoryBtn = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(
-            `minaai:btn:category|type:${type}|mem_type:${memoryType}|page:1`
-          )
-          .setLabel(`${capitalizeFirst(type)} (${mems.length})`)
-          .setStyle(ButtonStyle.Primary)
-          .setEmoji(getTypeEmoji(type))
+      const categoryBtn = MinaRows.from(
+        MinaButtons.custom(
+          `minaai:btn:category|type:${type}|mem_type:${memoryType}|page:1`,
+          `${capitalizeFirst(type)} (${mems.length})`,
+          1
+        )
       )
       categoryButtons.push(categoryBtn)
     }
@@ -166,8 +173,8 @@ export async function showMemoriesView(
     ).toFixed(1)
 
     embed.addFields({
-      name: '📊 Stats',
-      value: `Total access count: ${totalAccess}\nAverage importance: ${avgImportance}/5`,
+      name: mina.say('minaai.memories.view.stats'),
+      value: `${mina.sayf('minaai.memories.view.totalAccess', { count: totalAccess.toString() })}\n${mina.sayf('minaai.memories.view.avgImportance', { avg: avgImportance })}`,
       inline: false,
     })
 
@@ -177,20 +184,16 @@ export async function showMemoriesView(
     }
 
     // DM Me button - sends embed + pastebin link
-    const dmMeButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId(buildCustomId('dm_me', currentPage))
-        .setLabel('DM Me')
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji('📬')
+    const dmMeButton = MinaRows.from(
+      MinaButtons.custom(
+        buildCustomId('dm_me', currentPage),
+        mina.say('minaai.memories.buttons.dmMe'),
+        2
+      )
     )
 
     // Back button
-    const backButton = createSecondaryBtn({
-      customId: 'minaai:btn:back',
-      label: 'Back to Main Menu',
-      emoji: '◀️',
-    })
+    const backButton = MinaRows.backRow('minaai:btn:back')
 
     // Combine components
     const components: ActionRowBuilder<ButtonBuilder>[] = []
@@ -212,18 +215,11 @@ export async function showMemoriesView(
       error as Error
     )
 
-    const errorEmbed = new EmbedBuilder()
-      .setColor('#ff0000')
-      .setTitle('❌ Error')
-      .setDescription(
-        'Failed to fetch memories. Please try again later or contact support.'
-      )
+    const errorEmbed = MinaEmbed.error()
+      .setTitle(mina.say('minaai.memories.error.title'))
+      .setDescription(mina.say('minaai.memories.error.fetchFailed'))
 
-    const backButton = createSecondaryBtn({
-      customId: 'minaai:btn:back',
-      label: 'Back to Main Menu',
-      emoji: '◀️',
-    })
+    const backButton = MinaRows.backRow('minaai:btn:back')
 
     await interaction.editReply({
       embeds: [errorEmbed],
@@ -264,17 +260,19 @@ export async function showCategoryDetailView(
       .limit(200)
 
     if (memories.length === 0) {
-      const embed = new EmbedBuilder()
-        .setColor('#ffaa00')
-        .setTitle(`🧠 ${capitalizeFirst(categoryType)} Memories`)
-        .setDescription('No memories found in this category.')
-        .setFooter({ text: 'Use the back button to return' })
+      const embed = MinaEmbed.warning()
+        .setTitle(
+          mina.sayf('minaai.memories.category.title', {
+            category: capitalizeFirst(categoryType),
+            count: '0',
+          })
+        )
+        .setDescription(mina.say('minaai.memories.category.empty'))
+        .setFooter({ text: mina.say('minaai.memories.category.emptyFooter') })
 
-      const backButton = createSecondaryBtn({
-        customId: `minaai:btn:back_memories|type:${memType}|page:1`,
-        label: 'Back to Main View',
-        emoji: '◀️',
-      })
+      const backButton = MinaRows.backRow(
+        `minaai:btn:back_memories|type:${memType}|page:1`
+      )
 
       await interaction.editReply({
         embeds: [embed],
@@ -293,24 +291,36 @@ export async function showCategoryDetailView(
     const memoriesToShow = memories.slice(startIndex, endIndex)
 
     // Build embed
-    const embed = new EmbedBuilder()
-      .setColor('#00aaff')
+    const embed = MinaEmbed.info()
       .setTitle(
-        `🧠 ${capitalizeFirst(categoryType)} Memories (${memories.length} total)`
+        mina.sayf('minaai.memories.category.title', {
+          category: capitalizeFirst(categoryType),
+          count: memories.length.toString(),
+        })
       )
       .setDescription(
-        `Showing ${categoryType} memories.\n\n` +
-          '💡 **Note:** Memories cannot be manually edited. If you want to update or remove a memory, simply ask me in chat to forget something or remember something new!'
+        mina.sayf('minaai.memories.category.description', {
+          category: categoryType,
+        }) +
+          '\n\n' +
+          mina.say('minaai.memories.category.note')
       )
       .setFooter({
-        text: `⭐ = importance • Page ${currentPage}/${totalPages}${memories.length > MAX_CATEGORY_PAGES * MEMORIES_PER_CATEGORY_PAGE ? ' • Use DM Me for full list' : ''}`,
+        text: mina.sayf('minaai.memories.category.footer', {
+          page: currentPage.toString(),
+          total: totalPages.toString(),
+          extra:
+            memories.length > MAX_CATEGORY_PAGES * MEMORIES_PER_CATEGORY_PAGE
+              ? mina.say('minaai.memories.category.footerExtra')
+              : '',
+        }),
       })
 
     // Add memory fields
     for (const memory of memoriesToShow) {
-      const stars = '⭐'.repeat(Math.min(memory.importance, 3))
+      const stars = '*'.repeat(Math.min(memory.importance, 3))
       const age = getRelativeTime(memory.createdAt)
-      const location = memory.guildId ? 'Server' : 'DM'
+      const location = memory.guildId ? 'server' : 'dm'
 
       embed.addFields({
         name: `${stars} ${memory.key}`,
@@ -325,47 +335,45 @@ export async function showCategoryDetailView(
     }
 
     // Create navigation buttons
-    const navRow = new ActionRowBuilder<ButtonBuilder>()
-    if (currentPage > 1) {
-      navRow.addComponents(
-        new ButtonBuilder()
-          .setCustomId(buildCustomId('category_page', currentPage - 1))
-          .setLabel('Previous')
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji('⬅️')
-      )
-    }
-    if (currentPage < totalPages) {
-      navRow.addComponents(
-        new ButtonBuilder()
-          .setCustomId(buildCustomId('category_page', currentPage + 1))
-          .setLabel('Next')
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji('➡️')
-      )
+    const hasPrev = currentPage > 1
+    const hasNext = currentPage < totalPages
+    const navRow =
+      hasPrev || hasNext ? MinaRows.prevNext(hasPrev, hasNext) : null
+
+    if (navRow) {
+      // Update custom IDs
+      if (hasPrev) {
+        navRow.components[0].setCustomId(
+          buildCustomId('category_page', currentPage - 1)
+        )
+      }
+      if (hasNext) {
+        const nextIndex = hasPrev ? 1 : 0
+        navRow.components[nextIndex].setCustomId(
+          buildCustomId('category_page', currentPage + 1)
+        )
+      }
     }
 
     // Back button
-    const backButton = createSecondaryBtn({
-      customId: `minaai:btn:back_memories|type:${memType}|page:1`,
-      label: 'Back to Main View',
-      emoji: '◀️',
-    })
+    const backButton = MinaRows.backRow(
+      `minaai:btn:back_memories|type:${memType}|page:1`
+    )
 
     // Combine components
     const components: ActionRowBuilder<ButtonBuilder>[] = []
-    if (navRow.components.length > 0) {
+    if (navRow) {
       components.push(navRow)
     }
 
     // Add DM Me button if memories exceed 2 pages (10 memories)
     if (memories.length > MAX_CATEGORY_PAGES * MEMORIES_PER_CATEGORY_PAGE) {
-      const dmMeButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(buildCustomId('dm_me_category', currentPage))
-          .setLabel('DM Me')
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji('📬')
+      const dmMeButton = MinaRows.from(
+        MinaButtons.custom(
+          buildCustomId('dm_me_category', currentPage),
+          mina.say('minaai.memories.buttons.dmMe'),
+          2
+        )
       )
       components.push(dmMeButton)
     }
@@ -386,18 +394,11 @@ export async function showCategoryDetailView(
       error as Error
     )
 
-    const errorEmbed = new EmbedBuilder()
-      .setColor('#ff0000')
-      .setTitle('❌ Error')
-      .setDescription(
-        'Failed to load category details. Please try again later.'
-      )
+    const errorEmbed = MinaEmbed.error()
+      .setTitle(mina.say('minaai.memories.error.title'))
+      .setDescription(mina.say('minaai.memories.error.loadFailed'))
 
-    const backButton = createSecondaryBtn({
-      customId: 'minaai:btn:back',
-      label: 'Back to Main Menu',
-      emoji: '◀️',
-    })
+    const backButton = MinaRows.backRow('minaai:btn:back')
 
     await interaction.editReply({
       embeds: [errorEmbed],
@@ -512,24 +513,30 @@ export async function handleDmMe(
     }
 
     // Create embed for DM
-    const dmEmbed = new EmbedBuilder()
-      .setColor('#00aaff')
+    const memoryTypeLabel =
+      isCategoryView && categoryType
+        ? capitalizeFirst(categoryType)
+        : memType === 'dm'
+          ? 'dm'
+          : 'server'
+
+    const dmEmbed = MinaEmbed.info()
       .setTitle(
-        `🧠 Your ${isCategoryView && categoryType ? capitalizeFirst(categoryType) : memType === 'dm' ? 'DM' : 'Server'} Memories`
+        mina.sayf('minaai.memories.view.title', {
+          type: memoryTypeLabel,
+          count: memories.length.toString(),
+        })
       )
       .setDescription(
-        `Here are your memories!\n\n` +
-          `**Total:** ${memories.length} memories\n\n` +
-          `Click the button below to view all memories.`
+        `here are your memories!\n\n` +
+          `**total:** ${memories.length} memories\n\n` +
+          `click the button below to view all memories.`
       )
-      .setFooter({ text: 'Privacy first! 💕' })
+      .setFooter({ text: 'privacy first!' })
       .setTimestamp()
 
-    const viewButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setLabel('View All Memories')
-        .setURL(binUrl.short)
-        .setStyle(ButtonStyle.Link)
+    const viewButton = MinaRows.from(
+      MinaButtons.link(binUrl.short, 'view all memories')
     )
 
     // Try to DM user
@@ -540,13 +547,15 @@ export async function handleDmMe(
       })
 
       await interaction.followUp({
-        content: "✅ I've sent your memories to your DMs!",
+        content: mina.say('success'),
         ephemeral: true,
       })
     } catch (dmError) {
       // User has DMs disabled
       await interaction.followUp({
-        content: `I couldn't send you a DM, but here's your memories link: ${binUrl.short}`,
+        content: mina.sayf('minaai.memories.error.dmFailed', {
+          url: binUrl.short,
+        }),
         ephemeral: true,
       })
     }
@@ -561,7 +570,7 @@ export async function handleDmMe(
     )
 
     await interaction.followUp({
-      content: 'Failed to generate memories link. Please try again later.',
+      content: mina.say('error'),
       ephemeral: true,
     })
   }
@@ -591,19 +600,6 @@ export async function handleBackToMemories(
 }
 
 // Helper functions
-function getTypeEmoji(type: string): string {
-  const emojis: Record<string, string> = {
-    preference: '❤️',
-    fact: '📝',
-    opinion: '💭',
-    experience: '🎯',
-    relationship: '🤝',
-    user: '👤',
-    topic: '💬',
-  }
-  return emojis[type] || '📌'
-}
-
 function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }

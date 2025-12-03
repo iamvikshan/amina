@@ -1,12 +1,11 @@
 import {
   UserSelectMenuInteraction,
   StringSelectMenuInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   UserSelectMenuBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show user selection menu
@@ -14,27 +13,22 @@ import { createSecondaryBtn } from '@helpers/componentHelper'
 export async function showUserSelect(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('👤 Select User')
-    .setDescription('Select the user whose messages you want to delete.')
-    .setFooter({ text: 'Select a user from the menu below' })
+  const embed = MinaEmbed.primary()
+    .setTitle('select user')
+    .setDescription('select the user whose messages you want to delete.')
+    .setFooter({ text: 'select a user from the menu below' })
 
   const menu = new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
     new UserSelectMenuBuilder()
       .setCustomId('purge:user:select')
-      .setPlaceholder('👤 Select a user...')
+      .setPlaceholder('select a user...')
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'purge:btn:back',
-    label: 'Back to Type Selection',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('purge:btn:back')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components: [menu, backRow],
   })
 }
 

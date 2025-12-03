@@ -1,31 +1,70 @@
 import { vUnmuteTarget } from '@helpers/ModUtils'
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 export default async (
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
   reason: string | null
-): Promise<string> => {
+): Promise<string | { embeds: MinaEmbed[] }> => {
   const { member } = interaction
   const response = await vUnmuteTarget(
     member as GuildMember,
     target,
-    reason || 'No reason provided'
+    reason || mina.say('moderation.error.noReason')
   )
   if (typeof response === 'boolean') {
-    return `${target.user.username}'s voice is unmuted in this server`
+    return {
+      embeds: [
+        MinaEmbed.success(
+          mina.sayf('moderation.voice.unmuted', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
   if (response === 'MEMBER_PERM') {
-    return `You do not have permission to voice unmute ${target.user.username}`
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.missing'))],
+    }
   }
   if (response === 'BOT_PERM') {
-    return `I do not have permission to voice unmute ${target.user.username}`
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.botMissing'))],
+    }
   }
   if (response === 'NO_VOICE') {
-    return `${target.user.username} is not in any voice channel`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.voice.notInVoice', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
   if (response === 'NOT_MUTED') {
-    return `${target.user.username} is not voice muted`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.voice.notMuted', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
-  return `Failed to voice unmute ${target.user.username}`
+  return {
+    embeds: [
+      MinaEmbed.error(
+        mina.sayf('moderation.error.failed', {
+          action: 'voice unmute',
+          target: target.user.username,
+        })
+      ),
+    ],
+  }
 }

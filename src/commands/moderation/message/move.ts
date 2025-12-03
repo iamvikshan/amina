@@ -5,35 +5,75 @@ import {
   VoiceChannel,
   StageChannel,
 } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 export default async (
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
   reason: string | null,
   channel: VoiceChannel | StageChannel
-): Promise<string> => {
+): Promise<string | { embeds: MinaEmbed[] }> => {
   const { member } = interaction
   const response = await moveTarget(
     member as GuildMember,
     target,
-    reason || 'No reason provided',
+    reason || mina.say('moderation.error.noReason'),
     channel
   )
 
   if (typeof response === 'boolean') {
-    return `${target.user.tag} has been moved to ${channel.name}!`
+    return {
+      embeds: [
+        MinaEmbed.success(
+          mina.sayf('moderation.voice.moved', {
+            target: target.user.username,
+            channel: channel.name,
+          })
+        ),
+      ],
+    }
   }
   if (response === 'MEMBER_PERM') {
-    return `You do not have permission to move ${target.user.tag}!`
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.missing'))],
+    }
   }
   if (response === 'BOT_PERM') {
-    return `I do not have permission to move ${target.user.tag}!`
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.botMissing'))],
+    }
   }
   if (response === 'NO_VOICE') {
-    return `${target.user.tag} is not in a voice channel!`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.voice.notInVoice', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
   if (response === 'SAME_CHANNEL') {
-    return `${target.user.tag} is already in that channel!`
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.voice.sameChannel', {
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
   }
-  return `Failed to move ${target.user.tag}!`
+  return {
+    embeds: [
+      MinaEmbed.error(
+        mina.sayf('moderation.error.failed', {
+          action: 'move',
+          target: target.user.username,
+        })
+      ),
+    ],
+  }
 }

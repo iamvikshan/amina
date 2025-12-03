@@ -223,7 +223,7 @@ const command: CommandData = {
       response = 'Not a valid subcommand!'
     }
 
-    await interaction.followUp(response)
+    return interaction.followUp(response)
   },
 }
 
@@ -267,7 +267,7 @@ async function setChannel(
 
   settings.suggestions.channel_id = channel.id
   await settings.save()
-  return `Suggestions will now go to ${channel}! Yay! 🎉`
+  return `Suggestions will now go to ${channel}!`
 }
 
 async function setApprovedChannel(

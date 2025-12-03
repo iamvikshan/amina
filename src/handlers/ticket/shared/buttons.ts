@@ -1,15 +1,14 @@
 import {
-  EmbedBuilder,
   ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChannelType,
   StringSelectMenuBuilder,
   ComponentType,
   ButtonInteraction,
   MessageFlags,
 } from 'discord.js'
-import { EMBED_COLORS, TICKET } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 // schemas
 import { getSettings } from '@schemas/Guild'
@@ -38,22 +37,18 @@ export async function handleTicketOpen(
   if (!guild) return
 
   if (!guild.members.me?.permissions.has(OPEN_PERMS as any))
-    return interaction.followUp(
-      'Cannot create ticket channel, missing `Manage Channel` permission. Contact server manager for help!'
-    )
+    return interaction.followUp(mina.say('ticket.error.noPermission'))
 
   const alreadyExists = getExistingTicketChannel(guild, user.id)
   if (alreadyExists)
-    return interaction.followUp(`You already have an open ticket`)
+    return interaction.followUp(mina.say('ticket.error.alreadyExists'))
 
   const settings = await getSettings(guild)
 
   // limit check
   const existing = getTicketChannels(guild).size
   if (existing > (settings as any).ticket.limit)
-    return interaction.followUp(
-      'There are too many open tickets. Try again later'
-    )
+    return interaction.followUp(mina.say('ticket.error.tooMany'))
 
   // check topics
   let catName: string | null = null
@@ -72,7 +67,7 @@ export async function handleTicketOpen(
       )
 
     await interaction.followUp({
-      content: 'Please choose a topic for the ticket',
+      content: mina.say('ticket.error.chooseTopic'),
       components: [menuRow],
     })
     const res = await interaction.channel
@@ -86,12 +81,14 @@ export async function handleTicketOpen(
 
     if (!res)
       return interaction.editReply({
-        content: 'Timed out. Try again',
+        content: mina.say('ticket.error.timedOut'),
         components: [],
       })
-    await interaction.editReply({ content: 'Processing', components: [] })
+    await interaction.editReply({
+      content: mina.say('ticket.error.processing'),
+      components: [],
+    })
     catName = res.values[0]
-    catPerms = (settings as any).server.staff_roles || []
   }
 
   try {
@@ -107,17 +104,7 @@ export async function handleTicketOpen(
       ] as any)
     ) {
       return interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(EMBED_COLORS.ERROR)
-            .setDescription(
-              "❌ I don't have the required permissions to create ticket channels!\n\n" +
-                'Please ensure I have:\n' +
-                '• **Manage Channels**\n' +
-                '• **View Channel**\n\n' +
-                'Also make sure my role is positioned above the ticket category.'
-            ),
-        ],
+        embeds: [MinaEmbed.error(mina.say('ticket.error.missingPermissions'))],
       })
     }
 
@@ -223,33 +210,34 @@ export async function handleTicketOpen(
       }
       return interaction.editReply({
         embeds: [
-          new EmbedBuilder()
-            .setColor(EMBED_COLORS.ERROR)
-            .setDescription(
-              '❌ Failed to create ticket channel due to permission issues.\n\n' +
-                'Please check that I have the **Manage Channels** permission and that my role is above the ticket category.'
-            ),
+          MinaEmbed.error(
+            'failed to create ticket channel due to permission issues.\n\n' +
+              'please check that i have the **manage channels** permission and that my role is above the ticket category.'
+          ),
         ],
       })
     }
 
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: `Ticket #${ticketNumber}` })
+    const embed = MinaEmbed.primary()
+      .setAuthor({
+        name: mina.sayf('ticket.createEmbed.title', { number: ticketNumber }),
+      })
       .setDescription(
-        `Hello ${user.toString()}\n` +
-          `Support will be with you shortly\n` +
-          `${catName ? `\n**Topic:** ${catName}` : ''}`
+        mina.sayf('ticket.createEmbed.description', {
+          user: user.toString(),
+          topic: catName
+            ? mina.sayf('ticket.createEmbed.topic', { topic: catName })
+            : '',
+        })
       )
       .setFooter({
-        text: 'You may close your ticket anytime by clicking the button below',
+        text: mina.say('ticket.createEmbed.footer'),
       })
 
-    const buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setLabel('Close Ticket')
-        .setCustomId('TICKET_CLOSE')
-        .setEmoji('🔒')
-        .setStyle(ButtonStyle.Primary)
+    const buttonsRow = MinaRows.from(
+      MinaButtons.close('TICKET_CLOSE').setLabel(
+        mina.say('ticket.createEmbed.button')
+      )
     )
 
     const sent = await tktChannel.send({
@@ -259,44 +247,37 @@ export async function handleTicketOpen(
     })
 
     // DM user with ticket link (safe fallback)
-    const dmEmbed = new EmbedBuilder()
-      .setColor(TICKET.CREATE_EMBED as any)
-      .setAuthor({ name: 'Ticket Created' })
+    const dmEmbed = MinaEmbed.primary()
+      .setAuthor({ name: mina.say('ticket.createEmbed.dmTitle') })
       .setThumbnail(guild.iconURL())
       .setDescription(
-        `**Server:** ${guild.name}\n` +
-          `${catName ? `**Topic:** ${catName}\n` : ''}\n` +
-          `Your ticket has been created! Click the button below to view it.`
+        mina.sayf('ticket.createEmbed.dmDescription', {
+          server: guild.name,
+          topic: catName
+            ? mina.sayf('ticket.createEmbed.dmTopic', { topic: catName })
+            : '',
+        })
       )
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setLabel('View Ticket')
-        .setURL(sent.url)
-        .setStyle(ButtonStyle.Link)
+    const row = MinaRows.from(
+      MinaButtons.link(sent.url, mina.say('ticket.createEmbed.dmButton'))
     )
 
     // Try to DM, but don't fail if it doesn't work
     try {
       await user.send({ embeds: [dmEmbed], components: [row] })
-    } catch (dmError) {
+    } catch (_dmError) {
       // User has DMs disabled or blocked bot - that's okay, continue
     }
 
     // Reply with success message and link to ticket
-    const successEmbed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.SUCCESS)
-      .setDescription(
-        `Ticket created! 🔥\n\nClick the button below to view your ticket.`
-      )
+    const successEmbed = MinaEmbed.success(
+      mina.say('ticket.createEmbed.success')
+    )
 
-    const viewTicketButton =
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setLabel('View Ticket')
-          .setURL(sent.url)
-          .setStyle(ButtonStyle.Link)
-      )
+    const viewTicketButton = MinaRows.from(
+      MinaButtons.link(sent.url, mina.say('ticket.createEmbed.dmButton'))
+    )
 
     await interaction.editReply({
       embeds: [successEmbed],
@@ -306,28 +287,18 @@ export async function handleTicketOpen(
     error('handleTicketOpen', ex)
 
     // Provide more specific error messages
-    let errorMessage = 'Failed to create ticket channel, an error occurred!'
+    let errorMessage = mina.say('ticket.error.failed')
     if (
       ex.message?.includes('Missing Permissions') ||
       ex.message?.includes('Missing Access')
     ) {
-      errorMessage =
-        "❌ I don't have the required permissions to create ticket channels!\n\n" +
-        'Please ensure:\n' +
-        '• I have **Manage Channels** permission\n' +
-        '• My role is positioned above the ticket category\n' +
-        '• The ticket category has proper permissions set'
+      errorMessage = mina.say('ticket.error.missingPermissions')
     } else if (ex.message?.includes('Maximum number of channels')) {
-      errorMessage =
-        '❌ This server has reached the maximum number of channels!'
+      errorMessage = mina.say('ticket.error.maxChannels')
     }
 
     return interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(errorMessage),
-      ],
+      embeds: [MinaEmbed.error(errorMessage)],
     })
   }
 }
@@ -342,14 +313,13 @@ export async function handleTicketClose(
   const status = await closeTicket(interaction.channel as any, interaction.user)
   if (status === 'MISSING_PERMISSIONS') {
     await interaction.followUp({
-      content:
-        'Cannot close the ticket, missing permissions. Contact server manager for help!',
+      content: mina.say('ticket.closeEmbed.noPermission'),
       flags: MessageFlags.Ephemeral,
     })
     return
   } else if (status === 'ERROR') {
     await interaction.followUp({
-      content: 'Failed to close the ticket, an error occurred!',
+      content: mina.say('ticket.closeEmbed.failed'),
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -357,7 +327,7 @@ export async function handleTicketClose(
     // Ticket closed successfully - the closeTicket function already sent the embed
     // Just acknowledge the interaction
     await interaction.followUp({
-      content: '✅ Ticket closed successfully!',
+      content: mina.say('ticket.closeEmbed.success'),
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -377,14 +347,15 @@ export async function handleTicketDelete(
   const channelId = channelPart?.split(':')[1]
 
   if (!channelId) {
+    const content = mina.say('ticket.delete.invalidData')
     if (interaction.deferred || interaction.replied) {
       await interaction.followUp({
-        content: '❌ Invalid channel data',
+        content,
         flags: MessageFlags.Ephemeral,
       })
     } else {
       await interaction.reply({
-        content: '❌ Invalid channel data',
+        content,
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -392,7 +363,8 @@ export async function handleTicketDelete(
   }
 
   // Try to get channel - might be in cache or need to fetch
-  let channel = interaction.guild!.channels.cache.get(channelId)
+  let channel: import('discord.js').GuildBasedChannel | null | undefined =
+    interaction.guild!.channels.cache.get(channelId)
 
   if (!channel) {
     // Try to fetch the channel
@@ -400,14 +372,15 @@ export async function handleTicketDelete(
       channel = await interaction.guild!.channels.fetch(channelId)
     } catch (fetchError) {
       // Channel doesn't exist or we can't access it
+      const content = mina.say('ticket.delete.notFound')
       if (interaction.deferred || interaction.replied) {
         await interaction.followUp({
-          content: '❌ Channel not found or already deleted',
+          content,
           flags: MessageFlags.Ephemeral,
         })
       } else {
         await interaction.reply({
-          content: '❌ Channel not found or already deleted',
+          content,
           flags: MessageFlags.Ephemeral,
         })
       }
@@ -416,14 +389,15 @@ export async function handleTicketDelete(
   }
 
   if (!channel || channel.type !== ChannelType.GuildText) {
+    const content = mina.say('ticket.delete.cannotDelete')
     if (interaction.deferred || interaction.replied) {
       await interaction.followUp({
-        content: '❌ Cannot delete this channel',
+        content,
         flags: MessageFlags.Ephemeral,
       })
     } else {
       await interaction.reply({
-        content: '❌ Cannot delete this channel',
+        content,
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -432,14 +406,15 @@ export async function handleTicketDelete(
 
   const textChannel = channel as any
   if (!textChannel.deletable) {
+    const content = mina.say('ticket.delete.noPermission')
     if (interaction.deferred || interaction.replied) {
       await interaction.followUp({
-        content: '❌ Cannot delete this channel (missing permissions)',
+        content,
         flags: MessageFlags.Ephemeral,
       })
     } else {
       await interaction.reply({
-        content: '❌ Cannot delete this channel (missing permissions)',
+        content,
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -454,12 +429,14 @@ export async function handleTicketDelete(
   try {
     await textChannel.delete()
     await interaction.followUp({
-      content: '✅ Channel deleted successfully',
+      content: mina.say('ticket.delete.success'),
       flags: MessageFlags.Ephemeral,
     })
   } catch (error: any) {
     await interaction.followUp({
-      content: `❌ Failed to delete channel: ${error.message || 'Unknown error'}`,
+      content: mina.sayf('ticket.delete.failed', {
+        error: error.message || 'unknown error',
+      }),
       flags: MessageFlags.Ephemeral,
     })
   }

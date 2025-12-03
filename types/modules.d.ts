@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 // Module augmentation type definitions
 
 import type { Client, Collection, ColorResolvable } from 'discord.js'
@@ -164,6 +164,7 @@ declare module '@src/config' {
     readonly OPENAI?: string
     readonly HONEYBADGER_API_KEY?: string
     readonly WEBHOOK_SECRET?: string
+    readonly WAIFU_IT?: string
 
     // Lavalink Nodes
     readonly LAVALINK_NODES: Array<{

@@ -2,7 +2,6 @@ import {
   StringSelectMenuInteraction,
   ModalSubmitInteraction,
   ButtonInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -11,9 +10,10 @@ import {
   TextInputStyle,
   MessageFlags,
   ChannelType,
+  ButtonStyle,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn, createDangerBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
@@ -25,58 +25,50 @@ export async function showTopicsMenu(
   const settings = await getSettings(interaction.guild!)
   const topicCount = settings.ticket.topics?.length || 0
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '📂 Manage Ticket Topics' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: 'manage ticket topics' })
     .setDescription(
-      `Manage your ticket topics to help organize support requests.\n\n` +
-        `**Current Topics:** ${topicCount} topic(s)\n\n` +
-        '**Options:**\n' +
-        '📋 **List Topics** - View all current topics\n' +
-        '➕ **Add Topic** - Add a new topic\n' +
-        '➖ **Remove Topic** - Remove an existing topic\n\n' +
-        'Select an option below:'
+      `manage your ticket topics to help organize support requests.\n\n` +
+        `**current topics:** ${topicCount} topic(s)\n\n` +
+        '**options:**\n' +
+        '**list topics** - view all current topics\n' +
+        '**add topic** - add a new topic\n' +
+        '**remove topic** - remove an existing topic\n\n' +
+        'select an option below:'
     )
-    .setFooter({ text: 'Topics help categorize tickets' })
+    .setFooter({ text: 'topics help categorize tickets' })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('ticket:menu:topics')
-      .setPlaceholder('📂 Select a topics option...')
+      .setPlaceholder('select a topics option...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('List Topics')
-          .setDescription('View all current ticket topics')
-          .setValue('list')
-          .setEmoji('📋'),
+          .setLabel('list topics')
+          .setDescription('view all current ticket topics')
+          .setValue('list'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Add Topic')
-          .setDescription('Add a new ticket topic')
-          .setValue('add')
-          .setEmoji('➕'),
+          .setLabel('add topic')
+          .setDescription('add a new ticket topic')
+          .setValue('add'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Remove Topic')
-          .setDescription('Remove an existing topic')
+          .setLabel('remove topic')
+          .setDescription('remove an existing topic')
           .setValue('remove')
-          .setEmoji('➖')
           .setDefault(false) // Never auto-select this option
       )
   )
 
   // Disable remove if no topics
   if (topicCount === 0) {
-    menu.components[0].options[2].setDescription('No topics to remove')
+    menu.components[0].options[2].setDescription('no topics to remove')
   }
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_setup',
-    label: 'Back to Setup',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_setup')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components: [menu, backRow],
   })
 }
 
@@ -102,7 +94,7 @@ export async function handleTopicsMenu(
       break
     default:
       await interaction.reply({
-        content: '❌ Invalid topics option',
+        content: 'invalid topics option',
         flags: MessageFlags.Ephemeral,
       })
   }
@@ -117,38 +109,33 @@ async function showTopicsList(
   const settings = await getSettings(interaction.guild!)
   const topics = settings.ticket.topics || []
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '📋 Ticket Topics List' })
-    .setFooter({ text: 'Use the menu to manage topics' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: 'ticket topics list' })
+    .setFooter({ text: 'use the menu to manage topics' })
 
   if (topics.length === 0) {
     embed.setDescription(
-      "Oh no! 😮 We don't have any ticket topics yet.\n\n" +
-        "Let's add some to make our ticketing system super awesome! 💖\n\n" +
-        'Use the **Add Topic** option to get started.'
+      "there aren't any ticket topics yet.\n\n" +
+        "let's add some to make the ticketing system organized.\n\n" +
+        'use the **add topic** option to get started.'
     )
   } else {
     const topicList = topics
       .map((t: any, index: number) => `${index + 1}. **${t.name}**`)
       .join('\n')
     embed.setDescription(
-      `Here are all our current ticket topics! 🎉\n\n` +
-        `**Total Topics:** ${topics.length}\n\n` +
+      `here are all the current ticket topics.\n\n` +
+        `**total topics:** ${topics.length}\n\n` +
         `${topicList}\n\n` +
-        'You can add more or remove them using the menu below.'
+        'you can add more or remove them using the menu below.'
     )
   }
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_topics',
-    label: 'Back to Topics Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_topics')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [backButton],
+    components: [backRow],
   })
 }
 
@@ -160,14 +147,14 @@ async function showAddTopicModal(
 ): Promise<void> {
   const modal = new ModalBuilder()
     .setCustomId('ticket:modal:topic_add')
-    .setTitle('Add Ticket Topic')
+    .setTitle('add ticket topic')
     .addComponents(
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder()
           .setCustomId('name')
-          .setLabel('Topic Name')
+          .setLabel('topic name')
           .setStyle(TextInputStyle.Short)
-          .setPlaceholder('e.g., Technical Support, Billing, General')
+          .setPlaceholder('e.g., technical support, billing, general')
           .setRequired(true)
           .setMaxLength(50)
       )
@@ -188,13 +175,7 @@ export async function handleAddTopicModal(
 
   if (!topicName) {
     await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            'Oopsie! 🙈 You forgot to enter a topic name. Try again, pretty please?'
-          ),
-      ],
+      embeds: [MinaEmbed.error('you forgot to enter a topic name. try again.')],
     })
     return
   }
@@ -210,11 +191,9 @@ export async function handleAddTopicModal(
   if (topicExists) {
     await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `Uh-oh! 😅 The topic \`${topicName}\` is already on our list. No need to add it again, silly!`
-          ),
+        MinaEmbed.error(
+          `the topic \`${topicName}\` is already on the list. no need to add it again.`
+        ),
       ],
     })
     return
@@ -270,28 +249,22 @@ export async function handleAddTopicModal(
       type: ChannelType.GuildCategory,
       permissionOverwrites: categoryPerms,
     })
-  } catch (error) {
+  } catch (_error) {
     // Category creation failed, but topic is still added
     // Continue with success message
   }
 
-  const successEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(
-      `Yay! 🎉 I've added the topic \`${topicName}\` to our awesome list!\n\n` +
-        'A Discord category has been created for this topic.\n' +
-        'Users can now select this topic when creating tickets.'
-    )
+  const successEmbed = MinaEmbed.success(
+    `added the topic \`${topicName}\` to the list.\n\n` +
+      'a discord category has been created for this topic.\n' +
+      'users can now select this topic when creating tickets.'
+  )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_topics',
-    label: 'Back to Topics Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_topics')
 
   await interaction.editReply({
     embeds: [successEmbed],
-    components: [backButton],
+    components: [backRow],
   })
 }
 
@@ -305,57 +278,43 @@ async function showRemoveTopicSelect(
   const topics = settings.ticket.topics || []
 
   if (topics.length === 0) {
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.WARNING)
-      .setDescription('Hmm... 🤔 There are no topics to remove!')
+    const embed = MinaEmbed.warning('there are no topics to remove.')
 
-    const backButton = createSecondaryBtn({
-      customId: 'ticket:btn:back_topics',
-      label: 'Back to Topics Menu',
-      emoji: '◀️',
-    })
+    const backRow = MinaRows.backRow('ticket:btn:back_topics')
 
     await interaction.editReply({
       embeds: [embed],
-      components: [backButton],
+      components: [backRow],
     })
     return
   }
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: '➖ Remove Ticket Topic' })
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: 'remove ticket topic' })
     .setDescription(
-      'Select the topic you want to remove from the list below.\n\n' +
-        '⚠️ **Warning:** This action cannot be undone!'
+      'select the topic you want to remove from the list below.\n\n' +
+        '**warning:** this action cannot be undone.'
     )
-    .setFooter({ text: 'Choose carefully!' })
+    .setFooter({ text: 'choose carefully' })
 
   const options = topics
     .slice(0, 25)
-    .map((t: any, index: number) =>
-      new StringSelectMenuOptionBuilder()
-        .setLabel(t.name)
-        .setValue(t.name)
-        .setEmoji('📌')
+    .map((t: any) =>
+      new StringSelectMenuOptionBuilder().setLabel(t.name).setValue(t.name)
     )
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('ticket:menu:topic_remove')
-      .setPlaceholder('🗑️ Select a topic to remove...')
+      .setPlaceholder('select a topic to remove...')
       .addOptions(options)
   )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_topics',
-    label: 'Back to Topics Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_topics')
 
   await interaction.editReply({
     embeds: [embed],
-    components: [menu, backButton],
+    components: [menu, backRow],
   })
 }
 
@@ -370,34 +329,25 @@ export async function handleRemoveTopicSelect(
   await interaction.deferUpdate()
 
   // Show confirmation
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.WARNING)
-    .setAuthor({ name: '⚠️ Confirm Topic Removal' })
+  const embed = MinaEmbed.warning()
+    .setAuthor({ name: 'confirm topic removal' })
     .setDescription(
-      `Are you sure you want to remove the topic **${topicName}**?\n\n` +
-        'This action cannot be undone!'
+      `are you sure you want to remove the topic **${topicName}**?\n\n` +
+        'this action cannot be undone.'
     )
 
-  const confirmButton = createDangerBtn({
-    customId: `ticket:btn:topic_remove_confirm|topic:${topicName}`,
-    label: 'Confirm Remove',
-    emoji: '⚠️',
-  })
-
-  const cancelButton = createSecondaryBtn({
-    customId: 'ticket:btn:topic_remove_cancel',
-    label: 'Cancel',
-    emoji: '❌',
-  })
+  const confirmRow = MinaRows.from(
+    MinaButtons.custom(
+      `ticket:btn:topic_remove_confirm|topic:${topicName}`,
+      'confirm remove',
+      ButtonStyle.Danger
+    ),
+    MinaButtons.nah('ticket:btn:topic_remove_cancel')
+  )
 
   await interaction.editReply({
     embeds: [embed],
-    components: [
-      new ActionRowBuilder<any>().addComponents(
-        confirmButton.components[0],
-        cancelButton.components[0]
-      ),
-    ],
+    components: [confirmRow],
   })
 }
 
@@ -417,11 +367,7 @@ export async function handleRemoveTopicConfirm(
 
   if (!topicName) {
     await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription('❌ Invalid topic data'),
-      ],
+      embeds: [MinaEmbed.error('invalid topic data')],
     })
     return
   }
@@ -437,11 +383,9 @@ export async function handleRemoveTopicConfirm(
   if (!topicExists) {
     await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setColor(EMBED_COLORS.ERROR)
-          .setDescription(
-            `Hmm... 🤔 I couldn't find the topic \`${topicName}\`. Are you sure it's on our list?`
-          ),
+        MinaEmbed.error(
+          `couldn't find the topic \`${topicName}\`. are you sure it's on the list?`
+        ),
       ],
       components: [],
     })
@@ -457,14 +401,14 @@ export async function handleRemoveTopicConfirm(
   // Delete Discord category if it exists
   const guild = interaction.guild!
   let category = guild.channels.cache.find(
-    ch => ch.type === ChannelType.GuildCategory && ch.name === topicName
+    ch => ch?.type === ChannelType.GuildCategory && ch?.name === topicName
   )
 
   // If not in cache, try to find it by searching all channels
   if (!category) {
     const allChannels = await guild.channels.fetch()
     category = allChannels.find(
-      ch => ch.type === ChannelType.GuildCategory && ch.name === topicName
+      ch => ch?.type === ChannelType.GuildCategory && ch?.name === topicName
     ) as any
   }
 
@@ -473,32 +417,26 @@ export async function handleRemoveTopicConfirm(
     try {
       await category.delete()
       categoryDeleted = true
-    } catch (error) {
+    } catch (_error) {
       // Category deletion failed, but topic is still removed from DB
       // Continue with success message
     }
   }
 
-  const successEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setDescription(
-      `All done! 👋 I've removed the topic \`${topicName}\` from our list.\n\n` +
-        (categoryDeleted
-          ? '✅ The Discord category has also been deleted.'
-          : category
-            ? "⚠️ The topic was removed, but I couldn't delete the category (it may have been deleted already or I lack permissions)."
-            : 'ℹ️ The topic was removed. No Discord category was found (it may have been deleted already).')
-    )
+  const successEmbed = MinaEmbed.success(
+    `removed the topic \`${topicName}\` from the list.\n\n` +
+      (categoryDeleted
+        ? 'the discord category has also been deleted.'
+        : category
+          ? "the topic was removed, but i couldn't delete the category (it may have been deleted already or i lack permissions)."
+          : 'the topic was removed. no discord category was found (it may have been deleted already).')
+  )
 
-  const backButton = createSecondaryBtn({
-    customId: 'ticket:btn:back_topics',
-    label: 'Back to Topics Menu',
-    emoji: '◀️',
-  })
+  const backRow = MinaRows.backRow('ticket:btn:back_topics')
 
   await interaction.editReply({
     embeds: [successEmbed],
-    components: [backButton],
+    components: [backRow],
   })
 }
 

@@ -1,12 +1,13 @@
-import { GuildMember, EmbedBuilder } from 'discord.js'
-import { GIVEAWAYS } from '@src/config'
+import { GuildMember } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 export default async function list(
   member: GuildMember
-): Promise<string | { embeds: EmbedBuilder[] }> {
+): Promise<string | { embeds: any[] }> {
   // Permissions
   if (!member.permissions.has('ManageMessages')) {
-    return 'You need to have the manage messages permissions to manage giveaways.'
+    return mina.say('giveaway.list.error.noPermission')
   }
 
   // Search with all giveaways
@@ -16,7 +17,7 @@ export default async function list(
 
   // No giveaways
   if (giveaways.length === 0) {
-    return 'There are no giveaways running in this server.'
+    return mina.say('giveaway.list.empty')
   }
 
   const description = giveaways
@@ -25,14 +26,10 @@ export default async function list(
 
   try {
     return {
-      embeds: [
-        new EmbedBuilder()
-          .setDescription(description)
-          .setColor(GIVEAWAYS.START_EMBED), // FIX: Changed from EMBED_COLORS.GIVEAWAYS (doesn't exist)
-      ],
+      embeds: [MinaEmbed.primary().setDescription(description)],
     }
   } catch (error: any) {
     ;(member.client as any).logger.error('Giveaway List', error)
-    return `An error occurred while listing the giveaways: ${error.message}`
+    return mina.sayf('giveaway.list.error.failed', { error: error.message })
   }
 }

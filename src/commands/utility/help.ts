@@ -1,13 +1,11 @@
 import CommandCategory from '@src/structures/CommandCategory'
 import config from '@src/config'
 import {
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ButtonBuilder,
   ChatInputCommandInteraction,
   ApplicationCommandOptionType,
-  ButtonStyle,
   Message,
   GuildMember,
   StringSelectMenuOptionBuilder,
@@ -16,7 +14,10 @@ import {
   Client,
 } from 'discord.js'
 import { getSlashUsage } from '@handlers/command'
-import type { CommandData } from '@structures/Command'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
+// CommandData is globally available - see types/commands.d.ts
 
 interface BotClient extends Client {
   slashCommands: Collection<string, CommandData>
@@ -67,7 +68,7 @@ const command: CommandData = {
     }
 
     // No matching command/category found
-    await interaction.editReply('No matching command found')
+    await interaction.editReply(mina.say('helpMenu.noMatch'))
   },
 }
 
@@ -114,34 +115,24 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
       .addOptions(options)
   )
 
-  // Buttons Row
-  const components = []
-  components.push(
-    new ButtonBuilder()
-      .setCustomId('previousBtn')
-      .setEmoji('⬅️')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(true),
-    new ButtonBuilder()
-      .setCustomId('nextBtn')
-      .setEmoji('➡️')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(true)
-  )
-
+  // Buttons Row - initially disabled
   const buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    components
+    MinaButtons.prev('previousBtn', true),
+    MinaButtons.next('nextBtn', true)
   )
 
-  const embed = new EmbedBuilder()
-    .setColor(config.EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.primary()
     .setThumbnail(botClient.user?.displayAvatarURL() || null)
     .setDescription(
-      '**About Me:**\n' +
-        `Hello I am ${guild?.members.me?.displayName}!\n` +
-        'A cool multipurpose discord bot which can serve all your needs\n\n' +
-        `**Invite Me:** [Here](${(botClient as any).getInvite()})\n` +
-        `**Support Server:** [Join](${config.BOT.SUPPORT_SERVER})`
+      mina.sayf('botInfo.intro', {
+        name: guild?.members.me?.displayName || 'mina',
+      }) +
+        '\n' +
+        mina.say('botInfo.about') +
+        '\n\n' +
+        mina.sayf('botInfo.invite', { url: botClient.getInvite() }) +
+        '\n' +
+        mina.sayf('botInfo.support', { url: config.BOT.SUPPORT_SERVER ?? '' })
     )
 
   return {
@@ -158,7 +149,7 @@ const waiter = (msg: Message, member: GuildMember) => {
     time: 5 * 60 * 1000,
   })
 
-  let arrEmbeds: EmbedBuilder[] = []
+  let arrEmbeds: MinaEmbed[] = []
   let currentPage = 0
   let menuRow = msg.components[0]
   let buttonsRow: any = msg.components[1]
@@ -182,17 +173,16 @@ const waiter = (msg: Message, member: GuildMember) => {
           currentPage = 0
 
           // Buttons Row
-          const components: ButtonBuilder[] = []
-          buttonsRow.components.forEach((button: any) =>
-            components.push(
-              ButtonBuilder.from(button).setDisabled(
-                arrEmbeds.length > 1 ? false : true
-              )
-            )
-          )
-
+          const hasMultiplePages = arrEmbeds.length > 1
           buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            components
+            MinaButtons.prev(
+              'previousBtn',
+              !hasMultiplePages || currentPage === 0
+            ),
+            MinaButtons.next(
+              'nextBtn',
+              !hasMultiplePages || currentPage >= arrEmbeds.length - 1
+            )
           )
           // Use response.editReply instead of msg.edit
           await response.editReply({
@@ -205,6 +195,11 @@ const waiter = (msg: Message, member: GuildMember) => {
         case 'previousBtn':
           if (currentPage !== 0) {
             --currentPage
+            // Update buttons based on new page
+            buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+              MinaButtons.prev('previousBtn', currentPage === 0),
+              MinaButtons.next('nextBtn', currentPage >= arrEmbeds.length - 1)
+            )
             // Use response.editReply instead of msg.edit
             await response.editReply({
               embeds: [arrEmbeds[currentPage]],
@@ -216,6 +211,11 @@ const waiter = (msg: Message, member: GuildMember) => {
         case 'nextBtn':
           if (currentPage < arrEmbeds.length - 1) {
             currentPage++
+            // Update buttons based on new page
+            buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+              MinaButtons.prev('previousBtn', currentPage === 0),
+              MinaButtons.next('nextBtn', currentPage >= arrEmbeds.length - 1)
+            )
             // Use response.editReply instead of msg.edit
             await response.editReply({
               embeds: [arrEmbeds[currentPage]],
@@ -242,7 +242,7 @@ function getSlashCategoryEmbeds(
   client: BotClient,
   category: string,
   member: GuildMember
-): EmbedBuilder[] {
+): MinaEmbed[] {
   let collector = ''
 
   // For IMAGE Category
@@ -274,10 +274,9 @@ function getSlashCategoryEmbeds(
       `\n\n**Available Generators**\n` +
       `${availableGens}`
 
-    const embed = new EmbedBuilder()
-      .setColor(config.EMBED_COLORS.BOT_EMBED)
+    const embed = MinaEmbed.primary()
       .setThumbnail((CommandCategory as any)[category]?.image)
-      .setAuthor({ name: `${category} Commands` })
+      .setAuthor({ name: `${category} commands` })
       .setDescription(collector)
 
     return [embed]
@@ -289,17 +288,16 @@ function getSlashCategoryEmbeds(
   )
 
   if (commands.length === 0) {
-    const embed = new EmbedBuilder()
-      .setColor(config.EMBED_COLORS.BOT_EMBED)
+    const embed = MinaEmbed.primary()
       .setThumbnail((CommandCategory as any)[category]?.image)
-      .setAuthor({ name: `${category} Commands` })
-      .setDescription('No commands in this category')
+      .setAuthor({ name: `${category} commands` })
+      .setDescription('no commands in this category')
 
     return [embed]
   }
 
   const arrSplitted: string[][] = []
-  const arrEmbeds: EmbedBuilder[] = []
+  const arrEmbeds: MinaEmbed[] = []
 
   while (commands.length) {
     let toAdd = commands.splice(
@@ -310,11 +308,15 @@ function getSlashCategoryEmbeds(
     const mapped = toAdd
       .map(cmd => {
         // Check if the user has the required permissions for the command
-        if (cmd.userPermissions?.some(perm => !member.permissions.has(perm))) {
+        if (
+          cmd.userPermissions?.some(
+            (perm: any) => !member.permissions.has(perm)
+          )
+        ) {
           return null
         }
 
-        return `\`/${cmd.name}\`\n ❯ **Description**: ${cmd.description}\n`
+        return `\`/${cmd.name}\`\n ❯ **description**: ${cmd.description}\n`
       })
       .filter(Boolean) as string[]
 
@@ -322,10 +324,9 @@ function getSlashCategoryEmbeds(
   }
 
   arrSplitted.forEach((item, index) => {
-    const embed = new EmbedBuilder()
-      .setColor(config.EMBED_COLORS.BOT_EMBED)
+    const embed = MinaEmbed.primary()
       .setThumbnail((CommandCategory as any)[category]?.image)
-      .setAuthor({ name: `${category} Commands` })
+      .setAuthor({ name: `${category} commands` })
       .setDescription(item.join('\n'))
       .setFooter({ text: `page ${index + 1} of ${arrSplitted.length}` })
     arrEmbeds.push(embed)

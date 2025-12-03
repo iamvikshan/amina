@@ -5,6 +5,8 @@ import {
   GuildMember,
 } from 'discord.js'
 import { MODERATION } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'kick',
@@ -36,19 +38,29 @@ const command: CommandData = {
     const reason = interaction.options.getString('reason')
 
     if (!user) {
-      await interaction.followUp('Please specify a valid user to kick.')
+      await interaction.followUp({
+        embeds: [
+          MinaEmbed.error(
+            mina.sayf('moderation.error.specifyUser', { action: 'kick' })
+          ),
+        ],
+      })
       return
     }
 
     let target: GuildMember
     try {
       if (!interaction.guild) {
-        await interaction.followUp('This command can only be used in a server.')
+        await interaction.followUp({
+          embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+        })
         return
       }
       target = await interaction.guild.members.fetch(user.id)
     } catch (_error) {
-      await interaction.followUp('The specified user is not in this server.')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('moderation.error.notInServer'))],
+      })
       return
     }
 
@@ -66,18 +78,41 @@ async function kick(
   issuer: GuildMember,
   target: GuildMember,
   reason: string | null
-): Promise<string> {
+): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await kickTarget(
     issuer,
     target,
-    reason || 'No reason provided'
+    reason || mina.say('moderation.error.noReason')
   )
-  if (typeof response === 'boolean') return `${target.user.username} is kicked!`
-  if (response === 'BOT_PERM')
-    return `I do not have permission to kick ${target.user.username}`
-  else if (response === 'MEMBER_PERM')
-    return `You do not have permission to kick ${target.user.username}`
-  else return `Failed to kick ${target.user.username}`
+  if (typeof response === 'boolean') {
+    return {
+      embeds: [
+        MinaEmbed.mod('kick').setDescription(
+          mina.sayf('moderation.kick', { target: target.user.username })
+        ),
+      ],
+    }
+  }
+  if (response === 'BOT_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.botMissing'))],
+    }
+  } else if (response === 'MEMBER_PERM') {
+    return {
+      embeds: [MinaEmbed.error(mina.say('permissions.missing'))],
+    }
+  } else {
+    return {
+      embeds: [
+        MinaEmbed.error(
+          mina.sayf('moderation.error.failed', {
+            action: 'kick',
+            target: target.user.username,
+          })
+        ),
+      ],
+    }
+  }
 }
 
 export default command

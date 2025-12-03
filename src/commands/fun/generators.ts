@@ -1,38 +1,38 @@
 import {
-  EmbedBuilder,
   AttachmentBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { getBuffer } from '@helpers/HttpUtils'
-import { EMBED_COLORS, IMAGE, secret } from '@src/config'
+import { IMAGE, secret } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
-// Amina's favorite meme reactions
+// mina's favorite meme reactions
 const memeReactions: Record<string, string> = {
-  ad: '✨ Making you famous! ',
-  affect: 'Oops, what happened here? 😅',
-  beautiful: "Now that's art! 🎨",
-  bobross: 'Happy little accidents~ 🎨',
-  challenger: 'Game on! 🎮',
-  confusedstonk: 'Wait, what? 📈',
-  delete: 'Poof! 🗑️',
-  dexter: 'Time for science! 🧪',
-  facepalm: '*giggles* Oh no... 🤦',
-  jail: 'Busted! 🚔',
-  jokeoverhead: 'Whoosh~ ✨',
-  karaba: 'Magic time! ✨',
-  'kyon-gun': 'Pew pew! 🔫',
-  mms: 'Sweet! 🍫',
-  notstonk: 'Oof, down we go! 📉',
-  poutine: 'Yummy! 🍜',
-  rip: 'Press F to pay respects 💐',
-  shit: 'Yikes! 💩',
-  stonk: 'To the moon! 📈',
-  tattoo: 'Forever art! 🎨',
-  thomas: 'Choo choo! 🚂',
-  trash: "One person's trash... 🗑️",
-  wanted: 'Catch them! 🏃‍♂️',
-  worthless: '*gasp* No way! ✨',
+  ad: 'making you famous!',
+  affect: 'oops, what happened here?',
+  beautiful: "now that's art!",
+  bobross: 'happy little accidents~',
+  challenger: 'game on!',
+  confusedstonk: 'wait, what?',
+  delete: 'poof!',
+  dexter: 'time for science!',
+  facepalm: '*giggles* oh no...',
+  jail: 'busted!',
+  jokeoverhead: 'whoosh~',
+  karaba: 'magic time!',
+  'kyon-gun': 'pew pew!',
+  mms: 'sweet!',
+  notstonk: 'oof, down we go!',
+  poutine: 'yummy!',
+  rip: 'press f to pay respects',
+  shit: 'yikes!',
+  stonk: 'to the moon!',
+  tattoo: 'forever art!',
+  thomas: 'choo choo!',
+  trash: "one person's trash...",
+  wanted: 'catch them!',
+  worthless: '*gasp* no way!',
 }
 
 const availableGenerators = [
@@ -65,7 +65,7 @@ const availableGenerators = [
 
 const command: CommandData = {
   name: 'generator',
-  description: 'Transform images into memes! ✨',
+  description: 'Transform images into memes!',
   cooldown: 1,
   category: 'IMAGE',
   botPermissions: ['EmbedLinks', 'AttachFiles'],
@@ -118,18 +118,23 @@ const command: CommandData = {
 
     if (!response.success) {
       return interaction.followUp(
-        '*drops art supplies* Oops! Something went wrong with the meme magic! 🎨💔'
+        '*drops art supplies* Oops! Something went wrong with the meme magic!'
       )
     }
 
-    const attachment = new AttachmentBuilder(response.buffer!, {
+    if (!response.buffer) {
+      return interaction.followUp(
+        '*drops art supplies* Oops! The meme service did not return an image buffer!'
+      )
+    }
+
+    const attachment = new AttachmentBuilder(response.buffer, {
       name: 'attachment.png',
     })
-    const embed = new EmbedBuilder()
-      .setColor(EMBED_COLORS.BOT_EMBED)
-      .setTitle(memeReactions[generator] || 'Meme magic incoming! ✨')
+    const embed = MinaEmbed.primary()
+      .setTitle(memeReactions[generator] || 'meme magic incoming!')
       .setImage('attachment://attachment.png')
-      .setFooter({ text: `${author.username}'s meme creation! 🎨` })
+      .setFooter({ text: `${author.username}'s meme creation!` })
 
     await interaction.followUp({ embeds: [embed], files: [attachment] })
     return

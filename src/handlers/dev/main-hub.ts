@@ -2,13 +2,11 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createSecondaryBtn } from '@helpers/componentHelper'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main dev hub with category selection
@@ -19,22 +17,21 @@ export async function showDevHub(
     | ButtonInteraction
     | ChatInputCommandInteraction
 ): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('⚙️ Developer Hub')
+  const embed = MinaEmbed.primary()
+    .setTitle('developer hub')
     .setDescription(
-      'Welcome to the Developer Hub! 🛠️\n\n' +
-        '**Select a category:**\n' +
-        '🎭 **Presence Management** - Configure bot presence/status\n' +
-        '🎲 **Truth or Dare** - Add/remove ToD questions\n' +
-        '🔄 **Command Reload** - Reload commands, events, or contexts\n' +
-        '⚡ **Trigger Settings** - Trigger server onboarding\n' +
-        '📋 **List Servers** - View all servers the bot is in\n' +
-        '👋 **Leave Server** - Leave a server by ID\n' +
-        '🤖 **Mina AI** - Configure Amina AI settings\n\n' +
-        '⚠️ **Note:** All operations are developer-only.'
+      'welcome to the developer hub\n\n' +
+        '**select a category:**\n' +
+        '**presence management** - configure bot presence/status\n' +
+        '**truth or dare** - add/remove tod questions\n' +
+        '**command reload** - reload commands, events, or contexts\n' +
+        '**trigger settings** - trigger server onboarding\n' +
+        '**list servers** - view all servers the bot is in\n' +
+        '**leave server** - leave a server by id\n' +
+        '**mina ai** - configure amina ai settings\n\n' +
+        '**note:** all operations are developer-only.'
     )
-    .setFooter({ text: 'Select a category to begin' })
+    .setFooter({ text: 'select a category to begin' })
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()

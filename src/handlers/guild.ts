@@ -1,8 +1,5 @@
 import {
   ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -12,30 +9,21 @@ import {
   ModalSubmitInteraction,
 } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 /**
  * Send onboarding menu to a channel
  */
 async function sendOnboardingMenu(channel: TextChannel): Promise<void> {
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setTitle('Mina Setup ♡(>ᴗ•)')
-    .setDescription(
-      "Let's make your server super awesome! Click the button below to set up important stuff~"
-    )
+  const embed = MinaEmbed.primary()
+    .setTitle(mina.say('guild.setup.title'))
+    .setDescription(mina.say('guild.setup.description'))
 
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('AMINA_SETUP')
-      .setLabel('Setup Mina')
-      .setStyle(ButtonStyle.Primary)
-      .setEmoji('🌸'),
-    new ButtonBuilder()
-      .setCustomId('AMINA_REMIND')
-      .setLabel('Laterz!')
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji('⏰')
+  const row = MinaRows.from(
+    MinaButtons.go('AMINA_SETUP').setLabel(mina.say('guild.setup.button')),
+    MinaButtons.custom('AMINA_REMIND', mina.say('guild.setup.remind'), 2)
   )
 
   const sentMessage = await channel.send({ embeds: [embed], components: [row] })
@@ -54,17 +42,17 @@ async function handleSetupButton(
 ): Promise<void> {
   const updatesChannelInput = new TextInputBuilder({
     customId: 'UPDATES_CHANNEL',
-    label: 'Updates Channel Name',
+    label: mina.say('guild.setup.modal.updatesChannel'),
     style: TextInputStyle.Short,
-    placeholder: 'e.g., amina-updates',
+    placeholder: mina.say('guild.setup.modal.updatesPlaceholder'),
     required: true,
   })
 
   const staffRoleInput = new TextInputBuilder({
     customId: 'STAFF_ROLES',
-    label: 'Staff Role Name',
+    label: mina.say('guild.setup.modal.staffRole'),
     style: TextInputStyle.Short,
-    placeholder: 'e.g., Mina Staff',
+    placeholder: mina.say('guild.setup.modal.staffPlaceholder'),
     required: true,
   })
 
@@ -76,7 +64,7 @@ async function handleSetupButton(
 
   const modal = new ModalBuilder({
     customId: 'AMINA_SETUP_MODAL',
-    title: 'Mina Setup ♡',
+    title: mina.say('guild.setup.modal.title'),
     components: [firstActionRow, secondActionRow],
   })
 
@@ -110,8 +98,7 @@ async function handleSetupModal(
 
   if (!updatesChannel || !staffRole) {
     return interaction.reply({
-      content:
-        "Oopsie! I couldn't find that channel or role. (◞‸◟；) Can you double-check the names?",
+      content: mina.say('guild.setup.error.notFound'),
       ephemeral: true,
     })
   }
@@ -125,8 +112,7 @@ async function handleSetupModal(
       .has(['ViewChannel', 'SendMessages'])
   ) {
     return interaction.reply({
-      content:
-        "Uh-oh! I don't have permission to send messages in that channel. (╥﹏╥) Can you give me the right permissions?",
+      content: mina.say('guild.setup.error.noPermission'),
       ephemeral: true,
     })
   }
@@ -139,27 +125,21 @@ async function handleSetupModal(
   await settings.save()
 
   // Send success message
-  const successEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setTitle('Yay! Setup Complete! ヾ(≧▽≦*)o')
-    .setDescription(
-      'We did it! Your server is now super awesome and ready to go~'
-    )
+  const successEmbed = MinaEmbed.success()
+    .setTitle(mina.say('guild.setup.success.title'))
+    .setDescription(mina.say('guild.setup.success.description'))
     .addFields(
-      { name: 'Updates Channel', value: `${updatesChannel}`, inline: true },
-      { name: 'Staff Role', value: `${staffRole}`, inline: true }
+      { name: 'updates channel', value: `${updatesChannel}`, inline: true },
+      { name: 'staff role', value: `${staffRole}`, inline: true }
     )
-    .setFooter({ text: "Thanks for setting me up! Let's have fun together~ ♡" })
+    .setFooter({ text: mina.say('guild.setup.success.footer') })
 
   await interaction.reply({ embeds: [successEmbed], ephemeral: true })
 
   // Send a test message to the updates channel
-  const testEmbed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.SUCCESS)
-    .setTitle('Mina Updates Channel ♡')
-    .setDescription(
-      "Hi everyone! This channel is now set up for Mina's updates. Stay tuned for awesome announcements! (≧◡≦)"
-    )
+  const testEmbed = MinaEmbed.success()
+    .setTitle(mina.say('guild.setup.success.testTitle'))
+    .setDescription(mina.say('guild.setup.success.testDescription'))
 
   await updatesChannel.send({ embeds: [testEmbed] })
 
@@ -186,9 +166,9 @@ async function handleRemindButton(
 ): Promise<void> {
   const reminderTimeInput = new TextInputBuilder({
     customId: 'REMINDER_TIME',
-    label: 'Remind me in (minutes)',
+    label: mina.say('guild.setup.modal.remindLabel'),
     style: TextInputStyle.Short,
-    placeholder: 'e.g., 30',
+    placeholder: mina.say('guild.setup.modal.remindPlaceholder'),
     required: true,
   })
 
@@ -198,7 +178,7 @@ async function handleRemindButton(
 
   const modal = new ModalBuilder({
     customId: 'AMINA_REMIND_MODAL',
-    title: 'Set a Reminder ⏰',
+    title: mina.say('guild.setup.modal.remindTitle'),
     components: [actionRow],
   })
 
@@ -218,8 +198,7 @@ async function handleRemindModal(
 
   if (isNaN(minutes) || minutes <= 0) {
     return interaction.reply({
-      content:
-        "Oopsie! That's not a valid number of minutes. (◞‸◟；) Can you try again?",
+      content: mina.say('guild.setup.error.invalidTime'),
       ephemeral: true,
     })
   }
@@ -231,14 +210,11 @@ async function handleRemindModal(
     async () => {
       const owner = await guild.members.fetch(guild.ownerId)
       if (owner) {
-        const reminderEmbed = new EmbedBuilder()
-          .setColor(EMBED_COLORS.BOT_EMBED)
-          .setTitle('Mina Setup Reminder ♡')
-          .setDescription(
-            'Hey there! Just a friendly reminder to finish setting me up in your server. Run `/settings` to get started!'
-          )
+        const reminderEmbed = MinaEmbed.primary()
+          .setTitle(mina.say('guild.setup.reminder.title'))
+          .setDescription(mina.say('guild.setup.reminder.description'))
           .setFooter({
-            text: "I can't wait to be fully operational and super awesome in your server! (◠‿◠✿)",
+            text: mina.say('guild.setup.reminder.footer'),
           })
 
         await owner.send({ embeds: [reminderEmbed] }).catch(() => {})
@@ -248,7 +224,7 @@ async function handleRemindModal(
   )
 
   await interaction.reply({
-    content: `Okie dokie! I'll remind you to finish the setup in ${minutes} minutes~ (≧◡≦)`,
+    content: mina.sayf('guild.setup.error.remindSuccess', { minutes }),
     ephemeral: true,
   })
 }

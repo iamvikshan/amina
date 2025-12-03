@@ -1,16 +1,17 @@
 import {
   ChatInputCommandInteraction,
   ApplicationCommandOptionType,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ComponentType,
 } from 'discord.js'
 import config from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'search',
-  description: 'search for matching songs on YouTube',
+  description: 'search for matching songs on youtube',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -28,7 +29,10 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const query = interaction.options.getString('query')
     if (!query) {
-      return await interaction.followUp('🚫 Please provide a search query')
+      await interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('music.error.provideQuery'))],
+      })
+      return
     }
 
     const member = interaction.member as any
@@ -52,13 +56,17 @@ async function search(
     channel: any
   },
   query: string
-): Promise<string | { embeds: EmbedBuilder[] } | null> {
-  if (!member.voice.channel) return '🚫 You need to join a voice channel first'
+): Promise<string | { embeds: MinaEmbed[] } | null> {
+  if (!member.voice.channel) {
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notInVoice'))] }
+  }
 
   let player = guild.client.musicManager.getPlayer(guild.id)
 
   if (player && member.voice.channel !== guild.members.me.voice.channel) {
-    return '🚫 You must be in the same voice channel as me.'
+    return {
+      embeds: [MinaEmbed.error(mina.say('music.error.differentChannel'))],
+    }
   }
 
   if (!player) {
@@ -77,7 +85,9 @@ async function search(
       await player.connect()
     } catch (error: any) {
       guild.client.logger?.error('Player Connect Error', error)
-      return '🚫 Failed to connect to voice channel'
+      return {
+        embeds: [MinaEmbed.error(mina.say('music.error.connectFailed'))],
+      }
     }
   }
 
@@ -85,11 +95,7 @@ async function search(
 
   if (!res || !res.tracks?.length) {
     return {
-      embeds: [
-        new EmbedBuilder()
-          .setColor(config.EMBED_COLORS.ERROR)
-          .setDescription(`No results found for \`${query}\``),
-      ],
+      embeds: [MinaEmbed.error(mina.sayf('music.error.noResults', { query }))],
     }
   }
 
@@ -105,15 +111,14 @@ async function search(
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('search-results')
-      .setPlaceholder('Choose Search Results')
+      .setPlaceholder('pick a song')
       .setMaxValues(1)
       .addOptions(options)
   )
 
-  const searchEmbed = new EmbedBuilder()
-    .setColor(config.EMBED_COLORS.BOT_EMBED)
-    .setAuthor({ name: 'Search Results' })
-    .setDescription(`Select the song you wish to add to the queue`)
+  const searchEmbed = MinaEmbed.info()
+    .setAuthor({ name: mina.say('music.success.searchResults') })
+    .setDescription(mina.say('music.success.selectSong'))
 
   const searchMessage = await channel.send({
     embeds: [searchEmbed],
@@ -141,27 +146,31 @@ async function search(
       selectedIndex < 0 ||
       selectedIndex >= results.length
     ) {
-      return '🚫 Invalid selection'
+      return {
+        embeds: [MinaEmbed.error(mina.say('music.error.invalidSelection'))],
+      }
     }
 
     const selectedTrack = results[selectedIndex]
     player.queue.add(selectedTrack)
 
-    const trackEmbed = new EmbedBuilder()
-      .setAuthor({ name: 'Added Track to queue' })
+    const trackEmbed = MinaEmbed.success()
+      .setAuthor({ name: mina.say('music.success.queued.track') })
       .setDescription(
         `[${selectedTrack.info.title}](${selectedTrack.info.uri})`
       )
       .setThumbnail(selectedTrack.info.artworkUrl)
       .addFields({
-        name: 'Song Duration',
+        name: 'duration',
         value:
           '`' +
           guild.client.utils.formatTime(selectedTrack.info.duration) +
           '`',
         inline: true,
       })
-      .setFooter({ text: `Requested By: ${member.user.username}` })
+      .setFooter({
+        text: mina.sayf('generic.requestedBy', { user: member.user.username }),
+      })
 
     if (!player.playing && player.queue.tracks.length > 0) {
       await player.play({ paused: false })
@@ -171,7 +180,7 @@ async function search(
   } catch (err: any) {
     console.error('Error handling response:', err)
     await searchMessage.delete().catch(() => {})
-    return '🚫 Failed to register your response'
+    return { embeds: [MinaEmbed.error(mina.say('music.error.timeout'))] }
   }
 }
 

@@ -1,9 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { musicValidations } from '@helpers/BotUtils'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'pause',
-  description: 'Pause the music player',
+  description: 'pause the music player',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
@@ -11,8 +13,16 @@ const command: CommandData = {
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const response = await pause(interaction)
-    await interaction.followUp(response)
+    if (!interaction.guildId) {
+      return interaction.followUp({
+        embeds: [MinaEmbed.error(mina.say('serverOnly'))],
+      })
+    }
+    const response = await pause({
+      client: interaction.client,
+      guildId: interaction.guildId,
+    })
+    return interaction.followUp(response)
   },
 }
 
@@ -22,19 +32,19 @@ async function pause({
 }: {
   client: any
   guildId: string
-}): Promise<string> {
+}): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return '🚫 No song is currently playing'
+    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
   }
 
   if (player.paused) {
-    return 'The player is already paused'
+    return { embeds: [MinaEmbed.warning('already paused.')] }
   }
 
   player.pause()
-  return '⏸️ Paused the music player'
+  return { embeds: [MinaEmbed.success(mina.say('music.pause'))] }
 }
 
 export default command

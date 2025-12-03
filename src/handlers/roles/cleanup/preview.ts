@@ -5,10 +5,10 @@ import type {
   ButtonInteraction,
   Role,
 } from 'discord.js'
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js'
-import { EMBED_COLORS } from '@src/config'
-import { createDangerBtn, createSecondaryBtn } from '@helpers/componentHelper'
+import { ButtonStyle } from 'discord.js'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import type { RoleCleanupMethod, RoleCleanupStats } from '@handlers/roles'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Filter roles based on cleanup criteria and permissions
@@ -110,7 +110,7 @@ export async function showCleanupPreview(
 ): Promise<void> {
   const guild = interaction.guild
   if (!guild) {
-    await interaction.editReply({ content: '❌ Guild not found' })
+    await interaction.editReply({ content: 'guild not found' })
     return
   }
 
@@ -127,41 +127,41 @@ export async function showCleanupPreview(
   const isTooMany = stats.deletable.length > MAX_DELETE
 
   const methodNames = {
-    empty: 'Empty Roles',
-    prefix: `Prefix: "${params.prefix}"`,
-    below: `Below Position ${params.position}`,
-    older: `Older than ${params.days} days`,
+    empty: 'empty roles',
+    prefix: `prefix: "${params.prefix}"`,
+    below: `below position ${params.position}`,
+    older: `older than ${params.days} days`,
   }
 
-  const embed = new EmbedBuilder()
-    .setColor(isTooMany ? EMBED_COLORS.ERROR : EMBED_COLORS.WARNING)
-    .setTitle('🧹 Role Cleanup Preview')
+  const embed = isTooMany ? MinaEmbed.error() : MinaEmbed.warning()
+  embed
+    .setTitle('role cleanup preview')
     .setDescription(
       isTooMany
-        ? `⚠️ **Safety limit exceeded!**\n\nRefusing to delete more than ${MAX_DELETE} roles in one operation.\nPlease narrow your filter criteria.`
-        : `**Method:** ${methodNames[method]}\n\n` +
-            `Review the roles that will be deleted below. This action **cannot be undone**.`
+        ? `**safety limit exceeded!**\n\nrefusing to delete more than ${MAX_DELETE} roles in one operation.\nplease narrow your filter criteria.`
+        : `**method:** ${methodNames[method]}\n\n` +
+            `review the roles that will be deleted below. this action **cannot be undone**.`
     )
     .addFields(
-      { name: '📊 Matched', value: String(stats.matched.length), inline: true },
+      { name: 'matched', value: String(stats.matched.length), inline: true },
       {
-        name: '✅ Deletable',
+        name: 'deletable',
         value: String(stats.deletable.length),
         inline: true,
       },
-      { name: '⏭️ Skipped', value: String(stats.skipped.length), inline: true }
+      { name: 'skipped', value: String(stats.skipped.length), inline: true }
     )
 
   if (!isTooMany && stats.deletable.length > 0) {
     embed.addFields({
-      name: '🗑️ Will Delete',
+      name: 'will delete',
       value: summarizeRoles(stats.deletable, 15),
     })
   }
 
   if (stats.skipped.length > 0) {
     embed.addFields({
-      name: '⏭️ Skipped Roles',
+      name: 'skipped roles',
       value: summarizeRoles(
         stats.skipped.map(s => s.role),
         10
@@ -173,31 +173,19 @@ export async function showCleanupPreview(
     // Only show back button if too many
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'roles:btn:back_cleanup',
-          label: 'Back to Cleanup Methods',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('roles:btn:back_cleanup')],
     })
     return
   }
 
   if (stats.deletable.length === 0) {
     embed.setDescription(
-      `**Method:** ${methodNames[method]}\n\n` +
-        `No roles match your criteria or all matched roles are protected.`
+      `**method:** ${methodNames[method]}\n\n` +
+        `no roles match your criteria or all matched roles are protected.`
     )
     await interaction.editReply({
       embeds: [embed],
-      components: [
-        createSecondaryBtn({
-          customId: 'roles:btn:back_cleanup',
-          label: 'Back to Cleanup Methods',
-          emoji: '◀️',
-        }),
-      ],
+      components: [MinaRows.backRow('roles:btn:back_cleanup')],
     })
     return
   }
@@ -210,23 +198,16 @@ export async function showCleanupPreview(
       100
     )
 
-  const confirmBtn = createDangerBtn({
-    customId: confirmCustomId,
-    label: `Confirm Delete (${stats.deletable.length})`,
-    emoji: '⚠️',
-  })
+  const confirmBtn = MinaButtons.custom(
+    confirmCustomId,
+    `confirm delete (${stats.deletable.length})`,
+    ButtonStyle.Danger
+  )
 
-  const cancelBtn = createSecondaryBtn({
-    customId: 'roles:btn:cancel',
-    label: 'Cancel',
-    emoji: '❌',
-  })
+  const cancelBtn = MinaButtons.nah('roles:btn:cancel')
 
   // Create a combined row for both buttons
-  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    confirmBtn.components[0],
-    cancelBtn.components[0]
-  )
+  const buttonRow = MinaRows.from(confirmBtn, cancelBtn)
 
   await interaction.editReply({
     embeds: [embed],

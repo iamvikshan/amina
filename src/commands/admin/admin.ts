@@ -1,11 +1,10 @@
 import {
   ChatInputCommandInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-import config from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'admin',
@@ -20,17 +19,16 @@ const command: CommandData = {
 
   async interactionRun(interaction: ChatInputCommandInteraction, _data: any) {
     // Show main admin hub menu
-    const embed = new EmbedBuilder()
-      .setColor(config.EMBED_COLORS.BOT_EMBED)
-      .setTitle('⚙️ Admin Hub')
+    const embed = MinaEmbed.primary()
+      .setTitle('admin hub')
       .setDescription(
-        'Welcome to the Mina admin hub! Choose a category below to get started.\n\n' +
-          '**Server Settings** - Manage updates channel and staff roles\n' +
-          '**Mina AI** - Configure AI responses and behavior\n' +
-          '**Logging** - Set up moderation logs\n' +
-          '**Status** - View current configuration'
+        'welcome to the mina admin hub! choose a category below to get started.\n\n' +
+          '**server settings** - manage updates channel and staff roles\n' +
+          '**mina ai** - configure ai responses and behavior\n' +
+          '**logging** - set up moderation logs\n' +
+          '**status** - view current configuration'
       )
-      .setFooter({ text: 'Select a category from the menu below' })
+      .setFooter({ text: 'select a category from the menu below' })
 
     const menuRow =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(

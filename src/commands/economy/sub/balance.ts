@@ -1,27 +1,27 @@
-import { EmbedBuilder, User } from 'discord.js'
+import { User } from 'discord.js'
 import { getUser } from '@schemas/User'
-import { EMBED_COLORS, ECONOMY } from '@src/config'
+import { ECONOMY } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function balance(user: User) {
   const economy = await getUser(user)
 
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.BOT_EMBED)
+  const embed = MinaEmbed.info()
     .setAuthor({ name: user.username })
     .setThumbnail(user.displayAvatarURL())
     .addFields(
       {
-        name: 'Wallet',
+        name: 'wallet',
         value: `${economy?.coins || 0}${ECONOMY.CURRENCY}`,
         inline: true,
       },
       {
-        name: 'Bank',
+        name: 'bank',
         value: `${economy?.bank || 0}${ECONOMY.CURRENCY}`,
         inline: true,
       },
       {
-        name: 'Net Worth',
+        name: 'net worth',
         value: `${(economy?.coins || 0) + (economy?.bank || 0)}${ECONOMY.CURRENCY}`,
         inline: true,
       }

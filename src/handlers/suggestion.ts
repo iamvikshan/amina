@@ -1,13 +1,10 @@
 import { getSettings } from '@schemas/Guild'
 import { findSuggestion, deleteSuggestionDb } from '@schemas/Suggestions'
-import { SUGGESTIONS } from '@src/config'
 
 import {
   ActionRowBuilder,
-  ButtonBuilder,
   ModalBuilder,
   TextInputBuilder,
-  EmbedBuilder,
   ButtonStyle,
   TextInputStyle,
   Message,
@@ -16,7 +13,10 @@ import {
   ModalSubmitInteraction,
 } from 'discord.js'
 import type { TextBasedChannel } from 'discord.js'
-import { stripIndents } from 'common-tags'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
+import { SUGGESTIONS } from '@src/config'
 
 const getStats = (message: Message): [number, number] => {
   const upVotes =
@@ -30,15 +30,16 @@ const getStats = (message: Message): [number, number] => {
 const getVotesMessage = (upVotes: number, downVotes: number): string => {
   const total = upVotes + downVotes
   if (total === 0) {
-    return stripIndents`
-  _Upvotes: NA_
-  _Downvotes: NA_
-  `
+    return mina.say('suggestions.stats.none')
   } else {
-    return stripIndents`
-  _Upvotes: ${upVotes} [${Math.round((upVotes / (upVotes + downVotes)) * 100)}%]_
-  _Downvotes: ${downVotes} [${Math.round((downVotes / (upVotes + downVotes)) * 100)}%]_
-  `
+    const upPercent = Math.round((upVotes / total) * 100)
+    const downPercent = Math.round((downVotes / total) * 100)
+    return mina.sayf('suggestions.stats.votes', {
+      upvotes: upVotes.toString(),
+      downvotes: downVotes.toString(),
+      upPercent: upPercent.toString(),
+      downPercent: downPercent.toString(),
+    })
   }
 }
 
@@ -56,48 +57,53 @@ async function approveSuggestion(
   reason?: string
 ): Promise<string> {
   const { guild } = member
-  if (!guild) return 'Guild not found'
+  if (!guild) return mina.say('suggestions.error.guildNotFound')
 
   const settings = (await getSettings(guild)) as any
 
   // validate permissions
   if (!hasPerms(member, settings))
-    return "You don't have permission to approve suggestions!"
+    return mina.say('suggestions.error.noPermission')
 
   // validate if document exists
   const doc = (await findSuggestion(guild.id, messageId)) as any
-  if (!doc) return 'Suggestion not found'
-  if (doc.status === 'APPROVED') return 'Suggestion already approved'
+  if (!doc) return mina.say('suggestions.error.notFound')
+  if (doc.status === 'APPROVED')
+    return mina.say('suggestions.error.alreadyApproved')
 
   let message: Message
   try {
     message = await channel.messages.fetch(messageId)
   } catch (_err) {
-    return 'Suggestion message not found'
+    return mina.say('suggestions.error.messageNotFound')
   }
 
-  let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_APPROVE')
-      .setLabel('Approve')
-      .setStyle(ButtonStyle.Success)
-      .setDisabled(true),
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_REJECT')
-      .setLabel('Reject')
-      .setStyle(ButtonStyle.Danger),
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_DELETE')
-      .setLabel('Delete')
-      .setStyle(ButtonStyle.Secondary)
+  let buttonsRow = MinaRows.from(
+    MinaButtons.custom(
+      'SUGGEST_APPROVE',
+      mina.say('suggestions.buttons.approve'),
+      ButtonStyle.Success,
+      true
+    ),
+    MinaButtons.custom(
+      'SUGGEST_REJECT',
+      mina.say('suggestions.buttons.reject'),
+      ButtonStyle.Danger
+    ),
+    MinaButtons.custom(
+      'SUGGEST_DELETE',
+      mina.say('suggestions.buttons.delete'),
+      ButtonStyle.Secondary
+    )
   )
 
-  const approvedEmbed = new EmbedBuilder()
+  const approvedEmbed = MinaEmbed.success()
     .setDescription(message.embeds[0].data.description || null)
-    .setColor(SUGGESTIONS.APPROVED_EMBED as any)
-    .setAuthor({ name: 'Suggestion Approved' })
+    .setAuthor({ name: mina.say('suggestions.approved.title') })
     .setFooter({
-      text: `Approved By ${member.user.username}`,
+      text: mina.sayf('suggestions.approved.footer', {
+        user: member.user.username,
+      }),
       iconURL: member.displayAvatarURL(),
     })
     .setTimestamp()
@@ -106,19 +112,28 @@ async function approveSuggestion(
 
   // add stats if it doesn't exist
   const statsField = message.embeds[0].fields.find(
-    field => field.name === 'Stats'
+    field => field.name.toLowerCase() === 'stats'
   )
   if (!statsField) {
     const [upVotes, downVotes] = getStats(message)
     doc.stats.upvotes = upVotes
     doc.stats.downvotes = downVotes
-    fields.push({ name: 'Stats', value: getVotesMessage(upVotes, downVotes) })
+    fields.push({
+      name: mina.say('suggestions.stats.title'),
+      value: getVotesMessage(upVotes, downVotes),
+      inline: false,
+    })
   } else {
     fields.push(statsField)
   }
 
   // update reason
-  if (reason) fields.push({ name: 'Reason', value: '```' + reason + '```' })
+  if (reason)
+    fields.push({
+      name: mina.say('suggestions.reason.title'),
+      value: '```' + reason + '```',
+      inline: false,
+    })
 
   approvedEmbed.addFields(fields)
 
@@ -156,10 +171,10 @@ async function approveSuggestion(
     }
 
     await doc.save()
-    return 'Suggestion approved'
+    return mina.say('suggestions.approved.success')
   } catch (ex) {
     ;(guild.client as any).logger.error('approveSuggestion', ex)
-    return 'Failed to approve suggestion'
+    return mina.say('suggestions.error.failed')
   }
 }
 
@@ -170,48 +185,52 @@ async function rejectSuggestion(
   reason?: string
 ): Promise<string> {
   const { guild } = member
-  if (!guild) return 'Guild not found'
+  if (!guild) return mina.say('suggestions.error.guildNotFound')
 
   const settings = (await getSettings(guild)) as any
 
   // validate permissions
   if (!hasPerms(member, settings))
-    return "You don't have permission to reject suggestions!"
+    return mina.say('suggestions.error.noPermission')
 
   // validate if document exists
   const doc = (await findSuggestion(guild.id, messageId)) as any
-  if (!doc) return 'Suggestion not found'
-  if (doc.is_rejected) return 'Suggestion already rejected'
+  if (!doc) return mina.say('suggestions.error.notFound')
+  if (doc.is_rejected) return mina.say('suggestions.error.alreadyRejected')
 
   let message: Message
   try {
     message = await channel.messages.fetch(messageId)
   } catch (_err) {
-    return 'Suggestion message not found'
+    return mina.say('suggestions.error.messageNotFound')
   }
 
-  let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_APPROVE')
-      .setLabel('Approve')
-      .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_REJECT')
-      .setLabel('Reject')
-      .setStyle(ButtonStyle.Danger)
-      .setDisabled(true),
-    new ButtonBuilder()
-      .setCustomId('SUGGEST_DELETE')
-      .setLabel('Delete')
-      .setStyle(ButtonStyle.Secondary)
+  let buttonsRow = MinaRows.from(
+    MinaButtons.custom(
+      'SUGGEST_APPROVE',
+      mina.say('suggestions.buttons.approve'),
+      ButtonStyle.Success
+    ),
+    MinaButtons.custom(
+      'SUGGEST_REJECT',
+      mina.say('suggestions.buttons.reject'),
+      ButtonStyle.Danger,
+      true
+    ),
+    MinaButtons.custom(
+      'SUGGEST_DELETE',
+      mina.say('suggestions.buttons.delete'),
+      ButtonStyle.Secondary
+    )
   )
 
-  const rejectedEmbed = new EmbedBuilder()
+  const rejectedEmbed = MinaEmbed.error()
     .setDescription(message.embeds[0].data.description || null)
-    .setColor(SUGGESTIONS.DENIED_EMBED as any)
-    .setAuthor({ name: 'Suggestion Rejected' })
+    .setAuthor({ name: mina.say('suggestions.rejected.title') })
     .setFooter({
-      text: `Rejected By ${member.user.username}`,
+      text: mina.sayf('suggestions.rejected.footer', {
+        user: member.user.username,
+      }),
       iconURL: member.displayAvatarURL(),
     })
     .setTimestamp()
@@ -220,19 +239,28 @@ async function rejectSuggestion(
 
   // add stats if it doesn't exist
   const statsField = message.embeds[0].fields.find(
-    field => field.name === 'Stats'
+    field => field.name.toLowerCase() === 'stats'
   )
   if (!statsField) {
     const [upVotes, downVotes] = getStats(message)
     doc.stats.upvotes = upVotes
     doc.stats.downvotes = downVotes
-    fields.push({ name: 'Stats', value: getVotesMessage(upVotes, downVotes) })
+    fields.push({
+      name: mina.say('suggestions.stats.title'),
+      value: getVotesMessage(upVotes, downVotes),
+      inline: false,
+    })
   } else {
     fields.push(statsField)
   }
 
   // update reason
-  if (reason) fields.push({ name: 'Reason', value: '```' + reason + '```' })
+  if (reason)
+    fields.push({
+      name: mina.say('suggestions.reason.title'),
+      value: '```' + reason + '```',
+      inline: false,
+    })
 
   rejectedEmbed.addFields(fields)
 
@@ -271,10 +299,10 @@ async function rejectSuggestion(
 
     await doc.save()
 
-    return 'Suggestion rejected'
+    return mina.say('suggestions.rejected.success')
   } catch (ex) {
     ;(guild.client as any).logger.error('rejectSuggestion', ex)
-    return 'Failed to reject suggestion'
+    return mina.say('suggestions.error.failed')
   }
 }
 
@@ -285,34 +313,34 @@ async function deleteSuggestion(
   reason?: string
 ): Promise<string> {
   const { guild } = member
-  if (!guild) return 'Guild not found'
+  if (!guild) return mina.say('suggestions.error.guildNotFound')
 
   const settings = (await getSettings(guild)) as any
 
   // validate permissions
   if (!hasPerms(member, settings))
-    return "You don't have permission to delete suggestions!"
+    return mina.say('suggestions.error.noPermission')
 
   try {
     await channel.messages.delete(messageId)
-    await deleteSuggestionDb(guild.id, messageId, member.id, reason)
-    return 'Suggestion deleted'
+    await deleteSuggestionDb(guild.id, messageId, member.id, reason || '')
+    return mina.say('suggestions.deleted.success')
   } catch (ex) {
     ;(guild.client as any).logger.error('deleteSuggestion', ex)
-    return 'Failed to delete suggestion! Please delete manually'
+    return mina.say('suggestions.deleted.failed')
   }
 }
 
 async function handleApproveBtn(interaction: ButtonInteraction): Promise<void> {
   await interaction.showModal(
     new ModalBuilder({
-      title: 'Approve Suggestion',
+      title: mina.say('suggestions.modal.approve.title'),
       customId: 'SUGGEST_APPROVE_MODAL',
       components: [
         new ActionRowBuilder<TextInputBuilder>().addComponents([
           new TextInputBuilder()
             .setCustomId('reason')
-            .setLabel('reason')
+            .setLabel(mina.say('suggestions.modal.reason.label'))
             .setStyle(TextInputStyle.Paragraph)
             .setMinLength(4),
         ]),
@@ -326,10 +354,15 @@ async function handleApproveModal(
 ): Promise<void> {
   await modal.deferReply({ ephemeral: true })
   const reason = modal.fields.getTextInputValue('reason')
+  const messageId = modal.message?.id
+  if (!messageId) {
+    await modal.followUp(mina.say('suggestions.error.messageNotFound'))
+    return
+  }
   const response = await approveSuggestion(
     modal.member as GuildMember,
     modal.channel as TextBasedChannel,
-    modal.message?.id || '',
+    messageId,
     reason
   )
   await modal.followUp(response)
@@ -338,13 +371,13 @@ async function handleApproveModal(
 async function handleRejectBtn(interaction: ButtonInteraction): Promise<void> {
   await interaction.showModal(
     new ModalBuilder({
-      title: 'Reject Suggestion',
+      title: mina.say('suggestions.modal.reject.title'),
       customId: 'SUGGEST_REJECT_MODAL',
       components: [
         new ActionRowBuilder<TextInputBuilder>().addComponents([
           new TextInputBuilder()
             .setCustomId('reason')
-            .setLabel('reason')
+            .setLabel(mina.say('suggestions.modal.reason.label'))
             .setStyle(TextInputStyle.Paragraph)
             .setMinLength(4),
         ]),
@@ -356,10 +389,15 @@ async function handleRejectBtn(interaction: ButtonInteraction): Promise<void> {
 async function handleRejectModal(modal: ModalSubmitInteraction): Promise<void> {
   await modal.deferReply({ ephemeral: true })
   const reason = modal.fields.getTextInputValue('reason')
+  const messageId = modal.message?.id
+  if (!messageId) {
+    await modal.followUp(mina.say('suggestions.error.messageNotFound'))
+    return
+  }
   const response = await rejectSuggestion(
     modal.member as GuildMember,
     modal.channel as TextBasedChannel,
-    modal.message?.id || '',
+    messageId,
     reason
   )
   await modal.followUp(response)
@@ -368,13 +406,13 @@ async function handleRejectModal(modal: ModalSubmitInteraction): Promise<void> {
 async function handleDeleteBtn(interaction: ButtonInteraction): Promise<void> {
   await interaction.showModal(
     new ModalBuilder({
-      title: 'Delete Suggestion',
+      title: mina.say('suggestions.modal.delete.title'),
       customId: 'SUGGEST_DELETE_MODAL',
       components: [
         new ActionRowBuilder<TextInputBuilder>().addComponents([
           new TextInputBuilder()
             .setCustomId('reason')
-            .setLabel('reason')
+            .setLabel(mina.say('suggestions.modal.reason.label'))
             .setStyle(TextInputStyle.Paragraph)
             .setMinLength(4),
         ]),
@@ -386,10 +424,15 @@ async function handleDeleteBtn(interaction: ButtonInteraction): Promise<void> {
 async function handleDeleteModal(modal: ModalSubmitInteraction): Promise<void> {
   await modal.deferReply({ ephemeral: true })
   const reason = modal.fields.getTextInputValue('reason')
+  const messageId = modal.message?.id
+  if (!messageId) {
+    await modal.followUp(mina.say('suggestions.error.messageNotFound'))
+    return
+  }
   const response = await deleteSuggestion(
     modal.member as GuildMember,
     modal.channel as TextBasedChannel,
-    modal.message?.id || '',
+    messageId,
     reason
   )
   await modal.followUp({ content: response, ephemeral: true })

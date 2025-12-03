@@ -1,14 +1,13 @@
 import {
-  EmbedBuilder,
-  ButtonBuilder,
-  ActionRowBuilder,
   ApplicationCommandOptionType,
-  ButtonStyle,
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { timeformat } from '@helpers/Utils'
-import { EMBED_COLORS, config, secret } from '@src/config'
+import { config, secret } from '@src/config'
 import botstats from './sub/botstats'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { mina } from '@helpers/mina'
 
 import type { BotClient } from '@structures/BotClient'
 import packageJson from '@root/package.json'
@@ -62,61 +61,53 @@ const command: CommandData = {
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
-    if (!sub) return interaction.followUp('Not a valid subcommand')
+    if (!sub)
+      return interaction.followUp(mina.say('botInfo.error.invalidSubcommand'))
 
     // Invite
     if (sub === 'invite') {
       const response = botInvite(interaction.client as BotClient)
       try {
         await interaction.user.send(response)
-        return interaction.followUp(
-          'Check your DM for my information! :envelope_with_arrow:'
-        )
+        return interaction.followUp(mina.say('botInfo.dm.sent'))
       } catch (_ex) {
-        return interaction.followUp(
-          'I cannot send you my information! Is your DM open?'
-        )
+        return interaction.followUp(mina.say('botInfo.dm.failed'))
       }
     }
 
     // Donate
     else if (sub === 'donate') {
-      const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Donate' })
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setThumbnail(interaction.client.user.displayAvatarURL())
-        .setDescription(
-          'Hey there! Thanks for considering to donate to me\nUse the button below to navigate where you want'
-        )
+      const embed = MinaEmbed.primary()
+        .setAuthor({ name: mina.say('botInfo.donate.title') })
+        .setThumbnail(interaction.client.user?.displayAvatarURL() ?? '')
+        .setDescription(mina.say('botInfo.donate.description'))
 
       // Buttons
-      let components = []
+      const buttons = []
       if (config.BOT.DONATE_URL) {
-        components.push(
-          new ButtonBuilder()
-            .setLabel('Ko-fi')
-            .setURL(config.BOT.DONATE_URL)
-            .setStyle(ButtonStyle.Link)
+        buttons.push(
+          MinaButtons.link(
+            config.BOT.DONATE_URL,
+            mina.say('botInfo.donate.button.kofi')
+          )
         )
       }
 
-      components.push(
-        new ButtonBuilder()
-          .setLabel('Github Sponsors')
-          .setURL(`https://github.com/sponsors/iamvikshan`)
-          .setStyle(ButtonStyle.Link)
+      buttons.push(
+        MinaButtons.link(
+          'https://github.com/sponsors/iamvikshan',
+          mina.say('botInfo.donate.button.github')
+        )
       )
 
-      components.push(
-        new ButtonBuilder()
-          .setLabel('Patreon')
-          .setURL('https://patreon.com/vikshan')
-          .setStyle(ButtonStyle.Link)
+      buttons.push(
+        MinaButtons.link(
+          'https://patreon.com/vikshan',
+          mina.say('botInfo.donate.button.patreon')
+        )
       )
 
-      let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        components
-      )
+      const buttonsRow = MinaRows.from(...buttons)
       return interaction.followUp({ embeds: [embed], components: [buttonsRow] })
     }
 
@@ -128,42 +119,38 @@ const command: CommandData = {
 
     // Uptime
     else if (sub === 'uptime') {
-      await interaction.followUp(
-        `My Uptime: \`${timeformat(process.uptime())}\``
+      return interaction.followUp(
+        mina.sayf('botInfo.uptime.result', {
+          uptime: timeformat(process.uptime()),
+        })
       )
     }
 
     // Docs
     else if (sub === 'docs') {
-      const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Documentation' })
-        .setColor(EMBED_COLORS.BOT_EMBED)
-        .setThumbnail(interaction.client.user.displayAvatarURL())
-        .setDescription(
-          'Hey there! Ah you want to know more about me? Or you are just lost? \nWell, Use the button below to see my documentation\n\nIf you are lost, you can also use the `help` command to see all my commands'
-        )
-        .setFooter({ text: 'Free Cookies!' })
+      const embed = MinaEmbed.primary()
+        .setAuthor({ name: mina.say('botInfo.docs.title') })
+        .setThumbnail(interaction.client.user?.displayAvatarURL() ?? '')
+        .setDescription(mina.say('botInfo.docs.description'))
+        .setFooter({ text: mina.say('botInfo.docs.footer') })
 
       // Buttons
-      let components = []
-      components.push(
-        new ButtonBuilder()
-          .setLabel('Documentation')
-          .setURL('https://docs.vikshan.me')
-          .setStyle(ButtonStyle.Link)
-      )
-
-      let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        components
+      const buttonsRow = MinaRows.from(
+        MinaButtons.link(
+          'https://docs.vikshan.me',
+          mina.say('botInfo.docs.button')
+        )
       )
       return interaction.followUp({ embeds: [embed], components: [buttonsRow] })
     }
 
     // Ping
     else if (sub === 'ping') {
-      const msg = await interaction.followUp('Pinging...')
-      await msg.edit(
-        `🏓 Pong : \`${Math.floor(interaction.client.ws.ping)}ms\``
+      const msg = await interaction.followUp(mina.say('botInfo.ping.checking'))
+      return msg.edit(
+        mina.sayf('botInfo.ping.result', {
+          ping: Math.floor(interaction.client.ws.ping).toString(),
+        })
       )
     }
     // Changelog
@@ -215,53 +202,50 @@ const command: CommandData = {
 
         const latestUpdates = versions.join('\n\n')
 
-        const embed = new EmbedBuilder()
-          .setAuthor({ name: 'Latest Updates' })
-          .setColor(EMBED_COLORS.BOT_EMBED)
+        const embed = MinaEmbed.primary()
+          .setAuthor({ name: mina.say('botInfo.changelog.title') })
           .setDescription(
-            `${latestUpdates}\n\n[**View full changelog**](https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md)`
+            `${latestUpdates}\n\n[**view full changelog**](https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md)`
           )
           .setFooter({
-            text: 'Only showing the 2 most recent updates',
+            text: mina.say('botInfo.changelog.footer'),
           })
 
         return interaction.followUp({ embeds: [embed] })
       } catch (error) {
         console.error('Error fetching changelog:', error)
         return interaction.followUp(
-          `Error fetching the changelog. Please try again later or view full changelog [here](https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md).`
+          mina.sayf('botInfo.changelog.error', {
+            url: 'https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md',
+          })
         )
       }
     }
+
+    return interaction.followUp(mina.say('botInfo.error.unknownSubcommand'))
   },
 }
 
 export default command
 
 function botInvite(client: BotClient) {
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'Invite' })
-    .setColor(EMBED_COLORS.BOT_EMBED)
-    .setThumbnail(client.user.displayAvatarURL())
-    .setDescription(
-      'Hey there! Thanks for considering to invite me\nUse the button below to navigate where you want'
-    )
+  const embed = MinaEmbed.primary()
+    .setAuthor({ name: mina.say('botInfo.invite.title') })
+    .setThumbnail(client.user?.displayAvatarURL() ?? '')
+    .setDescription(mina.say('botInfo.invite.description'))
 
   // Buttons
-  let components = []
-  components.push(
-    new ButtonBuilder()
-      .setLabel('Invite Link')
-      .setURL(client.getInvite())
-      .setStyle(ButtonStyle.Link)
+  const buttons = []
+  buttons.push(
+    MinaButtons.link(client.getInvite(), mina.say('botInfo.invite.button'))
   )
 
   if (config.BOT.SUPPORT_SERVER) {
-    components.push(
-      new ButtonBuilder()
-        .setLabel('Support Server')
-        .setURL(config.BOT.SUPPORT_SERVER)
-        .setStyle(ButtonStyle.Link)
+    buttons.push(
+      MinaButtons.link(
+        config.BOT.SUPPORT_SERVER,
+        mina.say('botInfo.invite.support')
+      )
     )
   }
   if (config.BOT.DASHBOARD_URL) {
@@ -269,16 +253,11 @@ function botInvite(client: BotClient) {
       ? config.BOT.DASHBOARD_URL
       : `https://${config.BOT.DASHBOARD_URL}`
 
-    components.push(
-      new ButtonBuilder()
-        .setLabel('Dashboard Link')
-        .setURL(dashboardUrl)
-        .setStyle(ButtonStyle.Link)
+    buttons.push(
+      MinaButtons.link(dashboardUrl, mina.say('botInfo.invite.dashboard'))
     )
   }
 
-  let buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    components
-  )
+  const buttonsRow = MinaRows.from(...buttons)
   return { embeds: [embed], components: [buttonsRow] }
 }

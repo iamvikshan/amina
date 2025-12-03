@@ -1,4 +1,6 @@
-import { EmbedBuilder, GuildMember } from 'discord.js'
+import { GuildMember, EmbedBuilder } from 'discord.js'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 import { getSettings } from '@schemas/Guild'
 import type BotClient from '@structures/BotClient'
 
@@ -102,7 +104,7 @@ const buildGreeting = async (
   if (config.content) content = await parse(config.content, member, inviterData)
 
   // build embed
-  const embed = new EmbedBuilder()
+  const embed = MinaEmbed.info()
   if (config.embed.description) {
     const parsed = await parse(config.embed.description, member, inviterData)
     embed.setDescription(parsed)
@@ -122,8 +124,14 @@ const buildGreeting = async (
   if (!config.content && !config.embed.description && !config.embed.footer) {
     content =
       type === 'WELCOME'
-        ? `Welcome to the server, ${member.displayName} 🎉`
-        : `${member.user.username} has left the server 👋`
+        ? mina.sayf('greetings.welcome', {
+            user: member.displayName,
+            server: member.guild.name,
+          })
+        : mina.sayf('greetings.farewell', {
+            user: member.user.username,
+            server: member.guild.name,
+          })
     return { content }
   }
 

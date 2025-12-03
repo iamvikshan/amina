@@ -1,11 +1,10 @@
 import { getUser } from '@schemas/User'
-import { EMBED_COLORS } from '@src/config'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 import axios from 'axios'
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   User,
 } from 'discord.js'
 
@@ -164,7 +163,7 @@ async function genReaction(
   reaction: string,
   author: User,
   target: User | null
-): Promise<EmbedBuilder> {
+) {
   try {
     const [response, pronounInfo] = await Promise.all([
       axios.get(`https://api.waifu.pics/sfw/${reaction}`),
@@ -180,15 +179,13 @@ async function genReaction(
       pronounInfo
     )
 
-    return new EmbedBuilder()
+    return MinaEmbed.primary()
       .setDescription(message)
       .setImage(response.data.url)
-      .setColor(EMBED_COLORS.BOT_EMBED)
       .setFooter({ text: `${author.username}'s emotional moment~` })
-  } catch (ex) {
-    console.error('Error fetching reaction:', ex)
-    return new EmbedBuilder()
-      .setColor(EMBED_COLORS.ERROR)
+  } catch (_ex) {
+    console.error('Error fetching reaction:', _ex)
+    return MinaEmbed.error()
       .setDescription('oops! the anime magic fizzled out! try again?')
       .setFooter({ text: `${author.username}'s emotional moment~` })
   }
