@@ -12,7 +12,7 @@
         "@iconify-json/lucide": "^1.2.73",
         "@preline/accordion": "^3.0.0",
         "@preline/collapse": "^3.0.0",
-        "@preline/dropdown": "^2.6.0",
+        "@preline/dropdown": "^3.0.0",
         "@preline/overlay": "^2.6.0",
         "@preline/tabs": "^2.6.0",
         "@tailwindcss/forms": "^0.5.10",
@@ -184,6 +184,12 @@
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.12", "", { "os": "win32", "cpu": "x64" }, "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA=="],
 
+    "@floating-ui/core": ["@floating-ui/core@1.7.3", "", { "dependencies": { "@floating-ui/utils": "^0.2.10" } }, "sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w=="],
+
+    "@floating-ui/dom": ["@floating-ui/dom@1.7.4", "", { "dependencies": { "@floating-ui/core": "^1.7.3", "@floating-ui/utils": "^0.2.10" } }, "sha512-OOchDgh4F2CchOX94cRVqhvy7b3AFb+/rQXyswmzmGakRfkMgoWVjfnLWkRirfLEfuD4ysVW16eXzwt3jHIzKA=="],
+
+    "@floating-ui/utils": ["@floating-ui/utils@0.2.10", "", {}, "sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ=="],
+
     "@iconify-json/lucide": ["@iconify-json/lucide@1.2.73", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-++HFkqDNu4jqG5+vYT+OcVj9OiuPCw9wQuh8G5QWQnBRSJ9eKwSStiU8ORgOoK07xJsm/0VIHySMniXUUXP9Gw=="],
 
     "@iconify/tools": ["@iconify/tools@4.1.4", "", { "dependencies": { "@iconify/types": "^2.0.0", "@iconify/utils": "^2.3.0", "@types/tar": "^6.1.13", "axios": "^1.12.1", "cheerio": "1.0.0", "domhandler": "^5.0.3", "extract-zip": "^2.0.1", "local-pkg": "^0.5.1", "pathe": "^1.1.2", "svgo": "^3.3.2", "tar": "^6.2.1" } }, "sha512-s6BcNUcCxQ3S6cvhlsoWzOuBt8qKXdVyXB9rT57uSJ/ARHD7dVM43+5ERBWn3tmkMWXeJ/s9DPVc3dUasayzeA=="],
@@ -270,7 +276,7 @@
 
     "@preline/collapse": ["@preline/collapse@3.2.3", "", {}, "sha512-9h3idfw3+8TJB4Apc2kki+DIunq2gahmwLJkmRmK6r2Z3ONkraKAvKR8ZeyxmHsjucebfcKIQwec3nqlsu86nQ=="],
 
-    "@preline/dropdown": ["@preline/dropdown@2.6.0", "", {}, "sha512-Ryjeo0tOnsxzT9dI1S4gybUwTcvQPszVTqxmxry1yxIaKWzpom2As/AFoYETZ/8EbdQxr7G6CQj4d0Fw+9u+mA=="],
+    "@preline/dropdown": ["@preline/dropdown@3.2.3", "", { "dependencies": { "@floating-ui/dom": "^1.6.13" } }, "sha512-cvTJQ8rPdb6QP9tfPwdCgjhif3+/UR1b6edDETURSaTCBzGtfQhoiSCFZAn1fNBwJEE0yYH007vcp+VOEDTJYw=="],
 
     "@preline/overlay": ["@preline/overlay@2.6.0", "", {}, "sha512-UHwvQ/urc9JXkepINlFUXYYZg6Z4FMKyN2YO/2Kn7mCbpY+QbXtoRBvq+8j9aC2MFOvV6HQhm1yLbCibt1qwFA=="],
 
