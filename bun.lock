@@ -11,7 +11,7 @@
         "@astrojs/tailwind": "6.0.2",
         "@iconify-json/lucide": "^1.2.73",
         "@preline/accordion": "^2.6.0",
-        "@preline/collapse": "^2.6.0",
+        "@preline/collapse": "^3.0.0",
         "@preline/dropdown": "^2.6.0",
         "@preline/overlay": "^2.6.0",
         "@preline/tabs": "^2.6.0",
@@ -268,7 +268,7 @@
 
     "@preline/accordion": ["@preline/accordion@2.6.0", "", {}, "sha512-MWZrV1RC0urfG9KuaKTd316gXK8yc8vIq3XtABCVbEf43hNRYUqLFbRPD3JTbdHtYiD/xT53NZkFC0CIvGj1yg=="],
 
-    "@preline/collapse": ["@preline/collapse@2.6.0", "", {}, "sha512-0w/Gd5g2N81atuMhEikAyW/88yIk/Gt7wnrIMB5NZQry5CWj8SAf0kksb2wtFF5uakA/tnbSuXzeCcabbZe0uw=="],
+    "@preline/collapse": ["@preline/collapse@3.2.3", "", {}, "sha512-9h3idfw3+8TJB4Apc2kki+DIunq2gahmwLJkmRmK6r2Z3ONkraKAvKR8ZeyxmHsjucebfcKIQwec3nqlsu86nQ=="],
 
     "@preline/dropdown": ["@preline/dropdown@2.6.0", "", {}, "sha512-Ryjeo0tOnsxzT9dI1S4gybUwTcvQPszVTqxmxry1yxIaKWzpom2As/AFoYETZ/8EbdQxr7G6CQj4d0Fw+9u+mA=="],
 
