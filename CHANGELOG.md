@@ -1,3 +1,43 @@
+# [v3.0.0](https://github.com/iamvikshan/amina/compare/v2.2.1...v3.0.0) (2025-12-03)
+
+
+
+## [3.0.0](https://github.com/iamvikshan/amina/compare/v2.2.1...v3.0.0) (2025-12-03)
+
+### ⚠ BREAKING CHANGES
+
+* Major architectural overhaul implementing Mina's unified personality system
+
+This release introduces a comprehensive UI/UX standardization across the entire codebase,
+establishing consistent patterns for embeds, buttons, and response strings.
+
+### ✨ New Systems
+
+**MinaEmbed Factory (\`src/structures/embeds/MinaEmbed.ts\`)**
+- Centralized embed creation with preset color themes (primary, secondary, warning, error, success, gold)
+- Context-aware embed builders for users, members, guilds, moderation, economy, music, and levels
+- Random quote/tip injection system for personality consistency
+- Extends EmbedBuilder with Mina-specific styling
+
+**MinaButtons/MinaRows System (\`src/helpers/componentHelper.ts\`)**
+- Semantic button factory: yeah(), nah(), back(), nuke(), link(), nav()
+- Pre-built row patterns: yesNoRow(), backRow(), confirmCancelRow()
+- Consistent lowercase labels matching Mina's casual voice
+- 315+ instances across the codebase
+
+**Mina Response Helper (\`src/helpers/mina.ts\`)**
+- Centralized response strings via mina.say() and mina.sayf()
+- Template support with variable interpolation
+- Response pools with random selection for variety
+- Unified color constants and moderation colors
+
+**Response Data Files**
+- src/data/responses.json - 1600+ response strings organized by category
+- src/data/respFun.json - Fun command responses
+- src/data/respMod.json - Moderation responses
+
+* git commit -m "refactor!: complete Mina personality system migration ([b11ad7b](https://github.com/iamvikshan/amina/commit/b11ad7b1d541c6364dffc3fe32e2454391afaa95))
+
 # [v2.2.1](https://github.com/iamvikshan/amina/compare/v2.2.0...v2.2.1) (2025-11-29)
 
 ## [2.2.1](https://github.com/iamvikshan/amina/compare/v2.2.0...v2.2.1) (2025-11-29)
