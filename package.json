@@ -23,7 +23,7 @@
     "@preline/collapse": "^3.0.0",
     "@preline/dropdown": "^3.0.0",
     "@preline/overlay": "^3.0.0",
-    "@preline/tabs": "^2.6.0",
+    "@preline/tabs": "^3.0.0",
     "@tailwindcss/forms": "^0.5.10",
     "@types/alpinejs": "^3.13.11",
     "alpinejs": "^3.15.1",
