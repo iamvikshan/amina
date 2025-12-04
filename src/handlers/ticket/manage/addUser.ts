@@ -66,7 +66,16 @@ export async function handleAddUserSelect(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const channel = interaction.channel as TextChannel
+  const channel = interaction.channel
+
+  if (!channel || !(channel instanceof TextChannel)) {
+    await interaction.followUp({
+      content: 'this operation can only be performed in text channels',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
   const users = interaction.users
 
   if (users.size === 0) {
