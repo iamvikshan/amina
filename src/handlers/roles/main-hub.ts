@@ -67,7 +67,7 @@ export async function handleRolesBackButton(
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('roles:menu:operation')
-      .setPlaceholder('Choose a roles operation')
+      .setPlaceholder('choose a roles operation')
       .addOptions([
         new StringSelectMenuOptionBuilder()
           .setLabel('cleanup roles')

@@ -40,14 +40,14 @@ export async function showMinaAiHub(
 
   const menuOptions = [
     new StringSelectMenuOptionBuilder()
-      .setLabel(isDM ? 'Show DM Memories' : 'Show Server Memories')
+      .setLabel(isDM ? 'show dm memories' : 'show server memories')
       .setDescription(
-        isDM ? 'View memories from DMs' : 'View memories from this server'
+        isDM ? 'view memories from dms' : 'view memories from this server'
       )
       .setValue(isDM ? 'memories_dm' : 'memories_server'),
     new StringSelectMenuOptionBuilder()
-      .setLabel('Settings')
-      .setDescription('Configure your preferences')
+      .setLabel('settings')
+      .setDescription('configure your preferences')
       .setValue('settings'),
   ]
 

@@ -8,7 +8,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'qrcode',
-  description: 'Generate a QR code with the url that is provided',
+  description: 'generate a qr code from any url',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
 
@@ -18,7 +18,7 @@ const command: CommandData = {
     options: [
       {
         name: 'url',
-        description: 'URL to generate QR code for',
+        description: 'the url to encode as a qr code',
         type: ApplicationCommandOptionType.String,
         required: true,
       },
@@ -28,7 +28,7 @@ const command: CommandData = {
     const text = interaction.options.getString('url', true)
     const baseURL = 'http://api.qrserver.com/v1'
     const regex =
-      /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+      /[(http(s)?):/(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/
 
     if (!text.match(regex)) {
       const guild = interaction.guild as Guild | null

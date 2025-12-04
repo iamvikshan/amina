@@ -2,6 +2,7 @@
 
 import type { GuildMember, Message } from 'discord.js'
 import { getSettings } from '../database/schemas/Guild'
+import { getUser } from '../database/schemas/User'
 import { configCache } from '../config/aiResponder'
 import { GoogleAiClient } from '../helpers/googleAiClient'
 // ConversationMessage is now globally available - see types/services.d.ts
@@ -80,9 +81,9 @@ export class AiResponderService {
     try {
       const config = await configCache.getConfig()
 
-      logger.log(
-        `AI Config loaded - Enabled: ${config.globallyEnabled}, Model: ${config.model}, HasKey: ${!!config.geminiKey}`
-      )
+      // logger.log(
+      //   `AI Config loaded - Enabled: ${config.globallyEnabled}, Model: ${config.model}, HasKey: ${!!config.geminiKey}`
+      // )
 
       if (config.globallyEnabled && config.geminiKey) {
         // Only recreate client if model, timeout, or key changed
@@ -103,9 +104,7 @@ export class AiResponderService {
             timeoutMs: config.timeoutMs,
             geminiKey: config.geminiKey,
           }
-          logger.success(
-            `AI Responder initialized - Model: ${config.model}, Timeout: ${config.timeoutMs}ms`
-          )
+          logger.success(`AI Responder initialized - Model: ${config.model}`)
         } else {
           logger.debug(
             'AI Responder config unchanged, skipping client recreation'
@@ -132,7 +131,6 @@ export class AiResponderService {
       }
 
       // Parallelize initial fetches: User Data and Config
-      const { getUser } = await import('@schemas/User')
       const [userData, config] = await Promise.all([
         getUser(message.author),
         configCache.getConfig(),
@@ -370,7 +368,6 @@ export class AiResponderService {
       const allMemories = new Map<string, any[]>() // userId -> RecalledMemory[]
 
       // Parallelize memory recall for all participants
-      const { getUser } = await import('@schemas/User')
       const memoryRecallPromises = participantIds.map(async userId => {
         try {
           // Get user preferences for this participant
@@ -1027,7 +1024,6 @@ export class AiResponderService {
     const profiles = new Map<string, any>()
 
     // Batch fetch user data
-    const { getUser } = await import('@schemas/User')
     const fetchPromises = userIds.map(async userId => {
       try {
         // Create a minimal user object for getUser (it only needs id)

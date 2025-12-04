@@ -7,7 +7,7 @@ import responses from '@data/responses'
 
 const command: CommandData = {
   name: 'beg',
-  description: 'beg from someone',
+  description: 'ask celebrities for spare coins',
   category: 'ECONOMY',
   cooldown: 3600,
   botPermissions: ['EmbedLinks'],

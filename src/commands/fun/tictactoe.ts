@@ -4,10 +4,11 @@ import {
 } from 'discord.js'
 import { TicTacToe } from 'discord-gamecord'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'tictactoe',
-  description: 'Challenge someone to an epic game of Tic Tac Toe!',
+  description: 'challenge someone to a classic game of tic tac toe',
   cooldown: 1,
   category: 'FUN',
   botPermissions: [
@@ -23,7 +24,7 @@ const command: CommandData = {
     options: [
       {
         name: 'user',
-        description: 'pick your worthy opponent!',
+        description: 'the user to challenge',
         type: ApplicationCommandOptionType.User,
         required: true,
       },
@@ -33,14 +34,13 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const opponent = interaction.options.getUser('user')
     if (!opponent) {
-      return interaction.followUp('Please provide an opponent!')
+      return interaction.followUp(mina.say('errors.missingInfo'))
     }
 
     // Check if opponent is a bot
     if (opponent.bot) {
       return interaction.followUp({
-        content:
-          "bots can't play games yet - trust me, i've tried teaching them! pick a human friend instead!",
+        content: mina.say('fun.tictactoe.botOpponent'),
         ephemeral: true,
       })
     }
@@ -48,8 +48,7 @@ const command: CommandData = {
     // Check if user is trying to play with themselves
     if (opponent.id === interaction.user.id) {
       return interaction.followUp({
-        content:
-          "you can't play against yourself - where's the fun in that? invite a friend to join the adventure!",
+        content: mina.say('fun.tictactoe.selfOpponent'),
         ephemeral: true,
       })
     }
@@ -73,15 +72,11 @@ const command: CommandData = {
       timeoutTime: 60000,
       xButtonStyle: 'DANGER',
       oButtonStyle: 'PRIMARY',
-      turnMessage:
-        "{emoji} | *bounces excitedly* it's **{player}**'s turn to make a move!",
-      winMessage:
-        '{emoji} | *jumps with joy* **{player}** won the game! that was amazing!',
-      tieMessage: "*spins around* it's a tie! you're both equally awesome!",
-      timeoutMessage:
-        "*droops* aww, the game timed out! don't leave me hanging next time!",
-      playerOnlyMessage:
-        'hey there! only {player} and {opponent} can play in this game! but you can start your own adventure with `/tictactoe`!',
+      turnMessage: mina.say('fun.tictactoe.turnMessage'),
+      winMessage: mina.say('fun.tictactoe.winMessage'),
+      tieMessage: mina.say('fun.tictactoe.tieMessage'),
+      timeoutMessage: mina.say('fun.tictactoe.timeoutMessage'),
+      playerOnlyMessage: mina.say('fun.tictactoe.playerOnlyMessage'),
     })
 
     Game.startGame()
@@ -92,17 +87,13 @@ const command: CommandData = {
       if (result.result === 'tie') {
         const embed = MinaEmbed.warning()
           .setTitle('tic tac toe results')
-          .setDescription(
-            "*spins in circles* what an amazing battle! it's a perfect tie! both of you played brilliantly!"
-          )
+          .setDescription(mina.say('fun.tictactoe.tieResult'))
           .setTimestamp()
         interaction.followUp({ embeds: [embed] })
       } else if (result.result === 'win') {
         const embed = MinaEmbed.success()
-          .setTitle('tic tac toe champion!')
-          .setDescription(
-            `*jumps excitedly* congratulations ${winner}! that was an epic victory!`
-          )
+          .setTitle('tic tac toe champion')
+          .setDescription(mina.sayf('fun.tictactoe.winResult', { winner }))
           .setTimestamp()
 
         interaction.followUp({ embeds: [embed] })

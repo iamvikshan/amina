@@ -37,7 +37,7 @@ const createSubcommandWithRating = (name: string, description: string) => ({
 
 const command: CommandData = {
   name: 'tod',
-  description: "ready for some truth or dare chaos? let's go!",
+  description: 'play truth, dare, never have i ever, and more party games',
   category: 'FUN',
   slashCommand: {
     enabled: true,

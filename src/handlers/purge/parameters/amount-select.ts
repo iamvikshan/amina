@@ -50,25 +50,25 @@ export async function showAmountSelect(
       .setPlaceholder('select amount...')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('10 Messages')
-          .setDescription('Delete 10 messages')
+          .setLabel('10 messages')
+          .setDescription('delete 10 messages')
           .setValue('10'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('25 Messages')
-          .setDescription('Delete 25 messages')
+          .setLabel('25 messages')
+          .setDescription('delete 25 messages')
           .setValue('25'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('50 Messages')
-          .setDescription('Delete 50 messages')
+          .setLabel('50 messages')
+          .setDescription('delete 50 messages')
           .setValue('50'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('100 Messages')
-          .setDescription('Delete 100 messages (Discord max)')
+          .setLabel('100 messages')
+          .setDescription('delete 100 messages (discord max)')
           .setValue('100')
           .setDefault(isDefault === true), // Preselect 100 for default flow
         new StringSelectMenuOptionBuilder()
-          .setLabel('Custom Amount')
-          .setDescription('Enter a custom amount (1-100)')
+          .setLabel('custom amount')
+          .setDescription('enter a custom amount (1-100)')
           .setValue('custom'),
       ])
   )

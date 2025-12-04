@@ -21,7 +21,7 @@ export async function showServerSettingsMenu(
 
   const updatesChannel = settings.server.updates_channel
     ? `<#${settings.server.updates_channel}>`
-    : 'Not set'
+    : 'not set'
   const staffRoles =
     settings.server.staff_roles.length > 0
       ? settings.server.staff_roles.map((r: string) => `<@&${r}>`).join(', ')
@@ -39,28 +39,24 @@ export async function showServerSettingsMenu(
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('admin:menu:settings')
-      .setPlaceholder('Choose a setting to configure')
+      .setPlaceholder('choose a setting to configure')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Updates Channel')
-          .setDescription('Choose where bot updates are posted')
-          .setValue('updateschannel')
-          .setEmoji('📢'),
+          .setLabel('set updates channel')
+          .setDescription('choose where bot updates are posted')
+          .setValue('updateschannel'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Add Staff Role')
-          .setDescription('Add a role to the staff list')
-          .setValue('staffadd')
-          .setEmoji('➕'),
+          .setLabel('add staff role')
+          .setDescription('add a role to the staff list')
+          .setValue('staffadd'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Remove Staff Role')
-          .setDescription('Remove a role from the staff list')
-          .setValue('staffremove')
-          .setEmoji('➖'),
+          .setLabel('remove staff role')
+          .setDescription('remove a role from the staff list')
+          .setValue('staffremove'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Back to Main Menu')
-          .setDescription('Return to admin hub')
-          .setValue('back')
-          .setEmoji('◀️'),
+          .setLabel('back to main menu')
+          .setDescription('return to admin hub')
+          .setValue('back'),
       ])
   )
 
@@ -124,7 +120,7 @@ async function showChannelSelector(
     new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
       new ChannelSelectMenuBuilder()
         .setCustomId(`admin:channel:${action}`)
-        .setPlaceholder('Select a channel')
+        .setPlaceholder('select a channel')
         .setChannelTypes([ChannelType.GuildText, ChannelType.GuildAnnouncement])
     )
 
@@ -155,7 +151,7 @@ async function showRoleSelector(
     new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
       new RoleSelectMenuBuilder()
         .setCustomId(`admin:role:${action}`)
-        .setPlaceholder('Select a role')
+        .setPlaceholder('select a role')
     )
 
   await interaction.editReply({

@@ -6,10 +6,8 @@ import {
   Collection,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
 } from 'discord.js'
 import type { Channel } from 'discord.js'
-import { TICKET } from '@src/config'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
@@ -235,8 +233,8 @@ export async function closeTicket(
         (config as any).ticket.log_channel
       )
       const logEmbed = MinaEmbed.plain()
-        .setColor(TICKET.CLOSE_EMBED as any)
-        .setAuthor({ name: 'Ticket Closed' })
+        .setColor(mina.color.muted as any)
+        .setAuthor({ name: 'ticket closed' })
         .setFields(fields)
 
       const logComponents: any[] = []
@@ -274,10 +272,7 @@ export async function closeTicket(
       if (logsUrl) {
         dmComponents.push(
           new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setLabel('View Transcript')
-              .setURL(logsUrl.short)
-              .setStyle(ButtonStyle.Link)
+            MinaButtons.link(logsUrl.short, 'view transcript')
           )
         )
       }

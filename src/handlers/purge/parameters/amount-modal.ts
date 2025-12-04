@@ -16,28 +16,28 @@ export async function showAmountModal(
   purgeType: PurgeType,
   additionalData?: { token?: string; userId?: string }
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId(
-      `purge:modal:amount|type:${purgeType}${
-        additionalData?.token
-          ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
-          : ''
-      }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`
-    )
-    .setTitle('Custom Amount')
-
-  const amountInput = new TextInputBuilder()
-    .setCustomId('amount')
-    .setLabel('Number of messages (1-100)')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('Enter a number between 1 and 100')
-    .setRequired(true)
-    .setMaxLength(3)
+  const amountInput = new TextInputBuilder({
+    customId: 'amount',
+    label: 'number of messages (1-100)',
+    style: TextInputStyle.Short,
+    placeholder: 'enter a number between 1 and 100',
+    required: true,
+    maxLength: 3,
+  })
 
   const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
     amountInput
   )
-  modal.addComponents([row])
+
+  const modal = new ModalBuilder({
+    customId: `purge:modal:amount|type:${purgeType}${
+      additionalData?.token
+        ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
+        : ''
+    }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
+    title: 'custom amount',
+    components: [row],
+  })
 
   await interaction.showModal(modal)
 }
@@ -54,7 +54,7 @@ export async function handleAmountModal(
   // Validate amount
   if (isNaN(amount) || amount < 1 || amount > 100) {
     await interaction.reply({
-      content: '❌ Invalid amount. Please enter a number between 1 and 100.',
+      content: 'invalid amount. enter a number between 1 and 100.',
       ephemeral: true,
     })
     return

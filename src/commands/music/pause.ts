@@ -5,7 +5,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'pause',
-  description: 'pause the music player',
+  description: 'pause the currently playing track',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

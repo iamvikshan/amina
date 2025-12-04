@@ -1,0 +1,78 @@
+{
+  "admin": {
+    "settings": {
+      "status": {
+        "title": "mina's current settings",
+        "description": "hey there! let's take a peek at your current settings! i'm so excited to show you what we've got set up!",
+        "footer": "remember, i'm always here to help you set things up! don't be shy to ask!"
+      },
+      "staffRole": {
+        "alreadyAdded": "{role} is already a staff role. you can't add it twice!",
+        "maxReached": "whoa there! you already have 5 staff roles. please remove one before adding another.",
+        "notFound": "{role} is not a staff role. are you sure you selected the right role?"
+      },
+      "updateChannel": {
+        "noPermission": "i don't have permission to send messages in {channel}. please give me that permission."
+      }
+    }
+  },
+  "roles": {
+    "hub": {
+      "title": "roles management hub",
+      "description": "welcome to the mina roles management hub! choose an operation below to get started.\n\n**cleanup** - bulk delete roles by various criteria\n**create role** - create a new role\n**autorole** - manage automatic role assignment\n**add to user** - assign roles to users",
+      "footer": "select an operation from the menu below",
+      "placeholder": "choose a roles operation"
+    },
+    "options": {
+      "cleanup": {
+        "label": "cleanup roles",
+        "description": "bulk delete roles by criteria"
+      },
+      "create": {
+        "label": "create role",
+        "description": "create a new role"
+      },
+      "autorole": {
+        "label": "autorole",
+        "description": "automatic role assignment"
+      },
+      "add2user": {
+        "label": "add to user",
+        "description": "assign roles to users"
+      }
+    }
+  },
+  "embed": {
+    "setup": {
+      "started": "embed setup started in {channel}! let's create something pretty!",
+      "getStarted": "click the button below to get started!",
+      "createButton": "create embed",
+      "noResponse": "no response received. embed setup cancelled.",
+      "cancelled": "no response received, cancelling setup",
+      "sent": "embed sent!",
+      "empty": "you can't send an empty embed! please add some content.",
+      "addFields": "please add fields using the buttons below. click \"done\" when you are ready!",
+      "fieldAdded": "field added!",
+      "fieldRemoved": "field removed!",
+      "noFields": "there are no fields to remove!",
+      "cannotSend": "i can't send embeds in that channel! please choose another one."
+    },
+    "modal": {
+      "title": "embed generator",
+      "embedTitle": "embed title",
+      "embedAuthor": "embed author",
+      "embedDescription": "embed description",
+      "embedColor": "embed color (hex code)",
+      "embedFooter": "embed footer",
+      "addField": "add field",
+      "fieldName": "field name",
+      "fieldValue": "field value",
+      "fieldInline": "inline? (true/false)"
+    },
+    "buttons": {
+      "addField": "add field",
+      "removeField": "remove field",
+      "done": "done"
+    }
+  }
+}

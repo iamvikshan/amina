@@ -36,43 +36,36 @@ export async function showDevHub(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:category')
-      .setPlaceholder('Select a category...')
+      .setPlaceholder('select a category...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Presence Management')
-          .setDescription('Configure bot presence/status')
-          .setValue('presence')
-          .setEmoji('🎭'),
+          .setLabel('presence management')
+          .setDescription('configure bot presence/status')
+          .setValue('presence'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Truth or Dare')
-          .setDescription('Add/remove ToD questions')
-          .setValue('tod')
-          .setEmoji('🎲'),
+          .setLabel('truth or dare')
+          .setDescription('add/remove tod questions')
+          .setValue('tod'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Command Reload')
-          .setDescription('Reload commands, events, or contexts')
-          .setValue('reload')
-          .setEmoji('🔄'),
+          .setLabel('command reload')
+          .setDescription('reload commands, events, or contexts')
+          .setValue('reload'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Trigger Settings')
-          .setDescription('Trigger server onboarding')
-          .setValue('trig-settings')
-          .setEmoji('⚡'),
+          .setLabel('trigger settings')
+          .setDescription('trigger server onboarding')
+          .setValue('trig-settings'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('List Servers')
-          .setDescription('View all servers the bot is in')
-          .setValue('listservers')
-          .setEmoji('📋'),
+          .setLabel('list servers')
+          .setDescription('view all servers the bot is in')
+          .setValue('listservers'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Leave Server')
-          .setDescription('Leave a server by ID')
-          .setValue('leaveserver')
-          .setEmoji('👋'),
+          .setLabel('leave server')
+          .setDescription('leave a server by id')
+          .setValue('leaveserver'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Mina AI')
-          .setDescription('Configure Amina AI settings')
+          .setLabel('mina ai')
+          .setDescription('configure amina ai settings')
           .setValue('minaai')
-          .setEmoji('🤖')
       )
   )
 

@@ -1,0 +1,119 @@
+{
+  "ticket": {
+    "hub": {
+      "title": ["ticket management hub", "ticket hub", "tickets"],
+      "description": [
+        "choose an operation:\n\nsetup - configure ticket system (message, logs, limits, topics)\nmanage - runtime operations (close, add/remove users)\n\nselect an option below.",
+        "setup: configure ticket system\nmanage: runtime operations\n\npick one.",
+        "setup or manage. your choice."
+      ],
+      "footer": [
+        "thank you for using mina",
+        "mina ticket system",
+        "ticket management"
+      ],
+      "selectPlaceholder": ["select a category", "pick an option", "choose"],
+      "setup": {
+        "label": ["setup", "configure", "settings"],
+        "description": [
+          "configure ticket system settings",
+          "set up tickets",
+          "ticket configuration"
+        ]
+      },
+      "manage": {
+        "label": ["manage", "operations", "runtime"],
+        "description": [
+          "runtime ticket operations",
+          "manage tickets",
+          "ticket operations"
+        ]
+      }
+    },
+    "create": [
+      "ticket opened.",
+      "created ticket for {user}.",
+      "support ticket: #{id}.",
+      "ticket #{id} is ready."
+    ],
+    "createEmbed": {
+      "title": "ticket #{number}",
+      "description": "hello {user}\nsupport will be with you shortly{topic}",
+      "topic": "\n\n**topic:** {topic}",
+      "footer": "you may close your ticket anytime by clicking the button below",
+      "button": "close ticket",
+      "dmTitle": "ticket created",
+      "dmDescription": "**server:** {server}\n{topic}\n\nyour ticket has been created. click the button below to view it.",
+      "dmTopic": "**topic:** {topic}\n",
+      "dmButton": "view ticket",
+      "success": "ticket created.\n\nclick the button below to view your ticket."
+    },
+    "close": [
+      "ticket closed.",
+      "closing #{id}.",
+      "marked as resolved.",
+      "ticket done."
+    ],
+    "closeEmbed": {
+      "title": "ticket closed",
+      "description": "your ticket **{channel}** has been closed.\n\n**server:** {server}\n**topic:** {topic}\n\nclick the button below to view the transcript.",
+      "button": "view transcript",
+      "success": "ticket closed successfully!",
+      "failed": "failed to close the ticket, an error occurred!",
+      "noPermission": "cannot close the ticket, missing permissions. contact server manager for help!"
+    },
+    "delete": {
+      "invalidData": "invalid channel data",
+      "notFound": "channel not found or already deleted",
+      "cannotDelete": "cannot delete this channel",
+      "noPermission": "cannot delete this channel (missing permissions)",
+      "success": "channel deleted successfully",
+      "failed": "failed to delete channel: {error}"
+    },
+    "manage": {
+      "title": "ticket management",
+      "description": "runtime ticket operations:\n\n**close ticket** - close the current ticket channel\n**close all** - close all open tickets (bulk operation)\n**add user** - add users to current ticket\n**remove user** - remove users from current ticket\n\nselect an operation below:",
+      "footer": "use the back button to return to main hub",
+      "notInTicket": "you need to be in a ticket channel to use this operation.\n\nplease navigate to the ticket channel you want to manage and run the command from there.",
+      "button": "view example ticket"
+    },
+    "setup": {
+      "message": {
+        "title": "setup ticket message",
+        "description": "please select the channel where you want to create the ticket message.\n\nusers will be able to click a button in this channel to create tickets.",
+        "footer": "select a text channel below",
+        "invalidChannel": "invalid channel selected",
+        "noPermission": "i don't have permission to send messages in {channel}. please give me that permission.",
+        "cancelled": "no response received, cancelling setup",
+        "processing": "setting up ticket message...",
+        "success": "yay! ticket message created successfully!",
+        "logChannelSaved": "configuration saved! ticket logs will be sent to {channel}",
+        "limitTooLow": "ticket limit cannot be less than 5",
+        "limitSaved": "configuration saved. you can now have a maximum of `{limit}` open tickets"
+      }
+    },
+    "error": {
+      "invalidCategory": [
+        "invalid category selected.",
+        "bad choice.",
+        "that's not an option."
+      ],
+      "missingPermissions": "i don't have the required permissions to create ticket channels.\n\nplease ensure i have:\n• **manage channels**\n• **view channel**\n\nalso make sure my role is positioned above the ticket category.",
+      "permissionIssues": "failed to create ticket channel due to permission issues.\n\nplease check that i have the **manage channels** permission and that my role is above the ticket category.",
+      "tooMany": "there are too many open tickets. try again later",
+      "alreadyExists": "you already have an open ticket",
+      "chooseTopic": "please choose a topic for the ticket",
+      "timedOut": "timed out. try again",
+      "processing": "processing",
+      "failed": "failed to create ticket channel, an error occurred.",
+      "maxChannels": "this server has reached the maximum number of channels.",
+      "noPermission": "cannot create ticket channel, missing `manage channel` permission. contact server manager for help!"
+    },
+    "claim": [
+      "claimed by {user}.",
+      "{user} is handling this.",
+      "ticket assigned.",
+      "on it."
+    ]
+  }
+}

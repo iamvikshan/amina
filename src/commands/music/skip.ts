@@ -5,7 +5,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'skip',
-  description: 'skip the current song',
+  description: 'skip to the next track in the queue',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

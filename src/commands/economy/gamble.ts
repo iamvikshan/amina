@@ -12,7 +12,7 @@ import responses from '@data/responses'
 
 const command: CommandData = {
   name: 'gamble',
-  description: 'try your luck by gambling',
+  description: 'risk your coins on a slot machine spin',
   category: 'ECONOMY',
   botPermissions: ['EmbedLinks'],
   slashCommand: {

@@ -36,8 +36,7 @@ const BASE_URL = 'https://some-random-api.com/animal'
 
 const command: CommandData = {
   name: 'facts',
-  description:
-    "Want to discover some super amazing animal facts? I've got tons to share!",
+  description: 'get random facts about cats, dogs, pandas, and more animals',
   cooldown: 1,
   category: 'FUN',
   botPermissions: ['EmbedLinks'],
@@ -46,7 +45,7 @@ const command: CommandData = {
     options: [
       {
         name: 'name',
-        description: 'Pick your animal friend! (I love them all! 💖)',
+        description: 'which animal to get a random fact about',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: animals.map(animal => ({ name: animal, value: animal })),

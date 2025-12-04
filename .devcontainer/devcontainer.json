@@ -28,7 +28,7 @@
         "astro-build.astro-vscode",
         "unifiedjs.vscode-mdx",
         "bradlc.vscode-tailwindcss",
-        "esbenp.prettier-vscode",
+        "prettier.prettier-vscode",
         "eamodio.gitlens",
         "oven.bun-vscode",
         "ms-azuretools.vscode-docker",

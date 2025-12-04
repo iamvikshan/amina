@@ -5,7 +5,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'stop',
-  description: 'stop the music player',
+  description: 'stop playback and clear the entire queue',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

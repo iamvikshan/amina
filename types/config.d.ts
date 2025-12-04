@@ -1,8 +1,6 @@
  
 // Configuration type definitions
 
-import type { ColorResolvable } from 'discord.js'
-
 declare global {
   interface LavalinkNode {
     id?: string
@@ -23,8 +21,10 @@ declare global {
       DONATE_URL?: string
     }
     AI: {
+      // These values seed the database on first run
+      // After initialization, all changes must be made via dev commands or MongoDB
       MODEL: string
-      VISION_MODEL: string
+      // VISION_MODEL: string
       MAX_TOKENS: number
       TIMEOUT_MS: number
       TEMPERATURE: number
@@ -57,8 +57,7 @@ declare global {
     }
     AUTOMOD: {
       ENABLED: boolean
-      LOG_EMBED: ColorResolvable
-      DM_EMBED: ColorResolvable
+      // Colors moved to src/data/colors.json
     }
     ECONOMY: {
       ENABLED: boolean
@@ -80,8 +79,7 @@ declare global {
     GIVEAWAYS: {
       ENABLED: boolean
       REACTION: string
-      START_EMBED: ColorResolvable
-      END_EMBED: ColorResolvable
+      // Colors moved to src/data/colors.json
     }
     IMAGE: {
       ENABLED: boolean
@@ -90,48 +88,19 @@ declare global {
     INVITE: {
       ENABLED: boolean
     }
-    EMBED_COLORS: {
-      BOT_EMBED: ColorResolvable
-      SUCCESS: ColorResolvable
-      ERROR: ColorResolvable
-      WARNING: ColorResolvable
-    }
+    // EMBED_COLORS removed - use mina.color.* from src/data/colors.json
     MODERATION: {
       ENABLED: boolean
-      EMBED_COLORS: {
-        TIMEOUT: ColorResolvable
-        UNTIMEOUT: ColorResolvable
-        KICK: ColorResolvable
-        SOFTBAN: ColorResolvable
-        BAN: ColorResolvable
-        UNBAN: ColorResolvable
-        VMUTE: ColorResolvable
-        VUNMUTE: ColorResolvable
-        DEAFEN: ColorResolvable
-        UNDEAFEN: ColorResolvable
-        DISCONNECT: ColorResolvable
-        MOVE: ColorResolvable
-      }
+      // Colors moved to src/data/colors.json (moderation.*)
     }
     STATS: {
       ENABLED: boolean
       XP_COOLDOWN: number
       DEFAULT_LVL_UP_MSG: string
     }
-    SUGGESTIONS: {
-      ENABLED: boolean
-      EMOJI: {
-        UP_VOTE: string
-        DOWN_VOTE: string
-      }
-      DEFAULT_EMBED: ColorResolvable
-      APPROVED_EMBED: ColorResolvable
-      DENIED_EMBED: ColorResolvable
-    }
     TICKET: {
       ENABLED: boolean
-      CREATE_EMBED: ColorResolvable
-      CLOSE_EMBED: ColorResolvable
+      // Colors moved to src/data/colors.json
     }
   }
 
@@ -152,7 +121,6 @@ declare global {
     readonly OPENAI?: string
     readonly HONEYBADGER_API_KEY?: string
     readonly WEBHOOK_SECRET?: string
-    readonly WAIFU_IT?: string
 
     // Lavalink Nodes
     readonly LAVALINK_NODES: Array<{

@@ -126,12 +126,6 @@ const Schema = new mongoose.Schema({
     },
   },
   autorole: String,
-  suggestions: {
-    enabled: Boolean,
-    channel_id: String,
-    approved_channel: String,
-    rejected_channel: String,
-  },
   colors: [
     {
       _id: false,

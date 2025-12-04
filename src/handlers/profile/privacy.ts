@@ -37,27 +37,27 @@ export async function showPrivacyMenu(
       .setPlaceholder('choose a field to toggle')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Age')
+          .setLabel('age')
           .setDescription(
-            `Currently ${privacy.showAge ? 'visible' : 'hidden'} - Click to toggle`
+            `currently ${privacy.showAge ? 'visible' : 'hidden'} - click to toggle`
           )
           .setValue('showAge'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Region')
+          .setLabel('region')
           .setDescription(
-            `Currently ${privacy.showRegion ? 'visible' : 'hidden'} - Click to toggle`
+            `currently ${privacy.showRegion ? 'visible' : 'hidden'} - click to toggle`
           )
           .setValue('showRegion'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Birthdate')
+          .setLabel('birthdate')
           .setDescription(
-            `Currently ${privacy.showBirthdate ? 'visible' : 'hidden'} - Click to toggle`
+            `currently ${privacy.showBirthdate ? 'visible' : 'hidden'} - click to toggle`
           )
           .setValue('showBirthdate'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Pronouns')
+          .setLabel('pronouns')
           .setDescription(
-            `Currently ${privacy.showPronouns ? 'visible' : 'hidden'} - Click to toggle`
+            `currently ${privacy.showPronouns ? 'visible' : 'hidden'} - click to toggle`
           )
           .setValue('showPronouns'),
       ])

@@ -28,7 +28,7 @@ import edit from './sub/edit'
 
 const command: CommandData = {
   name: 'giveaway',
-  description: 'giveaway commands',
+  description: 'create, manage, pause, resume, end, or reroll giveaways',
   category: 'GIVEAWAY',
   slashCommand: {
     enabled: GIVEAWAYS.ENABLED,
@@ -36,12 +36,12 @@ const command: CommandData = {
     options: [
       {
         name: 'start',
-        description: 'start a giveaway',
+        description: 'begin a new giveaway in a channel',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'channel',
-            description: 'the channel to start the giveaway in',
+            description: 'channel to host the giveaway in',
             type: ApplicationCommandOptionType.Channel,
             channelTypes: [
               ChannelType.GuildText,
@@ -53,12 +53,12 @@ const command: CommandData = {
       },
       {
         name: 'pause',
-        description: 'pause a giveaway',
+        description: 'temporarily pause an active giveaway',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'message_id',
-            description: 'the message id of the giveaway',
+            description: 'message id of the giveaway to pause',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -66,12 +66,12 @@ const command: CommandData = {
       },
       {
         name: 'resume',
-        description: 'resume a paused giveaway',
+        description: 'continue a paused giveaway',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'message_id',
-            description: 'the message id of the giveaway',
+            description: 'message id of the giveaway to resume',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -79,12 +79,12 @@ const command: CommandData = {
       },
       {
         name: 'end',
-        description: 'end a giveaway',
+        description: 'immediately end a giveaway and pick winners',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'message_id',
-            description: 'the message id of the giveaway',
+            description: 'message id of the giveaway to end',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -92,12 +92,12 @@ const command: CommandData = {
       },
       {
         name: 'reroll',
-        description: 'reroll a giveaway',
+        description: 'pick new winners for a finished giveaway',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'message_id',
-            description: 'the message id of the giveaway',
+            description: 'message id of the giveaway to reroll',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -105,36 +105,35 @@ const command: CommandData = {
       },
       {
         name: 'list',
-        description: 'list all giveaways',
+        description: 'show all active giveaways in this server',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'edit',
-        description: 'edit a giveaway',
+        description: 'modify an ongoing giveaway',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'message_id',
-            description: 'the message id of the giveaway',
+            description: 'message id of the giveaway to edit',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
           {
             name: 'add_duration',
-            description:
-              'the number of minutes to add to the giveaway duration',
+            description: 'minutes to add to the giveaway duration',
             type: ApplicationCommandOptionType.Integer,
             required: false,
           },
           {
             name: 'new_prize',
-            description: 'the new prize',
+            description: 'updated prize description',
             type: ApplicationCommandOptionType.String,
             required: false,
           },
           {
             name: 'new_winners',
-            description: 'the new number of winners',
+            description: 'updated number of winners',
             type: ApplicationCommandOptionType.Integer,
             required: false,
           },
@@ -261,11 +260,14 @@ async function runModalSetup(
     return channel.safeSend(mina.say('giveaway.setup.error.noChannel'))
   }
 
-  // FIX: Correct the channel type and permission check logic
+  // Correct the channel type and permission check logic
+  const me = guild.members.me
+  const botHasPerms = !!me && targetCh.permissionsFor(me)?.has(SETUP_PERMS)
+
   if (
     (targetCh.type !== ChannelType.GuildText &&
       targetCh.type !== ChannelType.GuildAnnouncement) ||
-    !targetCh.permissionsFor(guild.members.me!)?.has(SETUP_PERMS)
+    !botHasPerms
   ) {
     return channel.safeSend(
       mina.sayf('giveaway.setup.error.noPermission', {
@@ -410,7 +412,7 @@ async function runModalSetup(
   if (hostId) {
     try {
       host = await guild.client.users.fetch(hostId)
-    } catch (ex) {
+    } catch (_ex) {
       return modal.editReply(mina.say('giveaway.setup.error.invalidHost'))
     }
   }
@@ -426,7 +428,5 @@ async function runModalSetup(
   )
   await modal.editReply(response)
 }
-
-// NOTE: runModalEdit function was removed as it appears to be unused dead code
 
 export default command

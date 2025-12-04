@@ -10,7 +10,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'roles',
-  description: 'Manage roles in bulk - cleanup, create, and configure autorole',
+  description: 'bulk role management, cleanup, and autorole configuration',
   category: 'ADMIN',
   userPermissions: ['ManageGuild', 'ManageRoles'],
   botPermissions: ['ManageRoles'],

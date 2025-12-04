@@ -6,7 +6,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'autoplay',
-  description: 'toggle autoplay feature for music player',
+  description: 'toggle automatic song recommendations when queue ends',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

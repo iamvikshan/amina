@@ -6,7 +6,7 @@ import { getUser, updatePremium } from '@schemas/User'
 
 const command: CommandData = {
   name: 'premium',
-  description: 'Manage premium status for users',
+  description: 'grant or revoke premium access for users',
   cooldown: 5,
   category: 'DEV',
   devOnly: true,
@@ -16,18 +16,18 @@ const command: CommandData = {
     options: [
       {
         name: 'add',
-        description: 'Add premium status to a user',
+        description: 'grant premium status to a user',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'The user to give premium status',
+            description: 'user to give premium to',
             type: ApplicationCommandOptionType.User,
             required: true,
           },
           {
             name: 'duration',
-            description: 'Duration of premium status in days',
+            description: 'days of premium to grant',
             type: ApplicationCommandOptionType.Integer,
             required: true,
           },
@@ -35,12 +35,12 @@ const command: CommandData = {
       },
       {
         name: 'remove',
-        description: 'Remove premium status from a user',
+        description: 'revoke premium status from a user',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'The user to remove premium status from',
+            description: 'user to remove premium from',
             type: ApplicationCommandOptionType.User,
             required: true,
           },

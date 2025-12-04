@@ -17,24 +17,34 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 export async function showLimitModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const settings = await getSettings(interaction.guild!)
+  if (!interaction.guild) {
+    await interaction.reply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  const settings = await getSettings(interaction.guild)
   const currentLimit = settings.ticket.limit || 10
 
-  const modal = new ModalBuilder()
-    .setCustomId('ticket:modal:limit')
-    .setTitle('set ticket limit')
-    .addComponents(
+  const modal = new ModalBuilder({
+    customId: 'ticket:modal:limit',
+    title: 'set ticket limit',
+    components: [
       new ActionRowBuilder<TextInputBuilder>().addComponents(
-        new TextInputBuilder()
-          .setCustomId('limit')
-          .setLabel('maximum open tickets per user')
-          .setStyle(TextInputStyle.Short)
-          .setPlaceholder('enter a number (minimum: 5)')
-          .setValue(currentLimit.toString())
-          .setRequired(true)
-          .setMaxLength(3)
-      )
-    )
+        new TextInputBuilder({
+          customId: 'limit',
+          label: 'maximum open tickets per user',
+          style: TextInputStyle.Short,
+          placeholder: 'enter a number (minimum: 5)',
+          value: currentLimit.toString(),
+          required: true,
+          maxLength: 3,
+        })
+      ),
+    ],
+  })
 
   await interaction.showModal(modal)
 }
@@ -87,10 +97,17 @@ export async function handleLimitModal(
     return
   }
 
+  if (!interaction.guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+    })
+    return
+  }
+
   // Update settings
-  const settings = await getSettings(interaction.guild!)
+  const settings = await getSettings(interaction.guild)
   settings.ticket.limit = limit
-  await updateSettings(interaction.guild!.id, settings)
+  await updateSettings(interaction.guild.id, settings)
 
   const successEmbed = MinaEmbed.success(
     `configuration saved. users can now have a maximum of \`${limit}\` open tickets.\n\n` +

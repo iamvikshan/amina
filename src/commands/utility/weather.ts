@@ -8,7 +8,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'weather',
-  description: 'get weather information',
+  description: 'check current weather conditions for any city or country',
   cooldown: 5,
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
@@ -42,7 +42,9 @@ async function weather(
   const response = await getJson(
     `http://api.weatherstack.com/current?access_key=${secret.WEATHERSTACK_KEY}&query=${encodeURIComponent(place)}`
   )
-  if (!response.success) return MESSAGES.API_ERROR
+  if (!response.success) {
+    return `${MESSAGES.API_ERROR}\n-# error: ${response.error || 'unknown'}`
+  }
 
   const json = response.data
   if (!json || !json.request) return `No city found matching \`${place}\``

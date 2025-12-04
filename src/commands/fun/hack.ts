@@ -8,8 +8,7 @@ import responses from '@data/responses'
 
 const command: CommandData = {
   name: 'hack',
-  description:
-    "Let Amina 'hack' into someone's life with her chaotic energy~! ✨",
+  description: 'hack a user with real data about them, found in the wild',
   cooldown: 10,
   category: 'FUN',
   botPermissions: ['SendMessages', 'EmbedLinks'],
@@ -18,7 +17,7 @@ const command: CommandData = {
     options: [
       {
         name: 'target',
-        description: 'Who should I unleash my chaotic hacking powers on? >:D',
+        description: 'user to embarrass',
         type: ApplicationCommandOptionType.User,
         required: true,
       },
@@ -87,7 +86,7 @@ const command: CommandData = {
         .setDescription(mina.say('fun.hackResult.dmSuccess'))
 
       await message.edit({ embeds: [finalEmbed] })
-    } catch (error) {
+    } catch (_error) {
       await message.edit({
         content: mina.say('fun.hackResult.dmFail'),
         embeds: [resultsEmbed],

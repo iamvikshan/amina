@@ -130,6 +130,33 @@
       "playerOnly": "this game belongs to {player}. start your own with `/hangman`.",
       "title": "hangman: {theme} theme"
     },
+    "tictactoe": {
+      "botOpponent": [
+        "bots can't play games yet. pick a human friend instead.",
+        "robots don't play. try a real person.",
+        "bots are boring. find a human."
+      ],
+      "selfOpponent": [
+        "you can't play against yourself. invite a friend.",
+        "playing alone? that's not how this works.",
+        "get a friend to play with you."
+      ],
+      "turnMessage": "{emoji} | it's **{player}**'s turn.",
+      "winMessage": "{emoji} | **{player}** won. gg.",
+      "tieMessage": "it's a tie. both played well.",
+      "timeoutMessage": "game timed out. maybe next time.",
+      "playerOnlyMessage": "only {player} and {opponent} can play. start your own with `/tictactoe`.",
+      "tieResult": [
+        "what a battle. it's a perfect tie. both played well.",
+        "tie game. good match.",
+        "draw. equally matched."
+      ],
+      "winResult": [
+        "congrats {winner}. that was a good game.",
+        "{winner} wins. gg.",
+        "victory for {winner}. nice play."
+      ]
+    },
     "meme": {
       "button": {
         "regenerate": ["another one", "more", "next", "gimme more"]
@@ -161,7 +188,7 @@
       "ageCheck": {
         "title": "✦ oops, age check needed!",
         "underage": "sorry friend, that stuff is for the grown-ups only!",
-        "unknown": "i need to know your age for R-rated content! use `/profile hub` to set it."
+        "unknown": "i need to know your age for R-rated content! use `/profile` to set it."
       },
       "wrongPlace": {
         "title": "✦ wrong place!",

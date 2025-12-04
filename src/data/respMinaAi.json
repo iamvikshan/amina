@@ -1,0 +1,63 @@
+{
+  "minaai": {
+    "memories": {
+      "empty": {
+        "title": "your {type} memories",
+        "description": "i don't have any {type} memories about you yet. chat with me more and i'll learn about you!",
+        "note": "memories cannot be manually edited. if you want to update or remove a memory, simply ask me in chat to forget something or remember something new!",
+        "footer": "use the menu to navigate back"
+      },
+      "view": {
+        "title": "your {type} memories ({count} total)",
+        "description": "showing {type} memories.",
+        "note": "memories cannot be manually edited. if you want to update or remove a memory, simply ask me in chat to forget something or remember something new!",
+        "footer": "importance indicator • use buttons to view categories",
+        "stats": "stats",
+        "totalAccess": "total access count: {count}",
+        "avgImportance": "average importance: {avg}/5"
+      },
+      "category": {
+        "title": "{category} memories ({count} total)",
+        "description": "showing {category} memories.",
+        "note": "memories cannot be manually edited. if you want to update or remove a memory, simply ask me in chat to forget something or remember something new!",
+        "footer": "importance indicator • page {page}/{total}{extra}",
+        "footerExtra": " • use dm me for full list",
+        "empty": "no memories found in this category.",
+        "emptyFooter": "use the back button to return"
+      },
+      "buttons": {
+        "back": "back to main menu",
+        "backView": "back to main view",
+        "dmMe": "dm me",
+        "previous": "previous",
+        "next": "next"
+      },
+      "error": {
+        "title": "error",
+        "fetchFailed": "failed to fetch memories. please try again later or contact support.",
+        "loadFailed": "failed to load category details. please try again later.",
+        "dmFailed": "couldn't send you a dm, but here's your memories link: {url}"
+      },
+      "more": "and {count} more {type} memories"
+    },
+    "forget": {
+      "confirm": {
+        "title": "delete all memories?",
+        "description": "are you sure you want to delete **all** memories mina has about you?\n\nthis action is **irreversible** and will remove:\n• all preferences you've shared\n• all facts about you\n• all opinions you've expressed\n• all experiences you've told me about\n• all relationship information\n\nmina will need to learn about you again from scratch.",
+        "footer": "privacy first! this action cannot be undone.",
+        "button": "yes, delete all memories",
+        "cancel": "cancel"
+      },
+      "success": {
+        "title": "memory deletion",
+        "deleted": "successfully deleted **{count}** {plural} about you.\n\ni will now ignore you. you can change this in `/mina-ai` → settings → toggle \"ignore me\" off.\n\nyou start with a clean slate!",
+        "none": "no memories found to delete. you already have a clean slate!\n\ni will now ignore you. you can change this in `/mina-ai` → settings → toggle \"ignore me\" off.",
+        "footer": "privacy first!"
+      },
+      "error": {
+        "title": "error",
+        "description": "failed to delete memories. please try again later or contact support."
+      }
+    }
+  }
+}

@@ -17,22 +17,24 @@ import { MinaRows } from '@helpers/componentHelper'
 export async function showLeaveServerModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:leaveserver')
-    .setTitle('Leave Server')
-
-  const serverIdInput = new TextInputBuilder()
-    .setCustomId('server_id')
-    .setLabel('Server ID')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('Enter the ID of the server to leave')
-    .setRequired(true)
-    .setMaxLength(20)
+  const serverIdInput = new TextInputBuilder({
+    customId: 'server_id',
+    label: 'server id',
+    style: TextInputStyle.Short,
+    placeholder: 'enter the id of the server to leave',
+    required: true,
+    maxLength: 20,
+  })
 
   const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
     serverIdInput
   )
-  modal.addComponents([row])
+
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:leaveserver',
+    title: 'leave server',
+    components: [row],
+  })
 
   await interaction.showModal(modal)
 }

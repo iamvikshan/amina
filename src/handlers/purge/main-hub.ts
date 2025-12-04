@@ -44,29 +44,29 @@ export async function showPurgeHub(
       .setPlaceholder('select a purge type...')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('All Messages')
-          .setDescription('Delete all messages in the channel')
+          .setLabel('all messages')
+          .setDescription('delete all messages in the channel')
           .setValue('all')
           .setDefault(isDefaultFlow), // Preselect for default flow
         new StringSelectMenuOptionBuilder()
-          .setLabel('Attachments')
-          .setDescription('Delete messages with attachments')
+          .setLabel('attachments')
+          .setDescription('delete messages with attachments')
           .setValue('attachments'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Bot Messages')
-          .setDescription('Delete messages from bots')
+          .setLabel('bot messages')
+          .setDescription('delete messages from bots')
           .setValue('bots'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Links')
-          .setDescription('Delete messages containing links')
+          .setLabel('links')
+          .setDescription('delete messages containing links')
           .setValue('links'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Token/Keyword')
-          .setDescription('Delete messages containing a keyword')
+          .setLabel('token/keyword')
+          .setDescription('delete messages containing a keyword')
           .setValue('token'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('User Messages')
-          .setDescription('Delete messages from a specific user')
+          .setLabel('user messages')
+          .setDescription('delete messages from a specific user')
           .setValue('user'),
       ])
   )

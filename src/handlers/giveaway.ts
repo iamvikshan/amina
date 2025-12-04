@@ -1,5 +1,6 @@
 import { GiveawaysManager } from 'discord-giveaways'
 import { model as Model } from '@schemas/Giveaways'
+import { mina } from '@helpers/mina'
 
 class MongooseGiveaways extends GiveawaysManager {
   /**
@@ -11,8 +12,8 @@ class MongooseGiveaways extends GiveawaysManager {
       {
         default: {
           botsCanWin: false,
-          embedColor: client.config.GIVEAWAYS.START_EMBED,
-          embedColorEnd: client.config.GIVEAWAYS.END_EMBED,
+          embedColor: mina.featureColors.giveaway,
+          embedColorEnd: mina.featureColors.giveawayEnd,
           reaction: client.config.GIVEAWAYS.REACTION,
         },
       },

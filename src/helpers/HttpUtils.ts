@@ -1,5 +1,4 @@
 // src/helpers/HttpUtils.ts
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const sourcebin = require('sourcebin_js')
 import { error, debug } from '@helpers/Logger'
 import fetch from 'node-fetch'
@@ -11,6 +10,7 @@ export interface JsonResponse<T = any> {
   success: boolean
   status?: number
   data?: T
+  error?: string
 }
 
 /**
@@ -20,6 +20,7 @@ export interface BufferResponse {
   success: boolean
   status?: number
   buffer?: Buffer
+  error?: string
 }
 
 /**
@@ -51,12 +52,14 @@ export default class HttpUtils {
         success: response.status === 200 ? true : false,
         status: response.status,
         data: json as T,
+        error: response.status !== 200 ? `HTTP ${response.status}` : undefined,
       }
-    } catch (ex) {
+    } catch (ex: any) {
       debug(`Url: ${url}`)
       error(`getJson`, ex)
       return {
         success: false,
+        error: ex?.message || String(ex),
       }
     }
   }
@@ -75,12 +78,14 @@ export default class HttpUtils {
         success: response.status === 200 ? true : false,
         status: response.status,
         buffer,
+        error: response.status !== 200 ? `HTTP ${response.status}` : undefined,
       }
-    } catch (ex) {
+    } catch (ex: any) {
       debug(`Url: ${url}`)
       error(`getBuffer`, ex)
       return {
         success: false,
+        error: ex?.message || String(ex),
       }
     }
   }

@@ -1,0 +1,22 @@
+{
+  "profile": {
+    "hub": {
+      "title": "profile hub",
+      "description": "manage your profile:\n\nedit profile - update your info\nprivacy settings - control visibility\nclear profile - start fresh"
+    },
+    "edit": {
+      "title": "edit profile",
+      "success": ["profile updated.", "saved.", "changes applied."]
+    },
+    "privacy": {
+      "title": "privacy settings",
+      "success": ["privacy updated.", "settings saved.", "got it."]
+    },
+    "clear": {
+      "title": "clear profile",
+      "confirm": "are you sure? this will delete all your profile data.",
+      "success": ["profile cleared.", "wiped clean.", "fresh start."],
+      "cancelled": ["cancelled.", "kept your profile.", "nothing changed."]
+    }
+  }
+}

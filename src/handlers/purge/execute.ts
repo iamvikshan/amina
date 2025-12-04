@@ -1,9 +1,4 @@
-import {
-  ButtonInteraction,
-  TextChannel,
-  GuildMember,
-  EmbedBuilder,
-} from 'discord.js'
+import { ButtonInteraction, TextChannel, GuildMember } from 'discord.js'
 import { purgeMessages } from '@helpers/ModUtils/purge'
 import { MinaRows } from '@helpers/componentHelper'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
@@ -133,7 +128,7 @@ export async function handlePurgeConfirm(
   )
 
   // Handle result
-  let resultEmbed: EmbedBuilder
+  let resultEmbed: MinaEmbed
 
   if (typeof result === 'number') {
     // Success
@@ -199,12 +194,12 @@ export async function handlePurgeCancel(
  */
 function getPurgeTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    all: 'All Messages',
-    attachments: 'Messages with Attachments',
-    bots: 'Bot Messages',
-    links: 'Messages with Links',
-    token: 'Messages with Token/Keyword',
-    user: 'User Messages',
+    all: 'all messages',
+    attachments: 'messages with attachments',
+    bots: 'bot messages',
+    links: 'messages with links',
+    token: 'messages with token/keyword',
+    user: 'user messages',
   }
   return labels[type] || type
 }

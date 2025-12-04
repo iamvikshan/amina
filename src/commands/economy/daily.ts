@@ -7,7 +7,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'daily',
-  description: 'receive a daily bonus',
+  description: 'claim your daily coin reward with streak bonuses',
   category: 'ECONOMY',
   botPermissions: ['EmbedLinks'],
   slashCommand: {

@@ -3,6 +3,7 @@ import channelInfo from './shared/channel'
 import guildInfo from './shared/guild'
 import avatar from './shared/avatar'
 import emojiInfo from './shared/emoji'
+import profileView from './shared/profile'
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
@@ -11,21 +12,20 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'info',
-  description: 'show various information',
+  description: 'view details about users, channels, server, avatars, or emojis',
   category: 'INFO',
   botPermissions: ['EmbedLinks'],
-
   slashCommand: {
     enabled: true,
     options: [
       {
         name: 'user',
-        description: 'get user information',
+        description: 'view account info, roles, and join date',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'name',
-            description: 'name of the user',
+            description: 'the user to look up',
             type: ApplicationCommandOptionType.User,
             required: false,
           },
@@ -33,12 +33,12 @@ const command: CommandData = {
       },
       {
         name: 'channel',
-        description: 'get channel information',
+        description: 'view channel details like type, topic, and creation date',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'name',
-            description: 'name of the channel',
+            description: 'the channel to look up',
             type: ApplicationCommandOptionType.Channel,
             required: false,
           },
@@ -46,17 +46,17 @@ const command: CommandData = {
       },
       {
         name: 'guild',
-        description: 'get guild information',
+        description: 'view server stats, owner, boost level, and features',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'avatar',
-        description: 'displays avatar information',
+        description: "view a user's avatar in full resolution",
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'name',
-            description: 'name of the user',
+            description: 'the user whose avatar to display',
             type: ApplicationCommandOptionType.User,
             required: false,
           },
@@ -64,14 +64,27 @@ const command: CommandData = {
       },
       {
         name: 'emoji',
-        description: 'displays emoji information',
+        description: 'view emoji details like id, name, and creation date',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'name',
-            description: 'name of the emoji',
+            description: 'the emoji to look up',
             type: ApplicationCommandOptionType.String,
             required: true,
+          },
+        ],
+      },
+      {
+        name: 'profile',
+        description: "view your or someone else's profile",
+        type: ApplicationCommandOptionType.Subcommand,
+        options: [
+          {
+            name: 'user',
+            description: 'user to view, leave empty for yourself',
+            type: ApplicationCommandOptionType.User,
+            required: false,
           },
         ],
       },
@@ -131,6 +144,12 @@ const command: CommandData = {
         return interaction.followUp(mina.say('infoCmd.emoji.error.invalid'))
       }
       response = emojiInfo(emoji)
+    }
+
+    // profile
+    else if (sub === 'profile') {
+      const target = interaction.options.getUser('user') || interaction.user
+      return profileView(interaction, target)
     }
 
     // return

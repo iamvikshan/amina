@@ -9,7 +9,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'urban',
-  description: 'searches the urban dictionary',
+  description: 'look up slang definitions from urban dictionary',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
 
@@ -36,7 +36,9 @@ async function urban(word: string): Promise<{ embeds: MinaEmbed[] } | string> {
   const response = await getJson(
     `http://api.urbandictionary.com/v0/define?term=${encodeURIComponent(word)}`
   )
-  if (!response.success) return MESSAGES.API_ERROR
+  if (!response.success) {
+    return `${MESSAGES.API_ERROR}\n-# error: ${response.error || 'unknown'}`
+  }
 
   const json = response.data
   if (!json || !json.list || !json.list[0])

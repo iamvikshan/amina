@@ -3,7 +3,7 @@ import { showDevHub } from '@handlers/dev'
 
 const command: CommandData = {
   name: 'dev',
-  description: 'Developer-only commands',
+  description: 'internal developer tools and diagnostics',
   category: 'DEV',
   botPermissions: ['EmbedLinks'],
   devOnly: true,

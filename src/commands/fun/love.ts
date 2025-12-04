@@ -11,20 +11,21 @@ import responses from '@data/responses'
 
 const command: CommandData = {
   name: 'love',
-  description: 'Let me check the stars and see if love is in the air! ✨',
+  description:
+    'calculate a totally scientific love percentage between two users',
   category: 'FUN',
   slashCommand: {
     enabled: true,
     options: [
       {
         name: 'user1',
-        description: 'First person in this potential love story! 💫',
+        description: 'first user in the love calculation',
         type: ApplicationCommandOptionType.User,
         required: true,
       },
       {
         name: 'user2',
-        description: 'Second person in this magical equation! ✨',
+        description: 'second user in the love calculation',
         type: ApplicationCommandOptionType.User,
         required: true,
       },

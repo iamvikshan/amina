@@ -95,7 +95,7 @@ export async function handleAutoroleEnableButton(
     new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
       new RoleSelectMenuBuilder()
         .setCustomId('roles:role:autorole_select')
-        .setPlaceholder('Select a role for autorole')
+        .setPlaceholder('select a role for autorole')
         .setMinValues(1)
         .setMaxValues(1)
     )

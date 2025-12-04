@@ -5,7 +5,8 @@ import { showPurgeHub } from '@handlers/purge'
 
 const command: CommandData = {
   name: 'purge',
-  description: 'Delete messages from a channel using guided flow',
+  description:
+    'bulk delete messages with filters for user, bots, or content type',
   category: 'MODERATION',
   userPermissions: ['ManageMessages'],
 

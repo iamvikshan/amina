@@ -1,7 +1,8 @@
 import { GuildMember, User, EmbedBuilder } from 'discord.js'
-import { MODERATION } from '@src/config'
 import { getSettings } from '@schemas/Guild'
 import { addModLogToDb } from '@schemas/ModLog'
+import { error } from '@helpers/Logger'
+import { mina } from '@helpers/mina'
 
 export const DEFAULT_TIMEOUT_HOURS = 24 // hours
 
@@ -57,51 +58,51 @@ export const logModeration = async (
       break
 
     case 'TIMEOUT':
-      embed.setColor(MODERATION.EMBED_COLORS.TIMEOUT)
+      embed.setColor(mina.modColors.timeout)
       break
 
     case 'UNTIMEOUT':
-      embed.setColor(MODERATION.EMBED_COLORS.UNTIMEOUT)
+      embed.setColor(mina.modColors.untimeout)
       break
 
     case 'KICK':
-      embed.setColor(MODERATION.EMBED_COLORS.KICK)
+      embed.setColor(mina.modColors.kick)
       break
 
     case 'SOFTBAN':
-      embed.setColor(MODERATION.EMBED_COLORS.SOFTBAN)
+      embed.setColor(mina.modColors.softban)
       break
 
     case 'BAN':
-      embed.setColor(MODERATION.EMBED_COLORS.BAN)
+      embed.setColor(mina.modColors.ban)
       break
 
     case 'UNBAN':
-      embed.setColor(MODERATION.EMBED_COLORS.UNBAN)
+      embed.setColor(mina.modColors.unban)
       break
 
     case 'VMUTE':
-      embed.setColor(MODERATION.EMBED_COLORS.VMUTE)
+      embed.setColor(mina.modColors.vmute)
       break
 
     case 'VUNMUTE':
-      embed.setColor(MODERATION.EMBED_COLORS.VUNMUTE)
+      embed.setColor(mina.modColors.vunmute)
       break
 
     case 'DEAFEN':
-      embed.setColor(MODERATION.EMBED_COLORS.DEAFEN)
+      embed.setColor(mina.modColors.deafen)
       break
 
     case 'UNDEAFEN':
-      embed.setColor(MODERATION.EMBED_COLORS.UNDEAFEN)
+      embed.setColor(mina.modColors.undeafen)
       break
 
     case 'DISCONNECT':
-      embed.setColor(MODERATION.EMBED_COLORS.DISCONNECT)
+      embed.setColor(mina.modColors.disconnect)
       break
 
     case 'MOVE':
-      embed.setColor(MODERATION.EMBED_COLORS.MOVE)
+      embed.setColor(mina.modColors.move)
       break
   }
 
@@ -149,4 +150,41 @@ export const logModeration = async (
   embed.setFields(fields)
   await addModLogToDb(issuer, target, reason, type.toUpperCase())
   if (logChannel) logChannel.safeSend({ embeds: [embed] })
+
+  // Auto-add redflag for punitive mod actions
+  const punitiveActions = [
+    'BAN',
+    'KICK',
+    'SOFTBAN',
+    'TIMEOUT',
+    'WARN',
+    'VMUTE',
+    'DEAFEN',
+    'DISCONNECT',
+    'MOVE',
+  ]
+  const actionType = type.toUpperCase()
+
+  if (punitiveActions.includes(actionType)) {
+    // Skip if target is a string (PURGE case) or not a valid user
+    if (target instanceof GuildMember || target instanceof User) {
+      const targetUser = target instanceof GuildMember ? target.user : target
+
+      try {
+        const { addFlagFromModAction } = await import('@schemas/User')
+        await addFlagFromModAction(
+          targetUser.id,
+          reason,
+          issuer.id,
+          issuer.displayName || issuer.user.tag,
+          issuer.guild.id,
+          issuer.guild.name,
+          actionType
+        )
+      } catch (ex) {
+        // Silently fail if flagging fails - don't break mod actions
+        error('addFlagFromModAction', ex)
+      }
+    }
+  }
 }

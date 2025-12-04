@@ -16,7 +16,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'unban',
-  description: 'unbans the specified member',
+  description: 'remove a ban and allow a user to rejoin the server',
   category: 'MODERATION',
   botPermissions: ['BanMembers'],
   userPermissions: ['BanMembers'],
@@ -94,7 +94,7 @@ async function getMatchingBans(guild: Guild, match: string) {
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('unban-menu')
-      .setPlaceholder('Choose a user to unban')
+      .setPlaceholder('choose a user to unban')
       .addOptions(options)
   )
 

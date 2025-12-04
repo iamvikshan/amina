@@ -112,43 +112,36 @@ export async function showMinaAiMenu(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:minaai')
-      .setPlaceholder('Select an operation to edit...')
+      .setPlaceholder('select an operation to edit...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle Global')
-          .setDescription('Enable/disable AI globally')
-          .setValue('toggle-global')
-          .setEmoji('⚡'),
+          .setLabel('toggle global')
+          .setDescription('enable/disable ai globally')
+          .setValue('toggle-global'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Model')
-          .setDescription('Change the Gemini model')
-          .setValue('set-model')
-          .setEmoji('🧠'),
+          .setLabel('set model')
+          .setDescription('change the gemini model')
+          .setValue('set-model'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Tokens')
-          .setDescription('Set max tokens (100-4096)')
-          .setValue('set-tokens')
-          .setEmoji('📝'),
+          .setLabel('set tokens')
+          .setDescription('set max tokens (100-4096)')
+          .setValue('set-tokens'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Prompt')
-          .setDescription('Update system prompt')
-          .setValue('set-prompt')
-          .setEmoji('💬'),
+          .setLabel('set prompt')
+          .setDescription('update system prompt')
+          .setValue('set-prompt'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Temperature')
-          .setDescription('Set temperature (0-2)')
-          .setValue('set-temperature')
-          .setEmoji('🌡️'),
+          .setLabel('set temperature')
+          .setDescription('set temperature (0-2)')
+          .setValue('set-temperature'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle DM')
-          .setDescription('Enable/disable global DM support')
-          .setValue('toggle-dm')
-          .setEmoji('📬'),
+          .setLabel('toggle dm')
+          .setDescription('enable/disable global dm support')
+          .setValue('toggle-dm'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Memory Stats')
-          .setDescription('View memory system statistics')
+          .setLabel('memory stats')
+          .setDescription('view memory system statistics')
           .setValue('memory-stats')
-          .setEmoji('🧠')
       )
   )
 
@@ -306,7 +299,7 @@ export async function handleMinaAiOperation(
         await interaction.deferUpdate()
       }
       await interaction.followUp({
-        content: '❌ Invalid operation selected',
+        content: 'invalid operation selected',
         ephemeral: true,
       })
     }
@@ -328,18 +321,16 @@ async function showBooleanSelect(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`dev:menu:minaai_${operation}`)
-      .setPlaceholder('Select option...')
+      .setPlaceholder('select option...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Enable')
-          .setDescription('Enable this feature')
-          .setValue('true')
-          .setEmoji('✅'),
+          .setLabel('enable')
+          .setDescription('enable this feature')
+          .setValue('true'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Disable')
-          .setDescription('Disable this feature')
+          .setLabel('disable')
+          .setDescription('disable this feature')
           .setValue('false')
-          .setEmoji('❌')
       )
   )
 

@@ -5,7 +5,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'leave',
-  description: 'disconnects the bot from the voice channel',
+  description: 'disconnect me from the voice channel',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

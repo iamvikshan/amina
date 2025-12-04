@@ -8,7 +8,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'paste',
-  description: 'Paste something in sourceb.in',
+  description: 'upload text or code to sourceb.in and get a shareable link',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
 

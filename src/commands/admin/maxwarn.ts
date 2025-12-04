@@ -3,10 +3,11 @@ import {
   ChatInputCommandInteraction,
   Guild,
 } from 'discord.js'
+import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'maxwarn',
-  description: 'Set max warnings configuration!',
+  description: 'set warning threshold and automatic punishment action',
   category: 'ADMIN',
   userPermissions: ['ManageGuild'],
 
@@ -16,13 +17,12 @@ const command: CommandData = {
     options: [
       {
         name: 'limit',
-        description:
-          'Set max warnings a member can receive before taking action!',
+        description: 'set maximum warnings before punishment',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'amount',
-            description: 'Max number of strikes!',
+            description: 'number of warnings allowed',
             type: ApplicationCommandOptionType.Integer,
             required: true,
           },
@@ -30,12 +30,12 @@ const command: CommandData = {
       },
       {
         name: 'action',
-        description: 'Set action to perform after receiving maximum warnings!',
+        description: 'set punishment when limit is reached',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'action',
-            description: 'Action to perform',
+            description: 'timeout, kick, or ban',
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
@@ -69,7 +69,7 @@ const command: CommandData = {
       )
     } else if (sub === 'action') {
       if (!interaction.guild) {
-        await interaction.followUp('This command can only be used in a guild!')
+        await interaction.followUp(mina.say('serverOnly'))
         return
       }
       response = await setAction(
@@ -78,7 +78,7 @@ const command: CommandData = {
         data.settings
       )
     } else {
-      response = 'Invalid subcommand!'
+      response = mina.say('errors.invalidSubcommand')
     }
 
     await interaction.followUp(response)
@@ -96,27 +96,35 @@ async function setAction(
   action: string,
   settings: any
 ): Promise<string> {
+  const actionLower = action.toLowerCase()
+
   if (action === 'TIMEOUT') {
     if (!guild.members.me?.permissions.has('ModerateMembers')) {
-      return "Oh no! I don't have permission to timeout members! Please grant me that permission!"
+      return mina.sayf('moderation.maxwarn.missingPermission', {
+        action: actionLower,
+      })
     }
   }
 
   if (action === 'KICK') {
     if (!guild.members.me?.permissions.has('KickMembers')) {
-      return "Eep! I don't have permission to kick members! Please grant me that permission!"
+      return mina.sayf('moderation.maxwarn.missingPermission', {
+        action: actionLower,
+      })
     }
   }
 
   if (action === 'BAN') {
     if (!guild.members.me?.permissions.has('BanMembers')) {
-      return "Yikes! I don't have permission to ban members! Please grant me that permission!"
+      return mina.sayf('moderation.maxwarn.missingPermission', {
+        action: actionLower,
+      })
     }
   }
 
   settings.max_warn.action = action
   await settings.save()
-  return `Yay! Configuration saved! Automod action is set to ${action}!`
+  return mina.sayf('moderation.maxwarn.actionSet', { action: actionLower })
 }
 
 export default command

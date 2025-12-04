@@ -97,16 +97,7 @@ export default async function statusSettings(
     value: `${automodStatus}\n> use \`/automod\` to configure these settings!`,
   })
 
-  // 9. Suggestions
-  const suggestionChannel = settings.suggestions.channel_id
-    ? `<#${settings.suggestions.channel_id}>`
-    : 'not set yet'
-  allFields.push({
-    name: '9. suggestions',
-    value: `channel: ${suggestionChannel}\napproval: ${settings.suggestions.enabled ? 'enabled' : 'disabled'}\n> use \`/suggestion\` to manage the system!`,
-  })
-
-  // 10. Stats Channels
+  // 9. Stats Channels
   const statsInfo = Object.entries(settings.stats)
     .filter(([_, value]) => value && typeof value === 'object')
     .map(([key, value]) => {
@@ -115,20 +106,20 @@ export default async function statusSettings(
     })
 
   allFields.push({
-    name: '10. stats channels',
+    name: '9. stats channels',
     value:
       statsInfo.length > 0
         ? `${statsInfo.join('\n')}\n> use \`/stats\` to configure them!`
         : 'no stats channels set up yet\n> use `/stats` to create some!',
   })
 
-  // 11. Staff Roles
+  // 10. Staff Roles
   const staffRoles =
     settings.server.staff_roles.length > 0
       ? settings.server.staff_roles.map((r: string) => `<@&${r}>`).join(', ')
       : 'not set yet'
   allFields.push({
-    name: '11. staff roles',
+    name: '10. staff roles',
     value: `current staff roles: ${staffRoles}\n> use \`/settings staffadd\` or \`/settings staffremove\` to manage them!`,
   })
 
@@ -160,12 +151,12 @@ export default async function statusSettings(
     )
 
     allFields.push({
-      name: '12. active giveaways',
+      name: '11. active giveaways',
       value: `${activeGiveaways.length} active giveaway(s):\n\n${giveawayInfo.join('\n\n')}\n\n> use \`/giveaway\` to manage giveaways!`,
     })
   }
 
-  // 13. Reaction Roles
+  // 12. Reaction Roles
   const reactionRoles = await ReactionRoleModel.find({
     guild_id: interaction.guild?.id,
   }).lean()
@@ -185,7 +176,7 @@ export default async function statusSettings(
     )
 
     allFields.push({
-      name: '13. reaction roles',
+      name: '12. reaction roles',
       value: `${reactionRoles.length} reaction role message(s) set up:\n\n${rrInfo.join('\n\n')}\n\n> use \`/reactionrole\` to manage reaction roles!`,
     })
   }

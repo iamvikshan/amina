@@ -10,7 +10,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'stats',
-  description: 'displays members stats in this server',
+  description: 'view detailed xp and message statistics for a member',
   category: 'UTILITY',
 
   slashCommand: {

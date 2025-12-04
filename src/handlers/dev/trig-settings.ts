@@ -31,7 +31,7 @@ export async function showTrigSettings(
     new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
       new ChannelSelectMenuBuilder()
         .setCustomId('dev:channel:trig_settings')
-        .setPlaceholder('Select a server channel (optional)')
+        .setPlaceholder('select a server channel (optional)')
         .setChannelTypes(ChannelType.GuildText)
         .setMinValues(0)
         .setMaxValues(1)

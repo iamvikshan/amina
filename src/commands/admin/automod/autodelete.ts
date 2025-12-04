@@ -6,7 +6,7 @@ import { AUTOMOD } from '@src/config'
 
 const command: CommandData = {
   name: 'autodelete',
-  description: 'Manage the autodelete settings for the server',
+  description: 'auto-remove messages with attachments, invites, or links',
   category: 'AUTOMOD',
   userPermissions: ['ManageGuild'],
   slashCommand: {
@@ -15,12 +15,12 @@ const command: CommandData = {
     options: [
       {
         name: 'attachments',
-        description: 'Allow or disallow attachments in messages',
+        description: 'delete messages with file attachments',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Configuration status',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -38,12 +38,12 @@ const command: CommandData = {
       },
       {
         name: 'invites',
-        description: 'Allow or disallow Discord invites in messages',
+        description: 'delete messages with discord invite links',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Configuration status',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -61,12 +61,12 @@ const command: CommandData = {
       },
       {
         name: 'links',
-        description: 'Allow or disallow links in messages',
+        description: 'delete messages containing any urls',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Configuration status',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -84,12 +84,12 @@ const command: CommandData = {
       },
       {
         name: 'maxlines',
-        description: 'Sets maximum lines allowed per message',
+        description: 'delete messages exceeding a line limit',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'amount',
-            description: 'Configuration amount (0 to disable)',
+            description: 'max lines per message, 0 to disable',
             required: true,
             type: ApplicationCommandOptionType.Integer,
           },

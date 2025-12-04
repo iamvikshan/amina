@@ -8,7 +8,6 @@ import {
   model as ReactionRoleModel,
   clearGuildReactionRoleCache,
 } from '@schemas/ReactionRoles'
-import { model as SuggestionModel } from '@schemas/Suggestions'
 import { model as ModLogModel } from '@schemas/ModLog'
 import { Model as AutomodLogModel } from '@schemas/AutomodLogs'
 
@@ -174,16 +173,7 @@ async function deleteGuildData(guildId: string): Promise<{
     collections++
   }
 
-  // 7. Delete Suggestions
-  const suggestionResult = await SuggestionModel.deleteMany({
-    guild_id: guildId,
-  })
-  if (suggestionResult.deletedCount > 0) {
-    details.suggestions = suggestionResult.deletedCount
-    collections++
-  }
-
-  // 8. Delete Mod Logs
+  // 7. Delete Mod Logs
   const modLogResult = await ModLogModel.deleteMany({ guild_id: guildId })
   if (modLogResult.deletedCount > 0) {
     details.modLogs = modLogResult.deletedCount

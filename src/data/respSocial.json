@@ -1,0 +1,118 @@
+{
+  "invites": {
+    "success": {
+      "cleared": "invites cleared for {user}.",
+      "imported": "previous invites imported.",
+      "configSaved": "invite config saved."
+    },
+    "error": {
+      "disabled": "invite tracking is disabled here.",
+      "noData": "no invite data for {user}.",
+      "cantTrack": "can't track how {user} joined.",
+      "cantFetchInviter": "couldn't get inviter info.",
+      "missingPerms": "i need manage server and channels perms to track invites."
+    },
+    "info": {
+      "status": "{user} has {count} invites.",
+      "invitedBy": "{user} was invited by {inviter}.",
+      "noInvites": "{user} has no invites here."
+    }
+  },
+  "reputation": {
+    "success": {
+      "given": "gave rep to {target}.",
+      "received": "{user} received rep from {target}."
+    },
+    "error": {
+      "noBots": "can't give rep to bots.",
+      "noSelf": "can't rep yourself.",
+      "cooldown": "wait {time} before giving rep again."
+    },
+    "info": {
+      "noRep": "{user} has no reputation yet.",
+      "stats": "{user} has given {given} and received {received} rep."
+    }
+  },
+  "giveaway": {
+    "success": {
+      "started": "giveaway started.",
+      "ended": "giveaway ended.",
+      "rerolled": "rerolled the winners.",
+      "paused": "giveaway paused.",
+      "resumed": "giveaway resumed."
+    },
+    "winner": [
+      "congrats {winners}. you won {prize}.",
+      "{winners} won {prize}.",
+      "winner: {winners}. prize: {prize}.",
+      "gg {winners}, enjoy {prize}."
+    ],
+    "noWinner": [
+      "no valid participants.",
+      "couldn't pick a winner.",
+      "nobody won. rip.",
+      "no entries. giveaway void."
+    ],
+    "start": {
+      "error": {
+        "noChannel": "please provide a channel"
+      },
+      "processing": "starting giveaway system..."
+    },
+    "error": {
+      "noMessageId": "please provide a message id",
+      "notFound": "giveaway not found.",
+      "alreadyEnded": "giveaway already ended.",
+      "notStarted": "giveaway hasn't started yet.",
+      "alreadyEntered": "you already entered."
+    },
+    "edit": {
+      "error": {
+        "invalidDuration": "not a valid duration"
+      }
+    },
+    "list": {
+      "error": {
+        "noPermission": "you need to have the manage messages permissions to manage giveaways",
+        "failed": "an error occurred while listing the giveaways: {error}"
+      },
+      "empty": "there are no giveaways running in this server"
+    },
+    "setup": {
+      "error": {
+        "noChannel": "giveaway setup has been cancelled. you did not mention a channel",
+        "noPermission": "giveaway setup has been cancelled.\ni need {perms} in {channel}",
+        "invalidDuration": "setup has been cancelled. you did not specify a valid duration",
+        "invalidWinners": "setup has been cancelled. you did not specify a valid winner count",
+        "invalidHost": "setup has been cancelled. you need to provide a valid userid for host"
+      },
+      "prompt": "please click the button below to setup new giveaway",
+      "button": "setup giveaway",
+      "cancelled": "no response received, cancelling setup",
+      "processing": "setting up giveaway...",
+      "modal": {
+        "title": "giveaway setup",
+        "duration": {
+          "label": "what is the duration?",
+          "placeholder": "1h / 1d / 1w"
+        },
+        "prize": {
+          "label": "what is the prize?",
+          "placeholder": "nitro / steam gift card / etc"
+        },
+        "winners": {
+          "label": "number of winners?",
+          "placeholder": "1, 20"
+        },
+        "roles": {
+          "label": "roleid's that can take part in the giveaway",
+          "placeholder": "1161271489446809611, 1167163232117600256"
+        },
+        "host": {
+          "label": "user id hosting the giveaway",
+          "placeholder": "929835843479302204"
+        }
+      }
+    }
+  }
+}

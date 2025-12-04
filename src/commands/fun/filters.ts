@@ -69,8 +69,7 @@ const creativeIntros = [
 
 const command: CommandData = {
   name: 'filter',
-  description:
-    'Turn your images into amazing artwork! Time for some creative chaos!',
+  description: 'apply visual filters like blur, sepia, or invert to an image',
   category: 'IMAGE',
   botPermissions: ['EmbedLinks', 'AttachFiles'],
   cooldown: 1,
@@ -79,8 +78,7 @@ const command: CommandData = {
     options: [
       {
         name: 'name',
-        description:
-          'Pick your artistic transformation! Each one is uniquely amazing!',
+        description: 'filter effect to apply to the image',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: availableFilters.map(filter => ({
@@ -90,13 +88,13 @@ const command: CommandData = {
       },
       {
         name: 'user',
-        description: "Want to transform someone's avatar? Tag them here!",
+        description: 'user whose avatar to apply the filter to',
         type: ApplicationCommandOptionType.User,
         required: false,
       },
       {
         name: 'link',
-        description: 'Got a special image to transform? Drop the link here!',
+        description: 'url of an image to apply the filter to',
         type: ApplicationCommandOptionType.String,
         required: false,
       },
@@ -136,7 +134,14 @@ const command: CommandData = {
     const filterDesc =
       filterDescriptions[filter] || "let's make some art magic!"
 
-    const attachment = new AttachmentBuilder(response.buffer!, {
+    const buffer = response.buffer
+    if (!buffer) {
+      return interaction.followUp(
+        "*drops paintbrush sadly* oh no! I couldn't generate the image properly; please try again in a bit!"
+      )
+    }
+
+    const attachment = new AttachmentBuilder(buffer, {
       name: 'attachment.png',
     })
     const embed = MinaEmbed.primary()

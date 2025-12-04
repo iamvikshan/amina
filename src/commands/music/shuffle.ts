@@ -5,7 +5,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'shuffle',
-  description: 'shuffle the queue',
+  description: 'randomize the order of tracks in the queue',
   category: 'MUSIC',
   validations: musicValidations,
   command: {

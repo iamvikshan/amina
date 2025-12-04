@@ -34,21 +34,21 @@ interface PronounForms {
 
 const command: CommandData = {
   name: 'react',
-  description: 'express yourself with anime style!',
+  description: 'send anime-style reactions like hug, pat, slap, or kiss',
   category: 'ANIME',
   slashCommand: {
     enabled: true,
     options: [
       {
         name: 'reaction',
-        description: 'pick your emotional adventure~',
+        description: 'type of anime reaction to send',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: choices.map(ch => ({ name: ch, value: ch })),
       },
       {
         name: 'target',
-        description: "who's the lucky person?",
+        description: 'user to direct the reaction at',
         type: ApplicationCommandOptionType.User,
         required: false,
       },

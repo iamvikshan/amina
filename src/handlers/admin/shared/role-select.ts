@@ -16,7 +16,7 @@ export async function handleRoleSelect(
 
   if (!role) {
     await interaction.reply({
-      content: '❌ No role selected',
+      content: 'no role selected',
       ephemeral: true,
     })
     return

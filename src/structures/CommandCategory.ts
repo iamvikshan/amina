@@ -36,12 +36,6 @@ export default {
       'https://icons.iconarchive.com/icons/custom-icon-design/flatastic-2/512/ticket-icon.png',
     emoji: '🎫',
   },
-  SUGGESTION: {
-    name: 'Suggestion',
-    enabled: config.SUGGESTIONS.ENABLED,
-    image: 'https://cdn-icons-png.flaticon.com/512/1484/1484815.png',
-    emoji: '📝',
-  },
 
   ECONOMY: {
     name: 'Economy',

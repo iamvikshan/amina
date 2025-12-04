@@ -5,7 +5,7 @@ import { showTicketHub } from '@handlers/ticket/index'
 
 const command: CommandData = {
   name: 'ticket',
-  description: 'Manage ticket system with guided setup and runtime operations',
+  description: 'set up and manage a support ticket system for your server',
   category: 'TICKET',
   userPermissions: ['ManageGuild'],
   slashCommand: {

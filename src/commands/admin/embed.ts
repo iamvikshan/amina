@@ -18,7 +18,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'embed',
-  description: 'Send a beautiful embed message!',
+  description: 'craft and send a custom embed message to any channel',
   category: 'ADMIN',
   userPermissions: ['ManageMessages'],
   slashCommand: {
@@ -27,7 +27,7 @@ const command: CommandData = {
     options: [
       {
         name: 'channel',
-        description: 'Choose a channel to send the embed',
+        description: 'channel to send the embed to',
         type: ApplicationCommandOptionType.Channel,
         channelTypes: [ChannelType.GuildText],
         required: true,
@@ -93,35 +93,35 @@ async function embedSetup(
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('title')
-            .setLabel(mina.say('embed.modal.embedTitle'))
+            .setPlaceholder(mina.say('embed.modal.embedTitle'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('author')
-            .setLabel(mina.say('embed.modal.embedAuthor'))
+            .setPlaceholder(mina.say('embed.modal.embedAuthor'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('description')
-            .setLabel(mina.say('embed.modal.embedDescription'))
+            .setPlaceholder(mina.say('embed.modal.embedDescription'))
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('color')
-            .setLabel(mina.say('embed.modal.embedColor'))
+            .setPlaceholder(mina.say('embed.modal.embedColor'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('footer')
-            .setLabel(mina.say('embed.modal.embedFooter'))
+            .setPlaceholder(mina.say('embed.modal.embedFooter'))
             .setStyle(TextInputStyle.Short)
             .setRequired(false)
         ),
@@ -208,21 +208,21 @@ async function embedSetup(
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
                 .setCustomId('name')
-                .setLabel(mina.say('embed.modal.fieldName'))
+                .setPlaceholder(mina.say('embed.modal.fieldName'))
                 .setStyle(TextInputStyle.Short)
                 .setRequired(true)
             ),
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
                 .setCustomId('value')
-                .setLabel(mina.say('embed.modal.fieldValue'))
+                .setPlaceholder(mina.say('embed.modal.fieldValue'))
                 .setStyle(TextInputStyle.Paragraph)
                 .setRequired(true)
             ),
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
                 .setCustomId('inline')
-                .setLabel(mina.say('embed.modal.fieldInline'))
+                .setPlaceholder(mina.say('embed.modal.fieldInline'))
                 .setStyle(TextInputStyle.Short)
                 .setValue('true')
                 .setRequired(true)

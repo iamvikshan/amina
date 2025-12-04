@@ -26,7 +26,7 @@ const memeReactions: Record<string, string> = {
   notstonk: 'oof, down we go!',
   poutine: 'yummy!',
   rip: 'press f to pay respects',
-  shit: 'yikes!',
+  shht: 'yikes!',
   stonk: 'to the moon!',
   tattoo: 'forever art!',
   thomas: 'choo choo!',
@@ -54,7 +54,7 @@ const availableGenerators = [
   'notstonk',
   'poutine',
   'rip',
-  'shit',
+  'shht',
   'stonk',
   'tattoo',
   'thomas',
@@ -65,7 +65,7 @@ const availableGenerators = [
 
 const command: CommandData = {
   name: 'generator',
-  description: 'Transform images into memes!',
+  description: 'create meme images like wanted posters, jail photos, and more',
   cooldown: 1,
   category: 'IMAGE',
   botPermissions: ['EmbedLinks', 'AttachFiles'],
@@ -74,20 +74,20 @@ const command: CommandData = {
     options: [
       {
         name: 'name',
-        description: 'Pick your meme style!',
+        description: 'which meme template to use',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: availableGenerators.map(gen => ({ name: gen, value: gen })),
       },
       {
         name: 'user',
-        description: 'Whose picture should we transform?',
+        description: 'user whose avatar to use',
         type: ApplicationCommandOptionType.User,
         required: false,
       },
       {
         name: 'link',
-        description: 'Or use an image link!',
+        description: 'or provide an image url instead',
         type: ApplicationCommandOptionType.String,
         required: false,
       },

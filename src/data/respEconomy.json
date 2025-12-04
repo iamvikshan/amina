@@ -1,0 +1,150 @@
+{
+  "economy": {
+    "daily": [
+      "here's {amount} coins.",
+      "daily collected: {amount}.",
+      "+{amount} coins.",
+      "got your daily. {amount} coins.",
+      "{amount} added to your wallet."
+    ],
+    "balance": {
+      "info": [
+        "you have {amount} coins.",
+        "balance: {amount}.",
+        "wallet: {amount} coins.",
+        "{amount} coins in your pocket."
+      ],
+      "newBalance": ["new balance", "updated balance", "balance"]
+    },
+    "transfer": {
+      "success": [
+        "sent {amount} to {target}.",
+        "transferred: {amount} coins.",
+        "{target} received {amount}.",
+        "done. {amount} sent.",
+        "money moved. {amount} to {target}."
+      ],
+      "noSelf": [
+        "can't send money to yourself.",
+        "that's not how this works.",
+        "you transferring to yourself? no.",
+        "nice try."
+      ],
+      "noBots": [
+        "bots don't need money.",
+        "can't transfer to bots.",
+        "robots don't spend coins.",
+        "bots are broke by design."
+      ],
+      "complete": ["transfer complete", "sent.", "transferred."]
+    },
+    "broke": [
+      "you're broke.",
+      "no coins. sad.",
+      "wallet empty.",
+      "0 coins. L.",
+      "you got nothing."
+    ],
+    "beg": {
+      "success": [
+        "{celebrity} felt generous. +{amount} coins.",
+        "{celebrity} gave you {amount} coins. lucky.",
+        "begging worked. {celebrity} donated {amount}.",
+        "{celebrity} tossed you {amount} coins.",
+        "got {amount} coins from {celebrity}."
+      ],
+      "fail": [
+        "{celebrity} ignored you.",
+        "no luck. {celebrity} walked away.",
+        "{celebrity} said no.",
+        "begging failed. try again.",
+        "{celebrity} pretended not to see you."
+      ]
+    },
+    "gamble": {
+      "jackpot": [
+        "JACKPOT. you won {amount} coins.",
+        "triple match. +{amount} coins.",
+        "gg. jackpot: {amount} coins.",
+        "you hit the jackpot. {amount} coins."
+      ],
+      "win": [
+        "double match. +{amount} coins.",
+        "you won {amount} coins.",
+        "nice. +{amount}.",
+        "winner. {amount} coins added."
+      ],
+      "lose": [
+        "no match. -{amount} coins.",
+        "you lost {amount} coins. rip.",
+        "L. -{amount}.",
+        "gambled and lost {amount}."
+      ]
+    },
+    "deposit": {
+      "success": [
+        "deposited {amount} coins.",
+        "{amount} coins in the bank now.",
+        "banked: {amount} coins.",
+        "stored {amount} safely."
+      ]
+    },
+    "withdraw": {
+      "success": [
+        "withdrew {amount} coins.",
+        "{amount} coins in your wallet now.",
+        "took out: {amount} coins.",
+        "grabbed {amount} from the bank."
+      ]
+    },
+    "error": {
+      "invalidAmount": [
+        "enter a valid amount.",
+        "that's not a real number.",
+        "invalid amount.",
+        "try an actual number."
+      ],
+      "insufficientWallet": [
+        "not enough coins in wallet.",
+        "you only have {amount} in your wallet.",
+        "wallet too light.",
+        "insufficient wallet balance."
+      ],
+      "insufficientBank": [
+        "not enough coins in bank.",
+        "you only have {amount} in your bank.",
+        "bank account too light.",
+        "insufficient bank balance."
+      ],
+      "minBet": [
+        "minimum bet is {amount}.",
+        "bet at least {amount} coins.",
+        "too low. min: {amount}.",
+        "can't bet less than {amount}."
+      ],
+      "depositHint": [
+        "deposit your coins first before you can transfer.",
+        "move coins to bank first.",
+        "deposit before transferring."
+      ]
+    },
+    "cooldown": {
+      "daily": [
+        "already claimed today. come back in {time}.",
+        "daily on cooldown. {time} left.",
+        "patience. {time} until next daily.",
+        "nope. wait {time}."
+      ]
+    },
+    "streak": [
+      "streak: {count} days.",
+      "{count} day streak. nice.",
+      "you're on a {count} day roll."
+    ],
+    "updatedBalance": [
+      "updated balance: {amount}",
+      "new balance: {amount}",
+      "wallet now: {amount}"
+    ]
+  }
+}

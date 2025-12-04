@@ -16,8 +16,6 @@ import {
 import { getSlashUsage } from '@handlers/command'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons } from '@helpers/componentHelper'
-import { mina } from '@helpers/mina'
-// CommandData is globally available - see types/commands.d.ts
 
 interface BotClient extends Client {
   slashCommands: Collection<string, CommandData>
@@ -29,7 +27,7 @@ const IDLE_TIMEOUT = 900 // 15 minutes
 
 const command: CommandData = {
   name: 'help',
-  description: 'command help menu',
+  description: 'browse available commands by category or get command details',
   category: 'UTILITY',
   cooldown: 5,
   botPermissions: ['EmbedLinks'],
@@ -68,7 +66,7 @@ const command: CommandData = {
     }
 
     // No matching command/category found
-    await interaction.editReply(mina.say('helpMenu.noMatch'))
+    await interaction.editReply('no command matches that.')
   },
 }
 
@@ -111,7 +109,7 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('help-menu')
-      .setPlaceholder('Choose the command category')
+      .setPlaceholder('choose the command category')
       .addOptions(options)
   )
 
@@ -121,18 +119,17 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
     MinaButtons.next('nextBtn', true)
   )
 
+  // intentional hardcoded responses
+  const botName = guild?.members.me?.displayName || 'mina'
   const embed = MinaEmbed.primary()
+    .setAuthor({ name: `${botName} Help Menu` })
     .setThumbnail(botClient.user?.displayAvatarURL() || null)
     .setDescription(
-      mina.sayf('botInfo.intro', {
-        name: guild?.members.me?.displayName || 'mina',
-      }) +
-        '\n' +
-        mina.say('botInfo.about') +
-        '\n\n' +
-        mina.sayf('botInfo.invite', { url: botClient.getInvite() }) +
-        '\n' +
-        mina.sayf('botInfo.support', { url: config.BOT.SUPPORT_SERVER ?? '' })
+      `hey. i'm ${botName}.\n` +
+        'a multipurpose discord bot with moderation, fun, economy, music, and more.\n' +
+        'i can also talk, execute commands, and so much more using natural language conversation\n\n' +
+        `[invite me](${botClient.getInvite()})\n` +
+        `[support server](${config.BOT.SUPPORT_SERVER ?? ''})`
     )
 
   return {

@@ -20,7 +20,7 @@ const availableOverlays = [
 
 const command: CommandData = {
   name: 'overlay',
-  description: 'transform your image with some creative chaos!',
+  description: 'add overlays like wasted, thuglife, or jail to an image',
   category: 'IMAGE',
   botPermissions: ['EmbedLinks', 'AttachFiles'],
   cooldown: 1,

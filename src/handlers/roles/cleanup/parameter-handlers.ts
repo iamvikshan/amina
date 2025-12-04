@@ -46,23 +46,25 @@ export async function showParameterInputForMethod(
 async function showPrefixModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('roles:modal:prefix')
-    .setTitle('cleanup roles by prefix')
-
-  const prefixInput = new TextInputBuilder()
-    .setCustomId('prefix')
-    .setLabel('role name prefix')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g., temp-, old-')
-    .setRequired(true)
-    .setMaxLength(32)
+  const prefixInput = new TextInputBuilder({
+    customId: 'prefix',
+    label: 'role name prefix',
+    style: TextInputStyle.Short,
+    placeholder: 'e.g., temp-, old-',
+    required: true,
+    maxLength: 32,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     prefixInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'roles:modal:prefix',
+    title: 'cleanup roles by prefix',
+    components: [firstRow],
+  })
+
   await interaction.showModal(modal)
 }
 
@@ -72,23 +74,25 @@ async function showPrefixModal(
 async function showPositionModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('roles:modal:position')
-    .setTitle('cleanup roles below position')
-
-  const positionInput = new TextInputBuilder()
-    .setCustomId('position')
-    .setLabel('position threshold')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g., 5 (roles below position 5)')
-    .setRequired(true)
-    .setMaxLength(5)
+  const positionInput = new TextInputBuilder({
+    customId: 'position',
+    label: 'position threshold',
+    style: TextInputStyle.Short,
+    placeholder: 'e.g., 5 (roles below position 5)',
+    required: true,
+    maxLength: 5,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     positionInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'roles:modal:position',
+    title: 'cleanup roles below position',
+    components: [firstRow],
+  })
+
   await interaction.showModal(modal)
 }
 
@@ -98,23 +102,25 @@ async function showPositionModal(
 async function showOlderModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('roles:modal:older')
-    .setTitle('cleanup roles older than')
-
-  const daysInput = new TextInputBuilder()
-    .setCustomId('days')
-    .setLabel('age in days')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g., 30 (roles older than 30 days)')
-    .setRequired(true)
-    .setMaxLength(5)
+  const daysInput = new TextInputBuilder({
+    customId: 'days',
+    label: 'age in days',
+    style: TextInputStyle.Short,
+    placeholder: 'e.g., 30 (roles older than 30 days)',
+    required: true,
+    maxLength: 5,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     daysInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'roles:modal:older',
+    title: 'cleanup roles older than',
+    components: [firstRow],
+  })
+
   await interaction.showModal(modal)
 }
 

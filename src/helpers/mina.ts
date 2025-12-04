@@ -1,9 +1,10 @@
 // @root/src/helpers/mina.ts
 // Central helper for mina's voice, responses, colors, and quotes
 
+import type { ColorResolvable } from 'discord.js'
 import responses from '@data/responses'
 import colors from '@data/colors.json' with { type: 'json' }
-import { secret } from '@src/config/secrets'
+import Logger from '@helpers/Logger'
 
 // Types for the response system
 type EmoticonMood = keyof typeof responses.emoticons
@@ -14,8 +15,7 @@ interface Quote {
   character: string
 }
 
-interface WaifuItQuoteResponse {
-  status: number
+interface YurippeQuoteResponse {
   quote: string
   anime: string
   character: string
@@ -27,7 +27,7 @@ let lastQuoteFetch = 0
 const QUOTE_CACHE_TTL = 30 * 60 * 1000 // 30 minutes
 
 /**
- * Fetch quotes from waifu.it API
+ * Fetch quotes from yurippe.vercel.app API
  */
 async function fetchQuotes(): Promise<Quote[]> {
   const now = Date.now()
@@ -37,45 +37,35 @@ async function fetchQuotes(): Promise<Quote[]> {
     return quotesCache
   }
 
-  const apiKey = secret.WAIFU_IT
-  if (!apiKey) {
-    console.warn(
-      '[mina] WAIFU_IT API key not configured, using fallback quotes'
-    )
-    return getFallbackQuotes()
-  }
-
   try {
-    const response = await fetch('https://waifu.it/api/v4/quote', {
-      headers: {
-        Authorization: apiKey,
-      },
-    })
+    // Fetch 50 random quotes to populate cache
+    const response = await fetch(
+      'https://yurippe.vercel.app/api/quotes?random=50'
+    )
 
     if (!response.ok) {
-      console.error(`[mina] waifu.it API error: ${response.status}`)
+      Logger.error(`[mina] yurippe.vercel.app API error: ${response.status}`)
       return getFallbackQuotes()
     }
 
-    const data = (await response.json()) as WaifuItQuoteResponse
+    const data = (await response.json()) as YurippeQuoteResponse[]
 
-    // API returns single quote, add to cache
-    if (data.quote) {
-      const newQuote: Quote = {
-        quote: data.quote,
-        anime: data.anime || 'unknown',
-        character: data.character || 'unknown',
-      }
+    // API returns array of quotes
+    if (Array.isArray(data) && data.length > 0) {
+      // Transform API response to our Quote format
+      const newQuotes: Quote[] = data.map(item => ({
+        quote: item.quote || '',
+        anime: item.anime || 'unknown',
+        character: item.character || 'unknown',
+      }))
 
-      // Add to cache, keep max 50 quotes
-      quotesCache.push(newQuote)
-      if (quotesCache.length > 50) {
-        quotesCache.shift()
-      }
+      // Update cache with new quotes
+      quotesCache = newQuotes
       lastQuoteFetch = now
+      return quotesCache
     }
 
-    return quotesCache.length > 0 ? quotesCache : getFallbackQuotes()
+    return getFallbackQuotes()
   } catch (error) {
     console.error('[mina] Failed to fetch quotes:', error)
     return getFallbackQuotes()
@@ -315,45 +305,53 @@ export const mina = {
   /**
    * Color getters
    */
-  color: colors.embed as {
-    primary: string
-    secondary: string
-    success: string
-    error: string
-    warning: string
-    info: string
-    gold: string
-    muted: string
+  get color() {
+    return colors.embed as {
+      primary: ColorResolvable
+      secondary: ColorResolvable
+      success: ColorResolvable
+      error: ColorResolvable
+      warning: ColorResolvable
+      info: ColorResolvable
+      gold: ColorResolvable
+      muted: ColorResolvable
+    }
   },
 
-  palette: colors.palette as Record<string, string>,
+  get palette() {
+    return colors.palette as Record<string, ColorResolvable>
+  },
 
-  modColors: colors.moderation as Record<string, string>,
+  get modColors() {
+    return colors.moderation as Record<string, ColorResolvable>
+  },
 
-  featureColors: colors.features as Record<string, string>,
+  get featureColors() {
+    return colors.features as Record<string, ColorResolvable>
+  },
 
   /**
    * Get color by name (flexible lookup)
    */
-  getColor: (name: string): string => {
+  getColor: (name: string): ColorResolvable => {
     // Check embed colors first
     if (name in colors.embed) {
-      return (colors.embed as Record<string, string>)[name]
+      return (colors.embed as Record<string, ColorResolvable>)[name]
     }
     // Check palette
     if (name in colors.palette) {
-      return (colors.palette as Record<string, string>)[name]
+      return (colors.palette as Record<string, ColorResolvable>)[name]
     }
     // Check moderation
     if (name in colors.moderation) {
-      return (colors.moderation as Record<string, string>)[name]
+      return (colors.moderation as Record<string, ColorResolvable>)[name]
     }
     // Check features
     if (name in colors.features) {
-      return (colors.features as Record<string, string>)[name]
+      return (colors.features as Record<string, ColorResolvable>)[name]
     }
     // Default to primary
-    return colors.embed.primary
+    return colors.embed.primary as ColorResolvable
   },
 
   // ============================================

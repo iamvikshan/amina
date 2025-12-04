@@ -26,11 +26,9 @@ export async function showMinaAIMenu(
     allowDMs: true,
   }
 
-  const status = aiConfig.enabled ? '✅ Enabled' : '❌ Disabled'
-  const globalStatus = globalConfig.globallyEnabled
-    ? '✅ Enabled'
-    : '❌ Disabled'
-  const mode = aiConfig.mentionOnly ? '📢 Mention Only' : '🌊 Free Will'
+  const status = aiConfig.enabled ? 'enabled' : 'disabled'
+  const globalStatus = globalConfig.globallyEnabled ? 'enabled' : 'disabled'
+  const mode = aiConfig.mentionOnly ? 'mention only' : 'free will'
 
   // Get free-will channels
   const allChannels = aiConfig.freeWillChannels || []
@@ -57,28 +55,24 @@ export async function showMinaAIMenu(
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('admin:menu:minaai')
-      .setPlaceholder('Choose an AI setting to configure')
+      .setPlaceholder('choose an ai setting to configure')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle AI')
-          .setDescription('Enable or disable AI for this server')
-          .setValue('toggle')
-          .setEmoji('🔄'),
+          .setLabel('toggle ai')
+          .setDescription('enable or disable ai for this server')
+          .setValue('toggle'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Free-Will Channel')
-          .setDescription('Choose a channel for unrestricted AI chat')
-          .setValue('freewill')
-          .setEmoji('🌊'),
+          .setLabel('set free-will channel')
+          .setDescription('choose a channel for unrestricted ai chat')
+          .setValue('freewill'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle Mention-Only Mode')
-          .setDescription('Require @mentions or allow all messages')
-          .setValue('mentiononly')
-          .setEmoji('📢'),
+          .setLabel('toggle mention-only mode')
+          .setDescription('require @mentions or allow all messages')
+          .setValue('mentiononly'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Manage Free-Will Channels')
-          .setDescription('View and remove free-will channels')
-          .setValue('manage_channels')
-          .setEmoji('🗑️'),
+          .setLabel('manage free-will channels')
+          .setDescription('view and remove free-will channels')
+          .setValue('manage_channels'),
       ])
   )
 
@@ -205,7 +199,7 @@ export async function handleMinaAIMenu(
         new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
           new ChannelSelectMenuBuilder()
             .setCustomId('admin:channel:freewill')
-            .setPlaceholder('Select a text channel')
+            .setPlaceholder('select a text channel')
             .setChannelTypes([
               ChannelType.GuildText,
               ChannelType.GuildAnnouncement,
@@ -265,7 +259,7 @@ export async function handleMinaAIMenu(
           new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
             new ChannelSelectMenuBuilder()
               .setCustomId('admin:channel:add_freewill')
-              .setPlaceholder('➕ Add a channel')
+              .setPlaceholder('add a channel')
               .setChannelTypes([
                 ChannelType.GuildText,
                 ChannelType.GuildAnnouncement,
@@ -280,7 +274,7 @@ export async function handleMinaAIMenu(
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
               .setCustomId('admin:menu:remove_freewill')
-              .setPlaceholder('➖ Remove a channel')
+              .setPlaceholder('remove a channel')
               .addOptions(
                 allChannels
                   .map(channelId => {
@@ -294,10 +288,9 @@ export async function handleMinaAIMenu(
                           : channel.name
                       )
                       .setDescription(
-                        `Remove ${channel.name} from free-will channels`
+                        `remove ${channel.name} from free-will channels`
                       )
                       .setValue(channelId)
-                      .setEmoji('🗑️')
                   })
                   .filter(
                     (option): option is StringSelectMenuOptionBuilder =>

@@ -1,4 +1,3 @@
-import type { ColorResolvable } from 'discord.js'
 import { secret } from './secrets'
 
 const config: Config = {
@@ -10,12 +9,12 @@ const config: Config = {
     DONATE_URL: 'https://ko-fi.com/vikshan',
   },
   AI: {
+    // These values seed the database on first run
+    // After initialization, all changes must be made via dev commands or directly in MongoDB
     MODEL: 'gemini-flash-latest',
-    VISION_MODEL: 'gemini-3-pro-preview', // Used for images/videos/gifs
+    // VISION_MODEL: 'gemini-3-pro-preview', // Used for images/videos/gifs
     MAX_TOKENS: 1024,
     TIMEOUT_MS: 20000,
-    // System prompt is loaded from src/data/prompt.md via promptLoader helper
-    // To modify the system prompt, edit src/data/prompt.md instead
     TEMPERATURE: 0.7,
     DM_ENABLED_GLOBALLY: true,
     UPSTASH_URL: 'https://up-wolf-22896-us1-vector.upstash.io',
@@ -41,8 +40,7 @@ const config: Config = {
     MEMBERS: 10000,
   },
   MESSAGES: {
-    API_ERROR:
-      'something broke on my end. try again later or use `/report` if it keeps happening.',
+    API_ERROR: 'something broke on my end. `/report` if it keeps happening.',
   },
 
   // whether or not to enable feedback/report system
@@ -53,8 +51,7 @@ const config: Config = {
 
   AUTOMOD: {
     ENABLED: true,
-    LOG_EMBED: '#2B2D31', // Discord dark - blends with discord theme
-    DM_EMBED: '#1E90FF', // Electric blue - mina's signature
+    // Colors are defined in src/data/colors.json (features.automodLog, features.automodDm)
   },
 
   ECONOMY: {
@@ -87,8 +84,7 @@ const config: Config = {
   GIVEAWAYS: {
     ENABLED: true,
     REACTION: '🎁',
-    START_EMBED: '#FFD700', // Imperial gold - prize worthy
-    END_EMBED: '#DC143C', // Crimson - akame ga kill theme
+    // Colors are defined in src/data/colors.json (features.giveaway, features.giveawayEnd)
   },
 
   IMAGE: {
@@ -99,28 +95,9 @@ const config: Config = {
   INVITE: {
     ENABLED: true,
   },
-  EMBED_COLORS: {
-    BOT_EMBED: '#1E90FF', // Electric blue - mina's signature color
-    SUCCESS: '#57F287', // Discord green - universal success
-    ERROR: '#DC143C', // Crimson - akame ga kill red
-    WARNING: '#FEE75C', // Discord yellow - clear warning
-  },
   MODERATION: {
     ENABLED: true,
-    EMBED_COLORS: {
-      TIMEOUT: '#1E90FF', // Electric blue - firm but mina-branded
-      UNTIMEOUT: '#57F287', // Discord green - freedom granted
-      KICK: '#FEE75C', // Discord yellow - warning action
-      SOFTBAN: '#FEE75C', // Discord yellow - temporary measure
-      BAN: '#8B0000', // Blood red - serious action
-      UNBAN: '#57F287', // Discord green - welcome back
-      VMUTE: '#36393F', // Discord gray - silenced
-      VUNMUTE: '#57F287', // Discord green - unmuted
-      DEAFEN: '#36393F', // Discord gray - deafened
-      UNDEAFEN: '#57F287', // Discord green - hearing restored
-      DISCONNECT: '#DC143C', // Crimson - removal
-      MOVE: '#1E90FF', // Electric blue - neutral action
-    },
+    // Colors are defined in src/data/colors.json (moderation.*)
   },
 
   STATS: {
@@ -129,21 +106,9 @@ const config: Config = {
     DEFAULT_LVL_UP_MSG: '{member:tag}, you hit **level {level}**. nice.',
   },
 
-  SUGGESTIONS: {
-    ENABLED: true,
-    EMOJI: {
-      UP_VOTE: '⬆️',
-      DOWN_VOTE: '⬇️',
-    },
-    DEFAULT_EMBED: '#1E90FF', // Electric blue - mina's color
-    APPROVED_EMBED: '#57F287', // Discord green - approved
-    DENIED_EMBED: '#DC143C', // Crimson - rejected
-  },
-
   TICKET: {
     ENABLED: true,
-    CREATE_EMBED: '#1E90FF' as ColorResolvable, // Electric blue - mina's signature
-    CLOSE_EMBED: '#36393F' as ColorResolvable, // Discord gray - closed/archived
+    // Colors are defined in src/data/colors.json (features.ticket, features.ticketClose)
   },
 }
 
@@ -169,9 +134,7 @@ export const {
   GIVEAWAYS,
   IMAGE,
   INVITE,
-  EMBED_COLORS,
   MODERATION,
   STATS,
-  SUGGESTIONS,
   TICKET,
 } = config

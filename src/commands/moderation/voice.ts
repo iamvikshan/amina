@@ -17,7 +17,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'voice',
-  description: 'voice moderation commands',
+  description: 'moderate voice channels - mute, deafen, kick, or move members',
   category: 'MODERATION',
   userPermissions: ['MuteMembers', 'MoveMembers', 'DeafenMembers'],
   botPermissions: ['MuteMembers', 'MoveMembers', 'DeafenMembers'],

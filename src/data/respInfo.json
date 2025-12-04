@@ -1,0 +1,186 @@
+{
+  "infoCmd": {
+    "user": {
+      "title": ["user info for {user}", "{user}'s info", "info: {user}"],
+      "fields": {
+        "username": "username",
+        "id": "id",
+        "guildJoined": "guild joined",
+        "registered": "discord registered",
+        "roles": "roles [{count}]",
+        "avatarUrl": "avatar url"
+      },
+      "error": {
+        "fetchFailed": [
+          "couldn't fetch user info. they might not be in this server.",
+          "failed to get user info.",
+          "user not found in this server."
+        ]
+      }
+    },
+    "channel": {
+      "title": ["channel details", "channel info", "info: {channel}"],
+      "fields": {
+        "id": "id",
+        "name": "name",
+        "type": "type",
+        "category": "category",
+        "topic": "topic",
+        "position": "position",
+        "slowmode": "slowmode",
+        "nsfw": "nsfw",
+        "owner": "owner",
+        "archived": "archived",
+        "locked": "locked",
+        "bitrate": "bitrate",
+        "userLimit": "user limit",
+        "full": "full"
+      }
+    },
+    "guild": {
+      "title": ["guild information", "server info", "{server} info"],
+      "fields": {
+        "id": "id",
+        "name": "name",
+        "owner": "owner",
+        "region": "region",
+        "members": "members [{count}]",
+        "online": "online [{count}]",
+        "channels": "channels [{count}]",
+        "roles": "roles [{count}]",
+        "verification": "verification",
+        "boosts": "boosts",
+        "created": "created [{time}]"
+      }
+    },
+    "avatar": {
+      "title": ["avatar of {user}", "{user}'s avatar"],
+      "description": "links: {links}"
+    },
+    "emoji": {
+      "title": ["emoji info", "emoji details"],
+      "fields": {
+        "id": "id",
+        "name": "name",
+        "animated": "animated"
+      },
+      "error": {
+        "invalid": [
+          "not a valid guild emoji.",
+          "invalid emoji.",
+          "that's not a server emoji."
+        ]
+      }
+    },
+    "leaderboard": {
+      "xp": {
+        "title": ["xp leaderboard", "xp rankings", "top xp"],
+        "disabled": [
+          "leaderboard is disabled here.",
+          "xp tracking is off.",
+          "leaderboard not enabled."
+        ],
+        "empty": [
+          "no users on the leaderboard.",
+          "leaderboard is empty.",
+          "no data yet."
+        ]
+      },
+      "invite": {
+        "title": ["invite leaderboard", "invite rankings", "top inviters"],
+        "disabled": [
+          "invite tracking is disabled here.",
+          "invite tracking is off.",
+          "not tracking invites."
+        ],
+        "empty": [
+          "no users on the leaderboard.",
+          "leaderboard is empty.",
+          "no invites yet."
+        ]
+      },
+      "rep": {
+        "title": ["reputation leaderboard", "rep rankings", "top rep"],
+        "empty": [
+          "no users on the leaderboard.",
+          "leaderboard is empty.",
+          "no rep yet."
+        ]
+      },
+      "invalid": [
+        "invalid leaderboard type. use xp, invite, or rep.",
+        "bad type. pick xp, invite, or rep.",
+        "unknown leaderboard type."
+      ]
+    }
+  },
+  "statsCmd": {
+    "disabled": [
+      "stats tracking is off here.",
+      "stats not enabled.",
+      "tracking disabled."
+    ],
+    "noStats": [
+      "{user} has no stats yet.",
+      "no data for {user}.",
+      "{user} hasn't done anything trackable."
+    ],
+    "notRanked": [
+      "{user} is not ranked yet.",
+      "no rank data for {user}.",
+      "{user} hasn't earned xp yet."
+    ],
+    "fetchFailed": [
+      "couldn't fetch member info. they might not be in this server.",
+      "failed to get member.",
+      "member not found."
+    ],
+    "rankFailed": [
+      "failed to generate rank card.",
+      "couldn't make the rank card.",
+      "rank card error."
+    ],
+    "fields": {
+      "username": "username",
+      "id": "id",
+      "memberSince": "member since",
+      "messages": "messages",
+      "voice": "voice stats"
+    },
+    "config": {
+      "enabled": ["stats tracking enabled.", "tracking is now on.", "enabled."],
+      "disabled": [
+        "stats tracking disabled.",
+        "tracking is now off.",
+        "disabled."
+      ],
+      "messageUpdated": [
+        "level up message updated.",
+        "message saved.",
+        "got it."
+      ],
+      "channelUpdated": [
+        "level up channel updated.",
+        "channel saved.",
+        "got it."
+      ]
+    },
+    "error": {
+      "invalidMessage": [
+        "provide a valid message.",
+        "need a message.",
+        "invalid message."
+      ],
+      "invalidChannel": [
+        "provide a valid channel.",
+        "need a channel.",
+        "invalid channel."
+      ],
+      "invalidSubcommand": [
+        "invalid subcommand.",
+        "unknown option.",
+        "not a valid choice."
+      ]
+    }
+  }
+}

@@ -10,7 +10,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'softban',
-  description: 'softban the specified member. Kicks and deletes messages',
+  description: 'kick a member and delete their recent messages in one action',
   category: 'MODERATION',
   botPermissions: ['BanMembers'],
   userPermissions: ['KickMembers'],

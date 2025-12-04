@@ -8,7 +8,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'volume',
-  description: 'set the music player volume',
+  description: 'adjust playback volume from 0 to 100 percent',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

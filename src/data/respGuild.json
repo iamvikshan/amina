@@ -1,0 +1,79 @@
+{
+  "guild": {
+    "setup": {
+      "title": "mina setup",
+      "description": "let's make your server super awesome! click the button below to set up important stuff",
+      "button": "setup mina",
+      "remind": "laterz!",
+      "modal": {
+        "title": "mina setup",
+        "updatesChannel": "updates channel name",
+        "updatesPlaceholder": "e.g., amina-updates",
+        "staffRole": "staff role name",
+        "staffPlaceholder": "e.g., mina staff",
+        "remindTitle": "set a reminder",
+        "remindLabel": "remind me in (minutes)",
+        "remindPlaceholder": "e.g., 30"
+      },
+      "success": {
+        "title": "yay! setup complete!",
+        "description": "we did it! your server is now super awesome and ready to go",
+        "footer": "thanks for setting me up! let's have fun together",
+        "testTitle": "mina updates channel",
+        "testDescription": "hi everyone! this channel is now set up for mina's updates. stay tuned for awesome announcements!"
+      },
+      "error": {
+        "notFound": "couldn't find that channel or role. can you double-check the names?",
+        "noPermission": "i don't have permission to send messages in that channel. can you give me the right permissions?",
+        "invalidTime": "that's not a valid number of minutes. can you try again?",
+        "remindSuccess": "okie dokie! i'll remind you to finish the setup in {minutes} minutes~"
+      },
+      "reminder": {
+        "title": "mina setup reminder",
+        "description": "hey there! just a friendly reminder to finish setting me up in your server. run `/settings` to get started!",
+        "footer": "i can't wait to be fully operational and super awesome in your server!"
+      }
+    }
+  },
+  "dev": {
+    "listservers": {
+      "empty": "no servers found",
+      "title": "list of servers",
+      "footer": "{type} servers: {total} | page {page} of {totalPages}",
+      "button": "back to dev hub"
+    },
+    "reload": {
+      "title": "command reload",
+      "description": "reload commands, events, or contexts\n\n**select what to reload:**\n**commands** - reload all slash commands\n**events** - reload all event handlers\n**contexts** - reload all context menus\n**all** - reload everything\n\n**note:** this will reload the specified modules from disk.",
+      "footer": "select what to reload",
+      "placeholder": "select what to reload...",
+      "option": {
+        "commands": {
+          "label": "commands",
+          "description": "reload all slash commands"
+        },
+        "events": {
+          "label": "events",
+          "description": "reload all event handlers"
+        },
+        "contexts": {
+          "label": "contexts",
+          "description": "reload all context menus"
+        },
+        "all": {
+          "label": "all",
+          "description": "reload everything"
+        }
+      },
+      "success": {
+        "title": "reloaded",
+        "description": "successfully reloaded {type}"
+      },
+      "error": {
+        "title": "reload failed",
+        "description": "failed to reload {type}: {error}",
+        "invalidType": "invalid reload type selected"
+      }
+    }
+  }
+}

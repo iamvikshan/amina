@@ -11,7 +11,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'rank',
-  description: 'displays members rank in this server',
+  description: "display your or another member's xp rank card",
   cooldown: 5,
   category: 'UTILITY',
   botPermissions: ['AttachFiles'],

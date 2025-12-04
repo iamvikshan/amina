@@ -13,20 +13,22 @@ import {
 export async function showTokenModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('purge:modal:token')
-    .setTitle('Enter Keyword/Token')
-
-  const tokenInput = new TextInputBuilder()
-    .setCustomId('token')
-    .setLabel('Keyword or Token')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('Enter the keyword to search for (case-insensitive)')
-    .setRequired(true)
-    .setMaxLength(100)
+  const tokenInput = new TextInputBuilder({
+    customId: 'token',
+    label: 'keyword or token',
+    style: TextInputStyle.Short,
+    placeholder: 'enter the keyword to search for (case-insensitive)',
+    required: true,
+    maxLength: 100,
+  })
 
   const row = new ActionRowBuilder<TextInputBuilder>().addComponents(tokenInput)
-  modal.addComponents([row])
+
+  const modal = new ModalBuilder({
+    customId: 'purge:modal:token',
+    title: 'enter keyword/token',
+    components: [row],
+  })
 
   await interaction.showModal(modal)
 }
@@ -41,7 +43,7 @@ export async function handleTokenModal(
 
   if (!token || token.length === 0) {
     await interaction.reply({
-      content: '❌ Please enter a valid keyword or token.',
+      content: 'please enter a valid keyword or token.',
       ephemeral: true,
     })
     return

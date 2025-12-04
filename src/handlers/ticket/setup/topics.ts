@@ -22,7 +22,14 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 export async function showTopicsMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const settings = await getSettings(interaction.guild!)
+  if (!interaction.guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+    })
+    return
+  }
+
+  const settings = await getSettings(interaction.guild)
   const topicCount = settings.ticket.topics?.length || 0
 
   const embed = MinaEmbed.primary()
@@ -106,7 +113,14 @@ export async function handleTopicsMenu(
 async function showTopicsList(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
-  const settings = await getSettings(interaction.guild!)
+  if (!interaction.guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+    })
+    return
+  }
+
+  const settings = await getSettings(interaction.guild)
   const topics = settings.ticket.topics || []
 
   const embed = MinaEmbed.primary()
@@ -145,20 +159,22 @@ async function showTopicsList(
 async function showAddTopicModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('ticket:modal:topic_add')
-    .setTitle('add ticket topic')
-    .addComponents(
+  const modal = new ModalBuilder({
+    customId: 'ticket:modal:topic_add',
+    title: 'add ticket topic',
+    components: [
       new ActionRowBuilder<TextInputBuilder>().addComponents(
-        new TextInputBuilder()
-          .setCustomId('name')
-          .setLabel('topic name')
-          .setStyle(TextInputStyle.Short)
-          .setPlaceholder('e.g., technical support, billing, general')
-          .setRequired(true)
-          .setMaxLength(50)
-      )
-    )
+        new TextInputBuilder({
+          customId: 'name',
+          label: 'topic name',
+          style: TextInputStyle.Short,
+          placeholder: 'e.g., technical support, billing, general',
+          required: true,
+          maxLength: 50,
+        })
+      ),
+    ],
+  })
 
   await interaction.showModal(modal)
 }
@@ -171,6 +187,13 @@ export async function handleAddTopicModal(
 ): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
+  if (!interaction.guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+    })
+    return
+  }
+
   const topicName = interaction.fields.getTextInputValue('name').trim()
 
   if (!topicName) {
@@ -180,7 +203,7 @@ export async function handleAddTopicModal(
     return
   }
 
-  const settings = await getSettings(interaction.guild!)
+  const settings = await getSettings(interaction.guild)
   const topics = settings.ticket.topics || []
 
   // Check if topic already exists (case-insensitive)
@@ -201,35 +224,45 @@ export async function handleAddTopicModal(
 
   // Add topic
   settings.ticket.topics.push({ name: topicName })
-  await updateSettings(interaction.guild!.id, settings)
+  if (!interaction.guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+    })
+    return
+  }
+  await updateSettings(interaction.guild.id, settings)
 
   // Create Discord category for this topic
-  const guild = interaction.guild!
+  const guild = interaction.guild
   const staffRoles = settings.server.staff_roles || []
   const categoryPerms: any[] = [
     {
       id: guild.roles.everyone,
       deny: ['ViewChannel'],
     },
-    {
-      id: guild.members.me!,
-      allow: [
-        'ViewChannel',
-        'SendMessages',
-        'ReadMessageHistory',
-        'ManageChannels',
-      ],
-    },
-    {
-      id: interaction.user.id,
-      allow: [
-        'ViewChannel',
-        'SendMessages',
-        'ReadMessageHistory',
-        'ManageChannels',
-      ],
-    },
   ]
+
+  if (guild.members.me) {
+    categoryPerms.push({
+      id: guild.members.me,
+      allow: [
+        'ViewChannel',
+        'SendMessages',
+        'ReadMessageHistory',
+        'ManageChannels',
+      ],
+    })
+  }
+
+  categoryPerms.push({
+    id: interaction.user.id,
+    allow: [
+      'ViewChannel',
+      'SendMessages',
+      'ReadMessageHistory',
+      'ManageChannels',
+    ],
+  })
 
   // Add staff roles to category
   staffRoles.forEach((roleId: string) => {
@@ -274,7 +307,14 @@ export async function handleAddTopicModal(
 async function showRemoveTopicSelect(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const settings = await getSettings(interaction.guild!)
+  if (!interaction.guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+    })
+    return
+  }
+
+  const settings = await getSettings(interaction.guild)
   const topics = settings.ticket.topics || []
 
   if (topics.length === 0) {
@@ -372,7 +412,14 @@ export async function handleRemoveTopicConfirm(
     return
   }
 
-  const settings = await getSettings(interaction.guild!)
+  if (!interaction.guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('this command can only be used in a server.')],
+    })
+    return
+  }
+
+  const settings = await getSettings(interaction.guild)
   const topics = settings.ticket.topics || []
 
   // Check if topic exists
@@ -396,10 +443,10 @@ export async function handleRemoveTopicConfirm(
   settings.ticket.topics = topics.filter(
     (t: any) => t.name.toLowerCase() !== topicName.toLowerCase()
   )
-  await updateSettings(interaction.guild!.id, settings)
+  await updateSettings(interaction.guild.id, settings)
 
   // Delete Discord category if it exists
-  const guild = interaction.guild!
+  const guild = interaction.guild
   let category = guild.channels.cache.find(
     ch => ch?.type === ChannelType.GuildCategory && ch?.name === topicName
   )

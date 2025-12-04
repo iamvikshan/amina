@@ -1,0 +1,109 @@
+{
+  "utility": {
+    "qrcode": {
+      "title": "qr code",
+      "description": "here is your qr code for the url: [click here]({url})",
+      "error": {
+        "invalidUrl": "invalid url",
+        "provideValid": "please provide a valid url."
+      }
+    },
+    "paste": {
+      "title": "paste links",
+      "description": "normal: {normal}\nraw: {raw}",
+      "error": {
+        "missingFields": "please provide both title and content.",
+        "failed": "something went wrong"
+      }
+    },
+    "redflag": {
+      "error": {
+        "noReason": "you forgot to give a reason!",
+        "alreadyFlagged": "you've already flagged this user.",
+        "maxReached": "this user has hit the max of {max} flags.",
+        "noFlags": "this user has no red flags.",
+        "notYourFlag": "you're trying to remove a flag you never added.",
+        "noSelf": "you can't add or remove red flags on yourself.",
+        "processing": "an error occurred while processing the red flag request. please try again."
+      },
+      "success": {
+        "added": "red flag added to {user}! reason: {reason}",
+        "removed": "your red flag was removed from {user}!",
+        "cleared": "all red flags have been cleared from {user}!"
+      },
+      "check": {
+        "title": "red flags",
+        "noFlags": "this user is flag-free.",
+        "description": "this user has {count} red flag{plural}!\n**current status:** {status}",
+        "selfNote": "**note:** these are the red flags on your account. if you think any are unfair, contact server admins.",
+        "footer": "remember: users can remove their own flags, and admins can clear all flags.",
+        "flagNumber": "red flag #{number}",
+        "flagValue": "**by:** {by}\n**server:** {server}\n**when:** <t:{when}:R>\n**reason:** {reason}"
+      }
+    },
+    "reminder": {
+      "hub": {
+        "title": "reminders",
+        "description": "**active reminders:** {count}/{max}\n\n{nextReminder}\n\n**view reminders** - see all your active reminders\n**clear all** - delete all your reminders\n\nuse `/reminder add` to create a new reminder.",
+        "noReminders": "no active reminders.",
+        "nextReminder": "**next:** \"{message}\"\n_{relativeTime}_",
+        "footerWithTimezone": "reminders use your profile timezone",
+        "footerNoTimezone": "tip: set your timezone in `/profile` for accurate reminders"
+      },
+      "list": {
+        "title": "your reminders ({total} total)",
+        "description": "showing {start}-{end} of {total} reminders.\n\nuse the menu to edit or delete reminders.",
+        "empty": "you don't have any active reminders.\n\nuse `/reminder add` to create one.",
+        "footer": "page {page}/{totalPages}"
+      },
+      "add": {
+        "success": "**reminder set.**\n\n**message:** {message}\n**reminds:** {timestamp}\n\nyou'll be notified in {location}.",
+        "error": {
+          "maxReached": "you've reached the maximum of {max} reminders.\n\ndelete some reminders in `/reminder hub` to create more.",
+          "invalidDuration": "invalid duration format.\n\nexamples: `1h`, `30m`, `2d`, `1w`\ndefaults to 6 hours if not specified.",
+          "minDuration": "minimum duration is {minutes} minutes.",
+          "maxDuration": "maximum duration is {days} days.",
+          "failed": "failed to create reminder. try again later."
+        }
+      },
+      "edit": {
+        "title": "edit reminder #{id}",
+        "description": "**current message:** {message}\n**current time:** {timestamp}\n\nselect what you want to edit.",
+        "success": {
+          "message": "**reminder updated.**\n\n**new message:** {message}",
+          "time": "**reminder updated.**\n\n**new time:** {timestamp}"
+        },
+        "error": {
+          "notFound": "reminder not found.",
+          "invalidId": "invalid reminder id.",
+          "emptyMessage": "message cannot be empty.",
+          "tooLong": "message must be 500 characters or less.",
+          "invalidDuration": "invalid duration format.\n\nexamples: `1h`, `30m`, `2d`, `1w`",
+          "minDuration": "minimum duration is {minutes} minutes.",
+          "maxDuration": "maximum duration is {days} days.",
+          "failed": "failed to update reminder."
+        }
+      },
+      "delete": {
+        "success": "reminder #{id} has been deleted.",
+        "error": {
+          "notFound": "reminder not found.",
+          "invalidId": "invalid reminder id."
+        }
+      },
+      "clear": {
+        "title": "delete all reminders?",
+        "description": "are you sure you want to delete **all {count}** reminder{plural}?\n\nthis is **irreversible** and will remove all your active reminders.",
+        "footer": "this cannot be undone.",
+        "success": "deleted **{count}** reminder{plural}.\n\nall your reminders have been removed.",
+        "empty": "you don't have any reminders to delete.",
+        "footerAfterClear": "use `/reminder add` to create new reminders"
+      },
+      "notification": {
+        "title": "reminder",
+        "content": "you asked me to remind you:",
+        "footer": "set <t:{createdAt}:R>"
+      }
+    }
+  }
+}

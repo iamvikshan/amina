@@ -6,7 +6,6 @@ import {
   commandHandler,
   contextHandler,
   statsHandler,
-  suggestionHandler,
   todHandler,
   reportHandler,
   guildHandler,
@@ -147,6 +146,33 @@ export default async (
       if (action === 'dm_me' || action === 'dm_me_category') {
         const { handleDmMe } = await import('@handlers/minaai')
         await handleDmMe(interaction)
+        return
+      }
+    }
+
+    // Route reminder buttons
+    if (interaction.customId.startsWith('reminder:btn:')) {
+      const { base } = parseCustomIdState(interaction.customId)
+      const [, , action] = base.split(':')
+
+      if (action === 'back') {
+        const { handleReminderBackButton } = await import('@handlers/reminder')
+        await handleReminderBackButton(interaction)
+        return
+      }
+      if (action === 'page') {
+        const { handleReminderPage } = await import('@handlers/reminder')
+        await handleReminderPage(interaction)
+        return
+      }
+      if (action === 'clear_confirm') {
+        const { handleClearConfirm } = await import('@handlers/reminder')
+        await handleClearConfirm(interaction)
+        return
+      }
+      if (action === 'clear_cancel') {
+        const { handleClearCancel } = await import('@handlers/reminder')
+        await handleClearCancel(interaction)
         return
       }
     }
@@ -398,15 +424,6 @@ export default async (
       case 'TICKET_CLOSE':
         await handleTicketClose(interaction)
         return
-      case 'SUGGEST_APPROVE':
-        await suggestionHandler.handleApproveBtn(interaction)
-        return
-      case 'SUGGEST_REJECT':
-        await suggestionHandler.handleRejectBtn(interaction)
-        return
-      case 'SUGGEST_DELETE':
-        await suggestionHandler.handleDeleteBtn(interaction)
-        return
       case 'truthBtn':
         await todHandler.handleTodButtonClick(interaction)
         return
@@ -509,16 +526,25 @@ export default async (
       }
     }
 
+    // Route reminder modals
+    if (interaction.customId.startsWith('reminder:modal:')) {
+      const { parseCustomIdState } = await import('@helpers/componentHelper')
+      const { base } = parseCustomIdState(interaction.customId)
+      const [, , action] = base.split(':')
+
+      if (action === 'edit_msg') {
+        const { handleEditMessageModal } = await import('@handlers/reminder')
+        await handleEditMessageModal(interaction)
+        return
+      }
+      if (action === 'edit_time') {
+        const { handleEditTimeModal } = await import('@handlers/reminder')
+        await handleEditTimeModal(interaction)
+        return
+      }
+    }
+
     switch (interaction.customId) {
-      case 'SUGGEST_APPROVE_MODAL':
-        await suggestionHandler.handleApproveModal(interaction)
-        return
-      case 'SUGGEST_REJECT_MODAL':
-        await suggestionHandler.handleRejectModal(interaction)
-        return
-      case 'SUGGEST_DELETE_MODAL':
-        await suggestionHandler.handleDeleteModal(interaction)
-        return
       case 'AMINA_SETUP_MODAL':
         await guildHandler.handleSetupModal(interaction)
         return
@@ -526,10 +552,11 @@ export default async (
         await guildHandler.handleRemindModal(interaction)
         return
       case 'profile_set_basic_modal':
-      case 'profile_set_misc_modal':
+      case 'profile_set_misc_modal': {
         const { handleProfileModal } = await import('@handlers/profile')
         await handleProfileModal(interaction)
         return
+      }
       default:
         if (interaction.customId.startsWith('report_modal_')) {
           await reportHandler.handleReportModal(interaction)
@@ -598,6 +625,29 @@ export default async (
       }
     }
 
+    // Route reminder component interactions
+    if (interaction.customId.startsWith('reminder:')) {
+      const [, type, submenu] = interaction.customId.split(':')
+      if (type === 'menu') {
+        if (submenu === 'operation') {
+          const { handleReminderOperationMenu } =
+            await import('@handlers/reminder')
+          await handleReminderOperationMenu(interaction)
+        } else if (submenu === 'delete') {
+          const { handleDeleteReminderMenu } =
+            await import('@handlers/reminder')
+          await handleDeleteReminderMenu(interaction)
+        } else if (submenu === 'edit') {
+          const { handleEditReminderMenu } = await import('@handlers/reminder')
+          await handleEditReminderMenu(interaction)
+        } else if (submenu === 'edit_action') {
+          const { handleEditActionMenu } = await import('@handlers/reminder')
+          await handleEditActionMenu(interaction)
+        }
+        return
+      }
+    }
+
     // Route ticket component interactions
     if (interaction.customId.startsWith('ticket:')) {
       const [, type, submenu] = interaction.customId.split(':')
@@ -631,7 +681,7 @@ export default async (
     if (interaction.customId.startsWith('admin:')) {
       const [, type] = interaction.customId.split(':')
       switch (type) {
-        case 'menu':
+        case 'menu': {
           const [, , submenu] = interaction.customId.split(':')
           if (submenu === 'category') {
             await adminHandler.handleAdminCategoryMenu(interaction)
@@ -647,6 +697,7 @@ export default async (
             await handleRemoveFreeWillChannel(interaction)
           }
           return
+        }
       }
     }
 
@@ -702,10 +753,11 @@ export default async (
 
     // Legacy profile clear (kept for backward compatibility)
     switch (interaction.customId) {
-      case 'profile_clear_confirm':
+      case 'profile_clear_confirm': {
         const { handleProfileClearLegacy } = await import('@handlers/profile')
         await handleProfileClearLegacy(interaction)
         return
+      }
     }
     return
   }

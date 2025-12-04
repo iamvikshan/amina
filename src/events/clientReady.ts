@@ -1,6 +1,7 @@
 import { counterHandler, inviteHandler, presenceHandler } from '@src/handlers'
 import { cleanupExpiredGuilds } from '@src/handlers/guildCleanup'
 import { checkGuildReminders } from '@src/handlers/reminderScheduler'
+import { checkUserReminders } from '@src/handlers/userReminderScheduler'
 import { cacheReactionRoles } from '@schemas/ReactionRoles'
 import { getSettings } from '@schemas/Guild'
 import { getPresenceConfig, getDevCommandsConfig } from '@schemas/Dev'
@@ -23,7 +24,7 @@ export default async (client: BotClient): Promise<void> => {
 
   // Initialize AI Responder Service
   await aiResponderService.initialize()
-  client.logger.success('AI Responder Service initialized')
+  // client.logger.success('AI Responder Service initialized')
 
   // Initialize AI Command Registry
   aiCommandRegistry.initialize(client)
@@ -39,7 +40,7 @@ export default async (client: BotClient): Promise<void> => {
         config.upstashUrl,
         config.upstashToken
       )
-      client.logger.success('Memory Service initialized')
+      //  client.logger.success('Memory Service initialized')
     } else {
       client.logger.warn('Memory Service disabled - missing configuration')
     }
@@ -186,28 +187,49 @@ export default async (client: BotClient): Promise<void> => {
   }
 
   // Helper to check if commands need update
+  // Returns: { needsUpdate: boolean, changedCommands: string[] }
   const shouldUpdateCommands = async (
     localCommands: any[],
-    fetchFn: () => Promise<any>
-  ): Promise<boolean> => {
+    fetchFn: () => Promise<any>,
+    commandType = 'commands'
+  ): Promise<{ needsUpdate: boolean; changedCommands: string[] }> => {
+    const changedCommands: string[] = []
+
     try {
       const existingCommands = await fetchFn()
-      if (existingCommands.size !== localCommands.length) return true
+      if (existingCommands.size !== localCommands.length) {
+        client.logger.log(
+          `[${commandType}] Count differs: ${existingCommands.size} existing vs ${localCommands.length} local`
+        )
+        return { needsUpdate: true, changedCommands: ['(count mismatch)'] }
+      }
 
       for (const localCmd of localCommands) {
         const existingCmd = existingCommands.find(
           (c: any) => c.name === localCmd.name
         )
-        if (!existingCmd) return true
-        if (BotUtils.areCommandsDifferent(existingCmd, localCmd)) return true
+        if (!existingCmd) {
+          changedCommands.push(`+${localCmd.name}`)
+          continue
+        }
+        if (BotUtils.areCommandsDifferent(existingCmd, localCmd)) {
+          changedCommands.push(localCmd.name)
+        }
       }
 
-      return false
+      if (changedCommands.length > 0) {
+        client.logger.log(
+          `[${commandType}] ${changedCommands.length} command(s) changed: ${changedCommands.join(', ')}`
+        )
+        return { needsUpdate: true, changedCommands }
+      }
+
+      return { needsUpdate: false, changedCommands: [] }
     } catch (error) {
       client.logger.warn(
         `Failed to fetch existing commands for diffing: ${error}`
       )
-      return true // Force update on error
+      return { needsUpdate: true, changedCommands: ['(fetch error)'] } // Force update on error
     }
   }
 
@@ -261,16 +283,17 @@ export default async (client: BotClient): Promise<void> => {
 
       if (testGuildCommands.length > 0) {
         try {
-          const needsUpdate = await shouldUpdateCommands(
+          const { needsUpdate, changedCommands } = await shouldUpdateCommands(
             testGuildCommands,
-            () => testGuild.commands.fetch()
+            () => testGuild.commands.fetch(),
+            'test guild'
           )
 
           if (needsUpdate) {
             await registerCommandsWithRetry(
               testGuildCommands,
               () => testGuild.commands.set(testGuildCommands),
-              'test guild'
+              `test guild (${changedCommands.length} changed: ${changedCommands.join(', ')})`
             )
 
             // Add delay between test guild and global command registration to avoid rate limits
@@ -303,16 +326,18 @@ export default async (client: BotClient): Promise<void> => {
           dm_permission: cmd.dmCommand ?? false, // dmCommand commands are hybrid (available in both guilds and DMs)
         }))
 
-      client.logger.log(
-        `GLOBAL=true: Found ${globalCommands.length} commands to register globally (filtered from ${client.slashCommands.size} total commands)`
-      )
+      // client.logger.log(
+      //   `GLOBAL=true: Found ${globalCommands.length} commands to register globally (filtered from ${client.slashCommands.size} total commands)`
+      // )
 
       if (globalCommands.length > 0) {
         try {
-          const needsUpdate = await shouldUpdateCommands(
+          const { needsUpdate, changedCommands } = await shouldUpdateCommands(
             globalCommands,
             () =>
-              client.application?.commands.fetch() ?? Promise.resolve(new Map())
+              client.application?.commands.fetch() ??
+              Promise.resolve(new Map()),
+            'global'
           )
 
           if (needsUpdate) {
@@ -333,7 +358,7 @@ export default async (client: BotClient): Promise<void> => {
             ])
             const duration = Date.now() - startTime
             client.logger.success(
-              `Registered ${globalCommands.length} global commands (took ${duration}ms)`
+              `Synced ${globalCommands.length} global commands (${changedCommands.length} changed: ${changedCommands.join(', ')}) (took ${duration}ms)`
             )
           } else {
             client.logger.success(
@@ -389,10 +414,17 @@ export default async (client: BotClient): Promise<void> => {
   // Run initial cleanup on startup (after a short delay to let everything initialize)
   setTimeout(() => cleanupExpiredGuilds(client), 1 * 60 * 1000) // 1 minute after startup
 
-  // Run reminder scheduler every hour
+  // Run guild join reminder scheduler every hour
   // Checks for guilds that joined ~24 hours ago to send setup reminder
   setInterval(() => checkGuildReminders(client), 60 * 60 * 1000)
 
   // Run initial reminder check after a short delay
   setTimeout(() => checkGuildReminders(client), 2 * 60 * 1000)
+
+  // Run user reminder scheduler
+  // Checks for due user reminders and sends notifications
+  setInterval(() => checkUserReminders(client), 60000) // 60 seconds
+
+  // Run initial check after a short delay
+  setTimeout(() => checkUserReminders(client), 5 * 1000) // 5 seconds after startup
 }

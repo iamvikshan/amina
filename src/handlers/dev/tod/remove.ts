@@ -15,23 +15,24 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 export async function showRemoveTodModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:tod_remove')
-    .setTitle('Remove Truth or Dare Question')
-
-  const questionIdInput = new TextInputBuilder()
-    .setCustomId('question_id')
-    .setLabel('Question ID')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('T1, D2, NHIE3, etc.')
-    .setRequired(true)
-    .setMaxLength(20)
+  const questionIdInput = new TextInputBuilder({
+    customId: 'question_id',
+    label: 'question id',
+    style: TextInputStyle.Short,
+    placeholder: 't1, d2, nhie3, etc.',
+    required: true,
+    maxLength: 20,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     questionIdInput
   )
 
-  modal.addComponents(firstRow)
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:tod_remove',
+    title: 'remove truth or dare question',
+    components: [firstRow],
+  })
 
   await interaction.showModal(modal)
 }

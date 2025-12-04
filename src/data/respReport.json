@@ -1,0 +1,51 @@
+{
+  "report": {
+    "success": {
+      "feedback": [
+        "feedback received.",
+        "got your feedback.",
+        "thanks for the feedback."
+      ],
+      "bug": ["bug logged.", "noted the bug.", "thanks for the bug report."],
+      "report": [
+        "report submitted.",
+        "got your report.",
+        "thanks for reporting."
+      ]
+    },
+    "error": {
+      "serverNotFound": [
+        "server not found. check the id.",
+        "can't find that server.",
+        "bad server id."
+      ],
+      "userNotFound": [
+        "user not found. check the id.",
+        "can't find that user.",
+        "bad user id."
+      ],
+      "questionNotFound": [
+        "question not found. check the qid.",
+        "can't find that question.",
+        "bad question id."
+      ],
+      "sendFailed": [
+        "couldn't send report. try again.",
+        "failed to send. try later.",
+        "something broke. try again."
+      ],
+      "processFailed": [
+        "couldn't process report. try again.",
+        "processing failed. try later.",
+        "something broke."
+      ]
+    },
+    "fields": {
+      "title": "title",
+      "description": "description",
+      "additionalInfo": "extra info",
+      "reproSteps": "reproduction steps",
+      "additionalThoughts": "additional thoughts"
+    }
+  }
+}

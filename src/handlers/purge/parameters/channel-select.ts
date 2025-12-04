@@ -223,12 +223,12 @@ export async function handleProceedChannel(
  */
 function getPurgeTypeLabel(type: PurgeType): string {
   const labels: Record<PurgeType, string> = {
-    all: 'All Messages',
-    attachments: 'Messages with Attachments',
-    bots: 'Bot Messages',
-    links: 'Messages with Links',
-    token: 'Messages with Token/Keyword',
-    user: 'User Messages',
+    all: 'all messages',
+    attachments: 'messages with attachments',
+    bots: 'bot messages',
+    links: 'messages with links',
+    token: 'messages with token/keyword',
+    user: 'user messages',
   }
   return labels[type]
 }

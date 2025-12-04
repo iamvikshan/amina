@@ -133,46 +133,126 @@ export default class BotUtils {
    * Check if two commands are different
    * @param existing - The existing command from Discord
    * @param local - The local command definition
+   * @param debug - If true, logs the reason for difference
    */
-  static areCommandsDifferent(existing: any, local: any): boolean {
+  static areCommandsDifferent(
+    existing: any,
+    local: any,
+    debug = false
+  ): boolean {
+    // Helper to normalize strings by removing emoji variation selectors
+    // Discord may strip variation selectors (U+FE0F, U+FE0E) from emoji
+    const normalizeString = (str: string): string =>
+      str?.replace(/[\uFE0E\uFE0F]/g, '') ?? ''
+
     // Check description
-    if (existing.description !== local.description) return true
+    if (existing.description !== local.description) {
+      if (debug) console.log(`[${local.name}] description differs`)
+      return true
+    }
+
+    // Check dm_permission (Discord.js returns dmPermission, API uses dm_permission)
+    // Discord defaults to true if not specified for global commands
+    // For guild commands, dmPermission is null and not applicable - skip comparison
+    const existingDmPerm = existing.dmPermission
+    const localDmPerm = local.dm_permission ?? local.dmPermission ?? null
+
+    // Only compare if both are non-null (skip for guild commands where existing is null)
+    if (existingDmPerm !== null && localDmPerm !== null) {
+      const existingDmPermValue = existingDmPerm ?? true
+      const localDmPermValue = localDmPerm ?? true
+      if (existingDmPermValue !== localDmPermValue) {
+        if (debug)
+          console.log(
+            `[${local.name}] dm_permission differs: ${existingDmPermValue} vs ${localDmPermValue}`
+          )
+        return true
+      }
+    }
 
     // Check options
     const existingOptions = existing.options || []
     const localOptions = local.options || []
 
-    if (existingOptions.length !== localOptions.length) return true
+    if (existingOptions.length !== localOptions.length) {
+      if (debug)
+        console.log(
+          `[${local.name}] options length differs: ${existingOptions.length} vs ${localOptions.length}`
+        )
+      return true
+    }
 
     // Helper to compare options recursively
-    const compareOptions = (existingOpt: any, localOpt: any): boolean => {
-      if (existingOpt.name !== localOpt.name) return true
-      if (existingOpt.description !== localOpt.description) return true
-      if (existingOpt.type !== localOpt.type) return true
-      if (existingOpt.required !== localOpt.required && localOpt.required)
-        return true // Discord defaults required to false
-      if ((existingOpt.required ?? false) !== (localOpt.required ?? false))
+    const compareOptions = (
+      existingOpt: any,
+      localOpt: any,
+      path: string
+    ): boolean => {
+      if (existingOpt.name !== localOpt.name) {
+        if (debug) console.log(`[${path}] name differs`)
         return true
+      }
+      if (existingOpt.description !== localOpt.description) {
+        if (debug) console.log(`[${path}] description differs`)
+        return true
+      }
+      if (existingOpt.type !== localOpt.type) {
+        if (debug) console.log(`[${path}] type differs`)
+        return true
+      }
+      // Discord defaults required to false
+      if ((existingOpt.required ?? false) !== (localOpt.required ?? false)) {
+        if (debug) console.log(`[${path}] required differs`)
+        return true
+      }
 
       // Check choices
       const existingChoices = existingOpt.choices || []
       const localChoices = localOpt.choices || []
-      if (existingChoices.length !== localChoices.length) return true
+      if (existingChoices.length !== localChoices.length) {
+        if (debug) console.log(`[${path}] choices length differs`)
+        return true
+      }
       for (let i = 0; i < existingChoices.length; i++) {
-        if (existingChoices[i].name !== localChoices[i].name) return true
-        if (existingChoices[i].value !== localChoices[i].value) return true
+        // Normalize choice names to handle emoji variation selector differences
+        const existingName = normalizeString(existingChoices[i].name)
+        const localName = normalizeString(localChoices[i].name)
+        if (existingName !== localName) {
+          if (debug)
+            console.log(
+              `[${path}] choice name differs at ${i}: "${existingChoices[i].name}" vs "${localChoices[i].name}"`
+            )
+          return true
+        }
+        if (existingChoices[i].value !== localChoices[i].value) {
+          if (debug) console.log(`[${path}] choice value differs at ${i}`)
+          return true
+        }
       }
 
       // Check sub-options (for subcommands)
       const existingSubOptions = existingOpt.options || []
       const localSubOptions = localOpt.options || []
-      if (existingSubOptions.length !== localSubOptions.length) return true
+      if (existingSubOptions.length !== localSubOptions.length) {
+        if (debug) console.log(`[${path}] sub-options length differs`)
+        return true
+      }
 
       for (let i = 0; i < existingSubOptions.length; i++) {
         const found = localSubOptions.find(
           (o: any) => o.name === existingSubOptions[i].name
         )
-        if (!found || compareOptions(existingSubOptions[i], found)) return true
+        if (!found) {
+          if (debug)
+            console.log(
+              `[${path}] sub-option not found: ${existingSubOptions[i].name}`
+            )
+          return true
+        }
+        if (
+          compareOptions(existingSubOptions[i], found, `${path}.${found.name}`)
+        )
+          return true
       }
 
       return false
@@ -182,8 +262,15 @@ export default class BotUtils {
       const existingOpt = existingOptions.find(
         (o: any) => o.name === localOpt.name
       )
-      if (!existingOpt) return true
-      if (compareOptions(existingOpt, localOpt)) return true
+      if (!existingOpt) {
+        if (debug)
+          console.log(`[${local.name}] option not found: ${localOpt.name}`)
+        return true
+      }
+      if (
+        compareOptions(existingOpt, localOpt, `${local.name}.${localOpt.name}`)
+      )
+        return true
     }
 
     return false

@@ -1,0 +1,180 @@
+{
+  "music": {
+    "play": [
+      "playing: {track}.",
+      "now playing: {track}.",
+      "started: {track}.",
+      "queued and playing: {track}."
+    ],
+    "queue": [
+      "added to queue: {track}.",
+      "queued: {track}.",
+      "{track} is next.",
+      "added: {track}."
+    ],
+    "skip": ["skipped.", "next track.", "skipping {track}.", "gone. next."],
+    "stop": ["stopped.", "music off.", "queue cleared.", "done playing."],
+    "pause": ["paused.", "music paused.", "holding...", "on pause."],
+    "resume": ["resumed.", "playing again.", "unpaused.", "continuing..."],
+    "empty": [
+      "queue is empty.",
+      "nothing to play.",
+      "no tracks in queue.",
+      "add something first."
+    ],
+    "error": {
+      "notInVoice": [
+        "join a voice channel first.",
+        "you're not in a voice channel.",
+        "get in a vc.",
+        "i don't see you in voice."
+      ],
+      "differentChannel": [
+        "we need to be in the same channel.",
+        "you're in a different voice channel.",
+        "join my voice channel.",
+        "wrong channel."
+      ],
+      "notPlaying": [
+        "nothing's playing rn.",
+        "no music playing.",
+        "the queue is empty.",
+        "i'm not playing anything."
+      ],
+      "noResults": [
+        "no results found.",
+        "nothing found.",
+        "search came up empty.",
+        "no matches.",
+        "couldn't find that.",
+        "no results for {query}.",
+        "nothing matches that search.",
+        "try a different search."
+      ],
+      "connectFailed": [
+        "can't connect to voice.",
+        "failed to join voice channel.",
+        "voice connection failed.",
+        "couldn't join vc."
+      ],
+      "loadFailed": [
+        "failed to load that track.",
+        "couldn't load the song.",
+        "track loading error.",
+        "something broke while loading."
+      ],
+      "provideQuery": [
+        "provide a search query.",
+        "what should i search for?",
+        "search for what?",
+        "need a query."
+      ],
+      "invalidSelection": [
+        "invalid selection.",
+        "that wasn't an option.",
+        "pick a valid number.",
+        "bad choice."
+      ],
+      "timeout": [
+        "selection timed out.",
+        "too slow.",
+        "timed out.",
+        "you took too long."
+      ],
+      "selectLevel": [
+        "select a bassboost level.",
+        "pick a level first.",
+        "choose a bassboost level."
+      ],
+      "invalidLevel": [
+        "invalid bassboost level.",
+        "that's not a valid level.",
+        "bad level choice."
+      ],
+      "invalidLoopType": [
+        "invalid loop type.",
+        "that's not a valid loop mode.",
+        "bad loop choice."
+      ],
+      "invalidTimeFormat": [
+        "invalid time format. use 10s, 1m 50s, 1h",
+        "wrong format. try: 10s, 1m 50s, 1h",
+        "format: 10s, 1m 50s, 1h",
+        "use format like: 10s, 1m 50s, 1h"
+      ],
+      "provideSong": [
+        "provide a song name or url.",
+        "what song?",
+        "need a song name or link.",
+        "song name or url required."
+      ]
+    },
+    "success": {
+      "left": [
+        "left the voice channel.",
+        "disconnected.",
+        "peace out.",
+        "bye vc."
+      ],
+      "shuffled": [
+        "queue shuffled.",
+        "mixed it up.",
+        "randomized the queue.",
+        "shuffled."
+      ],
+      "looped": [
+        "loop {mode}.",
+        "looping: {mode}.",
+        "set loop to {mode}.",
+        "loop mode: {mode}."
+      ],
+      "volume": [
+        "volume set to {level}%.",
+        "now at {level}%.",
+        "volume: {level}%.",
+        "adjusted to {level}%."
+      ],
+      "searchResults": ["search results", "found these", "results:"],
+      "selectSong": ["select the song to queue", "pick one", "choose a track"],
+      "queue": {
+        "title": ["queue for {server}.", "{server}'s queue."],
+        "nowPlaying": ["now playing.", "current track."],
+        "emptyPage": ["no tracks on page {page}.", "page {page} is empty."],
+        "live": ["live.", "streaming live."],
+        "duration": ["duration.", "length."],
+        "unknown": ["unknown.", "???"]
+      },
+      "queued": {
+        "playlist": [
+          "playlist queued.",
+          "added playlist.",
+          "playlist added to queue."
+        ],
+        "track": ["track queued.", "added track.", "track added to queue."]
+      },
+      "songs": ["songs", "tracks"],
+      "bassboostSet": [
+        "bassboost set to `{level}`.",
+        "bassboost: {level}.",
+        "set to {level}.",
+        "bassboost adjusted to {level}."
+      ],
+      "controls": {
+        "previous": "playing the previous track...",
+        "noPrevious": "no previous track available",
+        "resumed": "track resumed",
+        "paused": "track paused",
+        "stopped": "playback stopped",
+        "skipped": "skipped to the next track",
+        "queueEmpty": "the queue is empty!",
+        "shuffled": "the queue has been shuffled!",
+        "tooShort": "the queue is too short to shuffle!"
+      },
+      "nowPlaying": {
+        "title": "track started",
+        "description": "**now playing [{title}]({uri})**",
+        "requestedBy": "requested by: {user}"
+      }
+    }
+  }
+}

@@ -20,8 +20,8 @@ export async function showLoggingMenu(
   const settings = await getSettings(interaction.guild)
   const logsChannel = settings.logs_channel
     ? `<#${settings.logs_channel}>`
-    : '❌ Not set'
-  const logsEnabled = settings.logs?.enabled ? '✅ Enabled' : '❌ Disabled'
+    : 'not set'
+  const logsEnabled = settings.logs?.enabled ? 'enabled' : 'disabled'
 
   const embed = MinaEmbed.primary()
     .setTitle('logging configuration')
@@ -47,48 +47,40 @@ export async function showLoggingMenu(
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('admin:menu:logs')
-      .setPlaceholder('Choose a logging setting')
+      .setPlaceholder('choose a logging setting')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Log Channel')
-          .setDescription('Choose where logs are sent')
-          .setValue('setchannel')
-          .setEmoji('📢'),
+          .setLabel('set log channel')
+          .setDescription('choose where logs are sent')
+          .setValue('setchannel'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle All Logs')
-          .setDescription('Enable or disable all logging')
-          .setValue('toggleall')
-          .setEmoji('🔄'),
+          .setLabel('toggle all logs')
+          .setDescription('enable or disable all logging')
+          .setValue('toggleall'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Message Edit Logs')
-          .setDescription('Toggle message edit logging')
-          .setValue('toggle:logs.member.message_edit')
-          .setEmoji('✏️'),
+          .setLabel('message edit logs')
+          .setDescription('toggle message edit logging')
+          .setValue('toggle:logs.member.message_edit'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Message Delete Logs')
-          .setDescription('Toggle message delete logging')
-          .setValue('toggle:logs.member.message_delete')
-          .setEmoji('🗑️'),
+          .setLabel('message delete logs')
+          .setDescription('toggle message delete logging')
+          .setValue('toggle:logs.member.message_delete'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Role Change Logs')
-          .setDescription('Toggle role change logging')
-          .setValue('toggle:logs.member.role_changes')
-          .setEmoji('👥'),
+          .setLabel('role change logs')
+          .setDescription('toggle role change logging')
+          .setValue('toggle:logs.member.role_changes'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Channel Logs')
-          .setDescription('Toggle all channel event logging')
-          .setValue('toggle:logs.channel')
-          .setEmoji('📁'),
+          .setLabel('channel logs')
+          .setDescription('toggle all channel event logging')
+          .setValue('toggle:logs.channel'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Role Logs')
-          .setDescription('Toggle all role event logging')
-          .setValue('toggle:logs.role')
-          .setEmoji('🏷️'),
+          .setLabel('role logs')
+          .setDescription('toggle all role event logging')
+          .setValue('toggle:logs.role'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Back to Main Menu')
-          .setDescription('Return to admin hub')
-          .setValue('back')
-          .setEmoji('◀️'),
+          .setLabel('back to main menu')
+          .setDescription('return to admin hub')
+          .setValue('back'),
       ])
   )
 
@@ -125,7 +117,7 @@ export async function handleLoggingMenu(
         new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
           new ChannelSelectMenuBuilder()
             .setCustomId('admin:channel:logchannel')
-            .setPlaceholder('Select a text channel')
+            .setPlaceholder('select a text channel')
             .setChannelTypes([
               ChannelType.GuildText,
               ChannelType.GuildAnnouncement,

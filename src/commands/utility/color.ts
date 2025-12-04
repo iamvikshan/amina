@@ -9,7 +9,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command = {
   name: 'color',
-  description: 'Manage your name color',
+  description: "pick a custom name color from the server's color palette",
   category: 'UTILITY',
   botPermissions: ['ManageRoles'],
   slashCommand: {
@@ -17,12 +17,12 @@ const command = {
     options: [
       {
         name: 'set',
-        description: 'Set your name color',
+        description: 'apply a color role to your name',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'color',
-            description: 'The name of the color to set',
+            description: 'color name from the palette',
             type: ApplicationCommandOptionType.String,
             required: true,
             autocomplete: true,
@@ -31,41 +31,22 @@ const command = {
       },
       {
         name: 'remove',
-        description: 'Remove your name color',
+        description: 'remove your current name color',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'list',
-        description: 'List available colors',
+        description: 'show all available color options',
         type: ApplicationCommandOptionType.Subcommand,
-      },
-      {
-        name: 'add',
-        description: 'Add a new color to the palette (Admin only)',
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'name',
-            description: 'The name of the color (e.g. Red)',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-          },
-          {
-            name: 'hex',
-            description: 'The hex code of the color (e.g. #FF0000)',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-          },
-        ],
       },
       {
         name: 'delete',
-        description: 'Delete a color from the palette (Admin only)',
+        description: 'remove a color from the palette (admin)',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'name',
-            description: 'The name of the color to delete',
+            description: 'color name to delete',
             type: ApplicationCommandOptionType.String,
             required: true,
             autocomplete: true,
@@ -79,71 +60,6 @@ const command = {
     const subcommand = interaction.options.getSubcommand()
     const settings = await getSettings(interaction.guild)
     const colors = settings.colors || []
-
-    // --- ADD (Admin) ---
-    if (subcommand === 'add') {
-      if (
-        !interaction.memberPermissions?.has(PermissionFlagsBits.ManageRoles)
-      ) {
-        return interaction.reply({
-          content: 'You need `Manage Roles` permission to use this command.',
-          ephemeral: true,
-        })
-      }
-
-      const name = interaction.options.getString('name', true)
-      let hex = interaction.options.getString('hex', true)
-
-      // Validate Hex
-      if (!hex.startsWith('#')) hex = `#${hex}`
-      const hexRegex = /^#([0-9A-F]{3}){1,2}$/i
-      if (!hexRegex.test(hex)) {
-        return interaction.reply({
-          content:
-            'Invalid hex code provided. Please use format like `#FF0000` or `FF0000`.',
-          ephemeral: true,
-        })
-      }
-
-      // Check if exists
-      if (
-        colors.find((c: any) => c.name.toLowerCase() === name.toLowerCase())
-      ) {
-        return interaction.reply({
-          content: `A color with the name **${name}** already exists.`,
-          ephemeral: true,
-        })
-      }
-
-      await interaction.deferReply()
-
-      try {
-        // Create Role
-        const role = await interaction.guild?.roles.create({
-          name: name,
-          color: hex as any,
-          reason: `Color role created by ${interaction.user.tag}`,
-        })
-
-        if (!role) throw new Error('Failed to create role')
-
-        // Save to DB
-        colors.push({
-          name: name,
-          hex: hex,
-          roleId: role.id,
-        })
-        await updateSettings(interaction.guild!.id, { colors })
-
-        const embed = MinaEmbed.success().setDescription(
-          `successfully added color **${name}** (${hex}) and created role ${role.toString()}`
-        )
-
-        return interaction.editReply({ embeds: [embed] })
-      } catch (err: any) {
-        return interaction.editReply(`Failed to add color: ${err.message}`)
-      }
-    }
 
     // --- DELETE (Admin) ---
     if (subcommand === 'delete') {
@@ -180,7 +96,8 @@ const command = {
 
         // Update DB
         colors.splice(colorIndex, 1)
-        await updateSettings(interaction.guild!.id, { colors })
+        if (!interaction.guild) throw new Error('Guild not found')
+        await updateSettings(interaction.guild.id, { colors })
 
         return interaction.editReply({
           content: `Successfully deleted color **${name}** and removed the role.`,

@@ -9,7 +9,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'bassboost',
-  description: 'set bassboost level',
+  description: 'adjust the bass level from off to high',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

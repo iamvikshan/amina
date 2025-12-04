@@ -6,7 +6,7 @@ import { AUTOMOD } from '@src/config'
 
 const command: CommandData = {
   name: 'anti',
-  description: 'Manage various automod settings for the server',
+  description: 'toggle protection against ghostping, spam, and mass mentions',
   category: 'AUTOMOD',
   userPermissions: ['ManageGuild'],
   slashCommand: {
@@ -15,12 +15,12 @@ const command: CommandData = {
     options: [
       {
         name: 'ghostping',
-        description: 'Detects and logs ghost mentions in your server',
+        description: 'detect and log deleted messages with mentions',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Configuration status',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -38,12 +38,12 @@ const command: CommandData = {
       },
       {
         name: 'spam',
-        description: 'Enable or disable antispam detection',
+        description: 'detect and punish rapid message spam',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Configuration status',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -61,12 +61,12 @@ const command: CommandData = {
       },
       {
         name: 'massmention',
-        description: 'Enable or disable massmention detection',
+        description: 'detect messages with too many mentions',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Configuration status',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -82,7 +82,7 @@ const command: CommandData = {
           },
           {
             name: 'threshold',
-            description: 'Configuration threshold (default is 3 mentions)',
+            description: 'mentions allowed before triggering',
             required: true,
             type: ApplicationCommandOptionType.Integer,
           },

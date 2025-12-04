@@ -10,7 +10,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'kick',
-  description: 'Kicks the specified member',
+  description: 'kick a member from the server (they can rejoin)',
   category: 'MODERATION',
   botPermissions: ['KickMembers'],
   userPermissions: ['KickMembers'],
@@ -20,13 +20,13 @@ const command: CommandData = {
     options: [
       {
         name: 'user',
-        description: 'The target member',
+        description: 'the member to kick',
         type: ApplicationCommandOptionType.User,
         required: true,
       },
       {
         name: 'reason',
-        description: 'Reason for kick',
+        description: 'reason for kicking them',
         type: ApplicationCommandOptionType.String,
         required: false,
       },

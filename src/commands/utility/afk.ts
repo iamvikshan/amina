@@ -10,7 +10,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'afk',
-  description: 'Set your AFK status',
+  description: 'set an AFK status with reason and optional duration',
   category: 'UTILITY',
   botPermissions: ['SendMessages', 'EmbedLinks'],
 
@@ -19,13 +19,13 @@ const command: CommandData = {
     options: [
       {
         name: 'reason',
-        description: 'The reason for going AFK',
+        description: 'why you are going afk',
         type: ApplicationCommandOptionType.String,
         required: true,
       },
       {
         name: 'duration',
-        description: 'Duration in minutes (leave empty for indefinite)',
+        description: 'how long in minutes, or leave empty for indefinite',
         type: ApplicationCommandOptionType.Integer,
         required: false,
         min_value: 1,
@@ -73,7 +73,7 @@ const command: CommandData = {
                   await channel.send(
                     `${member.toString()}, your AFK status has been removed after ${duration} minutes.`
                   )
-                } catch (ex) {
+                } catch (_ex) {
                   // Channel might be inaccessible
                   Logger.debug(
                     `Failed to send AFK removal message to channel ${channel.id}`

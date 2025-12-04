@@ -67,7 +67,7 @@ export async function handleChannelSelect(
 
   if (!channel) {
     await interaction.reply({
-      content: '❌ No channel selected',
+      content: 'no channel selected',
       ephemeral: true,
     })
     return

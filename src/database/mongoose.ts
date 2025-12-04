@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { log, success, error } from '../helpers/Logger'
+import { /*log,*/ success, error } from '../helpers/Logger'
 import { secret } from '@src/config'
 
 mongoose.set('strictQuery', true)
@@ -7,7 +7,7 @@ mongoose.set('strictQuery', true)
 export async function initializeMongoose(): Promise<
   typeof mongoose.connection
 > {
-  log(`Connecting to MongoDb...`)
+  // log(`Connecting to MongoDb...`)
 
   try {
     await mongoose.connect(secret.MONGO_CONNECTION)
@@ -28,7 +28,6 @@ export const schemas = {
   ReactionRoles: require('./schemas/ReactionRoles').model,
   ModLog: require('./schemas/ModLog').model,
   User: require('./schemas/User'),
-  Suggestions: require('./schemas/Suggestions').model,
   TruthOrDare: require('./schemas/TruthOrDare').model,
   Dev: require('./schemas/Dev'),
 }

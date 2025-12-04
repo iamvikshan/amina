@@ -8,7 +8,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'play',
-  description: 'play or queue a song',
+  description: 'play a song by name or url from youtube, spotify, and more',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {

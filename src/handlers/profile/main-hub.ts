@@ -27,7 +27,7 @@ export async function showProfileHub(
         '**edit profile** - update your profile information\n' +
         '**privacy settings** - control what others can see\n' +
         '**clear profile** - start fresh with a blank canvas\n\n' +
-        "tip: use `/profile view` to see your profile or `/profile view user:@someone` to see someone else's"
+        "tip: use `/info profile` to see your profile or `/info profile user:@someone` to see someone else's"
     )
     .setFooter({ text: 'select an option from the menu below' })
 
@@ -37,16 +37,16 @@ export async function showProfileHub(
       .setPlaceholder('choose a profile operation')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Edit Profile')
-          .setDescription('Update your profile information')
+          .setLabel('edit profile')
+          .setDescription('update your profile information')
           .setValue('edit'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Privacy Settings')
-          .setDescription('Control what others can see')
+          .setLabel('privacy settings')
+          .setDescription('control what others can see')
           .setValue('privacy'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Clear Profile')
-          .setDescription('Start fresh with a blank canvas')
+          .setLabel('clear profile')
+          .setDescription('start fresh with a blank canvas')
           .setValue('clear'),
       ])
   )

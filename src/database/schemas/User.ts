@@ -12,6 +12,7 @@ const FlagSchema = new mongoose.Schema({
   flaggedAt: { type: Date, default: Date.now },
   serverId: { type: String, required: true },
   serverName: { type: String, required: true },
+  actionType: { type: String, default: null }, // BAN, KICK, TIMEOUT, etc. or null for user-generated
 })
 
 const ProfileSchema = new mongoose.Schema({
@@ -44,11 +45,6 @@ const Schema = new mongoose.Schema(
     logged: { type: Boolean, default: false },
     coins: { type: Number, default: 0 },
     bank: { type: Number, default: 0 },
-    reputation: {
-      received: { type: Number, default: 0 },
-      given: { type: Number, default: 0 },
-      timestamp: Date,
-    },
     daily: { streak: { type: Number, default: 0 }, timestamp: Date },
     flags: { type: [FlagSchema], default: [] },
     premium: {
@@ -102,19 +98,47 @@ export async function getUser(user: any) {
   return userDb
 }
 
+const MAX_FLAGS = 10
+
 export async function addFlag(
   userId: string,
   reason: string,
   flaggedBy: string,
   serverId: string,
-  serverName: string
+  serverName: string,
+  actionType: string | null = null
 ) {
+  // Get current user to check flag count
+  const currentUser = await Model.findById(userId)
+  const currentFlags =
+    (currentUser && Array.isArray(currentUser.flags)
+      ? (currentUser.flags as any[])
+      : []) || []
+
+  // If at max, remove oldest flag (FIFO)
+  if (currentFlags.length >= MAX_FLAGS) {
+    // Sort by flaggedAt and remove the oldest
+    const sortedFlags = [...currentFlags].sort(
+      (a: any, b: any) =>
+        new Date(a.flaggedAt).getTime() - new Date(b.flaggedAt).getTime()
+    )
+    const oldestFlag = sortedFlags[0]
+
+    // Remove the oldest flag
+    await Model.findByIdAndUpdate(
+      userId,
+      { $pull: { flags: { _id: oldestFlag._id } } },
+      { new: true }
+    )
+  }
+
   const newFlag = {
     reason,
     flaggedBy,
     flaggedAt: new Date(),
     serverId,
     serverName,
+    actionType,
   }
   const user = await Model.findByIdAndUpdate(
     userId,
@@ -146,6 +170,47 @@ export async function removeAllFlags(userId: string) {
 
   if (user) cache.add(userId, user)
   return user
+}
+
+/**
+ * Remove flags from a specific server only
+ */
+export async function removeFlagsByServer(userId: string, serverId: string) {
+  const user = await Model.findByIdAndUpdate(
+    userId,
+    { $pull: { flags: { serverId } } },
+    { new: true }
+  )
+
+  if (user) cache.add(userId, user)
+  return user
+}
+
+/**
+ * Add a flag from a moderation action
+ * Formats the reason as "{actionType} by {issuerDisplayName}: {reason}" or "{actionType} by {issuerDisplayName}: No reason provided"
+ */
+export async function addFlagFromModAction(
+  userId: string,
+  reason: string | null,
+  flaggedBy: string,
+  flaggedByDisplayName: string,
+  serverId: string,
+  serverName: string,
+  actionType: string
+) {
+  const formattedReason = reason
+    ? `${actionType} by ${flaggedByDisplayName}: ${reason}`
+    : `${actionType} by ${flaggedByDisplayName}: No reason provided`
+
+  return addFlag(
+    userId,
+    formattedReason,
+    flaggedBy,
+    serverId,
+    serverName,
+    actionType
+  )
 }
 
 export async function updatePremium(
@@ -329,22 +394,6 @@ export async function getUsersWithBirthdayToday() {
   })
 }
 
-export async function getReputationLb(limit: number = 10): Promise<any[]> {
-  return Model.find({
-    'reputation.received': { $exists: true, $gt: 0 },
-  })
-    .limit(limit)
-    .sort({ 'reputation.received': -1 })
-    .select('_id reputation.received')
-    .lean()
-    .then(users =>
-      users.map(user => ({
-        member_id: user._id,
-        rep: user.reputation?.received || 0,
-      }))
-    )
-}
-
 export async function updateUserMinaAiPreferences(
   userId: string,
   preferences: any
@@ -364,6 +413,8 @@ export default {
   addFlag,
   removeFlag,
   removeAllFlags,
+  removeFlagsByServer,
+  addFlagFromModAction,
   updatePremium,
   setAfk,
   removeAfk,
@@ -373,6 +424,5 @@ export default {
   updateProfile,
   clearProfile,
   getUsersWithBirthdayToday,
-  getReputationLb,
   updateUserMinaAiPreferences,
 }

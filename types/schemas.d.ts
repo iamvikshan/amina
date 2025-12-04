@@ -159,6 +159,7 @@ declare global {
       flaggedAt: Date
       serverId: string
       serverName: string
+      actionType: string | null
     }>
     afk: {
       enabled: boolean

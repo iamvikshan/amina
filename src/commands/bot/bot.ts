@@ -14,7 +14,7 @@ import packageJson from '@root/package.json'
 
 const command: CommandData = {
   name: 'bot',
-  description: 'bot related commands',
+  description: 'get info about me - stats, invite, uptime, and more',
   category: 'INFO',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -22,38 +22,38 @@ const command: CommandData = {
     options: [
       {
         name: 'invite',
-        description: "get bot's invite",
+        description: 'get a link to add me to your server',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'stats',
-        description: "get bot's statistics",
+        description: 'view system stats like memory, cpu, and server count',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'uptime',
-        description: "get bot's uptime",
+        description: 'check how long i have been running without a restart',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'donate',
-        description: 'donate to the bot',
+        description: 'support development through ko-fi or github sponsors',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'docs',
-        description: "get bot's documentation",
+        description: 'access the wiki and documentation',
         type: ApplicationCommandOptionType.Subcommand,
       },
 
       {
         name: 'ping',
-        description: "get bot's ping",
+        description: 'check my response latency to discord',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'changelog',
-        description: "Get the bot's mini-changelog for the latest 3 releases",
+        description: 'see the latest updates and changes',
         type: ApplicationCommandOptionType.Subcommand,
       },
     ],

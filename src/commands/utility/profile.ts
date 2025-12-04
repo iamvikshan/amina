@@ -3,60 +3,35 @@ import {
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
-  ApplicationCommandOptionType,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { getUser } from '@schemas/User'
 import { Logger } from '@helpers/Logger'
-import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'profile',
-  description: 'express yourself and share your story with the world!',
+  description:
+    'customize your bio, pronouns (allows me not to mispronoun you), and more',
   category: 'UTILITY',
   dmCommand: true,
   slashCommand: {
     enabled: true,
     ephemeral: true,
-    options: [
-      {
-        name: 'hub',
-        description: 'open the profile management hub',
-        type: ApplicationCommandOptionType.Subcommand,
-      },
-      {
-        name: 'view',
-        description: "view a profile (yours or someone else's)",
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'user',
-            description:
-              'whose profile do you want to view? (leave empty for your own)',
-            type: ApplicationCommandOptionType.User,
-            required: false,
-          },
-        ],
-      },
-    ],
+    options: [],
   },
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
-    const sub = interaction.options.getSubcommand()
-
-    switch (sub) {
-      case 'hub':
-        const { showProfileHub } = await import('@handlers/profile')
-        // Don't reply here - let showProfileHub handle it
-        await showProfileHub(interaction)
-        return
-      case 'view':
-        // Only for viewing OTHER users' profiles
-        return handleView(interaction)
-      default:
-        // Fallback: show hub for any other subcommand (backward compatibility)
-        const { showProfileHub: showHub } = await import('@handlers/profile')
-        await showHub(interaction)
+    try {
+      const { showProfileHub } = await import('@handlers/profile')
+      await showProfileHub(interaction)
+    } catch (error) {
+      Logger.error('Error showing profile hub', error)
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content:
+            'there was an error opening the profile editor. try again later.',
+          ephemeral: true,
+        })
+      }
     }
   },
 }
@@ -183,7 +158,7 @@ export function createMiscModal(): ModalBuilder {
 // These functions are no longer needed as subcommands
 
 // Helper Functions
-function formatValue(value: any): string {
+export function formatValue(value: any): string {
   if (!value) return 'Not set'
   if (Array.isArray(value)) return value.join(', ') || 'None'
   if (value instanceof Map)
@@ -258,230 +233,6 @@ export function hasContent(profile: any): boolean {
     profile.socials?.size > 0 ||
     profile.favorites?.size > 0
   )
-}
-
-async function handleView(
-  interaction: ChatInputCommandInteraction
-): Promise<void> {
-  try {
-    const target = interaction.options.getUser('user') || interaction.user
-    const userDb = await getUser(target)
-    const isOwnProfile = target.id === interaction.user.id
-    const { profile } = userDb
-
-    // Check if profile exists and has content
-    if (!hasContent(profile)) {
-      const embed = MinaEmbed.error()
-        .setDescription(
-          `${isOwnProfile ? "you haven't" : "this user hasn't"} set up a profile yet!`
-        )
-        .setFooter({ text: 'use /profile hub to create your profile!' })
-
-      // Check if already deferred/replied (command handler may have deferred)
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [embed] })
-      } else {
-        await interaction.reply({ embeds: [embed], ephemeral: true })
-      }
-      return
-    }
-
-    const embed = MinaEmbed.primary()
-      .setAuthor({
-        name: `${target.username}'s profile`,
-        iconURL: target.displayAvatarURL(),
-      })
-      .setThumbnail(target.displayAvatarURL())
-
-    // Track visible content for privacy checks
-    let hasVisibleContent = false
-
-    // Basic Information Fields
-    const basicFields: Array<{
-      name: keyof typeof profile
-      label: string
-      privacyKey?: keyof NonNullable<typeof profile.privacy>
-      inline: boolean
-    }> = [
-      {
-        name: 'pronouns',
-        label: 'Pronouns',
-        privacyKey: 'showPronouns',
-        inline: true,
-      },
-      {
-        name: 'age',
-        label: 'Age',
-        privacyKey: 'showAge',
-        inline: true,
-      },
-      {
-        name: 'region',
-        label: 'Region',
-        privacyKey: 'showRegion',
-        inline: true,
-      },
-      {
-        name: 'timezone',
-        label: 'Timezone',
-        inline: true,
-      },
-    ]
-
-    // Add basic fields
-    basicFields.forEach(field => {
-      const value = profile[field.name]
-      if (!value) return
-
-      const isVisible =
-        !field.privacyKey || isOwnProfile || profile.privacy?.[field.privacyKey]
-      if (!isVisible) return
-
-      hasVisibleContent = true
-      embed.addFields({
-        name: `${field.label}${isOwnProfile && field.privacyKey && !profile.privacy?.[field.privacyKey] ? ' 🔒' : ''}`,
-        value: formatValue(value),
-        inline: field.inline,
-      })
-    })
-
-    // Languages (with null check and empty array handling)
-    if (Array.isArray(profile.languages) && profile.languages.length > 0) {
-      hasVisibleContent = true
-      embed.addFields({
-        name: 'Languages',
-        value: formatValue(profile.languages),
-        inline: true,
-      })
-    }
-
-    // Add spacer if we have basic fields
-    if (hasVisibleContent) {
-      embed.addFields({ name: '\u200B', value: '\u200B', inline: false })
-    }
-
-    // Bio
-    if (profile.bio) {
-      hasVisibleContent = true
-      embed.addFields({
-        name: 'Bio',
-        value: profile.bio,
-        inline: false,
-      })
-    }
-
-    // Interests
-    if (Array.isArray(profile.interests) && profile.interests.length > 0) {
-      hasVisibleContent = true
-      embed.addFields({
-        name: 'Interests',
-        value: formatValue(profile.interests),
-        inline: false,
-      })
-    }
-
-    // Goals
-    if (Array.isArray(profile.goals) && profile.goals.length > 0) {
-      hasVisibleContent = true
-      embed.addFields({
-        name: 'Goals',
-        value: formatValue(profile.goals),
-        inline: false,
-      })
-    }
-
-    // Social Links
-    if (profile.socials?.size > 0) {
-      const socialLinks = formatSocialLinks(profile.socials)
-      if (socialLinks) {
-        hasVisibleContent = true
-        embed.addFields({
-          name: 'Social Links',
-          value: socialLinks,
-          inline: false,
-        })
-      }
-    }
-
-    // Favorites
-    if (profile.favorites?.size > 0) {
-      const favoritesList = formatFavorites(profile.favorites)
-      if (favoritesList) {
-        hasVisibleContent = true
-        embed.addFields({
-          name: 'Favorites',
-          value: favoritesList,
-          inline: false,
-        })
-      }
-    }
-
-    // Check if there's any visible content for other users
-    if (!isOwnProfile && !hasVisibleContent) {
-      const privateEmbed = MinaEmbed.error().setDescription(
-        `${target.username}'s profile is private.`
-      )
-
-      // Check if already deferred/replied (command handler may have deferred)
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [privateEmbed] })
-      } else {
-        await interaction.reply({ embeds: [privateEmbed], ephemeral: true })
-      }
-      return
-    }
-
-    // Add Last Updated timestamp
-    if (profile.lastUpdated) {
-      embed.setFooter({
-        text: `Last Updated: ${profile.lastUpdated.toLocaleDateString()} ${profile.lastUpdated.toLocaleTimeString()} UTC`,
-      })
-    }
-
-    // Generate privacy summary for own profile
-    if (isOwnProfile) {
-      const privateFields = basicFields
-        .filter(
-          ({ name, privacyKey }) =>
-            privacyKey && !profile.privacy?.[privacyKey] && profile[name]
-        )
-        .map(({ label }) => label)
-
-      if (privateFields.length > 0) {
-        embed.setDescription(
-          `**Note:** Fields marked with 🔒 are private and only visible to you.\nPrivate fields: ${privateFields.join(', ')}`
-        )
-      }
-    }
-
-    // Add edit button for own profile
-    const replyOptions: any = {
-      embeds: [embed],
-    }
-
-    if (isOwnProfile) {
-      const { createEditButton } = await import('@handlers/profile/view')
-      replyOptions.components = [createEditButton()]
-    }
-
-    // Send the profile embed
-    // Check if already deferred/replied (command handler may have deferred)
-    if (interaction.deferred || interaction.replied) {
-      await interaction.editReply(replyOptions)
-    } else {
-      replyOptions.ephemeral = isOwnProfile // Ephemeral for own profile, visible for others
-      await interaction.reply(replyOptions)
-    }
-  } catch (error) {
-    Logger.error('Error in handleView', error)
-    if (!interaction.replied && !interaction.deferred) {
-      await interaction.reply({
-        content:
-          'There was an error while viewing the profile. Please try again later.',
-        ephemeral: true,
-      })
-    }
-  }
 }
 
 // handleClear is now handled in the hub via showClearConfirmation

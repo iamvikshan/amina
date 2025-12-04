@@ -15,33 +15,32 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 export async function showAddTodModal(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:tod_add')
-    .setTitle('Add Truth or Dare Question')
+  const categoryInput = new TextInputBuilder({
+    customId: 'category',
+    label: 'category',
+    style: TextInputStyle.Short,
+    placeholder: 'truth, dare, paranoia, nhie, wyr, hye, wwyd',
+    required: true,
+    maxLength: 20,
+  })
 
-  const categoryInput = new TextInputBuilder()
-    .setCustomId('category')
-    .setLabel('Category')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('truth, dare, paranoia, nhie, wyr, hye, wwyd')
-    .setRequired(true)
-    .setMaxLength(20)
+  const questionInput = new TextInputBuilder({
+    customId: 'question',
+    label: 'question',
+    style: TextInputStyle.Paragraph,
+    placeholder: 'enter the question text...',
+    required: true,
+    maxLength: 500,
+  })
 
-  const questionInput = new TextInputBuilder()
-    .setCustomId('question')
-    .setLabel('Question')
-    .setStyle(TextInputStyle.Paragraph)
-    .setPlaceholder('Enter the question text...')
-    .setRequired(true)
-    .setMaxLength(500)
-
-  const ratingInput = new TextInputBuilder()
-    .setCustomId('rating')
-    .setLabel('Rating (PG, PG-13, PG-16, R)')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('PG')
-    .setRequired(true)
-    .setMaxLength(10)
+  const ratingInput = new TextInputBuilder({
+    customId: 'rating',
+    label: 'rating (pg, pg-13, pg-16, r)',
+    style: TextInputStyle.Short,
+    placeholder: 'pg',
+    required: true,
+    maxLength: 10,
+  })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
     categoryInput
@@ -53,7 +52,11 @@ export async function showAddTodModal(
     ratingInput
   )
 
-  modal.addComponents([firstRow, secondRow, thirdRow])
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:tod_add',
+    title: 'add truth or dare question',
+    components: [firstRow, secondRow, thirdRow],
+  })
 
   await interaction.showModal(modal)
 }

@@ -5,7 +5,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'np',
-  description: 'shows what track is currently being played',
+  description: 'show the currently playing track with progress bar',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {

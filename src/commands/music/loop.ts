@@ -8,7 +8,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'loop',
-  description: 'loop the song or queue',
+  description: 'loop the current track, entire queue, or disable looping',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {

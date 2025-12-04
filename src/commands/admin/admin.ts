@@ -8,7 +8,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'admin',
-  description: 'Admin hub - Configure server settings, Mina AI, and logging',
+  description: 'central hub for server configuration, ai settings, and logging',
   category: 'ADMIN',
   userPermissions: ['ManageGuild'],
   slashCommand: {
@@ -34,28 +34,24 @@ const command: CommandData = {
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId('admin:menu:category')
-          .setPlaceholder('Choose an admin category')
+          .setPlaceholder('choose an admin category')
           .addOptions([
             new StringSelectMenuOptionBuilder()
-              .setLabel('Server Settings')
-              .setDescription('Updates channel and staff roles')
-              .setValue('settings')
-              .setEmoji('🔧'),
+              .setLabel('server settings')
+              .setDescription('updates channel and staff roles')
+              .setValue('settings'),
             new StringSelectMenuOptionBuilder()
-              .setLabel('Mina AI')
-              .setDescription('Configure AI responses')
-              .setValue('minaai')
-              .setEmoji('🤖'),
+              .setLabel('mina ai')
+              .setDescription('configure ai responses')
+              .setValue('minaai'),
             new StringSelectMenuOptionBuilder()
-              .setLabel('Logging')
-              .setDescription('Moderation logs configuration')
-              .setValue('logs')
-              .setEmoji('📋'),
+              .setLabel('logging')
+              .setDescription('moderation logs configuration')
+              .setValue('logs'),
             new StringSelectMenuOptionBuilder()
-              .setLabel('View Status')
-              .setDescription('See all current settings')
-              .setValue('status')
-              .setEmoji('📊'),
+              .setLabel('view status')
+              .setDescription('see all current settings')
+              .setValue('status'),
           ])
       )
 

@@ -1,0 +1,43 @@
+{
+  "automod": {
+    "log": {
+      "title": ["auto moderation", "automod log", "moderation action"],
+      "description": [
+        "channel: {channel}\ncontent:\n{content}",
+        "{channel}\n{content}"
+      ],
+      "footer": ["by {user} | {id}", "{user} ({id})"]
+    },
+    "dm": {
+      "title": ["auto moderation", "automod", "moderation"],
+      "description": [
+        "you received {strikes} strikes.\n\nguild: {guild}\ntotal strikes: {total} out of {max}",
+        "{strikes} strikes added.\n\n{guild}\n{total}/{max} total"
+      ]
+    },
+    "messageDeleted": [
+      "auto-moderation. message deleted.",
+      "automod: message removed.",
+      "message deleted by automod."
+    ],
+    "violation": {
+      "spam": "caught spamming.",
+      "links": "no links allowed.",
+      "invites": "no discord invites.",
+      "caps": "too many caps.",
+      "mentions": "too many mentions.",
+      "words": "watch your language."
+    },
+    "action": {
+      "warned": "warned for: {reason}.",
+      "muted": "muted for: {reason}.",
+      "kicked": "kicked for: {reason}.",
+      "banned": "banned for: {reason}."
+    },
+    "config": {
+      "enabled": "automod enabled.",
+      "disabled": "automod disabled.",
+      "updated": "automod settings updated."
+    }
+  }
+}

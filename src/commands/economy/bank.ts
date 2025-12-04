@@ -12,7 +12,8 @@ import type { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'bank',
-  description: 'access to bank operations',
+  description:
+    'manage your virtual wallet - check balance, deposit, withdraw, transfer',
   category: 'ECONOMY',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -20,12 +21,12 @@ const command: CommandData = {
     options: [
       {
         name: 'balance',
-        description: 'check your coin balance',
+        description: 'view your wallet and bank balance',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'name of the user',
+            description: "check another user's balance",
             type: ApplicationCommandOptionType.User,
             required: false,
           },
@@ -33,12 +34,12 @@ const command: CommandData = {
       },
       {
         name: 'deposit',
-        description: 'deposit coins to your bank account',
+        description: 'move coins from wallet to bank for safekeeping',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'coins',
-            description: 'number of coins to deposit',
+            description: 'amount to deposit',
             type: ApplicationCommandOptionType.Integer,
             required: true,
           },
@@ -46,12 +47,12 @@ const command: CommandData = {
       },
       {
         name: 'withdraw',
-        description: 'withdraw coins from your bank account',
+        description: 'take coins out of your bank into your wallet',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'coins',
-            description: 'number of coins to withdraw',
+            description: 'amount to withdraw',
             type: ApplicationCommandOptionType.Integer,
             required: true,
           },
@@ -59,18 +60,18 @@ const command: CommandData = {
       },
       {
         name: 'transfer',
-        description: 'transfer coins to other user',
+        description: 'send coins directly to another user',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'the user to whom coins must be transferred',
+            description: 'who to send coins to',
             type: ApplicationCommandOptionType.User,
             required: true,
           },
           {
             name: 'coins',
-            description: 'the amount of coins to transfer',
+            description: 'amount to transfer',
             type: ApplicationCommandOptionType.Integer,
             required: true,
           },

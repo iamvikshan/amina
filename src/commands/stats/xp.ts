@@ -9,7 +9,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'levelup',
-  description: 'configure the levelling system',
+  description: 'customize level up messages and set notification channel',
   category: 'UTILITY',
   userPermissions: ['ManageGuild'],
 
@@ -18,12 +18,12 @@ const command: CommandData = {
     options: [
       {
         name: 'message',
-        description: 'set custom level up message',
+        description: 'customize the level up notification text',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'message',
-            description: 'message to display when a user levels up',
+            description: 'text with placeholders like {user} and {level}',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -31,12 +31,12 @@ const command: CommandData = {
       },
       {
         name: 'channel',
-        description: 'set the channel to send level up messages to',
+        description: 'set where level up messages are sent',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'channel',
-            description: 'channel to send level up messages to',
+            description: 'channel for level up announcements',
             type: ApplicationCommandOptionType.Channel,
             channelTypes: [ChannelType.GuildText],
             required: true,

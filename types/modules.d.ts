@@ -38,7 +38,10 @@ declare module '@src/config' {
       DONATE_URL?: string
     }
     AI: {
+      // These values seed the database on first run
+      // After initialization, all changes must be made via dev commands or MongoDB
       MODEL: string
+      // VISION_MODEL: string
       MAX_TOKENS: number
       TIMEOUT_MS: number
       TEMPERATURE: number
@@ -71,8 +74,7 @@ declare module '@src/config' {
     }
     AUTOMOD: {
       ENABLED: boolean
-      LOG_EMBED: string
-      DM_EMBED: string
+      // Colors moved to src/data/colors.json
     }
     ECONOMY: {
       ENABLED: boolean
@@ -98,6 +100,8 @@ declare module '@src/config' {
     }
     GIVEAWAYS: {
       ENABLED: boolean
+      REACTION: string
+      // Colors moved to src/data/colors.json
     }
     IMAGE: {
       ENABLED: boolean
@@ -112,38 +116,16 @@ declare module '@src/config' {
         UP_VOTE: string
         DOWN_VOTE: string
       }
-      DEFAULT_EMBED: ColorResolvable
-      APPROVED_EMBED: ColorResolvable
-      DENIED_EMBED: ColorResolvable
+      // Colors moved to src/data/colors.json
     }
     TICKET: {
       ENABLED: boolean
-      CREATE_EMBED: ColorResolvable
-      CLOSE_EMBED: ColorResolvable
+      // Colors moved to src/data/colors.json
     }
-    EMBED_COLORS: {
-      BOT_EMBED: ColorResolvable
-      TRANSPARENT: ColorResolvable
-      SUCCESS: ColorResolvable
-      ERROR: ColorResolvable
-      WARNING: ColorResolvable
-    }
+    // EMBED_COLORS removed - use mina.color.* from src/data/colors.json
     MODERATION: {
       ENABLED: boolean
-      EMBED_COLORS: {
-        TIMEOUT: ColorResolvable
-        UNTIMEOUT: ColorResolvable
-        KICK: ColorResolvable
-        SOFTBAN: ColorResolvable
-        BAN: ColorResolvable
-        UNBAN: ColorResolvable
-        VMUTE: ColorResolvable
-        VUNMUTE: ColorResolvable
-        DEAFEN: ColorResolvable
-        UNDEAFEN: ColorResolvable
-        DISCONNECT: ColorResolvable
-        MOVE: ColorResolvable
-      }
+      // Colors moved to src/data/colors.json (moderation.*)
     }
   }
 
@@ -164,7 +146,6 @@ declare module '@src/config' {
     readonly OPENAI?: string
     readonly HONEYBADGER_API_KEY?: string
     readonly WEBHOOK_SECRET?: string
-    readonly WAIFU_IT?: string
 
     // Lavalink Nodes
     readonly LAVALINK_NODES: Array<{

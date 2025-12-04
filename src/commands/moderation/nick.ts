@@ -10,7 +10,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'nick',
-  description: 'nickname commands',
+  description: "change or reset a member's server nickname",
   category: 'MODERATION',
   botPermissions: ['ManageNicknames'],
   userPermissions: ['ManageNicknames'],

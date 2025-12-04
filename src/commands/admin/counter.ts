@@ -7,7 +7,7 @@ import {
 
 const command: CommandData = {
   name: 'counter',
-  description: 'Set up a counter channel in the guild!',
+  description: 'create a channel that auto-updates with member or bot counts',
   category: 'ADMIN',
   userPermissions: ['ManageGuild'],
   botPermissions: ['ManageChannels'],
@@ -17,7 +17,7 @@ const command: CommandData = {
     options: [
       {
         name: 'type',
-        description: 'Type of counter channel ',
+        description: 'what to count: users, members, or bots',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: [
@@ -37,7 +37,7 @@ const command: CommandData = {
       },
       {
         name: 'name',
-        description: 'Name of the counter channel',
+        description: 'prefix text for the counter channel',
         type: ApplicationCommandOptionType.String,
         required: true,
       },

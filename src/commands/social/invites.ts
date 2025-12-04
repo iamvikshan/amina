@@ -22,7 +22,7 @@ const {
 
 const command: CommandData = {
   name: 'invite',
-  description: 'Invite management system',
+  description: 'track invites, view codes, manage invite ranks and rewards',
   category: 'INVITE',
   botPermissions: ['EmbedLinks', 'ManageGuild'],
 
@@ -32,12 +32,12 @@ const command: CommandData = {
       // User commands
       {
         name: 'view',
-        description: 'Shows the number of invites in this server',
+        description: 'check invite count for yourself or another user',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'the user to get the invites for',
+            description: 'user to check invites for',
             type: ApplicationCommandOptionType.User,
             required: false,
           },
@@ -45,12 +45,12 @@ const command: CommandData = {
       },
       {
         name: 'codes',
-        description: 'List all your invite codes in this guild',
+        description: 'list all invite codes you or another user created',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'the user to get the invite codes for',
+            description: 'user to get invite codes for',
             type: ApplicationCommandOptionType.User,
             required: false,
           },
@@ -58,12 +58,12 @@ const command: CommandData = {
       },
       {
         name: 'inviter',
-        description: 'Shows inviter information',
+        description: 'see who invited a user to the server',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'the user to get the inviter information for',
+            description: 'user to check the inviter for',
             type: ApplicationCommandOptionType.User,
             required: false,
           },
@@ -71,37 +71,18 @@ const command: CommandData = {
       },
       {
         name: 'ranks',
-        description: 'Shows the invite ranks configured on this guild',
+        description: 'display configured invite rank rewards',
         type: ApplicationCommandOptionType.Subcommand,
       },
       // Admin commands
       {
-        name: 'add',
-        description: '[ADMIN] Add invites to a member',
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: 'user',
-            description: 'the user to give invites to',
-            type: ApplicationCommandOptionType.User,
-            required: true,
-          },
-          {
-            name: 'invites',
-            description: 'the number of invites to give',
-            type: ApplicationCommandOptionType.Integer,
-            required: true,
-          },
-        ],
-      },
-      {
         name: 'reset',
-        description: "[ADMIN] Clear a user's added invites",
+        description: 'clear added invites for a user (admin)',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'the user to clear invites for',
+            description: 'user to reset invites for',
             type: ApplicationCommandOptionType.User,
             required: true,
           },
@@ -109,12 +90,13 @@ const command: CommandData = {
       },
       {
         name: 'import',
-        description: '[ADMIN] Import existing guild invites',
+        description:
+          'sync existing guild invites to the tracking system (admin)',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'user',
-            description: 'the user to import invites for',
+            description: 'specific user to import invites for',
             type: ApplicationCommandOptionType.User,
             required: false,
           },
@@ -122,23 +104,23 @@ const command: CommandData = {
       },
       {
         name: 'rank',
-        description: '[ADMIN] Configure invite ranks',
+        description: 'manage invite rank rewards (admin)',
         type: ApplicationCommandOptionType.SubcommandGroup,
         options: [
           {
             name: 'add',
-            description: 'Add a new invite rank',
+            description: 'create a new invite rank reward (admin)',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'role',
-                description: 'role to be given',
+                description: 'role to grant at this rank',
                 type: ApplicationCommandOptionType.Role,
                 required: true,
               },
               {
                 name: 'invites',
-                description: 'number of invites required',
+                description: 'invites required to earn this rank',
                 type: ApplicationCommandOptionType.Integer,
                 required: true,
               },
@@ -146,7 +128,7 @@ const command: CommandData = {
           },
           {
             name: 'remove',
-            description: 'Remove an invite rank',
+            description: 'delete an invite rank reward (admin)',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
@@ -161,12 +143,13 @@ const command: CommandData = {
       },
       {
         name: 'tracking',
-        description: '[ADMIN] Configure invite tracking',
+        description:
+          'enable or disable invite tracking for this server (admin)',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Enable or disable tracking',
+            description: 'on or off',
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
@@ -203,7 +186,7 @@ const command: CommandData = {
     }
 
     // Check permissions for admin commands
-    const adminCommands = ['add', 'reset', 'import', 'rank', 'tracking']
+    const adminCommands = ['reset', 'import', 'rank', 'tracking']
     const isAdminCommand = adminCommands.includes(sub) || group === 'rank'
 
     if (isAdminCommand && !member.permissions.has('ManageGuild')) {
@@ -240,19 +223,6 @@ const command: CommandData = {
       }
 
       // Handle admin commands
-      case 'add': {
-        const user = interaction.options.getUser('user')
-        if (!user) {
-          return interaction.followUp('Please specify a user.')
-        }
-        const amount = interaction.options.getInteger('invites')
-        if (!amount) {
-          return interaction.followUp('Please specify the number of invites.')
-        }
-        response = await addInvites(interaction.guild, user, amount)
-        break
-      }
-
       case 'reset': {
         const user = interaction.options.getUser('user')
         if (!user) {
@@ -383,7 +353,7 @@ async function getInviter(guild: Guild, user: User, settings: any) {
     inviter = await guild.client.users.fetch(inviteData.inviter, {
       cache: false,
     })
-  } catch (ex) {
+  } catch (_ex) {
     return `Cannot fetch inviter information for \`${user.username}\``
   }
 
@@ -427,32 +397,6 @@ async function getInviteRanks(guild: Guild, settings: any) {
   return { embeds: [embed] }
 }
 
-async function addInvites(guild: Guild, user: User, amount: number) {
-  if (user.bot) return 'Oops! You cannot add invites to bots'
-
-  const memberDb = (await getMember(guild.id, user.id)) as any as IMember
-  if (!memberDb.invite_data) {
-    memberDb.invite_data = {
-      tracked: 0,
-      added: 0,
-      fake: 0,
-      left: 0,
-    }
-  }
-  memberDb.invite_data.added += amount
-  await memberDb.save()
-
-  const embed = MinaEmbed.primary()
-    .setAuthor({ name: `added invites to ${user.username}` })
-    .setThumbnail(user.displayAvatarURL())
-    .setDescription(
-      `${user.username} now has ${getEffectiveInvites(memberDb.invite_data)} invites`
-    )
-
-  checkInviteRewards(guild, memberDb, true)
-  return { embeds: [embed] }
-}
-
 async function clearInvites(guild: Guild, user: User) {
   const memberDb = (await getMember(guild.id, user.id)) as any as IMember
   if (!memberDb.invite_data) {
@@ -483,7 +427,7 @@ async function importInvites(guild: Guild, user: User | null) {
     if (!inviter || uses === 0) continue
     if (!tempMap.has(inviter.id)) tempMap.set(inviter.id, uses)
     else {
-      const currentUses = tempMap.get(inviter.id)! + uses
+      const currentUses = (tempMap.get(inviter.id) ?? 0) + uses
       tempMap.set(inviter.id, currentUses)
     }
   }

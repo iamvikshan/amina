@@ -11,7 +11,7 @@ import type { BotClient } from '@structures/BotClient'
 
 const command: CommandData = {
   name: 'zzz',
-  description: 'Toggle dev commands on/off',
+  description: 'enable or disable dev commands in the test guild',
   category: 'DEV',
   botPermissions: ['EmbedLinks'],
   testGuildOnly: true,
@@ -21,7 +21,7 @@ const command: CommandData = {
     options: [
       {
         name: 'enabled',
-        description: 'Enable or disable dev commands',
+        description: 'turn dev commands on or off',
         type: ApplicationCommandOptionType.Boolean,
         required: true,
       },

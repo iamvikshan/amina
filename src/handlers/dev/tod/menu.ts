@@ -28,18 +28,16 @@ export async function showTodMenu(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:tod')
-      .setPlaceholder('Select an operation...')
+      .setPlaceholder('select an operation...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Add Question')
-          .setDescription('Add a new Truth or Dare question')
-          .setValue('add')
-          .setEmoji('➕'),
+          .setLabel('add question')
+          .setDescription('add a new truth or dare question')
+          .setValue('add'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Remove Question')
-          .setDescription('Delete a question by ID')
+          .setLabel('remove question')
+          .setDescription('delete a question by id')
           .setValue('remove')
-          .setEmoji('➖')
       )
   )
 
@@ -73,7 +71,7 @@ export async function handleTodMenu(
     default:
       await interaction.deferUpdate()
       await interaction.followUp({
-        content: '❌ Invalid operation selected',
+        content: 'invalid operation selected',
         ephemeral: true,
       })
   }

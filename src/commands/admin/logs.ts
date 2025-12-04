@@ -10,7 +10,7 @@ import toggleAll from './logs/toggleAll'
 
 const command: CommandData = {
   name: 'logs',
-  description: 'Configure moderation logs',
+  description: 'set up audit logging for messages, roles, and channels',
   category: 'ADMIN',
   userPermissions: ['ManageGuild'],
   slashCommand: {
@@ -19,12 +19,12 @@ const command: CommandData = {
     options: [
       {
         name: 'channel',
-        description: 'Set the logs channel',
+        description: 'set the channel for mod logs',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'logs-channel',
-            description: 'Select the channel to send mod logs',
+            description: 'channel to send logs to',
             type: ApplicationCommandOptionType.Channel,
             channelTypes: [ChannelType.GuildText],
             required: true,
@@ -33,17 +33,17 @@ const command: CommandData = {
       },
       {
         name: 'toggle',
-        description: 'Toggle specific logging options',
+        description: 'enable or disable specific log types',
         type: ApplicationCommandOptionType.SubcommandGroup,
         options: [
           {
             name: 'ghostping',
-            description: 'Toggle anti-ghostping logging',
+            description: 'log deleted messages that contained mentions',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -51,12 +51,12 @@ const command: CommandData = {
           },
           {
             name: 'msg-edit',
-            description: 'Toggle logging for message edits',
+            description: 'log when messages are edited',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -64,12 +64,12 @@ const command: CommandData = {
           },
           {
             name: 'msg-del',
-            description: 'Toggle logging for message deletions',
+            description: 'log when messages are deleted',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -77,12 +77,12 @@ const command: CommandData = {
           },
           {
             name: 'mbr-role',
-            description: 'Toggle logging for member role changes',
+            description: 'log when member roles change',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -90,12 +90,12 @@ const command: CommandData = {
           },
           {
             name: 'chnl-create',
-            description: 'Toggle logging for channel creation',
+            description: 'log when channels are created',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -103,12 +103,12 @@ const command: CommandData = {
           },
           {
             name: 'chnl-edit',
-            description: 'Toggle logging for channel edits',
+            description: 'log when channels are modified',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -116,12 +116,12 @@ const command: CommandData = {
           },
           {
             name: 'chnl-del',
-            description: 'Toggle logging for channel deletions',
+            description: 'log when channels are deleted',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -129,12 +129,12 @@ const command: CommandData = {
           },
           {
             name: 'role-create',
-            description: 'Toggle logging for role creation',
+            description: 'log when roles are created',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -142,12 +142,12 @@ const command: CommandData = {
           },
           {
             name: 'role-edit',
-            description: 'Toggle logging for role edits',
+            description: 'log when roles are modified',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -155,12 +155,12 @@ const command: CommandData = {
           },
           {
             name: 'role-del',
-            description: 'Toggle logging for role deletions',
+            description: 'log when roles are deleted',
             type: ApplicationCommandOptionType.Subcommand,
             options: [
               {
                 name: 'status',
-                description: 'Enable or disable',
+                description: 'on or off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true,
               },
@@ -170,12 +170,12 @@ const command: CommandData = {
       },
       {
         name: 'all',
-        description: 'Enable or disable all logging',
+        description: 'toggle all logging at once',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Enable or disable all logging',
+            description: 'on or off',
             type: ApplicationCommandOptionType.Boolean,
             required: true,
           },

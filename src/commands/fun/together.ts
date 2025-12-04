@@ -32,7 +32,7 @@ const discordTogether = [
 
 const command: CommandData = {
   name: 'together',
-  description: "let's start an adventure together in a voice channel!",
+  description: 'start a discord activity like youtube, chess, or poker in vc',
   category: 'FUN',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -40,7 +40,7 @@ const command: CommandData = {
     options: [
       {
         name: 'type',
-        description: 'pick your flavor of fun - what shall we play?',
+        description: 'discord activity to start',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: discordTogether.map(game => ({ name: game, value: game })),

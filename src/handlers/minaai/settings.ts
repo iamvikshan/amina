@@ -61,42 +61,42 @@ export async function showSettings(
       .setPlaceholder('select a setting to toggle...')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle Ignore Me')
+          .setLabel('toggle ignore me')
           .setDescription(
             prefs.ignoreMe
-              ? 'Disable - Allow me to respond to you'
-              : 'Enable - I will never respond to you'
+              ? 'disable - allow me to respond to you'
+              : 'enable - i will never respond to you'
           )
           .setValue('toggle_ignore'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle Enable DM Chat')
+          .setLabel('toggle enable dm chat')
           .setDescription(
             !globalConfig.dmEnabledGlobally
-              ? 'Globally disabled by developers'
+              ? 'globally disabled by developers'
               : prefs.allowDMs
-                ? 'Disable - Block DM responses'
-                : 'Enable - Allow DM responses'
+                ? 'disable - block dm responses'
+                : 'enable - allow dm responses'
           )
           .setValue('toggle_dms'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle Combine DM/Server Memories')
+          .setLabel('toggle combine dm/server memories')
           .setDescription(
             prefs.combineDmWithServer
-              ? 'Disable - Separate DM and server memories'
-              : 'Enable - Combine DM and server memories'
+              ? 'disable - separate dm and server memories'
+              : 'enable - combine dm and server memories'
           )
           .setValue('toggle_combine'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Toggle Global Server Memories')
+          .setLabel('toggle global server memories')
           .setDescription(
             prefs.globalServerMemories !== false
-              ? 'Disable - Use only current server memories'
-              : 'Enable - Use memories from all servers'
+              ? 'disable - use only current server memories'
+              : 'enable - use memories from all servers'
           )
           .setValue('toggle_global'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Forget Me')
-          .setDescription('Delete all your memories and set ignore me')
+          .setLabel('forget me')
+          .setDescription('delete all your memories and set ignore me')
           .setValue('forget'),
       ])
   )

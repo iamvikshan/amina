@@ -24,9 +24,9 @@ export async function updatePresence(client: BotClient): Promise<void> {
     }
 
     await updateBotStats(stats)
-    client.logger.log(
-      `Bot stats updated: ${stats.guilds} guilds, ${stats.users} users, ${stats.channels} channels, ${wsPing}ms ping`
-    )
+    // client.logger.log(
+    //   `Bot stats updated: ${stats.guilds} guilds, ${stats.users} users, ${stats.channels} channels, ${wsPing}ms ping`
+    // )
   } catch (error) {
     client.logger.error('Failed to update bot stats:', error)
   }

@@ -13,7 +13,7 @@ const FLIPPED =
 
 const command: CommandData = {
   name: 'flip',
-  description: "Want to flip a coin or text? Let's play a fun game!",
+  description: 'flip a coin or turn text upside down',
   category: 'FUN',
   botPermissions: ['EmbedLinks'],
   slashCommand: {
@@ -21,17 +21,17 @@ const command: CommandData = {
     options: [
       {
         name: 'coin',
-        description: "Ready to test your luck? Let's flip a coin!",
+        description: 'flip a coin and see if luck is on your side',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'text',
-        description: "Let's turn your words upside down!",
+        description: 'turn your text upside down',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'input',
-            description: 'What message should I flip for you?',
+            description: 'the text to flip',
             type: ApplicationCommandOptionType.String,
             required: true,
           },

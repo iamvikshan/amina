@@ -7,7 +7,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'queue',
-  description: 'displays the current music queue',
+  description: 'view the list of upcoming tracks in the queue',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {

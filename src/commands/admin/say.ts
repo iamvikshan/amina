@@ -6,7 +6,7 @@ import {
 
 const command: CommandData = {
   name: 'say',
-  description: 'Says a message as Mina to a channel you choose!',
+  description: 'speak through me in any channel you choose',
   category: 'ADMIN',
   botPermissions: ['SendMessages'],
   userPermissions: ['ManageMessages'],
@@ -17,33 +17,31 @@ const command: CommandData = {
     options: [
       {
         name: 'message',
-        description: 'The message to be sent.',
+        description: 'the message content to send',
         type: ApplicationCommandOptionType.String,
         required: true,
       },
       {
         name: 'channel',
-        description: 'The channel where the message will be sent.',
+        description: 'target channel for the message',
         type: ApplicationCommandOptionType.Channel,
         required: false,
       },
       {
         name: 'message_id',
-        description: 'The ID of the message to edit or reply to.',
+        description: 'message id to edit or reply to',
         type: ApplicationCommandOptionType.String,
         required: false,
       },
       {
         name: 'edit',
-        description:
-          'Whether to edit the message specified by message_id instead of sending a new message.',
+        description: 'edit the specified message instead of sending new',
         type: ApplicationCommandOptionType.Boolean,
         required: false,
       },
       {
         name: 'ping',
-        description:
-          'Whether to ping everyone in the channel after sending the message.',
+        description: 'ping everyone after sending',
         type: ApplicationCommandOptionType.Boolean,
         required: false,
       },

@@ -1,9 +1,12 @@
 import mongoose from 'mongoose'
 import { loadDefaultPrompt } from '../../helpers/promptLoader'
+import config from '../../config/config'
 
-// Read the prompt.md file as the default system prompt (with error handling)
+// Load default system prompt from prompt.md (used as seed value)
 const defaultSystemPrompt = loadDefaultPrompt()
 
+// Schema uses config.ts values as defaults - these seed the DB on first run
+// After initialization, all changes must be made via dev commands or MongoDB
 const Schema = new mongoose.Schema(
   {
     PRESENCE: {
@@ -50,19 +53,19 @@ const Schema = new mongoose.Schema(
       },
       model: {
         type: String,
-        default: 'gemini-flash-latest',
+        default: config.AI.MODEL,
       },
-      visionModel: {
-        type: String,
-        default: 'gemini-3-pro-preview',
-      },
+      // visionModel: {
+      //   type: String,
+      //   default: config.AI.VISION_MODEL,
+      // },
       maxTokens: {
         type: Number,
-        default: 1024,
+        default: config.AI.MAX_TOKENS,
       },
       timeoutMs: {
         type: Number,
-        default: 20000,
+        default: config.AI.TIMEOUT_MS,
       },
       systemPrompt: {
         type: String,
@@ -70,11 +73,15 @@ const Schema = new mongoose.Schema(
       },
       temperature: {
         type: Number,
-        default: 0.7,
+        default: config.AI.TEMPERATURE,
       },
       dmEnabledGlobally: {
         type: Boolean,
-        default: true,
+        default: config.AI.DM_ENABLED_GLOBALLY,
+      },
+      upstashUrl: {
+        type: String,
+        default: config.AI.UPSTASH_URL,
       },
       updatedAt: {
         type: Date,

@@ -10,7 +10,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'automod',
-  description: 'Various automod configuration!',
+  description: 'configure automated moderation rules and punishment thresholds',
   category: 'AUTOMOD',
   userPermissions: ['ManageGuild'],
 
@@ -20,17 +20,17 @@ const command: CommandData = {
     options: [
       {
         name: 'status',
-        description: 'Check automod configuration',
+        description: 'view current automod configuration',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'strikes',
-        description: 'Set maximum number of strikes before taking an action',
+        description: 'set max strikes before punishment',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'amount',
-            description: 'Number of strikes (default 5)',
+            description: 'number of strikes allowed',
             required: true,
             type: ApplicationCommandOptionType.Integer,
           },
@@ -38,13 +38,12 @@ const command: CommandData = {
       },
       {
         name: 'action',
-        description:
-          'Set action to be performed after receiving maximum strikes',
+        description: 'set punishment when max strikes reached',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'action',
-            description: 'Action to perform',
+            description: 'timeout, kick, or ban',
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
@@ -66,13 +65,12 @@ const command: CommandData = {
       },
       {
         name: 'debug',
-        description:
-          'Enable/disable automod for messages sent by admins & moderators',
+        description: 'toggle automod for staff messages',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Configuration status',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -90,17 +88,17 @@ const command: CommandData = {
       },
       {
         name: 'whitelist',
-        description: 'View whitelisted channels',
+        description: 'view channels exempt from automod',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'whitelistadd',
-        description: 'Add a channel to the whitelist',
+        description: 'exempt a channel from automod',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'channel',
-            description: 'Channel to add',
+            description: 'channel to whitelist',
             required: true,
             type: ApplicationCommandOptionType.Channel,
             channelTypes: [ChannelType.GuildText],
@@ -109,12 +107,12 @@ const command: CommandData = {
       },
       {
         name: 'whitelistremove',
-        description: 'Remove a channel from the whitelist',
+        description: 'remove a channel from the whitelist',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'channel',
-            description: 'Channel to remove',
+            description: 'channel to remove',
             required: true,
             type: ApplicationCommandOptionType.Channel,
             channelTypes: [ChannelType.GuildText],

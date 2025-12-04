@@ -33,12 +33,12 @@ export async function showEditMenu(
       .setPlaceholder('choose what to edit')
       .addOptions([
         new StringSelectMenuOptionBuilder()
-          .setLabel('Basic Info')
-          .setDescription('Pronouns, birthdate, region, languages, timezone')
+          .setLabel('basic info')
+          .setDescription('pronouns, birthdate, region, languages, timezone')
           .setValue('basic'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Misc Info')
-          .setDescription('Bio, interests, socials, favorites, goals')
+          .setLabel('misc info')
+          .setDescription('bio, interests, socials, favorites, goals')
           .setValue('misc'),
       ])
   )
@@ -216,7 +216,7 @@ export async function handleProfileModal(
       .setDescription('your story has been beautifully updated!')
       .addFields({
         name: 'want to see?',
-        value: 'use `/profile view` to see your masterpiece!',
+        value: 'use `/info profile` to see your masterpiece!',
       })
 
     await interaction.reply({

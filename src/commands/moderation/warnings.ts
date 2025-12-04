@@ -11,7 +11,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'warnings',
-  description: 'list or clear user warnings',
+  description: "view a member's warning history or clear their warnings",
   category: 'MODERATION',
   userPermissions: ['KickMembers'],
 

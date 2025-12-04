@@ -13,8 +13,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
   name: 'report',
-  description:
-    'Help Mina make the community better! Report issues or share your thoughts~',
+  description: 'report bugs, suggest features, or report problematic servers',
   category: 'UTILITY',
 
   slashCommand: {
@@ -87,17 +86,17 @@ async function showReportModal(
 ): Promise<void> {
   const titleInput = new TextInputBuilder({
     customId: 'title',
-    label: 'Give it a catchy title!',
+    label: 'give it a catchy title',
     style: TextInputStyle.Short,
-    placeholder: "What's the scoop? 🍦",
+    placeholder: "what's the scoop?",
     required: true,
   })
 
   const descriptionInput = new TextInputBuilder({
     customId: 'description',
-    label: 'Spill the tea! ☕',
+    label: 'spill the tea',
     style: TextInputStyle.Paragraph,
-    placeholder: 'Tell Mina all about it~',
+    placeholder: 'tell mina all about it',
     required: true,
   })
 
@@ -115,9 +114,9 @@ async function showReportModal(
   if (type === 'server' || type === 'user') {
     const idInput = new TextInputBuilder({
       customId: `${type}Id`,
-      label: `${type === 'server' ? 'Server' : 'User'}'s Secret Code`,
+      label: `${type === 'server' ? 'server' : 'user'}'s secret code`,
       style: TextInputStyle.Short,
-      placeholder: `Enter the ${type} ID here!`,
+      placeholder: `enter the ${type} id here`,
       required: true,
     })
     const thirdActionRow =
@@ -126,9 +125,9 @@ async function showReportModal(
   } else if (type === 'tod') {
     const questionIdInput = new TextInputBuilder({
       customId: 'questionId',
-      label: 'Which question is it?',
+      label: 'which question is it?',
       style: TextInputStyle.Short,
-      placeholder: 'Type the question ID here!',
+      placeholder: 'type the question id here',
       required: true,
     })
     const thirdActionRow =
@@ -137,9 +136,9 @@ async function showReportModal(
   } else if (type === 'bug') {
     const reproStepsInput = new TextInputBuilder({
       customId: 'reproSteps',
-      label: 'How to reproduce the bug? (Optional)',
+      label: 'how to reproduce the bug? (optional)',
       style: TextInputStyle.Paragraph,
-      placeholder: 'Share the steps to recreate the bug, if you know them!',
+      placeholder: 'share the steps to recreate the bug, if you know them',
       required: false,
     })
     const thirdActionRow =
@@ -148,9 +147,9 @@ async function showReportModal(
   } else if (type === 'feedback') {
     const additionalInfoInput = new TextInputBuilder({
       customId: 'additionalInfo',
-      label: 'Any extra thoughts? (Optional)',
+      label: 'any extra thoughts? (optional)',
       style: TextInputStyle.Paragraph,
-      placeholder: 'Share any additional ideas or suggestions here!',
+      placeholder: 'share any additional ideas or suggestions here',
       required: false,
     })
     const thirdActionRow =
@@ -164,8 +163,8 @@ async function showReportModal(
     customId: `report_modal_${type}`,
     title:
       type === 'feedback'
-        ? 'Share Your Thoughts with Mina!'
-        : `Tell Mina About This ${type.charAt(0).toUpperCase() + type.slice(1)}!`,
+        ? 'share your thoughts with mina'
+        : `tell mina about this ${type}`,
     components,
   })
 

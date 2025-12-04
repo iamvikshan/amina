@@ -7,7 +7,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'statstracking',
-  description: 'enable or disable tracking stats in the server',
+  description: 'enable or disable xp and message tracking for the server',
   category: 'UTILITY',
   userPermissions: ['ManageGuild'],
 
@@ -17,7 +17,7 @@ const command: CommandData = {
     options: [
       {
         name: 'status',
-        description: 'enabled or disabled',
+        description: 'on or off',
         required: true,
         type: ApplicationCommandOptionType.String,
         choices: [

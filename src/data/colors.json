@@ -51,12 +51,15 @@
   },
   "features": {
     "giveaway": "#FFD700",
+    "giveawayEnd": "#DC143C",
     "suggestion": "#1E90FF",
     "suggestionApproved": "#57F287",
     "suggestionDenied": "#8B0000",
-    "ticket": "#DC143C",
-    "ticketClose": "#00CED1",
+    "ticket": "#1E90FF",
+    "ticketClose": "#36393F",
     "automod": "#E63946",
+    "automodLog": "#2B2D31",
+    "automodDm": "#1E90FF",
     "economy": "#FFD700",
     "music": "#1E90FF",
     "leveling": "#DC143C"

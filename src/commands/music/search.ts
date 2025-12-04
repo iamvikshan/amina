@@ -11,7 +11,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'search',
-  description: 'search for matching songs on youtube',
+  description: 'search youtube and pick from matching results',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {

@@ -115,9 +115,6 @@ export const secrets: Secrets = {
   get WEBHOOK_SECRET() {
     return getOptionalSecret('WEBHOOK_SECRET')
   },
-  get WAIFU_IT() {
-    return getOptionalSecret('WAIFU_IT')
-  },
 
   // Lavalink Nodes
   get LAVALINK_NODES() {

@@ -11,7 +11,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'timeout',
-  description: 'timeouts the specified member',
+  description: 'temporarily mute a member for a specified duration',
   category: 'MODERATION',
   botPermissions: ['ModerateMembers'],
   userPermissions: ['ModerateMembers'],

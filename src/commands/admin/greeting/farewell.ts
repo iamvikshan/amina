@@ -18,7 +18,7 @@ import {
 
 const command: CommandData = {
   name: 'farewell',
-  description: 'Set up a farewell message for your server!',
+  description: 'configure an automatic goodbye message when members leave',
   category: 'ADMIN',
   userPermissions: ['ManageGuild'],
 
@@ -28,12 +28,12 @@ const command: CommandData = {
     options: [
       {
         name: 'status',
-        description: 'Enable or disable the farewell message',
+        description: 'turn farewell messages on or off',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Choose ON or OFF',
+            description: 'on or off',
             required: true,
             type: ApplicationCommandOptionType.String,
             choices: [
@@ -51,17 +51,17 @@ const command: CommandData = {
       },
       {
         name: 'preview',
-        description: 'Preview the configured farewell message!',
+        description: 'see how the farewell message will look',
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
         name: 'channel',
-        description: 'Set the channel for farewell messages',
+        description: 'set where farewell messages are sent',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'channel',
-            description: 'Select a channel',
+            description: 'channel for farewell messages',
             type: ApplicationCommandOptionType.Channel,
             channelTypes: [ChannelType.GuildText],
             required: true,
@@ -70,12 +70,12 @@ const command: CommandData = {
       },
       {
         name: 'desc',
-        description: 'Set the embed description for the farewell message',
+        description: 'set the farewell embed description text',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'content',
-            description: 'What would you like the description to say?',
+            description: 'description text with placeholders like {user}',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -83,12 +83,12 @@ const command: CommandData = {
       },
       {
         name: 'thumbnail',
-        description: 'Configure the embed thumbnail',
+        description: 'toggle the user avatar thumbnail',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'status',
-            description: 'Thumbnail status (ON/OFF)',
+            description: 'on or off',
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
@@ -106,12 +106,12 @@ const command: CommandData = {
       },
       {
         name: 'color',
-        description: 'Set the embed color for your farewell message',
+        description: 'set the embed sidebar color',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'hex-code',
-            description: 'Enter the hex color code (e.g., #FF5733)',
+            description: 'hex color code like #FF5733',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -119,12 +119,12 @@ const command: CommandData = {
       },
       {
         name: 'footer',
-        description: 'Set the footer for the farewell embed',
+        description: 'set the embed footer text',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'content',
-            description: 'What should the footer say?',
+            description: 'footer text to display',
             type: ApplicationCommandOptionType.String,
             required: true,
           },
@@ -132,12 +132,12 @@ const command: CommandData = {
       },
       {
         name: 'image',
-        description: 'Set an image for the farewell embed',
+        description: 'set a large image for the embed',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'url',
-            description: 'Enter the image URL',
+            description: 'direct url to the image',
             type: ApplicationCommandOptionType.String,
             required: true,
           },

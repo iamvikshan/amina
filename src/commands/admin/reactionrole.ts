@@ -25,7 +25,7 @@ const channelPerms: PermissionResolvable[] = [
 
 const command: CommandData = {
   name: 'reactionrole',
-  description: 'Manage reaction roles for the specified message!',
+  description: 'let members pick roles by reacting to a message',
   category: 'ADMIN',
   userPermissions: ['ManageGuild'],
 
@@ -35,7 +35,7 @@ const command: CommandData = {
     options: [
       {
         name: 'action',
-        description: 'Choose an action: add or remove the reaction role!',
+        description: 'add or remove a reaction role',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: [
@@ -45,26 +45,26 @@ const command: CommandData = {
       },
       {
         name: 'channel',
-        description: 'Channel where the message exists',
+        description: 'channel containing the message',
         type: ApplicationCommandOptionType.Channel,
         channelTypes: [ChannelType.GuildText],
         required: true,
       },
       {
         name: 'message_id',
-        description: 'Message ID to manage reaction roles',
+        description: 'id of the message to add reactions to',
         type: ApplicationCommandOptionType.String,
         required: true,
       },
       {
         name: 'emoji',
-        description: 'Emoji to use for adding reaction role',
+        description: 'reaction emoji for this role',
         type: ApplicationCommandOptionType.String,
         required: false, // Only required for adding
       },
       {
         name: 'role',
-        description: 'Role to be given for the selected emoji',
+        description: 'role to assign when reacted',
         type: ApplicationCommandOptionType.Role,
         required: false, // Only required for adding
       },

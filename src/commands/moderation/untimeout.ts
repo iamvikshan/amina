@@ -10,7 +10,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'untimeout',
-  description: 'remove timeout from a member',
+  description: "end a member's timeout early and restore their permissions",
   category: 'MODERATION',
   botPermissions: ['ModerateMembers'],
   userPermissions: ['ModerateMembers'],

@@ -101,7 +101,7 @@ const AMINA_RESPONSES: Record<string, string[]> = {
 
 const command: CommandData = {
   name: 'image',
-  description: 'let me find you amazing pictures!',
+  description: 'fetch random animal photos or anime images',
   cooldown: 1,
   category: 'FUN',
   botPermissions: ['EmbedLinks'],
@@ -110,12 +110,12 @@ const command: CommandData = {
     options: [
       {
         name: 'animal',
-        description: 'get cute animal pictures!',
+        description: 'fetch random animal pictures',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'type',
-            description: 'Which animal would you like to see?',
+            description: 'which animal to fetch',
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: ANIMAL_CHOICES.map(animal => ({
@@ -127,12 +127,12 @@ const command: CommandData = {
       },
       {
         name: 'anime',
-        description: 'get awesome anime pictures!',
+        description: 'fetch random anime images',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
           {
             name: 'type',
-            description: 'Which character type would you like to see?',
+            description: 'which character type to fetch',
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: ANIME_CHOICES.map(anime => ({
@@ -171,7 +171,11 @@ const command: CommandData = {
 
 async function getAnimalImage(user: User, choice: string) {
   const response = await getJson(`${BASE_URL}/${choice}`)
-  if (!response.success) return { content: MESSAGES.API_ERROR }
+  if (!response.success) {
+    return {
+      content: `${MESSAGES.API_ERROR}\n-# error: ${response.error || 'unknown'}`,
+    }
+  }
 
   const imageUrl = response.data?.image
   const embed = MinaEmbed.primary()

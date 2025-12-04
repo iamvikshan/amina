@@ -1,4 +1,9 @@
-# Amina Discord Bot - TODO & Feature Roadmap
+``# Amina Discord Bot - TODO & Feature Roadmap
+1. remove reputation system
+2. remove suggestions system
+3. add `reminder` system
+4. move `/profile view` to `/info profile`, change `/profile hub` to just `/profile`
+5. integrate `redflag` system with `mod` commands and add it to `profile` view
 
 ## 🎵 Music System - Feature Roadmap
 

@@ -21,12 +21,12 @@ export async function showPurgePreview(
   const channelMention = channel ? `<#${channelId}>` : `Channel ${channelId}`
 
   const typeLabels: Record<PurgeType, string> = {
-    all: 'All Messages',
-    attachments: 'Messages with Attachments',
-    bots: 'Bot Messages',
-    links: 'Messages with Links',
-    token: 'Messages with Token/Keyword',
-    user: 'User Messages',
+    all: 'all messages',
+    attachments: 'messages with attachments',
+    bots: 'bot messages',
+    links: 'messages with links',
+    token: 'messages with token/keyword',
+    user: 'user messages',
   }
 
   const embed = MinaEmbed.warning()

@@ -1,0 +1,29 @@
+{
+  "purge": {
+    "hub": {
+      "title": "message purge hub",
+      "description": "select a purge type:\n\nall messages - delete all messages\nattachments - delete messages with attachments\nbot messages - delete messages from bots\nlinks - delete messages containing links\ntoken - delete messages containing a keyword\nuser - delete messages from a specific user\n\nnote: messages older than 14 days cannot be bulk deleted."
+    },
+    "success": [
+      "deleted {count} messages.",
+      "{count} messages purged.",
+      "cleared {count} messages."
+    ],
+    "error": {
+      "noMessages": [
+        "no messages to delete.",
+        "nothing to purge.",
+        "no matches found."
+      ],
+      "tooOld": [
+        "messages too old. can only delete messages under 14 days.",
+        "some messages were too old."
+      ],
+      "failed": [
+        "purge failed. check my permissions.",
+        "couldn't delete messages.",
+        "failed to purge."
+      ]
+    }
+  }
+}

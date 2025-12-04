@@ -4,7 +4,7 @@ import { showMinaAiHub } from '@handlers/minaai'
 
 const command: CommandData = {
   name: 'mina-ai',
-  description: 'Manage your memories with Mina AI',
+  description: 'manage your conversation history and memory settings with me',
   category: 'UTILITY',
   botPermissions: ['EmbedLinks'],
   dmCommand: true,

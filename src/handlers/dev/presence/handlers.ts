@@ -43,30 +43,26 @@ export async function showPresenceMenu(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:presence_operation')
-      .setPlaceholder('Select an operation...')
+      .setPlaceholder('select an operation...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel(ENABLED ? 'Disable Presence' : 'Enable Presence')
+          .setLabel(ENABLED ? 'disable presence' : 'enable presence')
           .setDescription(
-            ENABLED ? 'Turn off custom presence' : 'Turn on custom presence'
+            ENABLED ? 'turn off custom presence' : 'turn on custom presence'
           )
-          .setValue('toggle_enabled')
-          .setEmoji(ENABLED ? '🔴' : '🟢'),
+          .setValue('toggle_enabled'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Edit Message & URL')
-          .setDescription('Update the status message and stream URL')
-          .setValue('edit_message')
-          .setEmoji('📝'),
+          .setLabel('edit message & url')
+          .setDescription('update the status message and stream url')
+          .setValue('edit_message'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Activity Type')
-          .setDescription('Change activity type (Playing, Watching, etc.)')
-          .setValue('set_type')
-          .setEmoji('🎮'),
+          .setLabel('set activity type')
+          .setDescription('change activity type (playing, watching, etc.)')
+          .setValue('set_type'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Set Status')
-          .setDescription('Change online status (Online, Idle, DND, etc.)')
+          .setLabel('set status')
+          .setDescription('change online status (online, idle, dnd, etc.)')
           .setValue('set_status')
-          .setEmoji('🟢')
       )
   )
 
@@ -142,15 +138,11 @@ export async function showPresenceModal(
 ): Promise<void> {
   const config = await getPresenceConfig()
 
-  const modal = new ModalBuilder()
-    .setCustomId('dev:modal:presence')
-    .setTitle('Configure Bot Presence')
-
   const messageInput = new TextInputBuilder({
     customId: 'message',
-    label: 'Status Message',
+    label: 'status message',
     style: TextInputStyle.Short,
-    placeholder: 'Playing with {servers} servers',
+    placeholder: 'playing with {servers} servers',
     value: config.PRESENCE.MESSAGE,
     required: true,
     maxLength: 128,
@@ -158,7 +150,7 @@ export async function showPresenceModal(
 
   const urlInput = new TextInputBuilder({
     customId: 'url',
-    label: 'Stream URL (optional)',
+    label: 'stream url (optional)',
     style: TextInputStyle.Short,
     placeholder: 'https://twitch.tv/...',
     value: config.PRESENCE.URL || '',
@@ -173,7 +165,11 @@ export async function showPresenceModal(
     urlInput
   )
 
-  modal.addComponents([firstRow, secondRow])
+  const modal = new ModalBuilder({
+    customId: 'dev:modal:presence',
+    title: 'configure bot presence',
+    components: [firstRow, secondRow],
+  })
 
   await interaction.showModal(modal)
 }
@@ -218,37 +214,32 @@ async function showTypeSelection(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:presence_type')
-      .setPlaceholder('Select activity type...')
+      .setPlaceholder('select activity type...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Playing')
-          .setDescription('Playing {message}')
+          .setLabel('playing')
+          .setDescription('playing {message}')
           .setValue('PLAYING')
-          .setEmoji('🎮')
           .setDefault(config.PRESENCE.TYPE === 'PLAYING'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Watching')
-          .setDescription('Watching {message}')
+          .setLabel('watching')
+          .setDescription('watching {message}')
           .setValue('WATCHING')
-          .setEmoji('👀')
           .setDefault(config.PRESENCE.TYPE === 'WATCHING'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Listening')
-          .setDescription('Listening to {message}')
+          .setLabel('listening')
+          .setDescription('listening to {message}')
           .setValue('LISTENING')
-          .setEmoji('🎵')
           .setDefault(config.PRESENCE.TYPE === 'LISTENING'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Streaming')
-          .setDescription('Streaming {message}')
+          .setLabel('streaming')
+          .setDescription('streaming {message}')
           .setValue('STREAMING')
-          .setEmoji('📺')
           .setDefault(config.PRESENCE.TYPE === 'STREAMING'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Competing')
-          .setDescription('Competing in {message}')
+          .setLabel('competing')
+          .setDescription('competing in {message}')
           .setValue('COMPETING')
-          .setEmoji('🏆')
           .setDefault(config.PRESENCE.TYPE === 'COMPETING')
       )
   )
@@ -298,31 +289,27 @@ async function showStatusSelection(
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('dev:menu:presence_status')
-      .setPlaceholder('Select status...')
+      .setPlaceholder('select status...')
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel('Online')
-          .setDescription('Green status')
+          .setLabel('online')
+          .setDescription('green status')
           .setValue('online')
-          .setEmoji('🟢')
           .setDefault(config.PRESENCE.STATUS === 'online'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Idle')
-          .setDescription('Yellow status')
+          .setLabel('idle')
+          .setDescription('yellow status')
           .setValue('idle')
-          .setEmoji('🟡')
           .setDefault(config.PRESENCE.STATUS === 'idle'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Do Not Disturb')
-          .setDescription('Red status')
+          .setLabel('do not disturb')
+          .setDescription('red status')
           .setValue('dnd')
-          .setEmoji('🔴')
           .setDefault(config.PRESENCE.STATUS === 'dnd'),
         new StringSelectMenuOptionBuilder()
-          .setLabel('Invisible')
-          .setDescription('Grey status (offline)')
+          .setLabel('invisible')
+          .setDescription('grey status (offline)')
           .setValue('invisible')
-          .setEmoji('⚫')
           .setDefault(config.PRESENCE.STATUS === 'invisible')
       )
   )

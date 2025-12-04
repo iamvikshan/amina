@@ -11,7 +11,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'ban',
-  description: 'bans the specified member',
+  description: 'permanently ban a member from the server',
   category: 'MODERATION',
   botPermissions: ['BanMembers'],
   userPermissions: ['BanMembers'],

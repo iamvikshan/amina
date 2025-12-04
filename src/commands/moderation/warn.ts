@@ -10,7 +10,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'warn',
-  description: 'warns the specified member',
+  description: 'issue a warning to a member with a reason',
   category: 'MODERATION',
   userPermissions: ['KickMembers'],
 

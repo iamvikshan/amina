@@ -19,15 +19,14 @@ const choices = [
 
 const command: CommandData = {
   name: 'hangman',
-  description:
-    "time for a word-guessing adventure! pick a theme and let's play!",
+  description: 'play a word guessing game with themed word lists',
   category: 'FUN',
   slashCommand: {
     enabled: true,
     options: [
       {
         name: 'theme',
-        description: 'Choose your challenge theme!',
+        description: 'word category to guess from',
         type: ApplicationCommandOptionType.String,
         required: true,
         choices: choices.map(choice => ({
@@ -41,7 +40,7 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const choice = interaction.options.getString('theme')
     if (!choice) {
-      return interaction.followUp('Please select a theme!')
+      return interaction.followUp(mina.say('errors.missingInfo'))
     }
 
     const Game = new Hangman({

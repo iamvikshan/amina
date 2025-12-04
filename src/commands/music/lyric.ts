@@ -10,7 +10,7 @@ const BASE_URL = 'https://some-random-api.com/lyrics'
 
 const command: CommandData = {
   name: 'lyric',
-  description: 'find lyrics of a song',
+  description: 'search for and display song lyrics',
   category: 'MUSIC',
   botPermissions: ['EmbedLinks'],
   slashCommand: {

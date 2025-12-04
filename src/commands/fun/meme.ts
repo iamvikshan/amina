@@ -15,7 +15,7 @@ interface MemeApiResponse {
 
 const command: CommandData = {
   name: 'meme',
-  description: 'get a random meme',
+  description: 'fetch a random meme from reddit',
   category: 'FUN',
   cooldown: 1,
   slashCommand: {

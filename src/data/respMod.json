@@ -213,6 +213,18 @@
         "need a user to {action}.",
         "who should i {action}?"
       ]
+    },
+    "maxwarn": {
+      "actionSet": [
+        "configuration saved. automod action is set to {action}.",
+        "maxwarn action updated to {action}.",
+        "set to {action} when max warnings reached."
+      ],
+      "missingPermission": [
+        "i don't have permission to {action} members. grant me that permission.",
+        "missing {action} permission. can't do that.",
+        "need {action} permission to set this action."
+      ]
     }
   }
 }

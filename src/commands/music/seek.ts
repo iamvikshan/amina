@@ -8,7 +8,7 @@ import { mina } from '@helpers/mina'
 
 const command: CommandData = {
   name: 'seek',
-  description: 'set position of the current track',
+  description: 'jump to a specific timestamp in the current track',
   category: 'MUSIC',
   validations: musicValidations,
   slashCommand: {
