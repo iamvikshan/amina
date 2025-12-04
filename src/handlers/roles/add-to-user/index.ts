@@ -62,7 +62,20 @@ export async function handleUserSelect(
 ): Promise<void> {
   const selectedUsers = interaction.values
   const guild = interaction.guild
-  if (!guild) return
+  if (!guild) {
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({
+        content: 'This command must be used in a server (guild).',
+        ephemeral: true,
+      })
+    } else {
+      await interaction.reply({
+        content: 'This command must be used in a server (guild).',
+        ephemeral: true,
+      })
+    }
+    return
+  }
 
   // Get assignable roles (below bot's highest role, not @everyone, not managed)
   const botMember = await guild.members.fetchMe()
@@ -143,7 +156,12 @@ export async function handleRoleSelect(
   await interaction.deferUpdate()
 
   const guild = interaction.guild
-  if (!guild) return
+  if (!guild) {
+    await interaction.editReply({
+      content: 'This command must be used in a guild.',
+    })
+    return
+  }
 
   // Get full Role objects from guild cache
   const roles = selectedRoleIds
@@ -283,10 +301,21 @@ export async function handleAssignConfirm(
     Buffer.from(assignmentDataB64, 'base64').toString()
   )
 
-  await interaction.deferUpdate()
-
   const guild = interaction.guild
-  if (!guild) return
+  if (!guild) {
+    await interaction.deferUpdate()
+    await interaction.editReply({
+      embeds: [
+        MinaEmbed.error().setDescription(
+          'This command must be used in a guild.'
+        ),
+      ],
+      components: [],
+    })
+    return
+  }
+
+  await interaction.deferUpdate()
   const roles = roleIds
     .map((id: string) => guild.roles.cache.get(id))
     .filter((role: any): role is NonNullable<typeof role> => role !== undefined)

@@ -66,7 +66,17 @@ export async function handleRemoveUserSelect(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const channel = interaction.channel as TextChannel
+  // Validate channel is a TextChannel
+  if (!interaction.channel || !(interaction.channel instanceof TextChannel)) {
+    Logger.error('handleRemoveUserSelect: Invalid channel type')
+    await interaction.followUp({
+      content: 'this operation can only be used in text channels.',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  const channel = interaction.channel
   const users = interaction.users
 
   if (users.size === 0) {

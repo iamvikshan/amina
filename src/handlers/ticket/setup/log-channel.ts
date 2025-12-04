@@ -60,7 +60,13 @@ export async function handleLogChannelSelect(
   }
 
   // Ensure guild is available and check bot permissions
-  if (!interaction.guild) return
+  if (!interaction.guild) {
+    await interaction.reply({
+      content: 'This command must be used in a server (guild).',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
   const guild = interaction.guild
   const botMember = guild.members.me
   if (

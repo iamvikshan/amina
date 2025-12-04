@@ -36,7 +36,8 @@ export const Model = mongoose.model('members', Schema)
 
 export const getMember = async (guildId: string, memberId: string) => {
   const key = `${guildId}|${memberId}`
-  if (cache.has(key)) return cache.get(key)
+  const cached = cache.get(key)
+  if (cached !== undefined) return cached
 
   let member = await Model.findOne({ guild_id: guildId, member_id: memberId })
   if (!member) {

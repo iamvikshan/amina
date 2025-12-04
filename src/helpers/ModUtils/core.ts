@@ -47,10 +47,10 @@ export const logModeration = async (
 
   const fields: any[] = []
   const actionType = type.toUpperCase()
+  const actionKeyLower = type.toLowerCase()
 
   // Set color based on mod action type
-  const modColor =
-    mina.modColors[actionType.toLowerCase() as keyof typeof mina.modColors]
+  const modColor = mina.modColors[actionKeyLower as keyof typeof mina.modColors]
   if (modColor) {
     embed.setColor(modColor as ColorResolvable)
   }

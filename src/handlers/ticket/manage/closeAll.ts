@@ -108,5 +108,5 @@ export async function handleCloseAllCancel(
   await interaction.deferUpdate()
 
   const { showManageMenu } = await import('./menu')
-  await showManageMenu(interaction as any)
+  await showManageMenu(interaction)
 }

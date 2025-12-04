@@ -204,9 +204,14 @@ export async function updateSettings(guildId: string, settings: any) {
     settings.ticket.enabled = true
   }
 
-  const updatedSettings = await Model.findByIdAndUpdate(guildId, settings, {
+  let updatedSettings: any = await Model.findByIdAndUpdate(guildId, settings, {
     new: true,
   })
+
+  if (!updatedSettings) {
+    updatedSettings = await Model.create({ _id: guildId, ...settings })
+  }
+
   cache.set(guildId, updatedSettings)
   return updatedSettings
 }

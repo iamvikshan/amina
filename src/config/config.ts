@@ -38,6 +38,7 @@ const config: Config = {
     GUILDS: 100,
     USERS: 10000,
     MEMBERS: 10000,
+    REMINDERS: 10000,
   },
   MESSAGES: {
     API_ERROR: 'something broke on my end. `/report` if it keeps happening.',

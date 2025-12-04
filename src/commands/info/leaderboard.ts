@@ -45,7 +45,20 @@ const command: CommandData = {
 
     let response
     const guild = interaction.guild
-    if (!guild) return
+    if (!guild) {
+      if (interaction.deferred || interaction.replied) {
+        await interaction.followUp({
+          content: 'This command can only be used in a server.',
+          ephemeral: true,
+        })
+      } else {
+        await interaction.reply({
+          content: 'This command can only be used in a server.',
+          ephemeral: true,
+        })
+      }
+      return
+    }
     switch (type) {
       case 'xp':
         response = await getXpLeaderboard(guild, interaction.user, settings)

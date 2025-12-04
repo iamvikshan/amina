@@ -15,6 +15,7 @@ import {
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
+import { Logger } from '@helpers/Logger'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
@@ -195,13 +196,39 @@ export async function handleTicketMessageModal(
   if (!ticketCategory) {
     try {
       const staffRoles = settings.server.staff_roles || []
+
+      // Ensure bot member is available, try to fetch if not cached
+      let botMember = guild.members.me
+      if (!botMember) {
+        try {
+          botMember = await guild.members.fetchMe()
+        } catch (_err1) {
+          // fallback: try fetching by client user id
+          try {
+            botMember = await guild.members.fetch(interaction.client.user.id)
+          } catch (err2) {
+            Logger.error('Failed to fetch bot member for ticket setup', err2)
+          }
+        }
+      }
+      if (!botMember) {
+        await interaction.editReply({
+          embeds: [
+            MinaEmbed.error(
+              "I couldn't set up the tickets category because my member info isn't available in the guild cache. Please try again or ensure the bot is still a member of this server."
+            ),
+          ],
+        })
+        return
+      }
+
       const categoryPerms: any[] = [
         {
           id: guild.roles.everyone,
           deny: ['ViewChannel'],
         },
         {
-          id: guild.members.me,
+          id: botMember,
           allow: [
             'ViewChannel',
             'SendMessages',
@@ -240,10 +267,7 @@ export async function handleTicketMessageModal(
       settings.ticket.enabled = true
       await updateSettings(guild.id, settings)
     } catch (error) {
-      ;(interaction.client as any).logger.error(
-        'Failed to create ticket category:',
-        error
-      )
+      Logger.error('Failed to create ticket category:', error)
       await interaction.editReply({
         embeds: [
           MinaEmbed.error(

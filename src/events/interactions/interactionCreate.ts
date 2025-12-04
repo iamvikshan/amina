@@ -94,7 +94,10 @@ export default async (
     }
     // Route admin buttons
     if (interaction.customId.startsWith('admin:btn:')) {
-      const [, , action] = interaction.customId.split(':')
+      // Use parseCustomIdState to extract base action (handles pipe-delimited state)
+      const { base } = parseCustomIdState(interaction.customId)
+      const [, , action] = base.split(':')
+
       if (action === 'back') {
         await adminHandler.handleAdminBackButton(interaction)
         return
@@ -385,9 +388,10 @@ export default async (
       if (action === 'back_manage') {
         const { showManageMenu } = await import('@handlers/ticket/manage/menu')
         await interaction.deferUpdate()
-        await showManageMenu(interaction as any)
+        await showManageMenu(interaction)
         return
       }
+
       if (action === 'back_topics') {
         const { handleBackToTopics } =
           await import('@handlers/ticket/setup/topics')

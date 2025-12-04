@@ -261,29 +261,29 @@ export async function handleChannelSelect(
       }
 
       // Initialize logs configuration if not already set
-      if (!settings.logs) {
-        settings.logs = {
-          enabled: true,
-          member: {
-            message_edit: true,
-            message_delete: true,
-            role_changes: true,
-          },
-          channel: {
-            create: true,
-            edit: true,
-            delete: true,
-          },
-          role: {
-            create: true,
-            edit: true,
-            delete: true,
-          },
-        }
+      const newLogs = settings.logs || {
+        enabled: true,
+        member: {
+          message_edit: true,
+          message_delete: true,
+          role_changes: true,
+        },
+        channel: {
+          create: true,
+          edit: true,
+          delete: true,
+        },
+        role: {
+          create: true,
+          edit: true,
+          delete: true,
+        },
       }
 
-      settings.logs_channel = textChannel.id
-      await settings.save()
+      await updateSettings(interaction.guild.id, {
+        logs: newLogs,
+        logs_channel: textChannel.id,
+      })
 
       const embed = MinaEmbed.success(
         `log channel has been set to ${textChannel}`

@@ -44,8 +44,10 @@ export default async (client: BotClient): Promise<void> => {
     } else {
       client.logger.warn('Memory Service disabled - missing configuration')
     }
-  } catch (error) {
-    client.logger.warn('Memory Service disabled - configuration error:', error)
+  } catch (error: any) {
+    client.logger.warn(
+      `Memory Service disabled - configuration error: ${error.message || error}`
+    )
   }
 
   // Initialize Music Manager

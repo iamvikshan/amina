@@ -1,5 +1,6 @@
 import {
   StringSelectMenuInteraction,
+  MessageComponentInteraction,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -13,7 +14,7 @@ import { mina } from '@helpers/mina'
  * Show manage menu with runtime operations
  */
 export async function showManageMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: MessageComponentInteraction
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setAuthor({ name: mina.say('ticket.manage.title') })

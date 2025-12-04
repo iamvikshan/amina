@@ -1,4 +1,5 @@
 import {
+  ChannelType,
   Message,
   type MessagePayload,
   type MessageReplyOptions,
@@ -18,17 +19,9 @@ Message.prototype.safeReply = async function (
   const perms: any[] = ['ViewChannel', 'SendMessages']
   if ((content as any).embeds && (content as any).embeds.length > 0)
     perms.push('EmbedLinks')
-  if (this.channel.type !== 0) {
-    const botMember = this.guild?.members.me
-    if (
-      !botMember ||
-      !(this.channel as any).permissionsFor(botMember).has(perms)
-    )
-      return
-  }
-
   perms.push('ReadMessageHistory')
-  if (this.channel.type !== 0) {
+
+  if (this.channel.type !== ChannelType.DM) {
     const botMember = this.guild?.members.me
     if (
       !botMember ||

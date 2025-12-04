@@ -47,6 +47,7 @@ declare global {
       GUILDS: number
       USERS: number
       MEMBERS: number
+      REMINDERS: number
     }
     MESSAGES: {
       API_ERROR: string

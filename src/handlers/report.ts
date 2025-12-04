@@ -68,10 +68,7 @@ async function handleReportModal(
               await setInviteLink(guild.id, inviteLink)
             }
           } catch (error) {
-            ;(interaction.client as any).logger.error(
-              'error creating invite:',
-              error
-            )
+            interaction.client.logger.error('error creating invite:', error)
           }
         }
       }
@@ -125,10 +122,7 @@ async function handleReportModal(
         })
       }
     } catch (error) {
-      ;(interaction.client as any).logger.error(
-        'error fetching guild settings:',
-        error
-      )
+      interaction.client.logger.error('error fetching guild settings:', error)
       await interaction.reply({
         embeds: [MinaEmbed.error(mina.say('error.processFailed'))],
         ephemeral: true,
@@ -164,10 +158,7 @@ async function handleReportModal(
         additionalInfo = `Question ID: ${questionId}\nCategory: ${question.category}\nQuestion: ${question.question}`
       }
     } catch (error) {
-      ;(interaction.client as any).logger.error(
-        'error fetching question:',
-        error
-      )
+      interaction.client.logger.error('error fetching question:', error)
       const errorEmbed = MinaEmbed.error()
         .setAuthor({ name: mina.say('error.questionNotFound') })
         .setDescription(
@@ -311,7 +302,7 @@ async function sendWebhook(
     })
     return true
   } catch (error) {
-    ;(client as any).logger.error('error sending webhook:', error)
+    client.logger.error('error sending webhook:', error)
     return false
   }
 }

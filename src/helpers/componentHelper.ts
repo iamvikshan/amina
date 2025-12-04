@@ -102,23 +102,31 @@ export function buildCustomId(
     return base
   }
 
+  // Validate no delimiters in values
+  for (const [key, value] of Object.entries(state)) {
+    const strVal = String(value)
+    if (
+      strVal.includes('|') ||
+      strVal.includes(':') ||
+      key.includes('|') ||
+      key.includes(':')
+    ) {
+      throw new Error(
+        `State key/value cannot contain '|' or ':': ${key}=${value}`
+      )
+    }
+  }
+
   const stateParts = Object.entries(state).map(
     ([key, value]) => `${key}:${value}`
   )
-  return `${base}|${stateParts.join('|')}`
-}
+  const customId = `${base}|${stateParts.join('|')}`
 
-/**
- * Validate that custom_id length is within Discord's limit (100 chars)
- */
-export function validateCustomIdLength(customId: string): boolean {
   if (customId.length > 100) {
-    console.warn(
-      `Custom ID exceeds 100 characters: ${customId.length} chars - "${customId}"`
-    )
-    return false
+    throw new Error(`custom_id exceeds 100 characters: ${customId.length}`)
   }
-  return true
+
+  return customId
 }
 
 // ============================================

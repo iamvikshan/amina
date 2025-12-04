@@ -78,7 +78,7 @@ declare module 'common-tags' {
 }
 
 declare module 'discord-gamecord' {
-  import type { Message, User, ChatInputCommandInteraction, ColorResolvable } from 'discord.js'
+  import type { Message, User, ChatInputCommandInteraction, ColorResolvable, ButtonStyle } from 'discord.js'
   import { EventEmitter } from 'events'
 
   export interface BaseGameOptions {
@@ -123,8 +123,8 @@ declare module 'discord-gamecord' {
       oButton?: string
       blankButton?: string
     }
-    xButtonStyle?: string
-    oButtonStyle?: string
+    xButtonStyle?: ButtonStyle
+    oButtonStyle?: ButtonStyle
     turnMessage?: string
     mentionUser?: boolean
   }

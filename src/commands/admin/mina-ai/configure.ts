@@ -18,7 +18,13 @@ export default async function configureHandler(
   }
 
   const guild = interaction.guild
-  if (!guild) return
+  if (!guild) {
+    await interaction.followUp({
+      content: 'This command must be used in a server (guild) context.',
+      ephemeral: true,
+    })
+    return
+  }
   await updateSettings(guild.id, {
     aiResponder: {
       ...settings.aiResponder,

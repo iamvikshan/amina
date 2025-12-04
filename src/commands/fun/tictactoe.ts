@@ -1,6 +1,7 @@
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
+  ButtonStyle,
 } from 'discord.js'
 import { TicTacToe } from 'discord-gamecord'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
@@ -70,8 +71,8 @@ const command: CommandData = {
       },
       mentionUser: true,
       timeoutTime: 60000,
-      xButtonStyle: 'DANGER',
-      oButtonStyle: 'PRIMARY',
+      xButtonStyle: ButtonStyle.Danger,
+      oButtonStyle: ButtonStyle.Primary,
       turnMessage: mina.say('fun.tictactoe.turnMessage'),
       winMessage: mina.say('fun.tictactoe.winMessage'),
       tieMessage: mina.say('fun.tictactoe.tieMessage'),

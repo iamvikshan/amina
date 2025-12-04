@@ -3,6 +3,7 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { Hangman } from 'discord-gamecord'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
 
 // Themes with Amina's creative touch
@@ -50,7 +51,7 @@ const command: CommandData = {
         title: mina.sayf('fun.hangman.title', {
           theme: choice.charAt(0).toUpperCase() + choice.slice(1),
         }),
-        color: '#5865F2',
+        color: mina.palette.discordBlurple,
       },
       hangman: {
         hat: '🎩',
@@ -68,7 +69,19 @@ const command: CommandData = {
 
     Game.startGame()
     Game.on('gameOver', (result: any) => {
-      console.log('Hangman game result:', result)
+      if (result.result === 'win') {
+        const embed = MinaEmbed.success()
+          .setTitle('hangman champion')
+          .setDescription(mina.sayf('fun.hangman.win', { word: result.word }))
+          .setTimestamp()
+        interaction.followUp({ embeds: [embed] })
+      } else if (result.result === 'lose') {
+        const embed = MinaEmbed.error()
+          .setTitle('hangman game over')
+          .setDescription(mina.sayf('fun.hangman.lose', { word: result.word }))
+          .setTimestamp()
+        interaction.followUp({ embeds: [embed] })
+      }
     })
     return
   },

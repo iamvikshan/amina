@@ -4,19 +4,39 @@
 import { ButtonBuilder, ButtonStyle } from 'discord.js'
 
 /**
- * Build custom_id with state (local utility to avoid circular imports)
+ * Parse state from customId created by buildCustomId
+ * @param customId - The customId to parse (format: base|key1:value1|key2:value2)
+ * @returns Object with parsed state, converting numeric strings to numbers
+ * @example
+ * parseState('btn:page|page:2|size:10') // { page: 2, size: 10 }
+ * parseState('btn:action|action:delete') // { action: 'delete' }
+ * parseState('simple') // {}
  */
-function buildCustomId(
-  base: string,
-  state?: Record<string, string | number>
-): string {
-  if (!state || Object.keys(state).length === 0) {
-    return base
+export function parseState(customId: string): Record<string, string | number> {
+  const pipeIndex = customId.indexOf('|')
+  if (pipeIndex === -1) {
+    return {}
   }
-  const stateParts = Object.entries(state).map(
-    ([key, value]) => `${key}:${value}`
+
+  const statePart = customId.slice(pipeIndex + 1)
+  if (!statePart) {
+    return {}
+  }
+
+  return statePart.split('|').reduce(
+    (acc, pair) => {
+      const [key, value] = pair.split(':')
+      if (!key || value === undefined) {
+        return acc
+      }
+
+      // Convert numeric strings to numbers
+      const parsedValue = /^\d+$/.test(value) ? parseInt(value, 10) : value
+      acc[key] = parsedValue
+      return acc
+    },
+    {} as Record<string, string | number>
   )
-  return `${base}|${stateParts.join('|')}`
 }
 
 /**
@@ -28,8 +48,41 @@ function buildCustomId(
  *   MinaButton.custom('id', 'label', ButtonStyle.Primary)
  */
 export class MinaButton extends ButtonBuilder {
-  constructor() {
-    super()
+  /**
+   * Build custom_id with state (local utility to avoid circular imports)
+   * Format: base|key1:value1|key2:value2
+   */
+  private static buildCustomId(
+    base: string,
+    state?: Record<string, string | number>
+  ): string {
+    if (!state || Object.keys(state).length === 0) {
+      return base
+    }
+
+    // Validate no delimiters in values
+    for (const [key, value] of Object.entries(state)) {
+      const strVal = String(value)
+      if (
+        strVal.includes('|') ||
+        strVal.includes(':') ||
+        key.includes('|') ||
+        key.includes(':')
+      ) {
+        throw new Error(
+          `State key/value cannot contain '|' or ':': ${key}=${value}`
+        )
+      }
+    }
+
+    const stateParts = Object.entries(state).map(
+      ([key, value]) => `${key}:${value}`
+    )
+    const customId = `${base}|${stateParts.join('|')}`
+    if (customId.length > 100) {
+      throw new Error(`custom_id exceeds 100 characters: ${customId.length}`)
+    }
+    return customId
   }
 
   // ============================================
@@ -321,6 +374,21 @@ export class MinaButton extends ButtonBuilder {
       .setDisabled(disabled)
   }
 
+  /**
+   * Create button with embedded state
+   * @param base - Base customId without state
+   * @param label - Button label
+   * @param style - Button style
+   * @param state - State object to encode (format: {key: value} where value is string or number)
+   * @returns MinaButton with encoded customId
+   * @example
+   * MinaButton.withState('btn:page', 'Next', ButtonStyle.Primary, {page: 2, size: 10})
+   * // Creates button with customId: "btn:page|page:2|size:10"
+   *
+   * // Parse state back using:
+   * import { parseState } from './MinaButton'
+   * const state = parseState(interaction.customId) // {page: 2, size: 10}
+   */
   static withState(
     base: string,
     label: string,
@@ -328,7 +396,7 @@ export class MinaButton extends ButtonBuilder {
     state: Record<string, string | number>
   ): MinaButton {
     return new MinaButton()
-      .setCustomId(buildCustomId(base, state))
+      .setCustomId(MinaButton.buildCustomId(base, state))
       .setLabel(label)
       .setStyle(style)
   }

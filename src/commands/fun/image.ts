@@ -207,7 +207,7 @@ async function getAnimeImage(user: User, type: string) {
     }
   } catch (ex: unknown) {
     const err = ex instanceof Error ? ex : new Error(String(ex))
-    Logger.error(`Error fetching ${type} image`, err, err.stack)
+    Logger.error(`Error fetching ${type} image`, err)
     return {
       embeds: [
         MinaEmbed.error()

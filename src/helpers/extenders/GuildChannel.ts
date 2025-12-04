@@ -9,7 +9,7 @@ import {
  * Check if bot has permission to send embeds
  */
 GuildChannel.prototype.canSendEmbeds = function (this: GuildChannel): boolean {
-  const botMember = this.guild?.members.me
+  const botMember = this.guild.members.me
   if (!botMember) return false
   return this.permissionsFor(botMember).has([
     'ViewChannel',
@@ -34,7 +34,7 @@ GuildChannel.prototype.safeSend = async function (
   const perms: any[] = ['ViewChannel', 'SendMessages']
   if ((content as any).embeds && (content as any).embeds.length > 0)
     perms.push('EmbedLinks')
-  const botMember = this.guild?.members.me
+  const botMember = this.guild.members.me
   if (!botMember) return
   if (!this.permissionsFor(botMember).has(perms)) return
 

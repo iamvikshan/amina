@@ -30,10 +30,6 @@ export interface MinaSelectOption {
  *   MinaSelect.row('my:menu', 'choose something', options)
  */
 export class MinaSelect extends StringSelectMenuBuilder {
-  constructor() {
-    super()
-  }
-
   /**
    * Create a select menu with options
    */
@@ -42,6 +38,10 @@ export class MinaSelect extends StringSelectMenuBuilder {
     placeholder: string,
     options: MinaSelectOption[]
   ): MinaSelect {
+    if (!Array.isArray(options) || options.length === 0) {
+      throw new Error('MinaSelect.create requires at least one option')
+    }
+
     const menu = new MinaSelect()
       .setCustomId(customId)
       .setPlaceholder(placeholder)

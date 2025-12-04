@@ -5,7 +5,7 @@ import { LRUCache } from 'lru-cache'
 import config from '../../config'
 
 const cache = new LRUCache<string, IReminderDocument>({
-  max: config.CACHE_SIZE.USERS,
+  max: config.CACHE_SIZE.REMINDERS,
 })
 
 const Schema = new mongoose.Schema<IReminderDocument>(

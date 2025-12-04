@@ -196,7 +196,17 @@ export async function handleTicketOpen(
     // Create ticket channel - inherit category perms first, then add user
     // Don't set explicit perms, let it inherit from category, then add user override
     if (!parent) {
-      throw new Error('Parent category is required but not found')
+      error(
+        'handleTicketOpen',
+        'Parent category is required but not found. Failed to resolve parent category.'
+      )
+      return interaction.editReply({
+        embeds: [
+          MinaEmbed.error(
+            'Unable to configure the ticket channel because the parent category is missing. Please contact an administrator to fix the ticket system configuration.'
+          ),
+        ],
+      })
     }
 
     const tktChannel = await guild.channels.create({

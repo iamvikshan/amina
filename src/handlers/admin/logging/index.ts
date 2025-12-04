@@ -221,10 +221,16 @@ export async function showLoggingMenuDirect(
   const menuRow = page === 1 ? buildPage1Menu() : buildPage2Menu()
   const buttonRow = buildButtonRow(page, false) // No hub button
 
-  await interaction.followUp({
+  const payload = {
     embeds: [embed],
     components: [menuRow, buttonRow],
-  })
+  }
+
+  if (interaction.deferred || interaction.replied) {
+    await interaction.followUp(payload)
+  } else {
+    await interaction.reply(payload)
+  }
 }
 
 /**
@@ -235,10 +241,12 @@ export async function handleLoggingPageButton(
 ): Promise<void> {
   await interaction.deferUpdate()
 
-  const [, , action] = interaction.customId.split(':')
+  const [, , rawAction] = interaction.customId.split(':')
+  // Extract base action by removing any context suffix (e.g., "|hub")
+  const baseAction = rawAction.split('|')[0]
   const settings = await getSettings(interaction.guild)
 
-  const newPage = action === 'logs_next' ? 2 : 1
+  const newPage = baseAction === 'logs_next' ? 2 : 1
 
   const embed =
     newPage === 1 ? buildPage1Embed(settings) : buildPage2Embed(settings)
