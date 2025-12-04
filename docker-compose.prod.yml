@@ -92,6 +92,26 @@ services:
       retries: 3
       start_period: 30s
 
+  # Watchtower - Automatic container updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    environment:
+      # Update behavior
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=86400
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_ROLLING_RESTART=true
+      # Discord notifications (uses LOGS_WEBHOOK from .env)
+      - WATCHTOWER_NOTIFICATION_URL=${LOGS_WEBHOOK}
+    networks:
+      - amina-network
+
 networks:
   amina-network:
     driver: bridge

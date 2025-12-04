@@ -31,7 +31,9 @@ export function parseState(customId: string): Record<string, string | number> {
       }
 
       // Convert numeric strings to numbers
-      const parsedValue = /^\d+$/.test(value) ? parseInt(value, 10) : value
+      const parsedValue = /^-?\d+(\.\d+)?$/.test(value)
+        ? parseFloat(value)
+        : value
       acc[key] = parsedValue
       return acc
     },
@@ -47,44 +49,54 @@ export function parseState(customId: string): Record<string, string | number> {
  *   MinaButton.hub()                       // default hub button
  *   MinaButton.custom('id', 'label', ButtonStyle.Primary)
  */
-export class MinaButton extends ButtonBuilder {
-  /**
-   * Build custom_id with state (local utility to avoid circular imports)
-   * Format: base|key1:value1|key2:value2
-   */
-  private static buildCustomId(
-    base: string,
-    state?: Record<string, string | number>
-  ): string {
-    if (!state || Object.keys(state).length === 0) {
-      return base
-    }
-
-    // Validate no delimiters in values
-    for (const [key, value] of Object.entries(state)) {
-      const strVal = String(value)
-      if (
-        strVal.includes('|') ||
-        strVal.includes(':') ||
-        key.includes('|') ||
-        key.includes(':')
-      ) {
-        throw new Error(
-          `State key/value cannot contain '|' or ':': ${key}=${value}`
-        )
-      }
-    }
-
-    const stateParts = Object.entries(state).map(
-      ([key, value]) => `${key}:${value}`
-    )
-    const customId = `${base}|${stateParts.join('|')}`
-    if (customId.length > 100) {
-      throw new Error(`custom_id exceeds 100 characters: ${customId.length}`)
-    }
-    return customId
+/**
+ * Build custom_id with state
+ * Format: base|key1:value1|key2:value2
+ * @example buildCustomId('roles:menu:cleanup', { page: 2, filter: 'prefix' })
+ *   -> 'roles:menu:cleanup|page:2|filter:prefix'
+ */
+export function buildCustomId(
+  base: string,
+  state?: Record<string, string | number>
+): string {
+  if (!state || Object.keys(state).length === 0) {
+    return base
   }
 
+  // Validate no delimiters in values
+  for (const [key, value] of Object.entries(state)) {
+    const strVal = String(value)
+    if (
+      strVal.includes('|') ||
+      strVal.includes(':') ||
+      key.includes('|') ||
+      key.includes(':')
+    ) {
+      throw new Error(
+        `State key/value cannot contain '|' or ':': ${key}=${value}`
+      )
+    }
+  }
+
+  const stateParts = Object.entries(state).map(
+    ([key, value]) => `${key}:${value}`
+  )
+  const customId = `${base}|${stateParts.join('|')}`
+  if (customId.length > 100) {
+    throw new Error(`custom_id exceeds 100 characters: ${customId.length}`)
+  }
+  return customId
+}
+
+/**
+ * MinaButton - Styled button factory extending ButtonBuilder
+ *
+ * Usage:
+ *   MinaButton.prev('my:btn:prev', true)  // disabled prev button
+ *   MinaButton.hub()                       // default hub button
+ *   MinaButton.custom('id', 'label', ButtonStyle.Primary)
+ */
+export class MinaButton extends ButtonBuilder {
   // ============================================
   // CONFIRMATION
   // ============================================
@@ -396,7 +408,7 @@ export class MinaButton extends ButtonBuilder {
     state: Record<string, string | number>
   ): MinaButton {
     return new MinaButton()
-      .setCustomId(MinaButton.buildCustomId(base, state))
+      .setCustomId(buildCustomId(base, state))
       .setLabel(label)
       .setStyle(style)
   }

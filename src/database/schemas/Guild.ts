@@ -204,13 +204,18 @@ export async function updateSettings(guildId: string, settings: any) {
     settings.ticket.enabled = true
   }
 
-  let updatedSettings: any = await Model.findByIdAndUpdate(guildId, settings, {
+  // First check if document exists - we require getSettings to be called first
+  // to ensure documents are created with proper Discord metadata
+  const existingDoc = await Model.findById(guildId)
+  if (!existingDoc) {
+    throw new Error(
+      `Guild document not found for ${guildId}. Call getSettings(guild) first to initialize the document with Discord metadata.`
+    )
+  }
+
+  const updatedSettings = await Model.findByIdAndUpdate(guildId, settings, {
     new: true,
   })
-
-  if (!updatedSettings) {
-    updatedSettings = await Model.create({ _id: guildId, ...settings })
-  }
 
   cache.set(guildId, updatedSettings)
   return updatedSettings

@@ -63,17 +63,10 @@ export async function handleUserSelect(
   const selectedUsers = interaction.values
   const guild = interaction.guild
   if (!guild) {
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: 'This command must be used in a server (guild).',
-        ephemeral: true,
-      })
-    } else {
-      await interaction.reply({
-        content: 'This command must be used in a server (guild).',
-        ephemeral: true,
-      })
-    }
+    await interaction.reply({
+      content: 'This command must be used in a server (guild).',
+      ephemeral: true,
+    })
     return
   }
 
@@ -153,15 +146,16 @@ export async function handleRoleSelect(
   )
   const selectedRoleIds = interaction.values
 
-  await interaction.deferUpdate()
-
   const guild = interaction.guild
   if (!guild) {
-    await interaction.editReply({
-      content: 'This command must be used in a guild.',
+    await interaction.reply({
+      content: 'This command must be used in a server (guild).',
+      ephemeral: true,
     })
     return
   }
+
+  await interaction.deferUpdate()
 
   // Get full Role objects from guild cache
   const roles = selectedRoleIds

@@ -69,6 +69,21 @@ export function validateSecrets(): void {
 }
 
 /**
+ * Convert Shoutrrr Discord URL format to standard Discord webhook URL
+ * Shoutrrr format: discord://TOKEN@WEBHOOK_ID
+ * Standard format: https://discord.com/api/webhooks/WEBHOOK_ID/TOKEN
+ */
+function toDiscordWebhookUrl(
+  shoutrrrUrl: string | undefined
+): string | undefined {
+  if (!shoutrrrUrl) return undefined
+  const match = shoutrrrUrl.match(/^discord:\/\/([^@]+)@(\d+)$/)
+  if (!match) return shoutrrrUrl // Return as-is if already a standard URL
+  const [, token, webhookId] = match
+  return `https://discord.com/api/webhooks/${webhookId}/${token}`
+}
+
+/**
  * Type-safe access to secrets
  * All secrets should be accessed through this object
  */
@@ -81,7 +96,7 @@ export const secrets: Secrets = {
     return getRequiredSecret('MONGO_CONNECTION')
   },
   get LOGS_WEBHOOK() {
-    return getOptionalSecret('LOGS_WEBHOOK')
+    return toDiscordWebhookUrl(getOptionalSecret('LOGS_WEBHOOK'))
   },
 
   // API Keys & Tokens

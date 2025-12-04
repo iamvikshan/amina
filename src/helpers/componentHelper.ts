@@ -91,43 +91,11 @@ export function parseCustomIdState(customId: string): {
 
 /**
  * Build custom_id with state
+ * @deprecated Use buildCustomId from '@structures/components/MinaButton' instead
  * Example: buildCustomId("roles:menu:cleanup", { page: 2, filter: "prefix" })
  *   -> "roles:menu:cleanup|page:2|filter:prefix"
  */
-export function buildCustomId(
-  base: string,
-  state?: Record<string, string | number>
-): string {
-  if (!state || Object.keys(state).length === 0) {
-    return base
-  }
-
-  // Validate no delimiters in values
-  for (const [key, value] of Object.entries(state)) {
-    const strVal = String(value)
-    if (
-      strVal.includes('|') ||
-      strVal.includes(':') ||
-      key.includes('|') ||
-      key.includes(':')
-    ) {
-      throw new Error(
-        `State key/value cannot contain '|' or ':': ${key}=${value}`
-      )
-    }
-  }
-
-  const stateParts = Object.entries(state).map(
-    ([key, value]) => `${key}:${value}`
-  )
-  const customId = `${base}|${stateParts.join('|')}`
-
-  if (customId.length > 100) {
-    throw new Error(`custom_id exceeds 100 characters: ${customId.length}`)
-  }
-
-  return customId
-}
+export { buildCustomId } from '@structures/components/MinaButton'
 
 // ============================================
 // LEGACY EXPORTS - Deprecated, use class methods instead
