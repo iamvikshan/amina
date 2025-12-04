@@ -3,6 +3,7 @@ import {
   ChatInputCommandInteraction,
   TextChannel,
 } from 'discord.js'
+import { Logger } from '@helpers/Logger'
 
 const command: CommandData = {
   name: 'say',
@@ -122,7 +123,7 @@ const command: CommandData = {
         })
       }
     } catch (error) {
-      console.error(error)
+      Logger.error('Error in say command', error)
       await interaction.followUp({
         content:
           'Oh no! An error occurred while processing this command. Please try again later!',

@@ -1,9 +1,12 @@
-import { ChannelSelectMenuInteraction } from 'discord.js'
+import {
+  ChannelSelectMenuInteraction,
+  PermissionFlagsBits,
+  TextChannel,
+} from 'discord.js'
 import { config } from '@src/config'
 import { getSettings, updateSettings } from '@schemas/Guild'
-import { MinaRows } from '@helpers/componentHelper'
+import { MinaRow } from '@helpers/componentHelper'
 import updateChannel from '@commands/admin/settings/updateChannel'
-import setChannel from '@commands/admin/logs/setChannel'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
@@ -75,6 +78,15 @@ export async function handleChannelSelect(
 
   await interaction.deferUpdate()
 
+  if (!interaction.guild) {
+    await interaction.editReply({
+      content: 'This command can only be used in a guild.',
+      embeds: [],
+      components: [],
+    })
+    return
+  }
+
   const settings = await getSettings(interaction.guild)
 
   switch (action) {
@@ -83,7 +95,7 @@ export async function handleChannelSelect(
       break
     case 'add_freewill': {
       const currentChannels = getFreeWillChannels(settings)
-      const isTest = isTestGuild(interaction.guild!.id)
+      const isTest = isTestGuild(interaction.guild.id)
       const maxChannels = isTest ? Infinity : 2
 
       if (currentChannels.includes(channel.id)) {
@@ -92,7 +104,7 @@ export async function handleChannelSelect(
         )
         await interaction.editReply({
           embeds: [embed],
-          components: [MinaRows.backRow('admin:btn:back_minaai')],
+          components: [MinaRow.backRow('admin:btn:back_minaai')],
         })
         break
       }
@@ -105,14 +117,14 @@ export async function handleChannelSelect(
         )
         await interaction.editReply({
           embeds: [embed],
-          components: [MinaRows.backRow('admin:btn:back_minaai')],
+          components: [MinaRow.backRow('admin:btn:back_minaai')],
         })
         break
       }
 
       const newChannels = [...currentChannels, channel.id]
 
-      await updateSettings(interaction.guild!.id, {
+      await updateSettings(interaction.guild.id, {
         aiResponder: {
           ...settings.aiResponder,
           freeWillChannels: newChannels,
@@ -130,7 +142,7 @@ export async function handleChannelSelect(
       )
       await interaction.editReply({
         embeds: [embed],
-        components: [MinaRows.backRow('admin:btn:back_minaai')],
+        components: [MinaRow.backRow('admin:btn:back_minaai')],
       })
       break
     }
@@ -143,14 +155,14 @@ export async function handleChannelSelect(
         )
         await interaction.editReply({
           embeds: [embed],
-          components: [MinaRows.backRow('admin:btn:back_minaai')],
+          components: [MinaRow.backRow('admin:btn:back_minaai')],
         })
         break
       }
 
       const newChannels = currentChannels.filter(id => id !== channel.id)
 
-      await updateSettings(interaction.guild!.id, {
+      await updateSettings(interaction.guild.id, {
         aiResponder: {
           ...settings.aiResponder,
           freeWillChannels: newChannels,
@@ -170,7 +182,7 @@ export async function handleChannelSelect(
       )
       await interaction.editReply({
         embeds: [embed],
-        components: [MinaRows.backRow('admin:btn:back_minaai')],
+        components: [MinaRow.backRow('admin:btn:back_minaai')],
       })
       break
     }
@@ -179,7 +191,7 @@ export async function handleChannelSelect(
       const { channels: newChannels, action } = toggleFreeWillChannel(
         currentChannels,
         channel.id,
-        interaction.guild!.id
+        interaction.guild.id
       )
 
       if (action === 'limit_reached') {
@@ -190,12 +202,12 @@ export async function handleChannelSelect(
         )
         await interaction.editReply({
           embeds: [embed],
-          components: [MinaRows.backRow('admin:btn:back_minaai')],
+          components: [MinaRow.backRow('admin:btn:back_minaai')],
         })
         break
       }
 
-      await updateSettings(interaction.guild!.id, {
+      await updateSettings(interaction.guild.id, {
         aiResponder: {
           ...settings.aiResponder,
           freeWillChannels: newChannels,
@@ -220,16 +232,65 @@ export async function handleChannelSelect(
             )
       await interaction.editReply({
         embeds: [embed],
-        components: [MinaRows.backRow('admin:btn:back_minaai')],
+        components: [MinaRow.backRow('admin:btn:back_minaai')],
       })
       break
     }
     case 'logchannel': {
-      const result = await setChannel(channel as any, settings)
-      const embed = MinaEmbed.success(result)
+      const textChannel = channel as TextChannel
+
+      // Check bot permissions
+      const botMember = interaction.guild.members.me
+      if (
+        !botMember ||
+        !textChannel
+          .permissionsFor(botMember)
+          ?.has([
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.EmbedLinks,
+          ])
+      ) {
+        const embed = MinaEmbed.error(
+          `i don't have permission to send messages and embeds in ${textChannel}. please give me those permissions.`
+        )
+        await interaction.editReply({
+          embeds: [embed],
+          components: [MinaRow.backRow('admin:btn:back')],
+        })
+        break
+      }
+
+      // Initialize logs configuration if not already set
+      if (!settings.logs) {
+        settings.logs = {
+          enabled: true,
+          member: {
+            message_edit: true,
+            message_delete: true,
+            role_changes: true,
+          },
+          channel: {
+            create: true,
+            edit: true,
+            delete: true,
+          },
+          role: {
+            create: true,
+            edit: true,
+            delete: true,
+          },
+        }
+      }
+
+      settings.logs_channel = textChannel.id
+      await settings.save()
+
+      const embed = MinaEmbed.success(
+        `log channel has been set to ${textChannel}`
+      )
       await interaction.editReply({
         embeds: [embed],
-        components: [MinaRows.backRow('admin:btn:back')],
+        components: [MinaRow.backRow('admin:btn:back')],
       })
       break
     }

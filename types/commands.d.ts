@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Command type definitions
 
 import type {
@@ -31,7 +30,7 @@ declare global {
 
   interface Validation {
     callback: (interaction: any) => boolean | Promise<boolean>
-    message: string
+    message: string | import('discord.js').EmbedBuilder
   }
 
   interface SubCommand {

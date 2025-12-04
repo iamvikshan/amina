@@ -1,9 +1,9 @@
 import { ChatInputCommandInteraction, ButtonStyle } from 'discord.js'
 import HttpUtils from '@helpers/HttpUtils'
-// CommandData is globally available - see types/commands.d.ts
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
+import { Logger } from '@helpers/Logger'
 
 interface MemeApiResponse {
   title: string
@@ -70,7 +70,8 @@ async function getRandomEmbed(category: string) {
 
     const meme = response.data as MemeApiResponse
 
-    return MinaEmbed.primary()
+    return MinaEmbed.plain()
+      .setColor(mina.color.secondary)
       .setAuthor({
         name: mina.say('fun.meme.reactions'),
         url: meme.postLink,
@@ -83,7 +84,8 @@ async function getRandomEmbed(category: string) {
           subreddit: meme.subreddit,
         }),
       })
-  } catch (_error) {
+  } catch (error) {
+    Logger.error('Failed to fetch meme', error)
     return MinaEmbed.error(mina.say('fun.meme.error.apiError'))
   }
 }

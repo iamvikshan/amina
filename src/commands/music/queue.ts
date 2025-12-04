@@ -41,7 +41,7 @@ async function getQueue(
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guild.id)
   if (!player || !player.queue.current) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notPlaying'))] }
   }
 
   const embed = MinaEmbed.secondary().setAuthor({

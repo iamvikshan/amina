@@ -27,7 +27,7 @@ const command: CommandData = {
     const searchQuery = interaction.options.getString('query')
     if (!searchQuery) {
       await interaction.followUp({
-        embeds: [MinaEmbed.error(mina.say('music.error.provideSong'))],
+        embeds: [MinaEmbed.error(mina.say('error.provideSong'))],
       })
       return
     }
@@ -54,14 +54,14 @@ async function play(
   searchQuery: string
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (!member.voice.channel) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notInVoice'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notInVoice'))] }
   }
 
   let player = guild.client.musicManager.getPlayer(guild.id)
 
   if (player && member.voice.channel !== guild.members.me.voice.channel) {
     return {
-      embeds: [MinaEmbed.error(mina.say('music.error.differentChannel'))],
+      embeds: [MinaEmbed.error(mina.say('error.differentChannel'))],
     }
   }
 
@@ -82,7 +82,7 @@ async function play(
     } catch (error: any) {
       guild.client.logger?.error('Player Connect Error', error)
       return {
-        embeds: [MinaEmbed.error(mina.say('music.error.connectFailed'))],
+        embeds: [MinaEmbed.error(mina.say('error.connectFailed'))],
       }
     }
   }
@@ -103,7 +103,7 @@ async function play(
     switch (res?.loadType) {
       case 'error':
         guild.client.logger?.error('Search Exception', res.exception)
-        return { embeds: [MinaEmbed.error(mina.say('music.error.loadFailed'))] }
+        return { embeds: [MinaEmbed.error(mina.say('error.loadFailed'))] }
 
       case 'playlist': {
         player.queue.add(res.tracks)
@@ -182,11 +182,11 @@ async function play(
 
       default:
         guild.client.logger?.debug('Unknown loadType', res)
-        return { embeds: [MinaEmbed.error(mina.say('music.error.loadFailed'))] }
+        return { embeds: [MinaEmbed.error(mina.say('error.loadFailed'))] }
     }
   } catch (error: any) {
     guild.client.logger?.error('Search Exception', JSON.stringify(error))
-    return { embeds: [MinaEmbed.error(mina.say('music.error.loadFailed'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.loadFailed'))] }
   }
 }
 

@@ -7,6 +7,7 @@ import { MESSAGES } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
 import axios from 'axios'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { Logger } from '@helpers/Logger'
 
 const BASE_URL = 'https://some-random-api.com/animal'
 
@@ -204,8 +205,9 @@ async function getAnimeImage(user: User, type: string) {
           }),
       ],
     }
-  } catch (_ex) {
-    console.error('Error fetching image:', _ex)
+  } catch (ex: unknown) {
+    const err = ex instanceof Error ? ex : new Error(String(ex))
+    Logger.error(`Error fetching ${type} image`, err, err.stack)
     return {
       embeds: [
         MinaEmbed.error()

@@ -41,7 +41,7 @@ const command: CommandData = {
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            mina.sayf('moderation.error.specifyUser', { action: 'untimeout' })
+            mina.sayf('error.specifyUser', { action: 'untimeout' })
           ),
         ],
       })
@@ -75,7 +75,7 @@ async function untimeout(
   const response = await unTimeoutTarget(
     issuer,
     target,
-    reason || mina.say('moderation.error.noReason')
+    reason || mina.say('error.noReason')
   )
   if (typeof response === 'boolean') {
     return {
@@ -98,7 +98,7 @@ async function untimeout(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.noTimeout', {
+          mina.sayf('error.noTimeout', {
             target: target.user.username,
           })
         ),
@@ -108,7 +108,7 @@ async function untimeout(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.failed', {
+          mina.sayf('error.failed', {
             action: 'untimeout',
             target: target.user.username,
           })

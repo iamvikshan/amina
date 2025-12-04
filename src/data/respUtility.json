@@ -1,4 +1,9 @@
 {
+  "errors": {
+    "memberNotFound": "could not find member information",
+    "missingInfo": "missing required information",
+    "invalidSubcommand": "invalid subcommand"
+  },
   "utility": {
     "qrcode": {
       "title": "qr code",

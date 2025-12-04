@@ -4,6 +4,7 @@ import { getSettings } from '@src/database/schemas/Guild'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
+import { Logger } from '@helpers/Logger'
 
 export default async function statusSettings(
   interaction: ChatInputCommandInteraction
@@ -201,7 +202,10 @@ export default async function statusSettings(
   }
 
   const generateButtons = (page: number) => {
-    return MinaRows.prevNext(page === 1, page === totalPages)
+    return MinaRows.prevNext(undefined, {
+      prev: page === 1,
+      next: page === totalPages,
+    })
   }
 
   const initialEmbed = generateEmbed(currentPage)
@@ -230,17 +234,17 @@ export default async function statusSettings(
     try {
       await i.update({ embeds: [newEmbed], components: [newButtons] })
     } catch (error) {
-      console.error('Failed to update interaction:', error)
+      Logger.error('Failed to update interaction', error)
       // Attempt to send a new message if updating fails
       try {
         await i.followUp({
-          content: mina.say('error'),
+          content: mina.say('error.generic'),
           embeds: [newEmbed],
           components: [newButtons],
           ephemeral: true,
         })
       } catch (followUpError) {
-        console.error('Failed to send follow-up message:', followUpError)
+        Logger.error('Failed to send follow-up message', followUpError)
       }
     }
   })
@@ -249,7 +253,7 @@ export default async function statusSettings(
     try {
       reply.edit({ components: [] })
     } catch (error) {
-      console.error('Failed to remove components after collector end:', error)
+      Logger.error('Failed to remove components after collector end', error)
     }
   })
 }

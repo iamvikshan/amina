@@ -334,7 +334,11 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
     } else {
       await interaction.followUp({ embeds: [embed] })
     }
-  } catch (_error) {
+  } catch (error) {
+    ;(interaction.client as any).logger.error(
+      'Failed to fetch memory statistics:',
+      error
+    )
     const errorEmbed = MinaEmbed.error().setDescription(
       'failed to fetch memory statistics. check logs for details.'
     )

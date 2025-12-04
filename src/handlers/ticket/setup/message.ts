@@ -10,11 +10,10 @@ import {
   ChannelType,
   TextChannel,
   MessageFlags,
-  ButtonBuilder,
   ButtonStyle,
 } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { MinaRows } from '@helpers/componentHelper'
+import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
@@ -51,6 +50,16 @@ export async function showMessageChannelSelect(
 export async function handleMessageChannelSelect(
   interaction: ChannelSelectMenuInteraction
 ): Promise<void> {
+  if (!interaction.guild) {
+    await interaction.reply({
+      content: 'This command can only be used in a server.',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  const guild = interaction.guild
+
   const channel = interaction.channels.first() as TextChannel
 
   if (!channel) {
@@ -62,9 +71,8 @@ export async function handleMessageChannelSelect(
   }
 
   // Check bot permissions
-  if (
-    !channel.permissionsFor(interaction.guild!.members.me!)?.has('SendMessages')
-  ) {
+  const botMember = guild.members.me
+  if (!botMember || !channel.permissionsFor(botMember)?.has('SendMessages')) {
     await interaction.reply({
       embeds: [
         MinaEmbed.error(
@@ -135,6 +143,16 @@ async function showTicketMessageModal(
 export async function handleTicketMessageModal(
   interaction: ModalSubmitInteraction
 ): Promise<void> {
+  if (!interaction.guild) {
+    await interaction.reply({
+      content: 'This command can only be used in a server.',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  const guild = interaction.guild
+
   // Extract channel ID from custom_id
   // Format: ticket:modal:message|ch:${channel.id}
   const parts = interaction.customId.split('|')
@@ -149,9 +167,7 @@ export async function handleTicketMessageModal(
     return
   }
 
-  const channel = interaction.guild!.channels.cache.get(
-    channelId
-  ) as TextChannel
+  const channel = guild.channels.cache.get(channelId) as TextChannel
 
   if (!channel) {
     await interaction.reply({
@@ -173,21 +189,19 @@ export async function handleTicketMessageModal(
     'you can only have 1 open ticket at a time'
 
   // Get or create ticket category
-  const settings = await getSettings(interaction.guild!)
-  let ticketCategory = interaction.guild!.channels.cache.get(
-    settings.ticket.category || ''
-  )
+  const settings = await getSettings(guild)
+  let ticketCategory = guild.channels.cache.get(settings.ticket.category || '')
 
   if (!ticketCategory) {
     try {
       const staffRoles = settings.server.staff_roles || []
       const categoryPerms: any[] = [
         {
-          id: interaction.guild!.roles.everyone,
+          id: guild.roles.everyone,
           deny: ['ViewChannel'],
         },
         {
-          id: interaction.guild!.members.me!,
+          id: guild.members.me,
           allow: [
             'ViewChannel',
             'SendMessages',
@@ -208,7 +222,7 @@ export async function handleTicketMessageModal(
 
       // Add staff roles to category
       staffRoles.forEach((roleId: string) => {
-        const role = interaction.guild!.roles.cache.get(roleId)
+        const role = guild.roles.cache.get(roleId)
         if (role) {
           categoryPerms.push({
             id: role,
@@ -217,15 +231,19 @@ export async function handleTicketMessageModal(
         }
       })
 
-      ticketCategory = await interaction.guild!.channels.create({
+      ticketCategory = await guild.channels.create({
         name: 'Tickets',
         type: ChannelType.GuildCategory,
         permissionOverwrites: categoryPerms,
       })
       settings.ticket.category = ticketCategory.id
       settings.ticket.enabled = true
-      await updateSettings(interaction.guild!.id, settings)
-    } catch (_error) {
+      await updateSettings(guild.id, settings)
+    } catch (error) {
+      ;(interaction.client as any).logger.error(
+        'Failed to create ticket category:',
+        error
+      )
       await interaction.editReply({
         embeds: [
           MinaEmbed.error(
@@ -243,11 +261,8 @@ export async function handleTicketMessageModal(
     .setDescription(description)
     .setFooter({ text: footer })
 
-  const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setLabel('open a ticket')
-      .setCustomId('TICKET_CREATE')
-      .setStyle(ButtonStyle.Success)
+  const buttonRow = MinaRows.single(
+    MinaButtons.custom('TICKET_CREATE', 'open a ticket', ButtonStyle.Success)
   )
 
   try {
@@ -258,7 +273,7 @@ export async function handleTicketMessageModal(
 
     // Update settings with message ID
     ;(settings.ticket as any).setup_message_id = ticketMessage.id
-    await updateSettings(interaction.guild!.id, settings)
+    await updateSettings(guild.id, settings)
 
     const successEmbed = MinaEmbed.success(
       `ticket message created successfully in ${channel}.\n\n` +
@@ -271,7 +286,11 @@ export async function handleTicketMessageModal(
       embeds: [successEmbed],
       components: [backRow],
     })
-  } catch (_error) {
+  } catch (error) {
+    ;(interaction.client as any).logger.error(
+      'Failed to send ticket message:',
+      error
+    )
     await interaction.editReply({
       embeds: [
         MinaEmbed.error(

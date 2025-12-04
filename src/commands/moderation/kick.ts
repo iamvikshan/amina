@@ -40,9 +40,7 @@ const command: CommandData = {
     if (!user) {
       await interaction.followUp({
         embeds: [
-          MinaEmbed.error(
-            mina.sayf('moderation.error.specifyUser', { action: 'kick' })
-          ),
+          MinaEmbed.error(mina.sayf('error.specifyUser', { action: 'kick' })),
         ],
       })
       return
@@ -57,9 +55,13 @@ const command: CommandData = {
         return
       }
       target = await interaction.guild.members.fetch(user.id)
-    } catch (_error) {
+    } catch (error) {
+      interaction.client.logger.error(
+        'Failed to fetch guild member in kick command:',
+        error
+      )
       await interaction.followUp({
-        embeds: [MinaEmbed.error(mina.say('moderation.error.notInServer'))],
+        embeds: [MinaEmbed.error(mina.say('error.notInServer'))],
       })
       return
     }
@@ -82,7 +84,7 @@ async function kick(
   const response = await kickTarget(
     issuer,
     target,
-    reason || mina.say('moderation.error.noReason')
+    reason || mina.say('error.noReason')
   )
   if (typeof response === 'boolean') {
     return {
@@ -105,7 +107,7 @@ async function kick(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.failed', {
+          mina.sayf('error.failed', {
             action: 'kick',
             target: target.user.username,
           })

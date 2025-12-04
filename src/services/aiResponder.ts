@@ -353,8 +353,8 @@ export class AiResponderService {
             }
 
             return context
-          } catch (_error: any) {
-            logger.debug(`Failed to fetch Discord user ${userId}`)
+          } catch (error: any) {
+            logger.debug(`Failed to fetch Discord user ${userId}`, error)
             return null
           }
         })
@@ -428,8 +428,11 @@ export class AiResponderService {
                 context += `- ${m.key}: ${m.value}\n`
               })
               return context
-            } catch (_error: any) {
-              logger.debug(`Failed to fetch user ${userId} for memory context`)
+            } catch (error: any) {
+              logger.debug(
+                `Failed to fetch user ${userId} for memory context`,
+                error
+              )
               return null
             }
           }

@@ -6,6 +6,11 @@ import {
   ButtonInteraction,
   MessageFlags,
 } from 'discord.js'
+import type {
+  PermissionResolvable,
+  BaseGuildTextChannel,
+  CategoryChannel,
+} from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
@@ -36,26 +41,26 @@ export async function handleTicketOpen(
 
   if (!guild) return
 
-  if (!guild.members.me?.permissions.has(OPEN_PERMS as any))
-    return interaction.followUp(mina.say('ticket.error.noPermission'))
+  if (!guild.members.me?.permissions.has(OPEN_PERMS as PermissionResolvable))
+    return interaction.followUp(mina.say('error.noPermission'))
 
   const alreadyExists = getExistingTicketChannel(guild, user.id)
   if (alreadyExists)
-    return interaction.followUp(mina.say('ticket.error.alreadyExists'))
+    return interaction.followUp(mina.say('error.alreadyExists'))
 
   const settings = await getSettings(guild)
 
   // limit check
   const existing = getTicketChannels(guild).size
-  if (existing > (settings as any).ticket.limit)
-    return interaction.followUp(mina.say('ticket.error.tooMany'))
+  if (existing > settings.ticket.limit)
+    return interaction.followUp(mina.say('error.tooMany'))
 
   // check topics
   let catName: string | null = null
-  const topics = (settings as any).ticket.topics
+  const topics = settings.ticket.topics
   if (topics.length > 0) {
     const options: Array<{ label: string; value: string }> = []
-    ;(settings as any).ticket.topics.forEach((cat: any) =>
+    settings.ticket.topics.forEach(cat =>
       options.push({ label: cat.name, value: cat.name })
     )
     const menuRow =
@@ -67,7 +72,7 @@ export async function handleTicketOpen(
       )
 
     await interaction.followUp({
-      content: mina.say('ticket.error.chooseTopic'),
+      content: mina.say('error.chooseTopic'),
       components: [menuRow],
     })
     const res = await interaction.channel
@@ -81,11 +86,11 @@ export async function handleTicketOpen(
 
     if (!res)
       return interaction.editReply({
-        content: mina.say('ticket.error.timedOut'),
+        content: mina.say('error.timedOut'),
         components: [],
       })
     await interaction.editReply({
-      content: mina.say('ticket.error.processing'),
+      content: mina.say('error.processing'),
       components: [],
     })
     catName = res.values[0]
@@ -93,18 +98,17 @@ export async function handleTicketOpen(
 
   try {
     const ticketNumber = (existing + 1).toString()
-    const settingsData = await getSettings(interaction.guild!)
-    const staffRoles = (settingsData as any).server.staff_roles || []
+    const staffRoles = settings.server?.staff_roles || []
 
     // Check bot permissions before proceeding
     if (
       !guild.members.me?.permissions.has([
         'ManageChannels',
         'ViewChannel',
-      ] as any)
+      ] as PermissionResolvable)
     ) {
       return interaction.editReply({
-        embeds: [MinaEmbed.error(mina.say('ticket.error.missingPermissions'))],
+        embeds: [MinaEmbed.error(mina.say('error.missingPermissions'))],
       })
     }
 
@@ -115,7 +119,7 @@ export async function handleTicketOpen(
         deny: ['ViewChannel'],
       },
       {
-        id: guild.members.me!,
+        id: guild.members.me?.id ?? guild.client.user?.id,
         allow: [
           'ViewChannel',
           'SendMessages',
@@ -148,12 +152,12 @@ export async function handleTicketOpen(
     }
 
     // Get or create category for topic, or use default
-    let parent: any
+    let parent: CategoryChannel | null | undefined
     if (catName) {
       // Find topic category by name
       const topicCategory = guild.channels.cache.find(
         ch => ch.type === ChannelType.GuildCategory && ch.name === catName
-      )
+      ) as CategoryChannel | undefined
       if (topicCategory) {
         parent = topicCategory
       } else {
@@ -166,9 +170,14 @@ export async function handleTicketOpen(
       }
     } else {
       // Use default tickets category
-      const categoryId = (settingsData as any).ticket.category
+      const categoryId = settings.ticket.category
       if (categoryId) {
-        parent = guild.channels.cache.get(categoryId)
+        const channel = guild.channels.cache.get(categoryId)
+        if (channel && channel.type === ChannelType.GuildCategory) {
+          parent = channel as CategoryChannel
+        } else {
+          parent = null
+        }
       }
 
       if (!parent) {
@@ -178,14 +187,18 @@ export async function handleTicketOpen(
           type: ChannelType.GuildCategory,
           permissionOverwrites: categoryPerms,
         })
-        ;(settingsData as any).ticket.category = parent.id
-        ;(settingsData as any).ticket.enabled = true
-        await settingsData.save()
+        settings.ticket.category = parent.id
+        settings.ticket.enabled = true
+        await settings.save()
       }
     }
 
     // Create ticket channel - inherit category perms first, then add user
     // Don't set explicit perms, let it inherit from category, then add user override
+    if (!parent) {
+      throw new Error('Parent category is required but not found')
+    }
+
     const tktChannel = await guild.channels.create({
       name: `tіcket-${ticketNumber}`,
       parent: parent.id,
@@ -201,7 +214,7 @@ export async function handleTicketOpen(
         SendMessages: true,
         ReadMessageHistory: true,
       })
-    } catch (permError) {
+    } catch (_permError) {
       // If we can't add user perms, try to delete the channel and report error
       try {
         await tktChannel.delete()
@@ -292,9 +305,9 @@ export async function handleTicketOpen(
       ex.message?.includes('Missing Permissions') ||
       ex.message?.includes('Missing Access')
     ) {
-      errorMessage = mina.say('ticket.error.missingPermissions')
+      errorMessage = mina.say('error.missingPermissions')
     } else if (ex.message?.includes('Maximum number of channels')) {
-      errorMessage = mina.say('ticket.error.maxChannels')
+      errorMessage = mina.say('error.maxChannels')
     }
 
     return interaction.editReply({
@@ -310,7 +323,23 @@ export async function handleTicketClose(
   interaction: ButtonInteraction
 ): Promise<any> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
-  const status = await closeTicket(interaction.channel as any, interaction.user)
+
+  // Validate that interaction.channel exists and is a guild text channel
+  if (
+    !interaction.channel ||
+    interaction.channel.type !== ChannelType.GuildText
+  ) {
+    await interaction.followUp({
+      content: 'This command can only be used in a guild text channel.',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
+
+  const status = await closeTicket(
+    interaction.channel as BaseGuildTextChannel,
+    interaction.user
+  )
   if (status === 'MISSING_PERMISSIONS') {
     await interaction.followUp({
       content: mina.say('ticket.closeEmbed.noPermission'),
@@ -363,14 +392,16 @@ export async function handleTicketDelete(
   }
 
   // Try to get channel - might be in cache or need to fetch
+  const guild = interaction.guild
+  if (!guild) return
   let channel: import('discord.js').GuildBasedChannel | null | undefined =
-    interaction.guild!.channels.cache.get(channelId)
+    guild.channels.cache.get(channelId)
 
   if (!channel) {
     // Try to fetch the channel
     try {
-      channel = await interaction.guild!.channels.fetch(channelId)
-    } catch (fetchError) {
+      channel = await guild.channels.fetch(channelId)
+    } catch (_fetchError) {
       // Channel doesn't exist or we can't access it
       const content = mina.say('ticket.delete.notFound')
       if (interaction.deferred || interaction.replied) {
@@ -404,7 +435,7 @@ export async function handleTicketDelete(
     return
   }
 
-  const textChannel = channel as any
+  const textChannel = channel as BaseGuildTextChannel
   if (!textChannel.deletable) {
     const content = mina.say('ticket.delete.noPermission')
     if (interaction.deferred || interaction.replied) {

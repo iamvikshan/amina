@@ -6,7 +6,13 @@ export {
   handleMinaAIMenu,
   handleRemoveFreeWillChannel,
 } from './ai'
-export { showLoggingMenu, handleLoggingMenu } from './logging'
+export {
+  showLoggingMenu,
+  showLoggingMenuDirect,
+  handleLoggingMenu,
+  handleLoggingPageButton,
+  handleBackToLogs,
+} from './logging'
 export { handleChannelSelect } from './shared/channel-select'
 export { handleRoleSelect } from './shared/role-select'
 

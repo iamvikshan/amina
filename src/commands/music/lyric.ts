@@ -29,7 +29,7 @@ const command: CommandData = {
     const choice = interaction.options.getString('query')
     if (!choice) {
       await interaction.followUp({
-        embeds: [MinaEmbed.error(mina.say('music.error.provideSong'))],
+        embeds: [MinaEmbed.error(mina.say('error.provideSong'))],
       })
       return
     }
@@ -44,7 +44,7 @@ async function getLyric(
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const lyric = await getJson(`${BASE_URL}?title=${choice}`)
   if (!lyric.success) {
-    return { embeds: [MinaEmbed.error(mina.say('error'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.generic'))] }
   }
 
   const thumbnail = lyric.data?.thumbnail?.genius

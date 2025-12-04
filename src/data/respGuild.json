@@ -1,4 +1,26 @@
 {
+  "greetings": {
+    "joinServer": {
+      "title": "heya! amina here.",
+      "description": "thanks for inviting me to {server}.\n\n**what i can do:**\n- moderation and safety\n- fun commands and games\n- economy and music\n- and more\n\n**important:** run `/admin` to configure me.\n\nneed help? join the support server.",
+      "footer": "made with caffeine"
+    },
+    "joinDM": {
+      "title": "hey {user}!",
+      "description": "thanks for inviting me to {server}!\n\nto get started, run `/settings` in your server.\n\ni can help with:\n- moderation and safety\n- fun commands\n- economy and music\n- and more",
+      "footer": "your new companion"
+    },
+    "leaveDM": {
+      "title": "hey {user}",
+      "description": "just wanted to say thanks for having me in {server}.\n\nif something went wrong, let me know. feedback helps.\n\nmaybe we can try again sometime?",
+      "footer": "take care",
+      "buttons": {
+        "invite": "invite me back?",
+        "support": "support server",
+        "feedback": "leave feedback"
+      }
+    }
+  },
   "guild": {
     "setup": {
       "title": "mina setup",

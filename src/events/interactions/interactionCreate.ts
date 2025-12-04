@@ -105,6 +105,17 @@ export default async (
         await showMinaAIMenu(interaction as any)
         return
       }
+      if (action === 'back_logs') {
+        const { handleBackToLogs } = await import('@handlers/admin/logging')
+        await handleBackToLogs(interaction)
+        return
+      }
+      if (action === 'logs_prev' || action === 'logs_next') {
+        const { handleLoggingPageButton } =
+          await import('@handlers/admin/logging')
+        await handleLoggingPageButton(interaction)
+        return
+      }
     }
 
     // Route minaai buttons
@@ -385,13 +396,13 @@ export default async (
       }
       if (action === 'closeall_confirm') {
         const { handleCloseAllConfirm } =
-          await import('@handlers/ticket/manage/close-all')
+          await import('@handlers/ticket/manage/closeAll')
         await handleCloseAllConfirm(interaction)
         return
       }
       if (action === 'closeall_cancel') {
         const { handleCloseAllCancel } =
-          await import('@handlers/ticket/manage/close-all')
+          await import('@handlers/ticket/manage/closeAll')
         await handleCloseAllCancel(interaction)
         return
       }
@@ -683,15 +694,17 @@ export default async (
       switch (type) {
         case 'menu': {
           const [, , submenu] = interaction.customId.split(':')
-          if (submenu === 'category') {
+          // Handle submenu with potential pipe-delimited state (e.g., 'logs|page:1')
+          const baseSubmenu = submenu?.split('|')[0]
+          if (baseSubmenu === 'category') {
             await adminHandler.handleAdminCategoryMenu(interaction)
-          } else if (submenu === 'settings') {
+          } else if (baseSubmenu === 'settings') {
             await adminHandler.handleServerSettingsMenu(interaction)
-          } else if (submenu === 'minaai') {
+          } else if (baseSubmenu === 'minaai') {
             await adminHandler.handleMinaAIMenu(interaction)
-          } else if (submenu === 'logs') {
+          } else if (baseSubmenu === 'logs') {
             await adminHandler.handleLoggingMenu(interaction)
-          } else if (submenu === 'remove_freewill') {
+          } else if (baseSubmenu === 'remove_freewill') {
             const { handleRemoveFreeWillChannel } =
               await import('@handlers/admin/ai')
             await handleRemoveFreeWillChannel(interaction)
@@ -809,11 +822,11 @@ export default async (
       const [, , action] = interaction.customId.split(':')
       if (action === 'add') {
         const { handleAddUserSelect } =
-          await import('@handlers/ticket/manage/add-user')
+          await import('@handlers/ticket/manage/addUser')
         await handleAddUserSelect(interaction)
       } else if (action === 'remove') {
         const { handleRemoveUserSelect } =
-          await import('@handlers/ticket/manage/remove-user')
+          await import('@handlers/ticket/manage/removeUser')
         await handleRemoveUserSelect(interaction)
       }
       return

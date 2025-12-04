@@ -36,7 +36,11 @@ export async function handlePurgeConfirm(
   try {
     const decoded = Buffer.from(stateEncoded, 'base64').toString()
     stateData = JSON.parse(decoded) as typeof stateData
-  } catch (_error) {
+  } catch (error) {
+    ;(interaction.client as any).logger.error(
+      'Failed to decode purge state:',
+      error
+    )
     await interaction.editReply({
       content:
         'invalid purge state, the operation may have expired. try again.',

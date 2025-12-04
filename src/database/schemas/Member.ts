@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
 import config from '@src/config'
-import FixedSizeMap from 'fixedsize-map'
+import { LRUCache } from 'lru-cache'
 
-const cache = new FixedSizeMap(config.CACHE_SIZE.MEMBERS)
+const cache = new LRUCache<string, any>({ max: config.CACHE_SIZE.MEMBERS })
 
 const ReqString = {
   type: String,
@@ -36,7 +36,7 @@ export const Model = mongoose.model('members', Schema)
 
 export const getMember = async (guildId: string, memberId: string) => {
   const key = `${guildId}|${memberId}`
-  if (cache.contains(key)) return cache.get(key)
+  if (cache.has(key)) return cache.get(key)
 
   let member = await Model.findOne({ guild_id: guildId, member_id: memberId })
   if (!member) {
@@ -46,7 +46,7 @@ export const getMember = async (guildId: string, memberId: string) => {
     })
   }
 
-  cache.add(key, member)
+  cache.set(key, member)
   return member
 }
 

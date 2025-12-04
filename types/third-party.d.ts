@@ -78,55 +78,92 @@ declare module 'common-tags' {
 }
 
 declare module 'discord-gamecord' {
-  import type { Message, TextChannel, User } from 'discord.js'
+  import type { Message, User, ChatInputCommandInteraction, ColorResolvable } from 'discord.js'
+  import { EventEmitter } from 'events'
 
-  export interface GameOptions {
-    message: Message
-    opponent: User
+  export interface BaseGameOptions {
+    message: Message | ChatInputCommandInteraction
+    isSlashGame?: boolean
     embed?: {
       title?: string
-      color?: string
+      color?: string | ColorResolvable
       description?: string
+      statusTitle?: string
+      overTitle?: string
     }
     buttons?: {
       [key: string]: string
     }
     winMessage?: string
     loseMessage?: string
+    tieMessage?: string
+    timeoutMessage?: string
     othersMessage?: string
+    playerOnlyMessage?: string
     timeoutTime?: number
     playerOnly?: boolean
   }
 
-  export class Hangman {
-    constructor(options: GameOptions)
-    startGame(): Promise<void>
+  export interface HangmanOptions extends BaseGameOptions {
+    theme?: string
+    customWord?: string
+    hangman?: {
+      hat?: string
+      head?: string
+      shirt?: string
+      pants?: string
+      boots?: string
+    }
   }
 
-  export class TicTacToe {
-    constructor(options: GameOptions)
+  export interface TicTacToeOptions extends BaseGameOptions {
+    opponent: User
+    emojis?: {
+      xButton?: string
+      oButton?: string
+      blankButton?: string
+    }
+    xButtonStyle?: string
+    oButtonStyle?: string
+    turnMessage?: string
+    mentionUser?: boolean
+  }
+
+  export class Hangman extends EventEmitter {
+    constructor(options: HangmanOptions)
     startGame(): Promise<void>
+    on(event: 'gameOver', listener: (result: any) => void): this
+  }
+
+  export class TicTacToe extends EventEmitter {
+    constructor(options: TicTacToeOptions)
+    startGame(): Promise<void>
+    on(event: 'gameOver', listener: (result: any) => void): this
   }
 
   // Add other game classes as needed
-  export class Connect4 {
-    constructor(options: GameOptions)
+  export class Connect4 extends EventEmitter {
+    constructor(options: TicTacToeOptions)
     startGame(): Promise<void>
+    on(event: 'gameOver', listener: (result: any) => void): this
   }
 
-  export class RockPaperScissors {
-    constructor(options: GameOptions)
+  export class RockPaperScissors extends EventEmitter {
+    constructor(options: TicTacToeOptions)
     startGame(): Promise<void>
+    on(event: 'gameOver', listener: (result: any) => void): this
   }
 
-  export class Snake {
-    constructor(options: GameOptions)
+  export class Snake extends EventEmitter {
+    constructor(options: BaseGameOptions)
     startGame(): Promise<void>
+    on(event: 'gameOver', listener: (result: any) => void): this
   }
 
-  export class Wordle {
-    constructor(options: GameOptions)
+  export class Wordle extends EventEmitter {
+    constructor(options: BaseGameOptions)
     startGame(): Promise<void>
+    on(event: 'gameOver', listener: (result: any) => void): this
   }
 }
 
@@ -202,6 +239,3 @@ declare module 'node-fetch' {
     init?: RequestInit
   ): Promise<Response>
 }
-
-export {}
-

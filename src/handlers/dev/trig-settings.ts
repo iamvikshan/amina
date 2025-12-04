@@ -9,7 +9,7 @@ import {
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { getSettings } from '@schemas/Guild'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
-import type { Client, Guild, ButtonBuilder } from 'discord.js'
+import type { Client, Guild } from 'discord.js'
 
 /**
  * Show trigger settings menu
@@ -39,10 +39,8 @@ export async function showTrigSettings(
 
   const backRow = MinaRows.backRow('dev:btn:back_trig')
 
-  const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    MinaButtons.yeah()
-      .setCustomId('dev:btn:trig_confirm')
-      .setLabel('trigger for all servers')
+  const confirmRow = MinaRows.single(
+    MinaButtons.yeah('dev:btn:trig_confirm').setLabel('trigger for all servers')
   )
 
   await interaction.editReply({

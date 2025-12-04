@@ -12,7 +12,6 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import Utils from '@helpers/Utils'
 import { getSettings } from '@schemas/Guild'
 import Honeybadger from '@helpers/Honeybadger'
-// CommandData is now globally available - see types/commands.d.ts
 
 interface BotClient extends Client {
   slashCommands: Collection<string, CommandData>
@@ -38,8 +37,9 @@ export const handleSlashCommand = async (
   if (!cmd) {
     await interaction
       .reply({
-        content:
-          'IDK how this got here, but this command is currently disabled.',
+        embeds: [
+          MinaEmbed.warning("this command doesn't exist or is disabled"),
+        ],
         flags: MessageFlags.Ephemeral,
       })
       .catch(() => {})
@@ -50,10 +50,17 @@ export const handleSlashCommand = async (
   if (cmd.validations) {
     for (const validation of cmd.validations) {
       if (!validation.callback(interaction)) {
-        await interaction.reply({
-          content: validation.message,
-          flags: MessageFlags.Ephemeral,
-        })
+        if (validation.message instanceof EmbedBuilder) {
+          await interaction.reply({
+            embeds: [validation.message],
+            flags: MessageFlags.Ephemeral,
+          })
+        } else {
+          await interaction.reply({
+            content: validation.message,
+            flags: MessageFlags.Ephemeral,
+          })
+        }
         return
       }
     }
@@ -65,7 +72,7 @@ export const handleSlashCommand = async (
     !config.BOT.DEV_IDS.includes(interaction.user.id)
   ) {
     await interaction.reply({
-      content: `💔 Oh no! Only my sweet developers can use this command~!`,
+      embeds: [MinaEmbed.error("dev-only command. you can't use this")],
       flags: MessageFlags.Ephemeral,
     })
     return
@@ -80,7 +87,11 @@ export const handleSlashCommand = async (
     const member = interaction.member as GuildMember
     if (!member.permissions.has(cmd.userPermissions)) {
       await interaction.reply({
-        content: `💔 You need ${Utils.parsePermissions(cmd.userPermissions)} for this command, darling~!`,
+        embeds: [
+          MinaEmbed.error(
+            `you need ${Utils.parsePermissions(cmd.userPermissions)} for this`
+          ),
+        ],
         flags: MessageFlags.Ephemeral,
       })
       return
@@ -95,7 +106,11 @@ export const handleSlashCommand = async (
   ) {
     if (!interaction.guild.members.me?.permissions.has(cmd.botPermissions)) {
       await interaction.reply({
-        content: `😳 I need ${Utils.parsePermissions(cmd.botPermissions)} for this command, please~!`,
+        embeds: [
+          MinaEmbed.error(
+            `i need ${Utils.parsePermissions(cmd.botPermissions)} for this`
+          ),
+        ],
         flags: MessageFlags.Ephemeral,
       })
       return
@@ -107,7 +122,11 @@ export const handleSlashCommand = async (
     const remaining = getRemainingCooldown(interaction.user.id, cmd)
     if (remaining > 0) {
       await interaction.reply({
-        content: `you're on cooldown ${interaction.user.displayName}, you can use the command again in \`${Utils.timeformat(remaining)}\`, you could use this time to touch grass, yk!`,
+        embeds: [
+          MinaEmbed.warning(
+            `slow down. try again in \`${Utils.timeformat(remaining)}\``
+          ),
+        ],
         flags: MessageFlags.Ephemeral,
       })
       return
@@ -142,12 +161,16 @@ export const handleSlashCommand = async (
       : null
     await cmd.interactionRun(interaction, { settings })
   } catch (ex) {
-    // Only follow up if we deferred
+    // Only follow up if deferred
     const showsModal = (cmd as any).showsModal
     if (!showsModal) {
-      await interaction.followUp(
-        ':( Oops! An error occurred while running the command, this might be a bug, report it with the `/report` command or try again later~!'
-      )
+      await interaction.followUp({
+        embeds: [
+          MinaEmbed.error(
+            'something broke. if this keeps happening, use `/report` to let the devs know'
+          ),
+        ],
+      })
     }
     client.logger.error('interactionRun', ex)
 

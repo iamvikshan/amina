@@ -34,12 +34,12 @@ export {
   showCloseAllConfirmation,
   handleCloseAllConfirm,
   handleCloseAllCancel,
-} from './manage/close-all'
-export { showAddUserSelect, handleAddUserSelect } from './manage/add-user'
+} from './manage/closeAll'
+export { showAddUserSelect, handleAddUserSelect } from './manage/addUser'
 export {
   showRemoveUserSelect,
   handleRemoveUserSelect,
-} from './manage/remove-user'
+} from './manage/removeUser'
 
 // Shared utilities
 export {

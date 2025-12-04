@@ -34,7 +34,7 @@ const command: CommandData = {
     const level = interaction.options.getString('level')
     if (!level) {
       await interaction.followUp({
-        embeds: [MinaEmbed.error(mina.say('music.error.selectLevel'))],
+        embeds: [MinaEmbed.error(mina.say('error.selectLevel'))],
       })
       return
     }
@@ -56,7 +56,7 @@ async function setBassBoost(
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notPlaying'))] }
   }
 
   switch (level) {
@@ -76,7 +76,7 @@ async function setBassBoost(
       await player.filterManager.clearEQ()
       break
     default:
-      return { embeds: [MinaEmbed.error(mina.say('music.error.invalidLevel'))] }
+      return { embeds: [MinaEmbed.error(mina.say('error.invalidLevel'))] }
   }
 
   return {

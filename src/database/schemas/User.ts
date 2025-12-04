@@ -2,9 +2,9 @@
 
 import mongoose from 'mongoose'
 import config from '../../config'
-import FixedSizeMap from 'fixedsize-map'
+import { LRUCache } from 'lru-cache'
 
-const cache = new FixedSizeMap(config.CACHE_SIZE.USERS)
+const cache = new LRUCache<string, any>({ max: config.CACHE_SIZE.USERS })
 
 const FlagSchema = new mongoose.Schema({
   reason: { type: String, required: true },
@@ -94,7 +94,7 @@ export async function getUser(user: any) {
     userDb = await newUser.save()
   }
 
-  cache.add(user.id, userDb)
+  cache.set(user.id, userDb)
   return userDb
 }
 
@@ -146,7 +146,7 @@ export async function addFlag(
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -157,7 +157,7 @@ export async function removeFlag(userId: string, flaggedBy: string) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -168,7 +168,7 @@ export async function removeAllFlags(userId: string) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -182,7 +182,7 @@ export async function removeFlagsByServer(userId: string, serverId: string) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -224,7 +224,7 @@ export async function updatePremium(
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -248,7 +248,7 @@ export async function setAfk(
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -266,7 +266,7 @@ export async function removeAfk(userId: string) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -303,7 +303,7 @@ export async function updateBasicProfile(userId: string, basicData: any) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -321,7 +321,7 @@ export async function updateMiscProfile(userId: string, miscData: any) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -342,7 +342,7 @@ export async function updateProfile(userId: string, profileData: any) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -372,7 +372,7 @@ export async function clearProfile(userId: string) {
     { new: true }
   )
 
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 
@@ -403,7 +403,7 @@ export async function updateUserMinaAiPreferences(
     { $set: { minaAi: preferences } },
     { new: true, upsert: true }
   )
-  if (user) cache.add(userId, user)
+  if (user) cache.set(userId, user)
   return user
 }
 

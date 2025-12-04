@@ -47,7 +47,7 @@ export async function checkUserReminders(client: BotClient): Promise<void> {
         // Mark as notified to prevent infinite retries
         try {
           await markReminderNotified(reminder.user_id, reminder.reminder_id)
-        } catch (markError) {
+        } catch (_markError) {
           // Ignore mark errors
         }
       }
@@ -105,7 +105,7 @@ async function sendReminderNotification(
             }
           }
         }
-      } catch (channelError) {
+      } catch (_channelError) {
         // Channel might be deleted or inaccessible, try DM
         Logger.debug(
           `Channel ${reminder.channel_id} not accessible, trying DM for reminder #${reminder.reminder_id}`

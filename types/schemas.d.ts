@@ -1,9 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Database schema type definitions
 
 import type { Document } from 'mongoose'
 
 declare global {
+  interface IReminderDocument {
+    _id: string
+    user_id: string
+    reminder_id: number
+    message: string
+    remind_at: Date
+    created_at: Date
+    channel_id: string
+    guild_id: string | null
+    notified: boolean
+  }
+
   interface IGuildSettings extends Document {
     _id: string
     server: {

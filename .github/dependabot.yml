@@ -1,8 +1,3 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-#
 # Note: Dependabot only updates the default branch (main) automatically.
 # For other branches (api, dash), see renovate.json configuration.
 
@@ -14,23 +9,6 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
-    reviewers:
-      - "iamvikshan"
-    labels:
-      - "dependencies"
-    ignore:
-      #     - dependency-name: "discord.js"
-      - dependency-name: "pretty-ms"
-      - dependency-name: "node-fetch"
-
-  # Enable version updates for NPM (astro)
-  - package-ecosystem: "npm"
-    directory: "/astro/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "iamvikshan"
     labels:
       - "dependencies"
 
@@ -40,7 +18,5 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
-    reviewers:
-      - "iamvikshan"
     labels:
       - "actions"

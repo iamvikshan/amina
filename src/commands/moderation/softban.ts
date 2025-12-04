@@ -41,7 +41,7 @@ const command: CommandData = {
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            mina.sayf('moderation.error.specifyUser', { action: 'softban' })
+            mina.sayf('error.specifyUser', { action: 'softban' })
           ),
         ],
       })
@@ -58,9 +58,13 @@ const command: CommandData = {
     let target: GuildMember
     try {
       target = await interaction.guild.members.fetch(user.id)
-    } catch (_error) {
+    } catch (error) {
+      ;(interaction.client as any).logger.error(
+        'Failed to fetch guild member in softban command:',
+        error
+      )
       await interaction.followUp({
-        embeds: [MinaEmbed.error(mina.say('moderation.error.notInServer'))],
+        embeds: [MinaEmbed.error(mina.say('error.notInServer'))],
       })
       return
     }
@@ -83,7 +87,7 @@ async function softban(
   const response = await softbanTarget(
     issuer,
     target,
-    reason || mina.say('moderation.error.noReason')
+    reason || mina.say('error.noReason')
   )
   if (typeof response === 'boolean') {
     return {
@@ -106,7 +110,7 @@ async function softban(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.failed', {
+          mina.sayf('error.failed', {
             action: 'softban',
             target: target.user.username,
           })

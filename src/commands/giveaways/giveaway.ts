@@ -156,53 +156,53 @@ const command: CommandData = {
     } else if (sub === 'pause') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
+        return interaction.followUp(mina.say('error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp(mina.say('errors.memberNotFound'))
+        return interaction.followUp(mina.say('error.memberNotFound'))
       }
       response = await pause(member, messageId)
     } else if (sub === 'resume') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
+        return interaction.followUp(mina.say('error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp(mina.say('errors.memberNotFound'))
+        return interaction.followUp(mina.say('error.memberNotFound'))
       }
       response = await resume(member, messageId)
     } else if (sub === 'end') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
+        return interaction.followUp(mina.say('error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp(mina.say('errors.memberNotFound'))
+        return interaction.followUp(mina.say('error.memberNotFound'))
       }
       response = await end(member, messageId)
     } else if (sub === 'reroll') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
+        return interaction.followUp(mina.say('error.noMessageId'))
       }
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp(mina.say('errors.memberNotFound'))
+        return interaction.followUp(mina.say('error.memberNotFound'))
       }
       response = await reroll(member, messageId)
     } else if (sub === 'list') {
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp(mina.say('errors.memberNotFound'))
+        return interaction.followUp(mina.say('error.memberNotFound'))
       }
       response = await list(member)
     } else if (sub === 'edit') {
       const messageId = interaction.options.getString('message_id')
       if (!messageId) {
-        return interaction.followUp(mina.say('giveaway.error.noMessageId'))
+        return interaction.followUp(mina.say('error.noMessageId'))
       }
       const addDur = interaction.options.getString('add_duration')
       let addDurationMs: number | null = null
@@ -219,7 +219,7 @@ const command: CommandData = {
       const newWinnerCount = interaction.options.getInteger('new_winners')
       const member = interaction.member as GuildMember
       if (!member) {
-        return interaction.followUp(mina.say('errors.memberNotFound'))
+        return interaction.followUp(mina.say('error.memberNotFound'))
       }
       response = await edit(
         member,
@@ -229,7 +229,7 @@ const command: CommandData = {
         newWinnerCount
       )
     } else {
-      response = mina.say('errors.invalidSubcommand')
+      response = mina.say('error.invalidSubcommand')
     }
 
     await interaction.followUp(response)
@@ -246,7 +246,7 @@ async function runModalSetup(
   const guild = interaction.guild as Guild
 
   if (!member || !channel || !guild) {
-    return channel.safeSend(mina.say('errors.missingInfo'))
+    return channel.safeSend(mina.say('error.missingInfo'))
   }
 
   const SETUP_PERMS: PermissionResolvable[] = [

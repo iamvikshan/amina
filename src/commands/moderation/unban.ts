@@ -80,9 +80,7 @@ async function getMatchingBans(guild: Guild, match: string) {
 
   if (matched.length === 0) {
     return {
-      embeds: [
-        MinaEmbed.error(mina.sayf('moderation.error.noMatch', { match })),
-      ],
+      embeds: [MinaEmbed.error(mina.sayf('error.noMatch', { match }))],
     }
   }
 
@@ -128,7 +126,7 @@ async function waitForBan(
     const status = await unBanTarget(
       issuer,
       user,
-      reason || mina.say('moderation.error.noReason')
+      reason || mina.say('error.noReason')
     )
     if (typeof status === 'boolean') {
       return sent.edit({
@@ -143,7 +141,7 @@ async function waitForBan(
       return sent.edit({
         embeds: [
           MinaEmbed.error(
-            mina.sayf('moderation.error.failed', {
+            mina.sayf('error.failed', {
               action: 'unban',
               target: user.username,
             })
@@ -158,7 +156,7 @@ async function waitForBan(
   collector.on('end', async collected => {
     if (collected.size === 0) {
       return sent.edit({
-        embeds: [MinaEmbed.error(mina.say('music.error.timeout'))],
+        embeds: [MinaEmbed.error(mina.say('error.timeout'))],
         components: [],
       })
     }

@@ -1,8 +1,10 @@
-import { GuildMember, User, EmbedBuilder } from 'discord.js'
+import { GuildMember, User } from 'discord.js'
+import type { ColorResolvable } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
 import { addModLogToDb } from '@schemas/ModLog'
 import { error } from '@helpers/Logger'
 import { mina } from '@helpers/mina'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export const DEFAULT_TIMEOUT_HOURS = 24 // hours
 
@@ -37,13 +39,23 @@ export const logModeration = async (
   if (settings.logs_channel)
     logChannel = guild.channels.cache.get(settings.logs_channel)
 
-  const embed = new EmbedBuilder().setFooter({
+  // Use MinaEmbed.plain() for full control, set footer manually
+  const embed = MinaEmbed.plain().setFooter({
     text: `By ${issuer.displayName} • ${issuer.id}`,
     iconURL: issuer.displayAvatarURL(),
   })
 
   const fields: any[] = []
-  switch (type.toUpperCase()) {
+  const actionType = type.toUpperCase()
+
+  // Set color based on mod action type
+  const modColor =
+    mina.modColors[actionType.toLowerCase() as keyof typeof mina.modColors]
+  if (modColor) {
+    embed.setColor(modColor as ColorResolvable)
+  }
+
+  switch (actionType) {
     case 'PURGE':
       embed.setAuthor({ name: `Moderation - ${type}` })
       fields.push(
@@ -56,57 +68,9 @@ export const logModeration = async (
         }
       )
       break
-
-    case 'TIMEOUT':
-      embed.setColor(mina.modColors.timeout)
-      break
-
-    case 'UNTIMEOUT':
-      embed.setColor(mina.modColors.untimeout)
-      break
-
-    case 'KICK':
-      embed.setColor(mina.modColors.kick)
-      break
-
-    case 'SOFTBAN':
-      embed.setColor(mina.modColors.softban)
-      break
-
-    case 'BAN':
-      embed.setColor(mina.modColors.ban)
-      break
-
-    case 'UNBAN':
-      embed.setColor(mina.modColors.unban)
-      break
-
-    case 'VMUTE':
-      embed.setColor(mina.modColors.vmute)
-      break
-
-    case 'VUNMUTE':
-      embed.setColor(mina.modColors.vunmute)
-      break
-
-    case 'DEAFEN':
-      embed.setColor(mina.modColors.deafen)
-      break
-
-    case 'UNDEAFEN':
-      embed.setColor(mina.modColors.undeafen)
-      break
-
-    case 'DISCONNECT':
-      embed.setColor(mina.modColors.disconnect)
-      break
-
-    case 'MOVE':
-      embed.setColor(mina.modColors.move)
-      break
   }
 
-  if (type.toUpperCase() !== 'PURGE') {
+  if (actionType !== 'PURGE') {
     embed
       .setAuthor({ name: `Moderation - ${type}` })
       .setThumbnail(
@@ -163,7 +127,6 @@ export const logModeration = async (
     'DISCONNECT',
     'MOVE',
   ]
-  const actionType = type.toUpperCase()
 
   if (punitiveActions.includes(actionType)) {
     // Skip if target is a string (PURGE case) or not a valid user

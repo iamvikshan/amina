@@ -1,4 +1,58 @@
 {
+  "botInfo": {
+    "invite": {
+      "title": "invite",
+      "description": "hey there! thanks for considering to invite me\nuse the button below to navigate where you want",
+      "button": "invite link",
+      "support": "support server",
+      "dashboard": "dashboard link"
+    },
+    "donate": {
+      "title": "donate",
+      "description": "hey there! thanks for considering to donate to me\nuse the button below to navigate where you want",
+      "button": {
+        "kofi": "ko-fi",
+        "github": "github sponsors",
+        "patreon": "patreon"
+      }
+    },
+    "docs": {
+      "title": "documentation",
+      "description": "hey there! ah you want to know more about me? or you are just lost? \nwell, use the button below to see my documentation\n\nif you are lost, you can also use the `help` command to see all my commands",
+      "footer": "free cookies!",
+      "button": "documentation"
+    },
+    "ping": {
+      "checking": "pinging...",
+      "result": "pong: `{ping}ms`"
+    },
+    "uptime": {
+      "result": "my uptime: `{uptime}`"
+    },
+    "stats": {
+      "title": "bot information",
+      "fields": {
+        "cpu": "cpu",
+        "botRam": "bot's ram",
+        "overallRam": "overall ram",
+        "nodeVersion": "node js version",
+        "uptime": "uptime"
+      }
+    },
+    "changelog": {
+      "title": "latest updates",
+      "footer": "only showing the 2 most recent updates",
+      "error": "error fetching the changelog. please try again later or view full changelog [here]({url})."
+    },
+    "dm": {
+      "sent": "check your dm for my information!",
+      "failed": "i cannot send you my information! is your dm open?"
+    },
+    "error": {
+      "unknownSubcommand": "unknown subcommand",
+      "invalidSubcommand": "not a valid subcommand"
+    }
+  },
   "infoCmd": {
     "user": {
       "title": ["user info for {user}", "{user}'s info", "info: {user}"],

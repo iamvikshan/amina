@@ -63,7 +63,7 @@ async function ban(
   const response = await banTarget(
     issuer,
     target,
-    reason || mina.say('moderation.error.noReason')
+    reason || mina.say('error.noReason')
   )
   if (typeof response === 'boolean') {
     return {
@@ -86,7 +86,7 @@ async function ban(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.failed', {
+          mina.sayf('error.failed', {
             action: 'ban',
             target: target.username,
           })

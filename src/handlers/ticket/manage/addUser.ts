@@ -9,11 +9,12 @@ import {
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaRows } from '@helpers/componentHelper'
 import { isTicketChannel } from '@handlers/ticket/shared/utils'
+import Logger from '@helpers/Logger'
 
 /**
- * Show user select for removing users from ticket
+ * Show user select for adding users to ticket
  */
-export async function showRemoveUserSelect(
+export async function showAddUserSelect(
   interaction: StringSelectMenuInteraction
 ): Promise<void> {
   const channel = interaction.channel as TextChannel
@@ -33,18 +34,18 @@ export async function showRemoveUserSelect(
   }
 
   const embed = MinaEmbed.primary()
-    .setAuthor({ name: 'remove users from ticket' })
+    .setAuthor({ name: 'add users to ticket' })
     .setDescription(
-      'select the users you want to remove from this ticket channel.\n\n' +
-        'selected users will no longer be able to view or send messages in this ticket.'
+      'select the users you want to add to this ticket channel.\n\n' +
+        'selected users will be able to view and send messages in this ticket.'
     )
     .setFooter({ text: 'you can select up to 10 users at once' })
 
   const userSelect =
     new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
       new UserSelectMenuBuilder()
-        .setCustomId('ticket:user:remove')
-        .setPlaceholder('select users to remove...')
+        .setCustomId('ticket:user:add')
+        .setPlaceholder('select users to add...')
         .setMinValues(1)
         .setMaxValues(10)
     )
@@ -58,9 +59,9 @@ export async function showRemoveUserSelect(
 }
 
 /**
- * Handle user selection for removing from ticket
+ * Handle user selection for adding to ticket
  */
-export async function handleRemoveUserSelect(
+export async function handleAddUserSelect(
   interaction: UserSelectMenuInteraction
 ): Promise<void> {
   await interaction.deferUpdate()
@@ -78,21 +79,34 @@ export async function handleRemoveUserSelect(
 
   const results: { user: string; success: boolean; reason?: string }[] = []
 
-  // Remove each user from the ticket
+  // Add each user to the ticket
   for (const [userId, user] of users) {
     try {
+      // Check if user is a bot
+      if (user.bot) {
+        results.push({
+          user: user.tag,
+          success: false,
+          reason: 'cannot add bots to tickets',
+        })
+        continue
+      }
+
       await channel.permissionOverwrites.create(userId, {
-        ViewChannel: false,
-        SendMessages: false,
-        ReadMessageHistory: false,
+        ViewChannel: true,
+        SendMessages: true,
+        ReadMessageHistory: true,
       })
 
       results.push({ user: user.tag, success: true })
-    } catch (_error) {
+    } catch (error) {
+      Logger.error(`Failed to add user ${user.tag} to ticket:`, error)
+      const errorMessage =
+        error instanceof Error ? error.message : 'failed to update permissions'
       results.push({
         user: user.tag,
         success: false,
-        reason: 'failed to update permissions',
+        reason: errorMessage,
       })
     }
   }
@@ -102,7 +116,7 @@ export async function handleRemoveUserSelect(
   const failedCount = results.length - successCount
 
   const embed = successCount > 0 ? MinaEmbed.success() : MinaEmbed.error()
-  embed.setAuthor({ name: 'remove users result' })
+  embed.setAuthor({ name: 'add users result' })
 
   const successList = results
     .filter(r => r.success)
@@ -114,14 +128,14 @@ export async function handleRemoveUserSelect(
     .map(r => `${r.user} - ${r.reason}`)
     .join('\n')
 
-  let description = `**summary:**\nremoved: ${successCount}\nfailed: ${failedCount}\n\n`
+  let description = `**summary:**\nadded: ${successCount}\nfailed: ${failedCount}\n\n`
 
   if (successList) {
-    description += `**successfully removed:**\n${successList}\n\n`
+    description += `**successfully added:**\n${successList}\n\n`
   }
 
   if (failedList) {
-    description += `**failed to remove:**\n${failedList}`
+    description += `**failed to add:**\n${failedList}`
   }
 
   embed.setDescription(description)

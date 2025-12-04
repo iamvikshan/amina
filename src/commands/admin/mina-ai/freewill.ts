@@ -45,12 +45,25 @@ export default async function freewillHandler(
   interaction: ChatInputCommandInteraction,
   settings: any
 ) {
+  const guild = interaction.guild
+  if (!guild) {
+    const errorEmbed = MinaEmbed.error().setDescription(
+      'This command must be used in a server (guild).'
+    )
+    if (interaction.deferred || interaction.replied) {
+      await interaction.followUp({ embeds: [errorEmbed], ephemeral: true })
+    } else {
+      await interaction.reply({ embeds: [errorEmbed], ephemeral: true })
+    }
+    return
+  }
+
   const channel = interaction.options.getChannel('channel', true)
   const currentChannels = getFreeWillChannels(settings)
   const { channels: newChannels, action } = toggleFreeWillChannel(
     currentChannels,
     channel.id,
-    interaction.guild!.id
+    guild.id
   )
 
   if (action === 'limit_reached') {
@@ -64,7 +77,7 @@ export default async function freewillHandler(
     return
   }
 
-  await updateSettings(interaction.guild!.id, {
+  await updateSettings(guild.id, {
     aiResponder: {
       ...settings.aiResponder,
       freeWillChannels: newChannels,

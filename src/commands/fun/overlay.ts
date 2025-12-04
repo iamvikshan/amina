@@ -76,7 +76,12 @@ const command: CommandData = {
         'oops! something went wrong with the image magic'
       )
 
-    const attachment = new AttachmentBuilder(response.buffer!, {
+    const buffer = response.buffer
+    if (!buffer)
+      return interaction.followUp(
+        'oops! something went wrong with the image magic'
+      )
+    const attachment = new AttachmentBuilder(buffer, {
       name: 'attachment.png',
     })
     const embed = MinaEmbed.primary()

@@ -12,6 +12,7 @@ import { createBasicModal, createMiscModal } from '@commands/utility/profile'
 import { updateProfile, getUser } from '@schemas/User'
 import { validateBirthdate, calculateAge } from './shared/utils'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { Logger } from '@helpers/Logger'
 
 /**
  * Show edit profile menu
@@ -77,7 +78,7 @@ export async function handleEditMenu(
   try {
     await interaction.showModal(modal)
   } catch (error) {
-    console.error('Error showing edit modal:', error)
+    Logger.error('Error showing edit modal', error)
     if (!interaction.replied && !interaction.deferred) {
       await interaction.reply({
         content: 'oops! something went wrong. try again?',
@@ -224,7 +225,7 @@ export async function handleProfileModal(
       ephemeral: true,
     })
   } catch (error) {
-    console.error('Error handling profile modal:', error)
+    Logger.error('Error handling profile modal', error)
     await interaction.reply({
       content:
         'oops! something went wrong while updating your profile. want to try again?',

@@ -1,4 +1,5 @@
 import CommandCategory from '@structures/CommandCategory'
+import { MinaEmbed } from '@structures/embeds'
 import * as permissions from './permissions'
 import config from '@src/config'
 import { secret, validateSecrets } from '@src/config'
@@ -123,8 +124,13 @@ export class Validator {
         if (typeof validation.callback !== 'function') {
           throw new TypeError('Command validation callback must be a function.')
         }
-        if (typeof validation.message !== 'string') {
-          throw new TypeError('Command validation message must be a string.')
+        if (
+          typeof validation.message !== 'string' &&
+          !(validation.message instanceof MinaEmbed)
+        ) {
+          throw new TypeError(
+            'Command validation message must be a string or MinaEmbed.'
+          )
         }
       }
     }

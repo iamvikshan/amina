@@ -81,7 +81,11 @@ export class Logger {
     pinoLogger.warn(content)
   }
 
-  static error(content: string, ex?: Error | any): void {
+  static error(
+    content: string,
+    ex?: Error | any,
+    stack?: string | undefined
+  ): void {
     if (ex) {
       pinoLogger.error(ex, `${content}: ${ex?.message}`)
 

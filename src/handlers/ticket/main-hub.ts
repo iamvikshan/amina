@@ -53,19 +53,22 @@ export async function handleTicketCategoryMenu(
   await interaction.deferUpdate()
 
   switch (category) {
-    case 'setup':
+    case 'setup': {
       const { showSetupMenu } = await import('./setup/menu')
       await showSetupMenu(interaction)
       break
-    case 'manage':
+    }
+    case 'manage': {
       const { showManageMenu } = await import('./manage/menu')
       await showManageMenu(interaction)
       break
-    default:
+    }
+    default: {
       await interaction.followUp({
-        content: mina.say('ticket.error.invalidCategory'),
+        content: mina.say('error.invalidCategory'),
         flags: MessageFlags.Ephemeral,
       })
+    }
   }
 }
 

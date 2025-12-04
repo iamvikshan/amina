@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running pre-commit setup check..."
+
+# Run the iamvikshan.sh script
+./scripts/iamvikshan.sh
+
+# Check if the script ran successfully
+if [ $? -eq 0 ]; then
+    echo "✓ Pre-commit setup check passed"
+    exit 0
+else
+    echo "✗ Pre-commit setup check failed"
+    echo "Please fix the setup issues before committing"
+    exit 1
+fi

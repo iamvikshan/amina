@@ -8,7 +8,22 @@ export default async function mentionOnlyHandler(
 ) {
   const enabled = interaction.options.getBoolean('enabled', true)
 
-  await updateSettings(interaction.guild!.id, {
+  const guild = interaction.guild
+  if (!guild) {
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({
+        content: 'This command must be used in a server (guild).',
+        ephemeral: true,
+      })
+    } else {
+      await interaction.reply({
+        content: 'This command must be used in a server (guild).',
+        ephemeral: true,
+      })
+    }
+    return
+  }
+  await updateSettings(guild.id, {
     aiResponder: {
       ...settings.aiResponder,
       mentionOnly: enabled,

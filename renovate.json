@@ -1,21 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "baseBranches": ["api", "dash"],
-  "platform": "github",
+  "baseBranches": ["api", "dash", "main"],
   "automerge": false,
   "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
   "labels": ["dependencies"],
   "reviewers": ["iamvikshan"],
   "schedule": ["before 2am"],
-  "timezone": "UTC",
-  "npm": {
-    "enabled": true,
-    "ignoreDeps": ["pretty-ms", "node-fetch"]
-  },
-  "github-actions": {
-    "enabled": true
-  },
-  "dependencyDashboard": true,
-  "rebaseWhen": "conflicted"
+  "timezone": "Africa/Nairobi",
+  "dependencyDashboard": false,
+  //  "dependencyDashboardApproval": false,
+  "rebaseWhen": "conflicted",
+  "packageRules": [
+    {
+      "description": "Automerge patch updates",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    }
+  ]
 }

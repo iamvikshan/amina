@@ -32,10 +32,11 @@ export async function handleAdminCategoryMenu(
     case 'logs':
       await showLoggingMenu(interaction)
       break
-    case 'status':
+    case 'status': {
       const settings = await getSettings(interaction.guild)
       await showStatusEmbed(interaction, settings)
       break
+    }
     default:
       await interaction.followUp({
         content: 'invalid category selected',

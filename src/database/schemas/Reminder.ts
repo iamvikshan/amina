@@ -1,12 +1,14 @@
 // @root/src/database/schemas/Reminder.ts
 
 import mongoose from 'mongoose'
-import FixedSizeMap from 'fixedsize-map'
+import { LRUCache } from 'lru-cache'
 import config from '../../config'
 
-const cache = new FixedSizeMap(config.CACHE_SIZE.USERS)
+const cache = new LRUCache<string, IReminderDocument>({
+  max: config.CACHE_SIZE.USERS,
+})
 
-const Schema = new mongoose.Schema(
+const Schema = new mongoose.Schema<IReminderDocument>(
   {
     _id: String, // user_id:reminder_id format for unique identification
     user_id: { type: String, required: true, index: true },
@@ -33,7 +35,7 @@ const Schema = new mongoose.Schema(
 Schema.index({ remind_at: 1, notified: 1 })
 Schema.index({ user_id: 1, reminder_id: 1 }, { unique: true })
 
-const Model = mongoose.model('reminder', Schema)
+const Model = mongoose.model<IReminderDocument>('reminder', Schema)
 
 /**
  * Get next reminder ID for a user
@@ -56,7 +58,7 @@ export async function createReminder(
   remindAt: Date,
   channelId: string,
   guildId: string | null = null
-): Promise<any> {
+): Promise<IReminderDocument> {
   const reminderId = await getNextReminderId(userId)
   const _id = `${userId}:${reminderId}`
 
@@ -67,12 +69,13 @@ export async function createReminder(
     message,
     remind_at: remindAt,
     channel_id: channelId,
-    guild_id: guildId,
+    guild_id: guildId ?? null,
     notified: false,
   })
 
-  cache.add(_id, reminder)
-  return reminder
+  const doc = reminder.toObject() as IReminderDocument
+  cache.set(_id, doc)
+  return doc
 }
 
 /**
@@ -81,13 +84,15 @@ export async function createReminder(
 export async function getUserReminders(
   userId: string,
   includeNotified: boolean = false
-): Promise<any[]> {
-  const query: any = { user_id: userId }
+): Promise<IReminderDocument[]> {
+  const query: { user_id: string; notified?: boolean } = { user_id: userId }
   if (!includeNotified) {
     query.notified = false
   }
 
-  return Model.find(query).sort({ remind_at: 1 }).lean()
+  return Model.find(query).sort({ remind_at: 1 }).lean() as Promise<
+    IReminderDocument[]
+  >
 }
 
 /**
@@ -96,13 +101,15 @@ export async function getUserReminders(
 export async function getReminder(
   userId: string,
   reminderId: number
-): Promise<any> {
+): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
   const cached = cache.get(_id)
   if (cached) return cached
 
-  const reminder = await Model.findById(_id).lean()
-  if (reminder) cache.add(_id, reminder)
+  const reminder = (await Model.findById(
+    _id
+  ).lean()) as IReminderDocument | null
+  if (reminder) cache.set(_id, reminder)
   return reminder
 }
 
@@ -113,15 +120,15 @@ export async function updateReminderMessage(
   userId: string,
   reminderId: number,
   newMessage: string
-): Promise<any> {
+): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
-  const reminder = await Model.findByIdAndUpdate(
+  const reminder = (await Model.findByIdAndUpdate(
     _id,
     { $set: { message: newMessage } },
     { new: true }
-  ).lean()
+  ).lean()) as IReminderDocument | null
 
-  if (reminder) cache.add(_id, reminder)
+  if (reminder) cache.set(_id, reminder)
   return reminder
 }
 
@@ -132,15 +139,15 @@ export async function updateReminderTime(
   userId: string,
   reminderId: number,
   newRemindAt: Date
-): Promise<any> {
+): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
-  const reminder = await Model.findByIdAndUpdate(
+  const reminder = (await Model.findByIdAndUpdate(
     _id,
     { $set: { remind_at: newRemindAt } },
     { new: true }
-  ).lean()
+  ).lean()) as IReminderDocument | null
 
-  if (reminder) cache.add(_id, reminder)
+  if (reminder) cache.set(_id, reminder)
   return reminder
 }
 
@@ -150,15 +157,15 @@ export async function updateReminderTime(
 export async function markReminderNotified(
   userId: string,
   reminderId: number
-): Promise<any> {
+): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
-  const reminder = await Model.findByIdAndUpdate(
+  const reminder = (await Model.findByIdAndUpdate(
     _id,
     { $set: { notified: true } },
     { new: true }
-  ).lean()
+  ).lean()) as IReminderDocument | null
 
-  if (reminder) cache.add(_id, reminder)
+  if (reminder) cache.set(_id, reminder)
   return reminder
 }
 
@@ -181,26 +188,24 @@ export async function deleteReminder(
 export async function deleteAllUserReminders(userId: string): Promise<number> {
   const result = await Model.deleteMany({ user_id: userId })
   // Clear cache entries for this user
-  const keysToDelete: string[] = []
-  for (const [key] of cache.entries()) {
+  for (const key of cache.keys()) {
     if (key.startsWith(`${userId}:`)) {
-      keysToDelete.push(key)
+      cache.delete(key)
     }
   }
-  keysToDelete.forEach(key => cache.delete(key))
-  return result.deletedCount || 0
+  return result.deletedCount ?? 0
 }
 
 /**
  * Get all due reminders (for scheduler)
  */
-export async function getDueReminders(): Promise<any[]> {
+export async function getDueReminders(): Promise<IReminderDocument[]> {
   return Model.find({
     remind_at: { $lte: new Date() },
     notified: false,
   })
     .sort({ remind_at: 1 })
-    .lean()
+    .lean() as Promise<IReminderDocument[]>
 }
 
 /**
@@ -210,7 +215,7 @@ export async function getUserReminderCount(
   userId: string,
   includeNotified: boolean = false
 ): Promise<number> {
-  const query: any = { user_id: userId }
+  const query: { user_id: string; notified?: boolean } = { user_id: userId }
   if (!includeNotified) {
     query.notified = false
   }

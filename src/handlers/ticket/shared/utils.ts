@@ -5,9 +5,8 @@ import {
   User,
   Collection,
   ActionRowBuilder,
-  ButtonBuilder,
 } from 'discord.js'
-import type { Channel } from 'discord.js'
+import type { Channel, ButtonBuilder } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
@@ -271,9 +270,7 @@ export async function closeTicket(
       const dmComponents: ActionRowBuilder<ButtonBuilder>[] = []
       if (logsUrl) {
         dmComponents.push(
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            MinaButtons.link(logsUrl.short, 'view transcript')
-          )
+          MinaRows.single(MinaButtons.link(logsUrl.short, 'view transcript'))
         )
       }
       ticketDetails.user

@@ -27,7 +27,7 @@ const command: CommandData = {
     const timeString = interaction.options.getString('time')
     if (!timeString) {
       await interaction.followUp({
-        embeds: [MinaEmbed.warning(mina.say('music.error.invalidTimeFormat'))],
+        embeds: [MinaEmbed.warning(mina.say('error.invalidTimeFormat'))],
       })
       return
     }
@@ -35,7 +35,7 @@ const command: CommandData = {
     const time = (interaction.client as any).utils.parseTime(timeString)
     if (!time) {
       await interaction.followUp({
-        embeds: [MinaEmbed.warning(mina.say('music.error.invalidTimeFormat'))],
+        embeds: [MinaEmbed.warning(mina.say('error.invalidTimeFormat'))],
       })
       return
     }
@@ -58,7 +58,7 @@ async function seekTo(
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notPlaying'))] }
   }
 
   if (time > player.queue.current.info.duration) {

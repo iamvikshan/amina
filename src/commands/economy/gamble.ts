@@ -52,8 +52,8 @@ function calculateReward(
 
 async function gamble(user: User, betAmount: number | null) {
   if (betAmount === null || isNaN(betAmount))
-    return mina.say('economy.error.invalidAmount')
-  if (betAmount < 0) return mina.say('economy.error.invalidAmount')
+    return mina.say('error.invalidAmount')
+  if (betAmount < 0) return mina.say('error.invalidAmount')
   if (betAmount < 10) return mina.sayf('economy.error.minBet', { amount: '10' })
 
   const userDb = await getUser(user)

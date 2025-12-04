@@ -66,7 +66,7 @@ const command: CommandData = {
 
     const member = interaction.member as GuildMember
     if (!member) {
-      return interaction.followUp(mina.say('errors.memberNotFound'))
+      return interaction.followUp(mina.say('error.memberNotFound'))
     }
 
     const subcommand = interaction.options.getSubcommand()
@@ -183,7 +183,7 @@ async function handleRedFlag(
       }
 
       default:
-        return mina.say('error')
+        return mina.say('error.generic')
     }
   } catch (ex) {
     Logger.error('Red flag command', ex)

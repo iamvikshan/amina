@@ -1,7 +1,7 @@
  
 // Module augmentation type definitions
 
-import type { Client, Collection, ColorResolvable } from 'discord.js'
+import type { Client, Collection } from 'discord.js'
 import type { Model } from 'mongoose'
 
 // BotClient module augmentation

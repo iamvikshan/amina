@@ -96,14 +96,16 @@ export async function handleReminderOperationMenu(
   await interaction.deferUpdate()
 
   switch (operation) {
-    case 'view':
+    case 'view': {
       const { showRemindersList } = await import('./list')
       await showRemindersList(interaction)
       break
-    case 'clear':
+    }
+    case 'clear': {
       const { showClearConfirmation } = await import('./clear')
       await showClearConfirmation(interaction)
       break
+    }
     default:
       await interaction.followUp({
         embeds: [MinaEmbed.error('invalid operation.')],

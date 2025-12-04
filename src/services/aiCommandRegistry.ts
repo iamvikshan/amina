@@ -3,7 +3,7 @@ import {
   type PermissionResolvable,
 } from 'discord.js'
 import type { BotClient } from '@src/structures'
-// import Logger from '@helpers/Logger'
+import { Logger } from '@helpers/Logger'
 import aiPermissions from '@src/data/aiPermissions.json'
 
 // const logger = Logger
@@ -207,7 +207,7 @@ export class AiCommandRegistry {
         },
       }
     } catch (error) {
-      console.error(`Failed to map command ${cmd.name} to AI tool:`, error)
+      Logger.error(`Failed to map command ${cmd.name} to AI tool`, error)
       return null
     }
   }

@@ -31,7 +31,6 @@ COPY --from=dependencies --chown=amina:amina /app/package.json ./package.json
 
 # Copy application code
 COPY --chown=amina:amina src/ ./src/
-COPY --chown=amina:amina types/ ./types/
 COPY --chown=amina:amina tsconfig.json ./
 
 # Create logs directory

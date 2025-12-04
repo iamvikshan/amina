@@ -143,7 +143,8 @@ export async function handleCreateRoleModal(
   }
 
   // Check if role name already exists
-  const guild = interaction.guild!
+  const guild = interaction.guild
+  if (!guild) return
   const existingRole = guild.roles.cache.find(
     r => r.name.toLowerCase() === name.toLowerCase()
   )
@@ -291,7 +292,8 @@ export async function handlePermissionSelect(
 
   await interaction.deferUpdate()
 
-  const guild = interaction.guild!
+  const guild = interaction.guild
+  if (!guild) return
 
   // Map permission sets
   let permissionArray: bigint[] = []

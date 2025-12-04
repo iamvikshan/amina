@@ -17,7 +17,9 @@ export default async function configureHandler(
     return interaction.followUp({ embeds: [embed] })
   }
 
-  await updateSettings(interaction.guild!.id, {
+  const guild = interaction.guild
+  if (!guild) return
+  await updateSettings(guild.id, {
     aiResponder: {
       ...settings.aiResponder,
       enabled,

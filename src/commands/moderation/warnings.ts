@@ -82,7 +82,7 @@ const command: CommandData = {
       response = await clearWarnings(target, interaction)
     } else {
       response = {
-        embeds: [MinaEmbed.error(mina.say('error'))],
+        embeds: [MinaEmbed.error(mina.say('error.generic'))],
       }
     }
 

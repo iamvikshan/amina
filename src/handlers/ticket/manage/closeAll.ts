@@ -2,6 +2,7 @@ import { StringSelectMenuInteraction, ButtonInteraction } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { closeAllTickets } from '@handlers/ticket/shared/utils'
+import { Logger } from '@helpers/Logger'
 
 /**
  * Show confirmation for close all operation
@@ -51,7 +52,30 @@ export async function handleCloseAllConfirm(
   })
 
   // Close all tickets
-  const stats = await closeAllTickets(interaction.guild!, interaction.user)
+  const guild = interaction.guild
+  if (!guild) {
+    await interaction.editReply({
+      embeds: [MinaEmbed.error('Unable to close tickets: guild not found.')],
+      components: [],
+    })
+    return
+  }
+
+  let stats!: [number, number]
+  try {
+    stats = await closeAllTickets(guild, interaction.user)
+  } catch (error) {
+    Logger.error('Failed to close all tickets', error)
+    await interaction.editReply({
+      embeds: [
+        MinaEmbed.error(
+          'Failed to close tickets: an unexpected error occurred.'
+        ),
+      ],
+      components: [],
+    })
+    return
+  }
   const [successCount, failedCount] = stats
 
   const resultEmbed =

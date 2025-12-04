@@ -37,7 +37,7 @@ async function leave({
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notInVoice'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notInVoice'))] }
   }
 
   player.destroy()

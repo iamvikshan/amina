@@ -1,6 +1,6 @@
 import { getUser } from '@schemas/User'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-
+import { Logger } from '@helpers/Logger'
 import axios from 'axios'
 import {
   ApplicationCommandOptionType,
@@ -94,7 +94,7 @@ async function getPronouns(user: User): Promise<PronounInfo> {
       source: null,
     }
   } catch (error) {
-    console.error('Error fetching pronouns:', error)
+    Logger.error('Error fetching pronouns', error)
     return {
       pronouns: null,
       source: null,
@@ -184,7 +184,7 @@ async function genReaction(
       .setImage(response.data.url)
       .setFooter({ text: `${author.username}'s emotional moment~` })
   } catch (_ex) {
-    console.error('Error fetching reaction:', _ex)
+    Logger.error('Error fetching reaction', _ex)
     return MinaEmbed.error()
       .setDescription('oops! the anime magic fizzled out! try again?')
       .setFooter({ text: `${author.username}'s emotional moment~` })

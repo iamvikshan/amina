@@ -8,6 +8,7 @@ import {
 import config from '@src/config'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
+import { Logger } from '@helpers/Logger'
 
 const command: CommandData = {
   name: 'search',
@@ -30,7 +31,7 @@ const command: CommandData = {
     const query = interaction.options.getString('query')
     if (!query) {
       await interaction.followUp({
-        embeds: [MinaEmbed.error(mina.say('music.error.provideQuery'))],
+        embeds: [MinaEmbed.error(mina.say('error.provideQuery'))],
       })
       return
     }
@@ -58,14 +59,14 @@ async function search(
   query: string
 ): Promise<string | { embeds: MinaEmbed[] } | null> {
   if (!member.voice.channel) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notInVoice'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notInVoice'))] }
   }
 
   let player = guild.client.musicManager.getPlayer(guild.id)
 
   if (player && member.voice.channel !== guild.members.me.voice.channel) {
     return {
-      embeds: [MinaEmbed.error(mina.say('music.error.differentChannel'))],
+      embeds: [MinaEmbed.error(mina.say('error.differentChannel'))],
     }
   }
 
@@ -84,9 +85,9 @@ async function search(
     try {
       await player.connect()
     } catch (error: any) {
-      guild.client.logger?.error('Player Connect Error', error)
+      Logger.error('Player Connect Error', error)
       return {
-        embeds: [MinaEmbed.error(mina.say('music.error.connectFailed'))],
+        embeds: [MinaEmbed.error(mina.say('error.connectFailed'))],
       }
     }
   }
@@ -147,7 +148,7 @@ async function search(
       selectedIndex >= results.length
     ) {
       return {
-        embeds: [MinaEmbed.error(mina.say('music.error.invalidSelection'))],
+        embeds: [MinaEmbed.error(mina.say('error.invalidSelection'))],
       }
     }
 
@@ -178,9 +179,9 @@ async function search(
 
     return { embeds: [trackEmbed] }
   } catch (err: any) {
-    console.error('Error handling response:', err)
+    Logger.error('Error handling response', err)
     await searchMessage.delete().catch(() => {})
-    return { embeds: [MinaEmbed.error(mina.say('music.error.timeout'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.timeout'))] }
   }
 }
 

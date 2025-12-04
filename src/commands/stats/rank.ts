@@ -82,7 +82,7 @@ async function getRank(guild: any, member: GuildMember, settings: any) {
   url.searchParams.append('currentxp', memberStats.xp.toString())
   url.searchParams.append('reqxp', xpNeeded.toString())
   url.searchParams.append('level', memberStats.level.toString())
-  url.searchParams.append('barcolor', mina.color.primary)
+  url.searchParams.append('barcolor', mina.color.primary.toString())
   url.searchParams.append(
     'status',
     member?.presence?.status?.toString() || 'idle'

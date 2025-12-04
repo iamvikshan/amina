@@ -8,7 +8,7 @@ export default async function withdraw(
   user: User,
   coins: number
 ): Promise<string | { embeds: MinaEmbed[] }> {
-  if (isNaN(coins) || coins <= 0) return mina.say('economy.error.invalidAmount')
+  if (isNaN(coins) || coins <= 0) return mina.say('error.invalidAmount')
   const userDb = await getUser(user)
 
   if (coins > userDb.bank)

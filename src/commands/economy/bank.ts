@@ -94,7 +94,7 @@ const command: CommandData = {
     else if (sub === 'deposit') {
       const coins = interaction.options.getInteger('coins')
       if (coins === null) {
-        response = mina.say('economy.error.invalidAmount')
+        response = mina.say('error.invalidAmount')
       } else {
         response = await deposit(interaction.user, coins)
       }
@@ -104,7 +104,7 @@ const command: CommandData = {
     else if (sub === 'withdraw') {
       const coins = interaction.options.getInteger('coins')
       if (coins === null) {
-        response = mina.say('economy.error.invalidAmount')
+        response = mina.say('error.invalidAmount')
       } else {
         response = await withdraw(interaction.user, coins)
       }
@@ -117,7 +117,7 @@ const command: CommandData = {
       if (!user) {
         response = mina.say('notFound.user')
       } else if (coins === null) {
-        response = mina.say('economy.error.invalidAmount')
+        response = mina.say('error.invalidAmount')
       } else {
         response = await transfer(interaction.user, user, coins)
       }
@@ -125,7 +125,7 @@ const command: CommandData = {
 
     // fallback
     else {
-      response = mina.say('error')
+      response = mina.say('error.generic')
     }
 
     await interaction.followUp(response)

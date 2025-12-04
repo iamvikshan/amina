@@ -100,7 +100,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           mina.sayf('greetings.joinServer.description', {
             server: guild.name,
           }) +
-            `\n\n[${mina.say('botInfo.support')}](${config.BOT.SUPPORT_SERVER})`
+            `\n\n[${mina.say('botInfo.invite.support')}](${config.BOT.SUPPORT_SERVER})`
         )
         .setFooter({
           text: mina.say('greetings.joinServer.footer'),
@@ -128,7 +128,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           )
           .setDescription(
             mina.sayf('greetings.joinDM.description', { server: guild.name }) +
-              `\n\n[${mina.say('botInfo.support')}](${config.BOT.SUPPORT_SERVER})`
+              `\n\n[${mina.say('botInfo.invite.support')}](${config.BOT.SUPPORT_SERVER})`
           )
           .setFooter({ text: mina.say('greetings.joinDM.footer') })
 

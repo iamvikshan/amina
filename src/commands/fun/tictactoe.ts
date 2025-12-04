@@ -34,7 +34,7 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const opponent = interaction.options.getUser('user')
     if (!opponent) {
-      return interaction.followUp(mina.say('errors.missingInfo'))
+      return interaction.followUp(mina.say('error.missingInfo'))
     }
 
     // Check if opponent is a bot
@@ -59,7 +59,7 @@ const command: CommandData = {
       opponent: opponent,
       embed: {
         title: 'tic tac toe challenge!',
-        color: MinaEmbed.primary().data.color,
+        color: '#5865F2',
         statusTitle: 'current status',
         overTitle: 'game over!',
       },

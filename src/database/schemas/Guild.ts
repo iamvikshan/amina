@@ -2,10 +2,10 @@
 
 import mongoose from 'mongoose'
 import config from '../../config'
-import FixedSizeMap from 'fixedsize-map'
+import { LRUCache } from 'lru-cache'
 import { getUser } from './User'
 
-const cache = new FixedSizeMap(config.CACHE_SIZE.GUILDS)
+const cache = new LRUCache<string, any>({ max: config.CACHE_SIZE.GUILDS })
 
 const Schema = new mongoose.Schema({
   _id: String,
@@ -148,20 +148,10 @@ export const Model = mongoose.model('guild', Schema)
 
 /**
  * Delete guild from cache
- * FixedSizeMap doesn't have a delete method, but since it's an LRU cache,
- * the entry will naturally be evicted when the cache fills up.
- * The data is already deleted from the database, so the cache will become stale.
  * @param guildId - The guild ID to remove from cache
  */
 export function deleteGuildFromCache(guildId: string): void {
-  // FixedSizeMap is an LRU cache and doesn't have a delete method
-  // The cache entry will naturally become stale since the DB record is deleted
-  // and will be evicted when the cache fills up or replaced on next access
-  // Attempt to remove if method exists (for future compatibility)
-  if (typeof (cache as any).delete === 'function') {
-    ;(cache as any).delete(guildId)
-  }
-  // Otherwise, the LRU cache will handle eviction naturally
+  cache.delete(guildId)
 }
 
 export async function getSettings(guild: any) {
@@ -198,7 +188,7 @@ export async function getSettings(guild: any) {
     await guildData.save()
   }
 
-  cache.add(guild.id, guildData)
+  cache.set(guild.id, guildData)
   return guildData
 }
 
@@ -217,7 +207,7 @@ export async function updateSettings(guildId: string, settings: any) {
   const updatedSettings = await Model.findByIdAndUpdate(guildId, settings, {
     new: true,
   })
-  cache.add(guildId, updatedSettings)
+  cache.set(guildId, updatedSettings)
   return updatedSettings
 }
 
@@ -227,7 +217,7 @@ export async function setInviteLink(guildId: string, inviteLink: string) {
     { 'server.invite_link': inviteLink },
     { new: true }
   )
-  cache.add(guildId, updatedSettings)
+  cache.set(guildId, updatedSettings)
   return updatedSettings
 }
 

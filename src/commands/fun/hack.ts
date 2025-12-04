@@ -86,7 +86,11 @@ const command: CommandData = {
         .setDescription(mina.say('fun.hackResult.dmSuccess'))
 
       await message.edit({ embeds: [finalEmbed] })
-    } catch (_error) {
+    } catch (error) {
+      interaction.client.logger.error(
+        'Failed to send DM in hack command:',
+        error
+      )
       await message.edit({
         content: mina.say('fun.hackResult.dmFail'),
         embeds: [resultsEmbed],

@@ -9,15 +9,14 @@ export default async function transfer(
   target: User,
   coins: number
 ): Promise<string | { embeds: MinaEmbed[] }> {
-  if (isNaN(coins) || coins <= 0) return mina.say('economy.error.invalidAmount')
+  if (isNaN(coins) || coins <= 0) return mina.say('error.invalidAmount')
   if (target.bot) return mina.say('economy.transfer.noBots')
   if (target.id === self.id) return mina.say('economy.transfer.noSelf')
 
   const userDb = await getUser(self)
 
   if (userDb.bank < coins) {
-    const hint =
-      userDb.coins > 0 ? '\n' + mina.say('economy.error.depositHint') : ''
+    const hint = userDb.coins > 0 ? '\n' + mina.say('error.depositHint') : ''
     return (
       mina.sayf('economy.error.insufficientBank', {
         amount: `${userDb.bank}${ECONOMY.CURRENCY}`,

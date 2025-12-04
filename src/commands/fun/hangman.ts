@@ -40,7 +40,7 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const choice = interaction.options.getString('theme')
     if (!choice) {
-      return interaction.followUp(mina.say('errors.missingInfo'))
+      return interaction.followUp(mina.say('error.missingInfo'))
     }
 
     const Game = new Hangman({
@@ -50,7 +50,7 @@ const command: CommandData = {
         title: mina.sayf('fun.hangman.title', {
           theme: choice.charAt(0).toUpperCase() + choice.slice(1),
         }),
-        color: mina.color.warning,
+        color: '#5865F2',
       },
       hangman: {
         hat: '🎩',
@@ -67,12 +67,8 @@ const command: CommandData = {
     })
 
     Game.startGame()
-    Game.on('gameOver', (result: string) => {
-      if (result === 'win') {
-        Game.win()
-      } else if (result === 'lose') {
-        Game.lose()
-      }
+    Game.on('gameOver', (result: any) => {
+      console.log('Hangman game result:', result)
     })
     return
   },

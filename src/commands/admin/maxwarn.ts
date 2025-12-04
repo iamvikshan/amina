@@ -78,7 +78,7 @@ const command: CommandData = {
         data.settings
       )
     } else {
-      response = mina.say('errors.invalidSubcommand')
+      response = mina.say('error.invalidSubcommand')
     }
 
     await interaction.followUp(response)

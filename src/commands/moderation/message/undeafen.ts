@@ -12,7 +12,7 @@ export default async (
   const response = await unDeafenTarget(
     member as GuildMember,
     target,
-    reason || mina.say('moderation.error.noReason')
+    reason || mina.say('error.noReason')
   )
   if (typeof response === 'boolean') {
     return {
@@ -60,7 +60,7 @@ export default async (
   return {
     embeds: [
       MinaEmbed.error(
-        mina.sayf('moderation.error.failed', {
+        mina.sayf('error.failed', {
           action: 'undeafen',
           target: target.user.username,
         })

@@ -47,7 +47,7 @@ const command: CommandData = {
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            mina.sayf('moderation.error.specifyUser', { action: 'timeout' })
+            mina.sayf('error.specifyUser', { action: 'timeout' })
           ),
         ],
       })
@@ -59,7 +59,7 @@ const command: CommandData = {
     const ms = ems(duration)
     if (!ms) {
       return interaction.followUp({
-        embeds: [MinaEmbed.error(mina.say('moderation.error.invalidDuration'))],
+        embeds: [MinaEmbed.error(mina.say('error.invalidDuration'))],
       })
     }
 
@@ -92,14 +92,14 @@ async function timeout(
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (isNaN(ms)) {
     return {
-      embeds: [MinaEmbed.error(mina.say('moderation.error.invalidDuration'))],
+      embeds: [MinaEmbed.error(mina.say('error.invalidDuration'))],
     }
   }
   const response = await timeoutTarget(
     issuer,
     target,
     ms,
-    reason || mina.say('moderation.error.noReason')
+    reason || mina.say('error.noReason')
   )
   if (typeof response === 'boolean') {
     return {
@@ -122,7 +122,7 @@ async function timeout(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.alreadyTimeout', {
+          mina.sayf('error.alreadyTimeout', {
             target: target.user.username,
           })
         ),
@@ -132,7 +132,7 @@ async function timeout(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.failed', {
+          mina.sayf('error.failed', {
             action: 'timeout',
             target: target.user.username,
           })

@@ -27,7 +27,7 @@ function nowPlaying({
 }): string | { embeds: MinaEmbed[] } {
   const player = client.musicManager.getPlayer(guildId)
   if (!player || !player.queue.current) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notPlaying'))] }
   }
 
   const track = player.queue.current

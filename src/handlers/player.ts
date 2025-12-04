@@ -50,7 +50,7 @@ export const autoplayFunction = async (
   if (!res || res.tracks.length === 0) {
     await channel.safeSend(
       {
-        embeds: [MinaEmbed.warning(mina.say('music.error.noResults'))],
+        embeds: [MinaEmbed.warning(mina.say('error.noResults'))],
       },
       10
     )
@@ -76,7 +76,7 @@ export const autoplayFunction = async (
   if (player.queue.tracks.length === 0) {
     await channel?.safeSend(
       {
-        embeds: [MinaEmbed.warning(mina.say('music.error.noResults'))],
+        embeds: [MinaEmbed.warning(mina.say('error.noResults'))],
       },
       10
     )

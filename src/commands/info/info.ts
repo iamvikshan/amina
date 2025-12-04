@@ -93,7 +93,6 @@ const command: CommandData = {
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
-    if (!sub) return interaction.followUp(mina.say('error'))
     let response
 
     // user
@@ -154,7 +153,7 @@ const command: CommandData = {
 
     // return
     else {
-      response = mina.say('error')
+      response = mina.say('error.generic')
     }
 
     await interaction.followUp(response)

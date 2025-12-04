@@ -338,7 +338,9 @@ export async function showCategoryDetailView(
     const hasPrev = currentPage > 1
     const hasNext = currentPage < totalPages
     const navRow =
-      hasPrev || hasNext ? MinaRows.prevNext(hasPrev, hasNext) : null
+      hasPrev || hasNext
+        ? MinaRows.prevNext(undefined, { prev: !hasPrev, next: !hasNext })
+        : null
 
     if (navRow) {
       // Update custom IDs
@@ -550,7 +552,7 @@ export async function handleDmMe(
         content: mina.say('success'),
         ephemeral: true,
       })
-    } catch (dmError) {
+    } catch (_dmError) {
       // User has DMs disabled
       await interaction.followUp({
         content: mina.sayf('minaai.memories.error.dmFailed', {
@@ -570,7 +572,7 @@ export async function handleDmMe(
     )
 
     await interaction.followUp({
-      content: mina.say('error'),
+      content: mina.say('error.generic'),
       ephemeral: true,
     })
   }

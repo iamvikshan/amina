@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Main entry point for all global type definitions
 // This file ensures all types are loaded and globally available
 

@@ -39,9 +39,7 @@ const command: CommandData = {
     if (!user) {
       await interaction.followUp({
         embeds: [
-          MinaEmbed.error(
-            mina.sayf('moderation.error.specifyUser', { action: 'warn' })
-          ),
+          MinaEmbed.error(mina.sayf('error.specifyUser', { action: 'warn' })),
         ],
       })
       return
@@ -74,7 +72,7 @@ async function warn(
   const response = await warnTarget(
     issuer,
     target,
-    reason || mina.say('moderation.error.noReason')
+    reason || mina.say('error.noReason')
   )
   if (typeof response === 'boolean') {
     return {
@@ -97,7 +95,7 @@ async function warn(
     return {
       embeds: [
         MinaEmbed.error(
-          mina.sayf('moderation.error.failed', {
+          mina.sayf('error.failed', {
             action: 'warn',
             target: target.user.username,
           })

@@ -60,6 +60,8 @@ export async function handleManageMenu(
 ): Promise<void> {
   const option = interaction.values[0]
   const channel = interaction.channel
+  const guild = interaction.guild
+  if (!guild) return
 
   // Check if admin is in a ticket channel for operations that require it
   if (option !== 'closeall') {
@@ -70,15 +72,16 @@ export async function handleManageMenu(
       const embed = MinaEmbed.error(mina.say('ticket.manage.notInTicket'))
 
       // Try to find any ticket channel to provide as example
-      const ticketChannels = interaction.guild!.channels.cache.filter(ch =>
+      const ticketChannels = guild.channels.cache.filter(ch =>
         isTicketChannel(ch)
       )
 
       if (ticketChannels.size > 0) {
-        const exampleChannel = ticketChannels.first()!
+        const exampleChannel = ticketChannels.first()
+        if (!exampleChannel) return
         const linkButton = MinaRows.from(
           MinaButtons.link(
-            `https://discord.com/channels/${interaction.guild!.id}/${exampleChannel.id}`,
+            `https://discord.com/channels/${guild.id}/${exampleChannel.id}`,
             mina.say('ticket.manage.button')
           )
         )
@@ -102,24 +105,28 @@ export async function handleManageMenu(
   }
 
   switch (option) {
-    case 'close':
+    case 'close': {
       const { handleCloseTicket } = await import('./close')
       await interaction.deferUpdate()
       await handleCloseTicket(interaction)
       break
-    case 'closeall':
-      const { showCloseAllConfirmation } = await import('./close-all')
+    }
+    case 'closeall': {
+      const { showCloseAllConfirmation } = await import('./closeAll')
       await interaction.deferUpdate()
       await showCloseAllConfirmation(interaction)
       break
-    case 'add':
-      const { showAddUserSelect } = await import('./add-user')
+    }
+    case 'add': {
+      const { showAddUserSelect } = await import('./addUser')
       await showAddUserSelect(interaction)
       break
-    case 'remove':
-      const { showRemoveUserSelect } = await import('./remove-user')
+    }
+    case 'remove': {
+      const { showRemoveUserSelect } = await import('./removeUser')
       await showRemoveUserSelect(interaction)
       break
+    }
     default:
       await interaction.reply({
         content: 'invalid manage option',

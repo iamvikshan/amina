@@ -26,7 +26,7 @@ async function handleReportModal(
       const guildSettings = await getSettings({ id: serverId } as any)
       if (!guildSettings) {
         const errorEmbed = MinaEmbed.error()
-          .setAuthor({ name: mina.say('report.error.serverNotFound') })
+          .setAuthor({ name: mina.say('error.serverNotFound') })
           .setDescription(
             'check the server id.\n\n' +
               '**how to find it:**\n' +
@@ -67,8 +67,11 @@ async function handleReportModal(
               inviteLink = invite.url
               await setInviteLink(guild.id, inviteLink)
             }
-          } catch (_error) {
-            console.error('error creating invite:', _error)
+          } catch (error) {
+            ;(interaction.client as any).logger.error(
+              'error creating invite:',
+              error
+            )
           }
         }
       }
@@ -117,14 +120,17 @@ async function handleReportModal(
         })
       } else {
         await interaction.reply({
-          embeds: [MinaEmbed.error(mina.say('report.error.sendFailed'))],
+          embeds: [MinaEmbed.error(mina.say('error.sendFailed'))],
           ephemeral: true,
         })
       }
-    } catch (_error) {
-      console.error('error fetching guild settings:', _error)
+    } catch (error) {
+      ;(interaction.client as any).logger.error(
+        'error fetching guild settings:',
+        error
+      )
       await interaction.reply({
-        embeds: [MinaEmbed.error(mina.say('report.error.processFailed'))],
+        embeds: [MinaEmbed.error(mina.say('error.processFailed'))],
         ephemeral: true,
       })
     }
@@ -135,7 +141,7 @@ async function handleReportModal(
       additionalInfo = `Reported User: ${user.tag} (${userId})`
     } else {
       const errorEmbed = MinaEmbed.error()
-        .setAuthor({ name: mina.say('report.error.userNotFound') })
+        .setAuthor({ name: mina.say('error.userNotFound') })
         .setDescription(
           'check the user id.\n\n' +
             '**how to find it:**\n' +
@@ -157,10 +163,13 @@ async function handleReportModal(
       if (question) {
         additionalInfo = `Question ID: ${questionId}\nCategory: ${question.category}\nQuestion: ${question.question}`
       }
-    } catch (_error) {
-      console.error('error fetching question:', _error)
+    } catch (error) {
+      ;(interaction.client as any).logger.error(
+        'error fetching question:',
+        error
+      )
       const errorEmbed = MinaEmbed.error()
-        .setAuthor({ name: mina.say('report.error.questionNotFound') })
+        .setAuthor({ name: mina.say('error.questionNotFound') })
         .setDescription(
           'check the question id.\n\n' +
             '**where to find it:**\n' +
@@ -241,7 +250,7 @@ async function handleReportModal(
       })
     } else {
       await interaction.reply({
-        embeds: [MinaEmbed.error(mina.say('report.error.sendFailed'))],
+        embeds: [MinaEmbed.error(mina.say('error.sendFailed'))],
         ephemeral: true,
       })
     }
@@ -301,8 +310,8 @@ async function sendWebhook(
       embeds: [embed],
     })
     return true
-  } catch (_error) {
-    console.error('error sending webhook:', _error)
+  } catch (error) {
+    ;(client as any).logger.error('error sending webhook:', error)
     return false
   }
 }

@@ -36,7 +36,7 @@ async function pause({
   const player = client.musicManager.getPlayer(guildId)
 
   if (!player || !player.queue.current) {
-    return { embeds: [MinaEmbed.error(mina.say('music.error.notPlaying'))] }
+    return { embeds: [MinaEmbed.error(mina.say('error.notPlaying'))] }
   }
 
   if (player.paused) {

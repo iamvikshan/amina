@@ -79,6 +79,7 @@
     ],
     "privileged": [
       "ban",
+      "add",
       "kick",
       "warn",
       "warnings",

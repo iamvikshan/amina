@@ -44,23 +44,17 @@ const command: CommandData = {
     const settings = data?.settings || {}
 
     let response
+    const guild = interaction.guild
+    if (!guild) return
     switch (type) {
       case 'xp':
-        response = await getXpLeaderboard(
-          interaction.guild!,
-          interaction.user,
-          settings
-        )
+        response = await getXpLeaderboard(guild, interaction.user, settings)
         break
       case 'invite':
-        response = await getInviteLeaderboard(
-          interaction.guild!,
-          interaction.user,
-          settings
-        )
+        response = await getInviteLeaderboard(guild, interaction.user, settings)
         break
       default:
-        response = mina.say('error')
+        response = mina.say('error.generic')
     }
 
     await interaction.followUp(response)

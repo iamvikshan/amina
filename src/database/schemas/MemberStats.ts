@@ -1,10 +1,10 @@
 import mongoose from 'mongoose'
 import config from '@src/config'
-import FixedSizeMap from 'fixedsize-map'
+import { LRUCache } from 'lru-cache'
 
 const { CACHE_SIZE } = config
 
-const cache = new FixedSizeMap(CACHE_SIZE.MEMBERS)
+const cache = new LRUCache<string, any>({ max: CACHE_SIZE.MEMBERS })
 
 const ReqString = {
   type: String,
@@ -45,7 +45,7 @@ export async function getMemberStats(
   memberId: string
 ): Promise<any> {
   const key = `${guildId}|${memberId}`
-  if (cache.contains(key)) return cache.get(key)
+  if (cache.has(key)) return cache.get(key)
 
   let member = await Model.findOne({ guild_id: guildId, member_id: memberId })
   if (!member) {
@@ -55,7 +55,7 @@ export async function getMemberStats(
     })
   }
 
-  cache.add(key, member)
+  cache.set(key, member)
   return member
 }
 

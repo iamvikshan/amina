@@ -59,11 +59,13 @@ export async function handleLogChannelSelect(
     return
   }
 
-  // Check bot permissions
+  // Ensure guild is available and check bot permissions
+  if (!interaction.guild) return
+  const guild = interaction.guild
+  const botMember = guild.members.me
   if (
-    !channel
-      .permissionsFor(interaction.guild!.members.me!)
-      ?.has(['SendMessages', 'EmbedLinks'])
+    !botMember ||
+    !channel.permissionsFor(botMember)?.has(['SendMessages', 'EmbedLinks'])
   ) {
     await interaction.reply({
       embeds: [
@@ -79,9 +81,9 @@ export async function handleLogChannelSelect(
   await interaction.deferUpdate()
 
   // Update settings
-  const settings = await getSettings(interaction.guild!)
+  const settings = await getSettings(guild)
   settings.ticket.log_channel = channel.id
-  await updateSettings(interaction.guild!.id, settings)
+  await updateSettings(guild.id, settings)
 
   const successEmbed = MinaEmbed.success(
     `configuration saved. ticket logs will be sent to ${channel.toString()}.\n\n` +

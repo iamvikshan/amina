@@ -80,32 +80,36 @@ export class MinaEmbed extends EmbedBuilder {
   }
 
   // ============================================
-  // QUOTE METHODS (as embed field, italicized)
+  // QUOTE METHODS (appended to description)
   // ============================================
 
   /**
-   * Add anime quote as italicized field (async)
+   * Format quote for display
+   * Returns: "quote text" — character - anime
+   */
+  private formatQuote(quote: string, character: string, anime: string): string {
+    return `*"${quote}"*\n— ${character} - ${anime}`
+  }
+
+  /**
+   * Add anime quote to end of description (async)
    */
   async withQuote(): Promise<this> {
     const q = await mina.quote()
-    this.addFields({
-      name: '\u200b', // invisible character for clean look
-      value: `*"${q.text}"*\n— ${q.source}`,
-      inline: false,
-    })
+    const current = this.data.description || ''
+    const quoteLine = this.formatQuote(q.text, q.character, q.anime)
+    this.setDescription(`${current}\n\n${quoteLine}`)
     return this
   }
 
   /**
-   * Add anime quote as italicized field (sync - uses cache)
+   * Add anime quote to end of description (sync - uses cache)
    */
   withQuoteSync(): this {
     const q = mina.quoteSync()
-    this.addFields({
-      name: '\u200b',
-      value: `*"${q.text}"*\n— ${q.source}`,
-      inline: false,
-    })
+    const current = this.data.description || ''
+    const quoteLine = this.formatQuote(q.text, q.character, q.anime)
+    this.setDescription(`${current}\n\n${quoteLine}`)
     return this
   }
 
@@ -412,7 +416,7 @@ export class MinaEmbed extends EmbedBuilder {
   static error(description?: string): MinaEmbed {
     return new MinaEmbed()
       .setColor(mina.color.error as ColorResolvable)
-      .setDescription(description || mina.say('error'))
+      .setDescription(description || mina.say('error.generic'))
       .withRandomExtras(0.1, 0.2)
   }
 

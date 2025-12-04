@@ -1,9 +1,9 @@
 import CommandCategory from '@src/structures/CommandCategory'
 import config from '@src/config'
+import { Logger } from '@helpers/Logger'
 import {
   ActionRowBuilder,
   StringSelectMenuBuilder,
-  ButtonBuilder,
   ChatInputCommandInteraction,
   ApplicationCommandOptionType,
   Message,
@@ -15,7 +15,7 @@ import {
 } from 'discord.js'
 import { getSlashUsage } from '@handlers/command'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { MinaButtons } from '@helpers/componentHelper'
+import { MinaRows } from '@helpers/componentHelper'
 
 interface BotClient extends Client {
   slashCommands: Collection<string, CommandData>
@@ -113,11 +113,11 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
       .addOptions(options)
   )
 
-  // Buttons Row - initially disabled
-  const buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    MinaButtons.prev('previousBtn', true),
-    MinaButtons.next('nextBtn', true)
-  )
+  // Buttons Row - initially disabled (no category selected yet)
+  const buttonsRow = MinaRows.pagination(0, 1, {
+    prev: 'previousBtn',
+    next: 'nextBtn',
+  })
 
   // intentional hardcoded responses
   const botName = guild?.members.me?.displayName || 'mina'
@@ -169,18 +169,11 @@ const waiter = (msg: Message, member: GuildMember) => {
           arrEmbeds = getSlashCategoryEmbeds(client, cat, member)
           currentPage = 0
 
-          // Buttons Row
-          const hasMultiplePages = arrEmbeds.length > 1
-          buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            MinaButtons.prev(
-              'previousBtn',
-              !hasMultiplePages || currentPage === 0
-            ),
-            MinaButtons.next(
-              'nextBtn',
-              !hasMultiplePages || currentPage >= arrEmbeds.length - 1
-            )
-          )
+          // Buttons Row - use pagination helper
+          buttonsRow = MinaRows.pagination(currentPage, arrEmbeds.length, {
+            prev: 'previousBtn',
+            next: 'nextBtn',
+          })
           // Use response.editReply instead of msg.edit
           await response.editReply({
             embeds: [arrEmbeds[currentPage]],
@@ -193,10 +186,10 @@ const waiter = (msg: Message, member: GuildMember) => {
           if (currentPage !== 0) {
             --currentPage
             // Update buttons based on new page
-            buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-              MinaButtons.prev('previousBtn', currentPage === 0),
-              MinaButtons.next('nextBtn', currentPage >= arrEmbeds.length - 1)
-            )
+            buttonsRow = MinaRows.pagination(currentPage, arrEmbeds.length, {
+              prev: 'previousBtn',
+              next: 'nextBtn',
+            })
             // Use response.editReply instead of msg.edit
             await response.editReply({
               embeds: [arrEmbeds[currentPage]],
@@ -209,10 +202,10 @@ const waiter = (msg: Message, member: GuildMember) => {
           if (currentPage < arrEmbeds.length - 1) {
             currentPage++
             // Update buttons based on new page
-            buttonsRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-              MinaButtons.prev('previousBtn', currentPage === 0),
-              MinaButtons.next('nextBtn', currentPage >= arrEmbeds.length - 1)
-            )
+            buttonsRow = MinaRows.pagination(currentPage, arrEmbeds.length, {
+              prev: 'previousBtn',
+              next: 'nextBtn',
+            })
             // Use response.editReply instead of msg.edit
             await response.editReply({
               embeds: [arrEmbeds[currentPage]],
@@ -223,7 +216,7 @@ const waiter = (msg: Message, member: GuildMember) => {
       }
     } catch (error) {
       // Log the error but don't crash
-      console.error('Error handling help menu interaction:', error)
+      Logger.error('Error handling help menu interaction', error)
     }
   })
 

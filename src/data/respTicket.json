@@ -1,5 +1,11 @@
 {
   "ticket": {
+    "hubDetails": {
+      "title": "ticket hub",
+      "description": "manage your server's ticket system.",
+      "setup": "set up ticket categories, channels, and messages.",
+      "manage": "close, claim, or modify existing tickets."
+    },
     "hub": {
       "title": ["ticket management hub", "ticket hub", "tickets"],
       "description": [

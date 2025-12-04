@@ -6,6 +6,7 @@ import {
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { clearProfile } from '@schemas/User'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { Logger } from '@helpers/Logger'
 
 /**
  * Legacy handler for old String Select Menu clear confirmation
@@ -37,7 +38,7 @@ export async function handleProfileClear(
       components: [],
     })
   } catch (error) {
-    console.error('Error clearing profile:', error)
+    Logger.error('Error clearing profile', error)
     await interaction.update({
       content:
         'oh no! something went wrong while clearing your profile. want to try again?',
@@ -115,7 +116,7 @@ export async function handleClearConfirm(
       components: [],
     })
   } catch (error) {
-    console.error('Error clearing profile:', error)
+    Logger.error('Error clearing profile', error)
     await interaction.reply({
       content:
         'oh no! something went wrong while clearing your profile. want to try again?',

@@ -69,8 +69,8 @@ const command: CommandData = {
           const selected = i.values[0]
           await showReportModal(i, selected)
         }
-      } catch (_error) {
-        Logger.error('Error handling report select interaction', _error)
+      } catch (error) {
+        Logger.error('Error handling report select interaction', error)
       }
     })
 

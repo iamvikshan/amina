@@ -1,5 +1,10 @@
 {
   "profile": {
+    "hubDetails": {
+      "title": "profile hub",
+      "description": "customize your profile.",
+      "sections": "bio, age, links, and privacy settings."
+    },
     "hub": {
       "title": "profile hub",
       "description": "manage your profile:\n\nedit profile - update your info\nprivacy settings - control visibility\nclear profile - start fresh"

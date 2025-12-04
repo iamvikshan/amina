@@ -35,9 +35,9 @@
 
 Hey there! I'm **Amina** (**mina**)— your guardian companion.
 
-Unlike those cold, emotionless bots, I was given something special: **a heart**. I don't just moderate servers; I **protect communities** and help them thrive. Think of me as your right hand in battle — someone who'll stand beside you, fight alongside you, and celebrate your victories, eve the littlest.
+Unlike those cold, emotionless bots, I was given something special: **a heart**. I don't just moderate servers; I **protect communities** and help them thrive. Think of me as your right hand in battle — someone who'll stand beside you, fight alongside you, and celebrate your victories, even the littlest.
 
-I'm dedicated to defending communities from spam, toxicity, and chaos. But the thing is: a server without protection is vulnerable, but a server without joy is already dead. That's why I bring **both** to the table.
+I'm dedicated to defending communities from spam, toxicity, and chaos. But the thing is: _a_ server without protection is vulnerable, but a server without joy is already dead.\* That's why I bring **both** to the table.
 
 > _"Communities are everything. And protect them all i shall."_ — Amina
 

@@ -5,6 +5,7 @@ import type { Message } from 'discord.js'
 import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/aiResponder'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import { Logger } from '@helpers/Logger'
 
 /**
  * Fetches pronouns for multiple users from PronounsDB API v2 (batched)
@@ -48,7 +49,7 @@ async function fetchPronounsBatch(
 
     return pronounsMap
   } catch (error) {
-    console.error('Error fetching pronouns:', error)
+    Logger.error('Error fetching pronouns', error)
     // Fallback: set all to default
     userIds.forEach(id => pronounsMap.set(id, 'they/them'))
     return pronounsMap

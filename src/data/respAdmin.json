@@ -1,4 +1,11 @@
 {
+  "hubDetails": {
+    "admin": {
+      "title": "admin hub",
+      "description": "server configuration central.",
+      "sections": "greeting, logging, automod, roles, and more."
+    }
+  },
   "admin": {
     "settings": {
       "status": {

@@ -8,12 +8,13 @@ import botstats from './sub/botstats'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
+import { Logger } from '@helpers/Logger'
 
 import type { BotClient } from '@structures/BotClient'
 import packageJson from '@root/package.json'
 
 const command: CommandData = {
-  name: 'bot',
+  name: 'mina',
   description: 'get info about me - stats, invite, uptime, and more',
   category: 'INFO',
   botPermissions: ['EmbedLinks'],
@@ -213,7 +214,7 @@ const command: CommandData = {
 
         return interaction.followUp({ embeds: [embed] })
       } catch (error) {
-        console.error('Error fetching changelog:', error)
+        Logger.error('Error fetching changelog', error)
         return interaction.followUp(
           mina.sayf('botInfo.changelog.error', {
             url: 'https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md',

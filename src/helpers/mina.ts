@@ -67,7 +67,7 @@ async function fetchQuotes(): Promise<Quote[]> {
 
     return getFallbackQuotes()
   } catch (error) {
-    console.error('[mina] Failed to fetch quotes:', error)
+    Logger.error('Failed to fetch quotes', error)
     return getFallbackQuotes()
   }
 }
@@ -235,19 +235,25 @@ export const mina = {
    * Get random anime quote (async - fetches from API)
    * Returns full quote (no truncation)
    */
-  quote: async (): Promise<{ text: string; source: string }> => {
+  quote: async (): Promise<{
+    text: string
+    character: string
+    anime: string
+  }> => {
     try {
       const quotes = await fetchQuotes()
       const q = random(quotes)
 
       return {
         text: q.quote.toLowerCase(),
-        source: `${q.character} - ${q.anime}`.toLowerCase(),
+        character: q.character.toLowerCase(),
+        anime: q.anime.toLowerCase(),
       }
     } catch {
       return {
         text: 'the only ones who should kill are those prepared to be killed.',
-        source: 'lelouch - code geass',
+        character: 'lelouch',
+        anime: 'code geass',
       }
     }
   },
@@ -256,13 +262,14 @@ export const mina = {
    * Get random anime quote (sync - uses cache/fallback only)
    * Use this when you can't await
    */
-  quoteSync: (): { text: string; source: string } => {
+  quoteSync: (): { text: string; character: string; anime: string } => {
     const quotes = quotesCache.length > 0 ? quotesCache : getFallbackQuotes()
     const q = random(quotes)
 
     return {
       text: q.quote.toLowerCase(),
-      source: `${q.character} - ${q.anime}`.toLowerCase(),
+      character: q.character.toLowerCase(),
+      anime: q.anime.toLowerCase(),
     }
   },
 

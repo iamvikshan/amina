@@ -33,22 +33,96 @@
     "sorted.",
     "finished."
   ],
-  "error": [
-    "oof. that's broken.",
-    "nope. try again.",
-    "something's wrong and it's not me.",
-    "L.",
-    "yeah that didn't work.",
-    "bruh. no.",
-    "that flopped.",
-    "nah, error.",
-    "skill issue. jk, it's broken."
-  ],
-  "errors": {
+  "error": {
+    "generic": [
+      "oof. that's broken.",
+      "nope. try again.",
+      "something's wrong and it's not me.",
+      "L.",
+      "yeah that didn't work.",
+      "bruh. no.",
+      "that flopped.",
+      "nah, error.",
+      "skill issue. jk, it's broken."
+    ],
     "memberNotFound": "could not find member information",
     "missingInfo": "missing required information",
-    "invalidSubcommand": "invalid subcommand"
+    "invalidSubcommand": "invalid subcommand",
+    "unknownSubcommand": "unknown subcommand",
+    "missingPerm": "you can't do that.",
+    "botMissingPerm": "i can't do that.",
+    "notInVoice": "join a voice channel first.",
+    "notPlaying": "nothing's playing rn.",
+    "noResults": "no results found.",
+    "invalidAmount": "enter a valid amount.",
+    "invalidDuration": "invalid duration. use: 1d/1h/1m/1s",
+    "noReason": "no reason provided.",
+    "failed": "failed to {action} {target}.",
+    "notInServer": "user not in this server.",
+    "timeout": "selection timed out.",
+    "noPermission": "i don't have permission to do that.",
+    "invalidChannel": "provide a valid channel.",
+    "invalidMessage": "provide a valid message.",
+    "connectFailed": "can't connect to voice.",
+    "loadFailed": "failed to load that track.",
+    "differentChannel": "we need to be in the same channel.",
+    "provideQuery": "provide a search query.",
+    "provideSong": "provide a song name or url.",
+    "invalidSelection": "invalid selection.",
+    "invalidTimeFormat": "invalid time format. use 10s, 1m 50s, 1h",
+    "invalidLoopType": "invalid loop type.",
+    "invalidLevel": "invalid bassboost level.",
+    "selectLevel": "select a bassboost level.",
+    "noMatch": "no user found matching {match}.",
+    "specifyUser": "specify a valid user.",
+    "alreadyTimeout": "{target} is already timed out.",
+    "noTimeout": "{target} is not timed out.",
+    "sendFailed": "couldn't send report. try again.",
+    "processFailed": "couldn't process report. try again.",
+    "serverNotFound": "server not found. check the id.",
+    "userNotFound": "user not found. check the id.",
+    "questionNotFound": "question not found. check the qid.",
+    "alreadyExists": "you already have an open ticket",
+    "tooMany": "there are too many open tickets. try again later",
+    "chooseTopic": "please choose a topic for the ticket",
+    "timedOut": "timed out. try again",
+    "processing": "processing",
+    "maxChannels": "this server has reached the maximum number of channels.",
+    "missingPermissions": "i don't have the required permissions to create ticket channels.\n\nplease ensure i have:\n• **manage channels**\n• **view channel**\n\nalso make sure my role is positioned above the ticket category.",
+    "invalidCategory": "invalid category selected.",
+    "noMessageId": "please provide a message id",
+    "giveawayNotFound": "giveaway not found.",
+    "alreadyEnded": "giveaway already ended.",
+    "notStarted": "giveaway hasn't started yet.",
+    "alreadyEntered": "you already entered.",
+    "noChannel": "please provide a channel",
+    "invalidWinners": "setup has been cancelled. you did not specify a valid winner count",
+    "invalidHost": "setup has been cancelled. you need to provide a valid userid for host",
+    "invalidUrl": "invalid url",
+    "provideValid": "please provide a valid url.",
+    "missingFields": "please provide both title and content.",
+    "noFlags": "this user has no red flags.",
+    "maxReached": "you've reached the maximum of {max} reminders.\n\ndelete some reminders in `/reminder hub` to create more.",
+    "minDuration": "minimum duration is {minutes} minutes.",
+    "maxDuration": "maximum duration is {days} days.",
+    "emptyMessage": "message cannot be empty.",
+    "tooLong": "message must be 500 characters or less.",
+    "invalidId": "invalid reminder id.",
+    "reminderNotFound": "reminder not found.",
+    "insufficientWallet": "not enough coins in wallet.",
+    "insufficientBank": "not enough coins in bank.",
+    "minBet": "minimum bet is {amount}.",
+    "depositHint": "deposit your coins first before you can transfer.",
+    "fetchFailed": "couldn't fetch user info. they might not be in this server.",
+    "invalid": "not a valid guild emoji.",
+    "disabled": "leaderboard is disabled here.",
+    "empty": "no users on the leaderboard.",
+    "title": "error",
+    "description": "failed to fetch memories. please try again later or contact support.",
+    "dmFailed": "couldn't send you a dm, but here's your memories link: {url}",
+    "invalidType": "invalid reload type selected"
   },
+
   "serverOnly": [
     "server only.",
     "can't do that in dms.",
@@ -151,78 +225,7 @@
       "later {user}."
     ]
   },
-  "hub": {
-    "ticket": {
-      "title": "ticket hub",
-      "description": "manage your server's ticket system.",
-      "setup": "set up ticket categories, channels, and messages.",
-      "manage": "close, claim, or modify existing tickets."
-    },
-    "admin": {
-      "title": "admin hub",
-      "description": "server configuration central.",
-      "sections": "greeting, logging, automod, roles, and more."
-    },
-    "profile": {
-      "title": "profile hub",
-      "description": "customize your profile.",
-      "sections": "bio, age, links, and privacy settings."
-    }
-  },
-  "botInfo": {
-    "invite": {
-      "title": "invite",
-      "description": "hey there! thanks for considering to invite me\nuse the button below to navigate where you want",
-      "button": "invite link",
-      "support": "support server",
-      "dashboard": "dashboard link"
-    },
-    "donate": {
-      "title": "donate",
-      "description": "hey there! thanks for considering to donate to me\nuse the button below to navigate where you want",
-      "button": {
-        "kofi": "ko-fi",
-        "github": "github sponsors",
-        "patreon": "patreon"
-      }
-    },
-    "docs": {
-      "title": "documentation",
-      "description": "hey there! ah you want to know more about me? or you are just lost? \nwell, use the button below to see my documentation\n\nif you are lost, you can also use the `help` command to see all my commands",
-      "footer": "free cookies!",
-      "button": "documentation"
-    },
-    "ping": {
-      "checking": "pinging...",
-      "result": "pong: `{ping}ms`"
-    },
-    "uptime": {
-      "result": "my uptime: `{uptime}`"
-    },
-    "stats": {
-      "title": "bot information",
-      "fields": {
-        "cpu": "cpu",
-        "botRam": "bot's ram",
-        "overallRam": "overall ram",
-        "nodeVersion": "node js version",
-        "uptime": "uptime"
-      }
-    },
-    "changelog": {
-      "title": "latest updates",
-      "footer": "only showing the 2 most recent updates",
-      "error": "error fetching the changelog. please try again later or view full changelog [here]({url})."
-    },
-    "dm": {
-      "sent": "check your dm for my information!",
-      "failed": "i cannot send you my information! is your dm open?"
-    },
-    "error": {
-      "unknownSubcommand": "unknown subcommand",
-      "invalidSubcommand": "not a valid subcommand"
-    }
-  },
+
   "levelup": [
     "{user} hit level {level}.",
     "level up: {user} is now {level}.",
@@ -324,13 +327,13 @@
   ],
   "lists": {
     "celebrities": [
-      "Elon Musk",
+      "Elon Tusk",
       "Bill Gates",
       "Jeff Bezos",
       "MrBeast",
       "PewDiePie",
-      "Snoop Dogg",
-      "Mark Zuckerberg",
+      "Snoop Doggie",
+      "Mark Fuckerberg",
       "Taylor Swift",
       "Dwayne Johnson",
       "Kylie Jenner",
@@ -339,17 +342,16 @@
       "Drake",
       "Beyoncé",
       "LeBron James",
-      "Cristiano Ronaldo",
-      "Lionel Messi",
+      "Ronaldo",
+      "Messi",
       "Ariana Grande",
       "Justin Bieber",
       "Selena Gomez",
       "Rihanna",
       "Cardi B",
-      "Post Malone",
+      "Post Me Alone",
       "Ed Sheeran",
       "Travis Scott",
-      "Kendall Jenner",
       "Nicki Minaj",
       "The Weeknd",
       "Lady Gaga",
@@ -360,14 +362,18 @@
       "Shakira",
       "Tom Holland",
       "Zendaya",
-      "Timothée Chalamet",
       "Chris Hemsworth",
       "Robert Downey Jr.",
       "Scarlett Johansson",
       "Ninja",
       "Pokimane",
       "Dream",
-      "KSI"
+      "KSI",
+      "vikshan",
+      "mina",
+      "someone from the hub",
+      "ur ex",
+      "that one celebrity you like"
     ],
     "slotEmojis": ["🍎", "🍊", "🍋", "🍇", "🍉", "🍒", "🔔", "⭐", "💎", "7️⃣"]
   }

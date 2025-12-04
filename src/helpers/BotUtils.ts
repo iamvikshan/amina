@@ -1,6 +1,7 @@
 // src/helpers/BotUtils.ts
 import HttpUtils from '@helpers/HttpUtils'
 import { success, warn, error } from '@helpers/Logger'
+import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import type { Message } from 'discord.js'
 // Validation is now globally available - see types/commands.d.ts
 
@@ -114,17 +115,17 @@ export default class BotUtils {
       {
         callback: ({ client, guildId }: any) =>
           client.musicManager.getPlayer(guildId),
-        message: "🚫 I'm not in a voice channel.",
+        message: MinaEmbed.error("i'm not in a voice channel"),
       },
       {
         callback: ({ member }: any) => member.voice?.channelId,
-        message: '🚫 You need to join my voice channel.',
+        message: MinaEmbed.error('you need to join my voice channel'),
       },
       {
         callback: ({ member, client, guildId }: any) =>
           member.voice?.channelId ===
           client.musicManager.getPlayer(guildId)?.voiceChannelId,
-        message: "🚫 You're not in the same voice channel.",
+        message: MinaEmbed.error("you're not in the same voice channel"),
       },
     ]
   }

@@ -18,7 +18,7 @@ export default async (
   const response = await moveTarget(
     member as GuildMember,
     target,
-    reason || mina.say('moderation.error.noReason'),
+    reason || mina.say('error.noReason'),
     channel
   )
 
@@ -69,7 +69,7 @@ export default async (
   return {
     embeds: [
       MinaEmbed.error(
-        mina.sayf('moderation.error.failed', {
+        mina.sayf('error.failed', {
           action: 'move',
           target: target.user.username,
         })

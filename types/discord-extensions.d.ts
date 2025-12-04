@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Discord.js prototype extensions
 
 import type {
@@ -6,8 +5,13 @@ import type {
   MessageCreateOptions,
   MessageReplyOptions,
 } from 'discord.js'
+import type Logger from '@src/helpers/Logger'
 
 declare module 'discord.js' {
+  interface Client {
+    logger: typeof Logger
+  }
+
   interface Guild {
     findMatchingChannels(query: string, type?: any[]): any[]
     findMatchingVoiceChannels(query: string, type?: any[]): any[]

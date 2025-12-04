@@ -8,7 +8,19 @@ export default async function dmsHandler(
 ) {
   const enabled = interaction.options.getBoolean('enabled', true)
 
-  await updateSettings(interaction.guild!.id, {
+  const guild = interaction.guild
+  if (!guild) {
+    const errorEmbed = MinaEmbed.error().setDescription(
+      'This command must be used in a server (guild).'
+    )
+    if (interaction.deferred || interaction.replied) {
+      await interaction.followUp({ embeds: [errorEmbed], ephemeral: true })
+    } else {
+      await interaction.reply({ embeds: [errorEmbed], ephemeral: true })
+    }
+    return
+  }
+  await updateSettings(guild.id, {
     aiResponder: {
       ...settings.aiResponder,
       allowDMs: enabled,
