@@ -1,13 +1,11 @@
 # [v3.1.1](https://github.com/iamvikshan/amina/compare/v3.1.0...v3.1.1) (2025-12-05)
 
-
-
 ## [3.1.1](https://github.com/iamvikshan/amina/compare/v3.1.0...v3.1.1) (2025-12-05)
 
 ### Bug Fixes
 
-* Enhance bot functionality with improved permission checks and new component structures ([c3bd443](https://github.com/iamvikshan/amina/commit/c3bd4431dfd2079c0d4a15a0b96904984e2163bd))
-* validate channel type in ticket user management to prevent runtime errors ([c886311](https://github.com/iamvikshan/amina/commit/c88631158bcb8223c3dbdefe62e0125af6c71463))
+- Enhance bot functionality with improved permission checks and new component structures ([c3bd443](https://github.com/iamvikshan/amina/commit/c3bd4431dfd2079c0d4a15a0b96904984e2163bd))
+- validate channel type in ticket user management to prevent runtime errors ([c886311](https://github.com/iamvikshan/amina/commit/c88631158bcb8223c3dbdefe62e0125af6c71463))
 
 # [v3.1.0](https://github.com/iamvikshan/amina/compare/v3.0.0...v3.1.0) (2025-12-04)
 

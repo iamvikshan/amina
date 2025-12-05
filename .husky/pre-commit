@@ -1,23 +1,9 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Skip Husky hooks in CI or when HUSKY is disabled
 if [ "$CI" = "true" ] || [ "$HUSKY" = "0" ]; then
   echo "Husky hook skipped in CI or HUSKY=0"
   exit 0
 fi
 
-echo "Running pre-commit setup check..."
-
-# Run the iamvikshan.sh script
-./scripts/iamvikshan.sh
-
-# Check if the script ran successfully
-if [ $? -eq 0 ]; then
-    echo "✓ Pre-commit setup check passed"
-    exit 0
-else
-    echo "✗ Pre-commit setup check failed"
-    echo "Please fix the setup issues before committing"
-    exit 1
-fi
+# Run project checks (Linting & Type Checking)
+echo "Running pre-commit checks..."
+bun run check

@@ -1,22 +1,50 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", ":semanticCommits"],
   "baseBranches": ["api", "dash", "main"],
   "automerge": false,
   "prConcurrentLimit": 5,
   "prHourlyLimit": 2,
   "labels": ["dependencies"],
   "reviewers": ["iamvikshan"],
-  "schedule": ["before 2am"],
+  "schedule": ["before 4am"],
   "timezone": "Africa/Nairobi",
-  "dependencyDashboard": false,
-  //  "dependencyDashboardApproval": false,
+  "dependencyDashboard": true,
+  "dependencyDashboardApproval": false,
   "rebaseWhen": "conflicted",
+  "rangeStrategy": "bump",
   "packageRules": [
     {
-      "description": "Automerge patch updates",
-      "matchUpdateTypes": ["patch"],
+      "description": "Automerge patch updates and digests",
+      "matchUpdateTypes": ["patch", "digest"],
       "automerge": true
+    },
+    {
+      "description": "Automerge minor updates for devDependencies (safe for lint/types)",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true
+    },
+    {
+      "groupName": "linters and formatters",
+      "matchPackageNames": ["eslint", "prettier", "husky"],
+      "matchPackagePatterns": ["^eslint", "^prettier", "^@typescript-eslint"]
+    },
+    {
+      "groupName": "semantic-release ecosystem",
+      "matchPackagePatterns": [
+        "^@semantic-release",
+        "^semantic-release",
+        "^conventional-changelog"
+      ]
+    },
+    {
+      "groupName": "discord.js ecosystem",
+      "matchPackagePatterns": ["^discord.js", "^@discordjs"]
     }
-  ]
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  }
 }
