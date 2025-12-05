@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: amina
     restart: "no"
+    # Run as root initially to fix permissions, then switch to amina user in entrypoint
+    user: root
     env_file:
       - .env
     networks:
@@ -14,7 +16,9 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: bun --watch .
+      # Mount entrypoint script to fix logs directory permissions
+      - ./scripts/amina-entrypoint.sh:/amina-entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/amina-entrypoint.sh"]
     stdin_open: true
     tty: true
     healthcheck:
@@ -77,12 +81,12 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version || exit 1",
+          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASS}' http://localhost:2333/version || exit 1",
         ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 40s
 
   # Watchtower - Automatic container updates
   watchtower:
