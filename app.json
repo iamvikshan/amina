@@ -33,20 +33,15 @@
       "required": false,
       "value": "2333"
     },
-    "LAVALINK_1_PASS": {
-      "description": "Primary Lavalink node password",
-      "required": false,
-      "value": "incorrect"
-    },
     "LAVALINK_1_ID": {
       "description": "Primary Lavalink node identifier",
       "required": false,
       "value": "Lavalink"
     },
-    "LAVALINK_1_SEC": {
-      "description": "Primary Lavalink node secure connection",
+    "LAVALINK_PASS": {
+      "description": "Shared Lavalink password for all nodes",
       "required": false,
-      "value": "false"
+      "value": ""
     },
     "LAVALINK_2_HOST": {
       "description": "Secondary Lavalink node host (fallback)",
@@ -58,20 +53,10 @@
       "required": false,
       "value": ""
     },
-    "LAVALINK_2_PASS": {
-      "description": "Secondary Lavalink node password",
-      "required": false,
-      "value": ""
-    },
     "LAVALINK_2_ID": {
       "description": "Secondary Lavalink node identifier",
       "required": false,
       "value": ""
-    },
-    "LAVALINK_2_SEC": {
-      "description": "Secondary Lavalink node secure connection",
-      "required": false,
-      "value": "false"
     },
     "SPOTIFY_CLIENT_ID": {
       "description": "Spotify API client ID (https://developer.spotify.com/dashboard)",

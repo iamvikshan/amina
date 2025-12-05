@@ -10,7 +10,6 @@ services:
       # Override Lavalink connection to use Docker network
       LAVALINK_1_HOST: lavalink
       LAVALINK_1_PORT: 2333
-      LAVALINK_1_SEC: "false"
       HEALTH_PORT: 3000
     networks:
       - amina-network
@@ -43,7 +42,6 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx512M -Xms256M
       - SERVER_PORT=2333
-      - LAVALINK_SERVER_PASSWORD=${LAVALINK_1_PASS:-incorrect}
     deploy:
       resources:
         limits:
@@ -56,7 +54,7 @@ services:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - lavalink-plugins:/opt/Lavalink/plugins
       # Mount entrypoint script to fix permissions (similar to how Amina handles logs)
-      - ./lavalink-entrypoint.sh:/lavalink-entrypoint.sh:ro
+      - ./scripts/lavalink-entrypoint.sh:/lavalink-entrypoint.sh:ro
     entrypoint: ["/bin/sh", "/lavalink-entrypoint.sh"]
     networks:
       - amina-network
@@ -66,7 +64,7 @@ services:
       test: [
           "CMD-SHELL",
           "wget --no-verbose --tries=1 --spider --header='Authorization:
-          ${LAVALINK_1_PASS:-incorrect}' http://localhost:2333/version ||
+          ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version ||
           exit 1",
         ]
       interval: 30s

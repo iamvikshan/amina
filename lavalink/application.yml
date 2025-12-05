@@ -29,7 +29,7 @@ lavalink:
       repository: "https://maven.topi.wtf/releases"
 
   server:
-    password: "${LAVALINK_PASS:-incorrect}"
+    password: "${LAVALINK_PASS:-thoushantpass}"
     sources:
       youtube: false # Disable deprecated built-in YouTube source
       bandcamp: true

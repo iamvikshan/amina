@@ -48,7 +48,7 @@ jobs:
     # Stage: Docker Build & Test (Post-build)
     # ============================================
     - stage: docker
-      name: "Docker Build & Health Check"
+      name: "Docker Compose Build & Health Check"
       services:
         - docker
       before_install:
@@ -57,42 +57,38 @@ jobs:
         - echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" | sudo tee /etc/apt/sources.list.d/doppler-cli.list
         - sudo apt-get update && sudo apt-get install -y doppler
       script:
-        # Build the Docker image
-        - docker build -t amina:test .
-
-        # Create a test .env file from Doppler (for container testing)
-        # Uses amina project with dev config for full runtime secrets
+        # Create .env file from Doppler for docker compose
         - |
           if [ -n "$DOPPLER_TOKEN" ]; then
-            doppler secrets download -p amina -c dev --no-file --format env > .env.test
+            doppler secrets download -p amina -c dev --no-file --format env > .env
             echo "Doppler secrets loaded from amina/dev"
           else
             echo "DOPPLER_TOKEN not set, using minimal test env"
-            echo "NODE_ENV=test" > .env.test
-            echo "HEALTH_PORT=3000" >> .env.test
+            echo "NODE_ENV=test" > .env
+            echo "HEALTH_PORT=3000" >> .env
           fi
 
-        # Run the container in background
-        - docker run -d --name amina-test --env-file .env.test -p 3000:3000 amina:test
+        # Build and start services with docker compose
+        - docker compose build amina
+        - docker compose up -d
 
-        # Wait for container to be healthy
+        # Wait for amina container to be healthy
         - |
-          echo "Waiting for container to start..."
+          echo "Waiting for amina container to start..."
           for i in {1..30}; do
-            if docker exec amina-test wget --no-verbose --tries=1 --spider http://localhost:3000/health 2>/dev/null; then
-              echo "Container is healthy!"
+            if docker compose exec -T amina wget --no-verbose --tries=1 --spider http://localhost:3000/health 2>/dev/null; then
+              echo "Amina container is healthy!"
               exit 0
             fi
             echo "Attempt $i/30 - waiting..."
             sleep 2
           done
           echo "Container health check failed"
-          docker logs amina-test
+          docker compose logs amina
           exit 1
       after_script:
-        - docker stop amina-test || true
-        - docker rm amina-test || true
-        - rm -f .env.test
+        - docker compose down -v || true
+        - rm -f .env
 
 # Notifications (optional)
 notifications:

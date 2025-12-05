@@ -33,7 +33,7 @@ DEFAULT_DEPLOY_PATH="${HOME}/amina"
 REQUIRED_FILES=(
     "docker-compose.prod.yml"
     "lavalink/application.yml"
-    "lavalink-entrypoint.sh"
+    "scripts/lavalink-entrypoint.sh"
 )
 
 ################################################################################
@@ -210,8 +210,8 @@ deploy() {
         exit 1
     fi
     
-    if [ ! -f "lavalink-entrypoint.sh" ]; then
-        log_error "lavalink-entrypoint.sh not found in repository"
+    if [ ! -f "scripts/lavalink-entrypoint.sh" ]; then
+        log_error "scripts/lavalink-entrypoint.sh not found in repository"
         cd ..
         rm -rf "${TEMP_DIR}"
         exit 1
@@ -266,9 +266,10 @@ deploy() {
     log_success "Copied lavalink/application.yml → lavalink/application.yml"
     
     # Copy lavalink-entrypoint.sh for Lavalink permission fix
-    cp lavalink-entrypoint.sh "${DEPLOY_PATH}/lavalink-entrypoint.sh"
-    chmod +x "${DEPLOY_PATH}/lavalink-entrypoint.sh"
-    log_success "Copied lavalink-entrypoint.sh → lavalink-entrypoint.sh (executable)"
+    mkdir -p "${DEPLOY_PATH}/scripts"
+    cp scripts/lavalink-entrypoint.sh "${DEPLOY_PATH}/scripts/lavalink-entrypoint.sh"
+    chmod +x "${DEPLOY_PATH}/scripts/lavalink-entrypoint.sh"
+    log_success "Copied scripts/lavalink-entrypoint.sh → scripts/lavalink-entrypoint.sh (executable)"
     echo ""
     
     # Step 7/8: Set file permissions
@@ -295,9 +296,10 @@ deploy() {
     echo "  ${DEPLOY_PATH}/"
     echo "    ├── docker-compose.yml"
     echo "    ├── .env"
-    echo "    ├── lavalink-entrypoint.sh"
-    echo "    └── lavalink/"
-    echo "        └── application.yml"
+    echo "    ├── lavalink/"
+    echo "    │   └── application.yml"
+    echo "    └── scripts/"
+    echo "        └── lavalink-entrypoint.sh"
     echo ""
     echo "======================================================================"
     echo "                        NEXT STEPS                                    "

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: amina
-    restart: no
+    restart: "no"
     env_file:
       - .env
     networks:
@@ -31,23 +31,23 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    develop:
-      watch:
-        - action: sync
-          path: ./src
-          target: /app/src
-        - action: sync
-          path: ./types
-          target: /app/types
-        - action: rebuild
-          path: package.json
-        - action: rebuild
-          path: bun.lock
+    # develop:
+    #   watch:
+    #     - action: sync
+    #       path: ./src
+    #       target: /app/src
+    #     - action: sync
+    #       path: ./types
+    #       target: /app/types
+    #     - action: rebuild
+    #       path: package.json
+    #     - action: rebuild
+    #       path: bun.lock
 
   lavalink:
     image: ghcr.io/lavalink-devs/lavalink:latest
     container_name: lavalink
-    restart: unless-stopped
+    restart: "no"
     # Run as root initially to fix permissions, then switch to lavalink user in entrypoint
     user: root
     env_file:
@@ -55,7 +55,6 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx512M -Xms256M
       - SERVER_PORT=2333
-      - LAVALINK_SERVER_PASSWORD=${LAVALINK_1_PASS:-incorrect}
     deploy:
       resources:
         limits:
@@ -68,7 +67,7 @@ services:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - lavalink-plugins:/opt/Lavalink/plugins
       # Mount entrypoint script to fix permissions (similar to how Amina handles logs)
-      - ./lavalink-entrypoint.sh:/lavalink-entrypoint.sh:ro
+      - ./scripts/lavalink-entrypoint.sh:/lavalink-entrypoint.sh:ro
     entrypoint: ["/bin/sh", "/lavalink-entrypoint.sh"]
     networks:
       - amina-network
@@ -78,7 +77,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_1_PASS:-incorrect}' http://localhost:2333/version || exit 1",
+          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version || exit 1",
         ]
       interval: 30s
       timeout: 10s
@@ -89,7 +88,7 @@ services:
   watchtower:
     image: nickfedor/watchtower:latest
     container_name: watchtower
-    restart: unless-stopped
+    restart: "no"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:

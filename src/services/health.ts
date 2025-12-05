@@ -24,10 +24,18 @@ Logger.success(`[Health] Health check server running on port ${server.port}`)
 const shutdown = () => {
   try {
     server.stop()
-    Logger.success('Health server closed')
+    try {
+      Logger.success('Health server closed')
+    } catch {
+      console.log('Health server closed')
+    }
     process.exit(0)
   } catch (error) {
-    Logger.error('Error during health server shutdown:', error)
+    try {
+      Logger.error('Error during health server shutdown:', error)
+    } catch {
+      console.error('Error during health server shutdown:', error)
+    }
     process.exit(1)
   }
 }
