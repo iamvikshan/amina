@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v6.0.1
 
       - name: Deploy API documentation
-        uses: bump-sh/github-action@v1.0.0
+        uses: bump-sh/github-action@v1.2.7
         with:
           doc: v1
           hub: amina
@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v6.0.1
 
       - name: Comment pull request with API diff
-        uses: bump-sh/github-action@v1.0.0
+        uses: bump-sh/github-action@v1.2.7
         with:
           doc: amina-api
           hub: amina
