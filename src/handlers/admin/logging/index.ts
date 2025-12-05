@@ -226,7 +226,9 @@ export async function showLoggingMenuDirect(
     components: [menuRow, buttonRow],
   }
 
-  if (interaction.deferred || interaction.replied) {
+  if (interaction.deferred) {
+    await interaction.editReply(payload)
+  } else if (interaction.replied) {
     await interaction.followUp(payload)
   } else {
     await interaction.reply(payload)

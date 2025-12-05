@@ -2,14 +2,17 @@
 # Uses Doppler CLI for secrets management
 # Free for students: https://education.travis-ci.com/
 
-language: minimal
+language: node_js
+node_js:
+  - 22
 os: linux
 dist: jammy
 
-# Cache bun dependencies
+# Cache dependencies
 cache:
   directories:
     - ~/.bun/install/cache
+    - node_modules
 
 # Environment variables (DOPPLER_TOKEN should be set in Travis CI settings)
 env:
@@ -20,8 +23,6 @@ env:
 stages:
   - name: lint
     if: type = pull_request OR branch = main
-  - name: test
-    if: type = pull_request OR branch = main
   - name: docker
     if: branch = main AND type = push
 
@@ -31,7 +32,7 @@ jobs:
     # Stage: Lint & Type Check (Pre-build)
     # ============================================
     - stage: lint
-      name: "TypeScript & ESLint Check"
+      name: "Unified Checks (TypeScript, ESLint, Prettier)"
       install:
         # Install Bun
         - curl -fsSL https://bun.sh/install | bash
@@ -42,16 +43,6 @@ jobs:
         - bun install --frozen-lockfile
       script:
         - bun run check
-
-    - stage: lint
-      name: "Prettier Format Check"
-      install:
-        - curl -fsSL https://bun.sh/install | bash
-        - export BUN_INSTALL="$HOME/.bun"
-        - export PATH="$BUN_INSTALL/bin:$PATH"
-        - bun install --frozen-lockfile
-      script:
-        - bun run f:check
 
     # ============================================
     # Stage: Docker Build & Test (Post-build)

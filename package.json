@@ -10,11 +10,10 @@
   },
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "bun check && bun f:check",
+    "build": "bun check",
     "start": "bun src/index.ts",
     "f": "prettier --write .",
-    "f:check": "prettier --check .",
-    "check": "tsc --noEmit && eslint .",
+    "check": "tsc --noEmit && eslint . && prettier --check .",
     "check:watch": "tsc --noEmit --watch",
     "eslint": "eslint .",
     "eslint:fix": "eslint . --fix",

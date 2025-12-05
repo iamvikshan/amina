@@ -23,52 +23,52 @@
       "required": false,
       "value": ""
     },
-    "LAVALINK_HOST_1": {
+    "LAVALINK_1_HOST": {
       "description": "Primary Lavalink node host",
       "required": false,
       "value": "lavalink"
     },
-    "LAVALINK_PORT_1": {
+    "LAVALINK_1_PORT": {
       "description": "Primary Lavalink node port",
       "required": false,
       "value": "2333"
     },
-    "LAVALINK_PASSWORD_1": {
+    "LAVALINK_1_PASS": {
       "description": "Primary Lavalink node password",
       "required": false,
       "value": "incorrect"
     },
-    "LAVALINK_ID_1": {
+    "LAVALINK_1_ID": {
       "description": "Primary Lavalink node identifier",
       "required": false,
       "value": "Lavalink"
     },
-    "LAVALINK_SECURE_1": {
+    "LAVALINK_1_SEC": {
       "description": "Primary Lavalink node secure connection",
       "required": false,
       "value": "false"
     },
-    "LAVALINK_HOST_2": {
+    "LAVALINK_2_HOST": {
       "description": "Secondary Lavalink node host (fallback)",
       "required": false,
       "value": ""
     },
-    "LAVALINK_PORT_2": {
+    "LAVALINK_2_PORT": {
       "description": "Secondary Lavalink node port",
       "required": false,
       "value": ""
     },
-    "LAVALINK_PASSWORD_2": {
+    "LAVALINK_2_PASS": {
       "description": "Secondary Lavalink node password",
       "required": false,
       "value": ""
     },
-    "LAVALINK_ID_2": {
+    "LAVALINK_2_ID": {
       "description": "Secondary Lavalink node identifier",
       "required": false,
       "value": ""
     },
-    "LAVALINK_SECURE_2": {
+    "LAVALINK_2_SEC": {
       "description": "Secondary Lavalink node secure connection",
       "required": false,
       "value": "false"

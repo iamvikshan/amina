@@ -165,7 +165,7 @@ async function play(
             }),
           })
 
-        if (player.queue?.tracks?.length > 1) {
+        if (player.queue.tracks.length > 1) {
           trackEmbed.addFields({
             name: 'position',
             value: player.queue.tracks.length.toString(),

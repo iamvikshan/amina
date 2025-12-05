@@ -16,7 +16,6 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction, _data: any) {
     // Directly show the logging configuration from admin hub
     try {
-      await interaction.deferReply({ ephemeral: true })
       await showLoggingMenuDirect(interaction)
     } catch (error) {
       Logger.error('Error showing logging menu', error)

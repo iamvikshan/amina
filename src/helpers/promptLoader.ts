@@ -2,9 +2,6 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import Logger from './Logger'
-
-const logger = Logger
 
 /**
  * Load the default system prompt from prompt.md
@@ -14,12 +11,9 @@ export function loadDefaultPrompt(): string {
   try {
     const promptPath = join(process.cwd(), 'src/data/prompt.md')
     const prompt = readFileSync(promptPath, 'utf-8').trim()
-    // logger.log(
-    //   `Loaded default prompt from ${promptPath} (${prompt.length} chars)`
-    // )
     return prompt
   } catch (error: any) {
-    logger.warn(
+    console.warn(
       `Failed to load prompt.md: ${error.message}. Using fallback prompt.`
     )
     // Fallback prompt that matches mina's personality

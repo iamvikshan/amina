@@ -1,5 +1,5 @@
 server:
-  port: 2333
+  port: ${LAVALINK_1_PORT:-2333}
   address: 0.0.0.0
 
 lavalink:
@@ -29,7 +29,7 @@ lavalink:
       repository: "https://maven.topi.wtf/releases"
 
   server:
-    password: "incorrect"
+    password: "${LAVALINK_PASS:-incorrect}"
     sources:
       youtube: false # Disable deprecated built-in YouTube source
       bandcamp: true

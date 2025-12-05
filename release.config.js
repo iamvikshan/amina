@@ -67,8 +67,8 @@ module.exports = {
       '@semantic-release/github',
       {
         successComment:
-          "🎉 This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version} and published to GitHub Marketplace",
-        failTitle: '❌ The release failed',
+          "This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version}",
+        failTitle: 'The release failed',
         failComment:
           'The release from branch ${branch.name} failed to publish.',
         labels: ['released'],

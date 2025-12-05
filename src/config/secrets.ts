@@ -31,28 +31,28 @@ function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
   const nodes: Secrets['LAVALINK_NODES'] = []
 
   // Node 1
-  if (process.env.LAVALINK_ID_1 && process.env.LAVALINK_HOST_1) {
+  if (process.env.LAVALINK_1_ID && process.env.LAVALINK_1_HOST) {
     nodes.push({
-      id: process.env.LAVALINK_ID_1,
-      host: process.env.LAVALINK_HOST_1,
-      port: process.env.LAVALINK_PORT_1
-        ? Number(process.env.LAVALINK_PORT_1)
+      id: process.env.LAVALINK_1_ID,
+      host: process.env.LAVALINK_1_HOST,
+      port: process.env.LAVALINK_1_PORT
+        ? Number(process.env.LAVALINK_1_PORT)
         : undefined,
-      authorization: process.env.LAVALINK_PASSWORD_1,
-      secure: process.env.LAVALINK_SECURE_1 === 'true',
+      authorization: process.env.LAVALINK_PASS,
+      secure: false,
     })
   }
 
   // Node 2
-  if (process.env.LAVALINK_ID_2 && process.env.LAVALINK_HOST_2) {
+  if (process.env.LAVALINK_2_ID && process.env.LAVALINK_2_HOST) {
     nodes.push({
-      id: process.env.LAVALINK_ID_2,
-      host: process.env.LAVALINK_HOST_2,
-      port: process.env.LAVALINK_PORT_2
-        ? Number(process.env.LAVALINK_PORT_2)
+      id: process.env.LAVALINK_2_ID,
+      host: process.env.LAVALINK_2_HOST,
+      port: process.env.LAVALINK_2_PORT
+        ? Number(process.env.LAVALINK_2_PORT)
         : undefined,
-      authorization: process.env.LAVALINK_PASSWORD_2,
-      secure: process.env.LAVALINK_SECURE_2 === 'true',
+      authorization: process.env.LAVALINK_PASS,
+      secure: false,
     })
   }
 

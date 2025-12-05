@@ -55,7 +55,7 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx512M -Xms256M
       - SERVER_PORT=2333
-      - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD_1:-incorrect}
+      - LAVALINK_SERVER_PASSWORD=${LAVALINK_1_PASS:-incorrect}
     deploy:
       resources:
         limits:
@@ -78,7 +78,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASSWORD_1:-incorrect}' http://localhost:2333/version || exit 1",
+          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_1_PASS:-incorrect}' http://localhost:2333/version || exit 1",
         ]
       interval: 30s
       timeout: 10s

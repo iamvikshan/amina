@@ -8,9 +8,9 @@ services:
       - .env
     environment:
       # Override Lavalink connection to use Docker network
-      LAVALINK_HOST_1: lavalink
-      LAVALINK_PORT_1: 2333
-      LAVALINK_SECURE_1: "false"
+      LAVALINK_1_HOST: lavalink
+      LAVALINK_1_PORT: 2333
+      LAVALINK_1_SEC: "false"
       HEALTH_PORT: 3000
     networks:
       - amina-network
@@ -43,7 +43,7 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx512M -Xms256M
       - SERVER_PORT=2333
-      - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD_1:-incorrect}
+      - LAVALINK_SERVER_PASSWORD=${LAVALINK_1_PASS:-incorrect}
     deploy:
       resources:
         limits:
@@ -66,31 +66,13 @@ services:
       test: [
           "CMD-SHELL",
           "wget --no-verbose --tries=1 --spider --header='Authorization:
-          ${LAVALINK_PASSWORD_1:-incorrect}' http://localhost:2333/version ||
+          ${LAVALINK_1_PASS:-incorrect}' http://localhost:2333/version ||
           exit 1",
         ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
-
-  # Uptime Kuma Monitoring
-  uptime-kuma:
-    image: louislam/uptime-kuma:nightly2
-    container_name: uptime-kuma
-    restart: unless-stopped
-    volumes:
-      - uptime-kuma-data:/app/data
-    networks:
-      - amina-network
-    ports:
-      - "3001:3001"
-    healthcheck:
-      test: ["CMD-SHELL", "node extra/healthcheck.js"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
   # Watchtower - Automatic container updates
   watchtower:
@@ -117,7 +99,5 @@ networks:
     driver: bridge
 
 volumes:
-  uptime-kuma-data:
-    driver: local
   lavalink-plugins:
     driver: local

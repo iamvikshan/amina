@@ -54,15 +54,13 @@ async function getQueue(
 
   const tracks = player.queue.tracks.slice(start, end)
 
-  if (player.queue.current) {
-    const current = player.queue.current
-    embed
-      .addFields({
-        name: mina.say('music.success.queue.nowPlaying'),
-        value: `[${current.info.title}](${current.info.uri}) \`[${client.utils.formatTime(current.info.duration)}]\``,
-      })
-      .setThumbnail(current.info.artworkUrl)
-  }
+  const current = player.queue.current
+  embed
+    .addFields({
+      name: mina.say('music.success.queue.nowPlaying'),
+      value: `[${current.info.title}](${current.info.uri}) \`[${client.utils.formatTime(current.info.duration)}]\``,
+    })
+    .setThumbnail(current.info.artworkUrl)
 
   const queueList = tracks.map(
     (track: any, index: number) =>

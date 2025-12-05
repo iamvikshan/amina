@@ -214,7 +214,7 @@ export class MinaEmbed extends EmbedBuilder {
       if (roles) {
         fields.push({
           name: 'roles',
-          value: roles || 'none',
+          value: roles,
           inline: true,
         })
       }

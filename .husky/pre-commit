@@ -7,3 +7,6 @@ fi
 # Run project checks (Linting & Type Checking)
 echo "Running pre-commit checks..."
 bun run check
+
+# check dev config
+# bash ./scripts/iamvikshan.sh

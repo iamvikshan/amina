@@ -1,41 +1,35 @@
-import * as http from 'http'
+import Logger from '@helpers/Logger'
 import config from '@src/config'
 
-const server = http.createServer((req, res) => {
-  if (req.url === '/health' && req.method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(
-      JSON.stringify({
+const PORT = config.SERVER.HEALTH_PORT
+
+const server = Bun.serve({
+  port: PORT,
+  fetch(req) {
+    const url = new URL(req.url)
+    if (url.pathname === '/health' && req.method === 'GET') {
+      return Response.json({
         status: 'ok',
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
       })
-    )
-  } else {
-    res.writeHead(404)
-    res.end()
-  }
+    }
+    return new Response(null, { status: 404 })
+  },
 })
 
-const PORT = config.SERVER.HEALTH_PORT
-
-server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(
-      `[Health] Port ${PORT} is already in use. Skipping health server.`
-    )
-  } else {
-    console.error('[Health] Failed to start server:', err.message)
-  }
-})
-
-server.listen(PORT, () => {
-  console.log(`[Health] Health check server running on port ${PORT}`)
-})
+Logger.success(`[Health] Health check server running on port ${server.port}`)
 
 // Handle graceful shutdown
-process.on('SIGTERM', () => {
-  server.close(() => {
-    console.log('Health server closed')
-  })
-})
+const shutdown = () => {
+  try {
+    server.stop()
+    Logger.success('Health server closed')
+    process.exit(0)
+  } catch (error) {
+    Logger.error('Error during health server shutdown:', error)
+    process.exit(1)
+  }
+}
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)

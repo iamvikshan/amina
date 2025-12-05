@@ -246,7 +246,7 @@ async function runModalSetup(
   const guild = interaction.guild as Guild
 
   if (!member || !channel || !guild) {
-    return channel.safeSend(mina.say('error.missingInfo'))
+    return interaction.followUp(mina.say('error.missingInfo'))
   }
 
   const SETUP_PERMS: PermissionResolvable[] = [
@@ -394,7 +394,7 @@ async function runModalSetup(
 
   // winner count
   const winnersValue = parseInt(modal.fields.getTextInputValue('winners'))
-  if (typeof winnersValue !== 'number' || isNaN(winnersValue)) {
+  if (isNaN(winnersValue)) {
     return modal.editReply(mina.say('giveaway.setup.error.invalidWinners'))
   }
   const winners = winnersValue
