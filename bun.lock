@@ -17,7 +17,7 @@
         "@preline/tabs": "^3.0.0",
         "@tailwindcss/forms": "^0.5.10",
         "@types/alpinejs": "^3.13.11",
-        "alpinejs": "^3.15.1",
+        "alpinejs": "^3.15.2",
         "astro": "5.16.3",
         "astro-compressor": "^1.2.0",
         "astro-icon": "^1.1.5",
@@ -428,7 +428,7 @@
 
     "ajv-draft-04": ["ajv-draft-04@1.0.0", "", { "peerDependencies": { "ajv": "^8.5.0" }, "optionalPeers": ["ajv"] }, "sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw=="],
 
-    "alpinejs": ["alpinejs@3.15.1", "", { "dependencies": { "@vue/reactivity": "~3.1.1" } }, "sha512-HLO1TtiE92VajFHtLLPK8BWaK1YepV/uj31UrfoGnQ00lyFOJZ+oVY3F0DghPAwvg8sLU79pmjGQSytERa2gEg=="],
+    "alpinejs": ["alpinejs@3.15.2", "", { "dependencies": { "@vue/reactivity": "~3.1.1" } }, "sha512-2kYF2aG+DTFkE6p0rHG5XmN4VEb6sO9b02aOdU4+i8QN6rL0DbRZQiypDE1gBcGO65yDcqMz5KKYUYgMUxgNkw=="],
 
     "ansi-align": ["ansi-align@3.0.1", "", { "dependencies": { "string-width": "^4.1.0" } }, "sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w=="],
 
