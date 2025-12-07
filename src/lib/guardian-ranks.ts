@@ -1,15 +1,7 @@
 // Guardian Rank System Utility
 // Calculates user rank based on server count
 
-export type GuardianRank = {
-  name: string;
-  level: number;
-  minServers: number;
-  maxServers: number;
-  message: string;
-  color: string;
-  badgeSymbol: string;
-};
+import type { GuardianRank } from '@types';
 
 export const GUARDIAN_RANKS: GuardianRank[] = [
   {

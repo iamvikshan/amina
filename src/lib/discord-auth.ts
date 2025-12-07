@@ -2,6 +2,7 @@
 import { z } from 'astro:content';
 import { env as runtimeEnv } from '@/env';
 import { getOAuthRedirect } from '@/config/permalinks';
+import type { TokenData } from '@types';
 
 const envSchema = z.object({
   CLIENT_ID: z.string().min(1),
@@ -13,14 +14,6 @@ interface DiscordAuthConfig {
   clientSecret: string;
   redirectUri: string;
   scopes: string[];
-}
-
-export interface TokenData {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  token_type: string;
-  scope?: string;
 }
 
 export class DiscordAuth {

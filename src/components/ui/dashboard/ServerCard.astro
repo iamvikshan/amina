@@ -1,6 +1,7 @@
 ---
 import { Settings, Plus, RefreshCw, Shield, CheckCircle } from 'lucide-react';
-import { type DiscordGuild, getServerIcon } from '@/lib/data-utils';
+import type { DiscordGuild } from '@types';
+import { getServerIcon } from '@/lib/data-utils';
 
 interface Props {
   guild: DiscordGuild;

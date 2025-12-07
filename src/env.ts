@@ -31,13 +31,16 @@ export const env = {
   // Webhook Security
   WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || '',
 
+  // Instatus API
+  INSTATUS_API: process.env.INSTATUS_API || '',
+
   // Environment
   NODE_ENV: NODE_ENV,
   PROD: NODE_ENV === 'production',
 } as const;
 
-// Type for the environment variables
-export type Env = typeof env;
+// Type for the environment variables exported from @types
+// export type Env = typeof env;
 
 // Helper to validate required env vars at runtime
 export function validateRequiredEnv(): void {

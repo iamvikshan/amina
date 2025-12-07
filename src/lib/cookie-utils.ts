@@ -1,6 +1,6 @@
 // @/lib/cookie-utils.ts
 import type { AstroCookies } from 'astro';
-import type { TokenData } from './discord-auth';
+import type { TokenData } from '@types';
 
 export const AUTH_COOKIE_NAMES = {
   ACCESS_TOKEN: 'access_token',

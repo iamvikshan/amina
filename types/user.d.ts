@@ -1,4 +1,4 @@
-// @root/astro/lib/database/types/user.ts
+// Database User Types
 import type { Document } from 'mongoose';
 
 export interface IUserFlag {
@@ -12,7 +12,6 @@ export interface IUserFlag {
 export interface IUserProfile {
   pronouns: string | null;
   birthdate: Date | null;
-  age: number | null;
   region: string | null;
   languages: string[];
   timezone: string | null;

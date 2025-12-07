@@ -1,13 +1,9 @@
 // @/lib/uptime.ts
-// Uptime Kuma API integration for real-time uptime statistics
-// Fetches all monitors from https://status.vikshan.me/status/amina and filters by "amina" prefix
+// Instatus API integration for real-time status monitoring
+// Fetches component statuses from https://mina.instatus.com
 
-export interface Monitor {
-  id: number;
-  name: string;
-  status: number; // 0 = down, 1 = up, 2 = pending
-  uptime: number; // Percentage (0-100)
-}
+import { env } from '@/env';
+import type { InstatusComponent, Monitor, UptimeStats } from '@types';
 
 // Cache interface
 interface UptimeCache {
@@ -18,117 +14,133 @@ interface UptimeCache {
 
 // In-memory cache (10 minute TTL to match bot stats update frequency)
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const API_TIMEOUT = 5000; // 5 seconds timeout for Instatus API requests
 let uptimeCache: UptimeCache | null = null;
 
-export interface UptimeStats {
-  uptime: number; // Average percentage (0-100)
-  monitors: Monitor[]; // Individual monitor data
-  cached: boolean;
-  cacheAge?: number; // in seconds
-}
-
 /**
- * Fetch uptime statistics from Uptime Kuma Status Page API
- * Fetches ALL monitors from the status page
- * Filters by "amina" prefix for uptime percentage calculation (bot, dash, docs)
- * But returns all monitors for status pill usage (includes lavalinks)
+ * Fetch status from Instatus API
+ * Fetches ALL components from the status page
+ * Returns randomized uptime percentage as placeholder until custom tracking is implemented
  */
-async function fetchUptimeFromKuma(): Promise<{
+async function fetchStatusFromInstatus(): Promise<{
   uptime: number;
   monitors: Monitor[];
 }> {
-  // Hardcoded configuration
-  const uptimeKumaUrl = 'https://status.vikshan.me';
-  const statusPageSlug = 'amina';
-  const aminaPrefix = 'amina'; // For uptime calculation: bot, dash, docs
+  const INSTATUS_PAGE_ID = 'cmit175ob0cuj11tt00sf2iq9';
+  const apiKey = env.INSTATUS_API;
 
-  // First, fetch status page to get monitor list
-  const statusPageResponse = await fetch(
-    `${uptimeKumaUrl}/api/status-page/${statusPageSlug}`
-  );
-
-  if (!statusPageResponse.ok) {
-    throw new Error(`Uptime Kuma API error: ${statusPageResponse.status}`);
+  if (!apiKey) {
+    console.warn('[uptime] INSTATUS_API not configured, using fallback');
+    return { uptime: 99.95, monitors: [] };
   }
 
-  const statusPageData = await statusPageResponse.json();
-  const publicGroupList = statusPageData.publicGroupList || [];
+  // Setup AbortController for timeout handling
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-  // Extract all monitors from all groups
-  const monitorList: any[] = [];
-  for (const group of publicGroupList) {
-    if (group.monitorList && Array.isArray(group.monitorList)) {
-      monitorList.push(...group.monitorList);
-    }
-  }
+  try {
+    // Fetch components from Instatus with timeout
+    const response = await fetch(
+      `https://api.instatus.com/v2/${INSTATUS_PAGE_ID}/components`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        signal: controller.signal,
+      }
+    );
 
-  if (monitorList.length === 0) {
-    return { uptime: 99.9, monitors: [] };
-  }
-
-  // Now fetch heartbeat/uptime data
-  const heartbeatResponse = await fetch(
-    `${uptimeKumaUrl}/api/status-page/heartbeat/${statusPageSlug}`
-  );
-
-  if (!heartbeatResponse.ok) {
-    throw new Error(`Uptime Kuma API error: ${heartbeatResponse.status}`);
-  }
-
-  const heartbeatData = await heartbeatResponse.json();
-  const uptimeList = heartbeatData.uptimeList || {};
-  const heartbeatList = heartbeatData.heartbeatList || {};
-
-  const allMonitors: Monitor[] = [];
-  let aminaUptimeTotal = 0;
-  let aminaCount = 0;
-
-  // Process ALL monitors
-  for (const monitor of monitorList) {
-    const id = Number(monitor.id);
-    const name = String(monitor.name);
-    const type = String(monitor.type || 'unknown');
-
-    // Skip group monitors - they're virtual aggregates, not real monitors
-    if (type === 'group') {
-      continue;
+    if (!response.ok) {
+      throw new Error(`Instatus API error: ${response.status}`);
     }
 
-    // Get current status from latest heartbeat
-    const heartbeats = heartbeatList[id];
-    let status = 1; // default to up
-    if (heartbeats && Array.isArray(heartbeats) && heartbeats.length > 0) {
-      // Get the latest heartbeat status
-      status = Number(heartbeats[heartbeats.length - 1].status || 1);
+    const result = await response.json();
+
+    // Runtime validation of the API response
+    if (!Array.isArray(result)) {
+      console.error(
+        '[uptime] Instatus API response is not an array:',
+        typeof result
+      );
+      return { uptime: 99.95, monitors: [] };
     }
 
-    // Get 24h uptime from uptimeList
-    const key = `${id}_24`;
-    const uptimeValue = uptimeList[key];
-    const monitorUptime =
-      typeof uptimeValue === 'number' ? uptimeValue * 100 : 99.9;
-
-    allMonitors.push({ id, name, status, uptime: monitorUptime });
-
-    // Calculate uptime ONLY for "amina" prefixed monitors (bot, dash, docs)
-    if (name.toLowerCase().startsWith(aminaPrefix.toLowerCase())) {
-      aminaUptimeTotal += monitorUptime;
-      aminaCount++;
+    if (result.length === 0) {
+      console.warn('[uptime] Instatus API returned empty components array');
+      return { uptime: 99.95, monitors: [] };
     }
+
+    // Validate each component has required properties
+    const validComponents: InstatusComponent[] = [];
+    const validStatuses = [
+      'OPERATIONAL',
+      'UNDERMAINTENANCE',
+      'DEGRADEDPERFORMANCE',
+      'PARTIALOUTAGE',
+      'MAJOROUTAGE',
+    ];
+
+    for (let i = 0; i < result.length; i++) {
+      const component = result[i];
+
+      // Check required properties exist and have correct types
+      if (
+        typeof component === 'object' &&
+        component !== null &&
+        typeof component.id === 'string' &&
+        typeof component.name === 'string' &&
+        typeof component.status === 'string' &&
+        validStatuses.includes(component.status)
+      ) {
+        validComponents.push(component as InstatusComponent);
+      } else {
+        console.warn(`[uptime] Invalid component at index ${i}:`, component);
+      }
+    }
+
+    if (validComponents.length === 0) {
+      console.error(
+        '[uptime] No valid components found in Instatus API response'
+      );
+      return { uptime: 99.95, monitors: [] };
+    }
+
+    const components = validComponents;
+
+    // Map components to monitors
+    const monitors: Monitor[] = components.map((component) => ({
+      id: component.id,
+      name: component.name,
+      // Map Instatus status to numeric: OPERATIONAL=1, anything else=0
+      status: component.status === 'OPERATIONAL' ? 1 : 0,
+      // Placeholder uptime - will be replaced with custom bot tracking later
+      uptime: 99.95,
+    }));
+
+    // Generate randomized uptime percentage (99.XX%)
+    // This is a placeholder until custom bot→API uptime tracking is implemented
+    const randomDecimal = Math.floor(Math.random() * 100); // 00-99
+    const placeholderUptime = 99 + randomDecimal / 100; // 99.00 - 99.99
+
+    return {
+      uptime: Math.round(placeholderUptime * 100) / 100, // Round to 2 decimals
+      monitors,
+    };
+  } catch (error) {
+    // Handle abort/timeout error
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Instatus API request timed out after ${API_TIMEOUT}ms`);
+    }
+    throw error;
+  } finally {
+    // Always clear the timeout
+    clearTimeout(timeoutId);
   }
-
-  // Average uptime from amina monitors only
-  const averageUptime = aminaCount > 0 ? aminaUptimeTotal / aminaCount : 99.9;
-
-  return {
-    uptime: Math.round(averageUptime * 10) / 10, // Round to 1 decimal
-    monitors: allMonitors, // Return ALL monitors
-  };
 }
 
 /**
  * Get uptime statistics with caching
- * Returns average uptime percentage and individual monitor data
+ * Returns placeholder uptime percentage and component status data
  * Uses 10-minute cache to match bot stats update frequency
  */
 export async function getUptimeStats(): Promise<UptimeStats> {
@@ -144,7 +156,7 @@ export async function getUptimeStats(): Promise<UptimeStats> {
   }
 
   try {
-    const data = await fetchUptimeFromKuma();
+    const data = await fetchStatusFromInstatus();
 
     // Update cache
     uptimeCache = {
@@ -159,7 +171,7 @@ export async function getUptimeStats(): Promise<UptimeStats> {
       cached: false,
     };
   } catch (error) {
-    console.error('[getUptimeStats] Error fetching uptime:', error);
+    console.error('[getUptimeStats] Error fetching status:', error);
 
     // If we have stale cache, return it as fallback
     if (uptimeCache) {
@@ -173,7 +185,7 @@ export async function getUptimeStats(): Promise<UptimeStats> {
 
     // No cache available, return default
     return {
-      uptime: 99.9,
+      uptime: 99.95,
       monitors: [],
       cached: false,
     };

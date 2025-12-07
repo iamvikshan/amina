@@ -1,14 +1,9 @@
-import type { APIRoute, ImageMetadata } from 'astro';
+import type { APIRoute } from 'astro';
 import { getImage } from 'astro:assets';
 import icon from '@images/amina/logo/headshot-emoji.png';
+import type { Favicon } from '@types';
 
 export const prerender = true;
-
-interface Favicon {
-  purpose: 'any' | 'maskable' | 'monochrome';
-  src: ImageMetadata;
-  sizes: number[];
-}
 
 const sizes = [192, 512];
 const favicons: Favicon[] = [

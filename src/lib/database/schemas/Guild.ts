@@ -12,7 +12,7 @@ import type {
   IGuildCounter,
   IGuildWelcomeFarewell,
   IGuildSuggestions,
-} from '../types/guild';
+} from '@types';
 
 const GuildServerSchema = new mongoose.Schema<IGuildServer>({
   name: { type: String, required: true },

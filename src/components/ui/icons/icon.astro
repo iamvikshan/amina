@@ -5,7 +5,7 @@
  * Wrapper for Lucide icons via Iconify for consistent styling
  */
 
-import { Icon } from 'astro-icon/components';
+import { Icon as AstroIcon } from 'astro-icon/components';
 
 interface Props {
   name: string;
@@ -16,4 +16,4 @@ interface Props {
 const { name, class: className = '', size = 24 } = Astro.props;
 ---
 
-<Icon name={`lucide:${name}`} class={className} size={size} />
+<AstroIcon name={`lucide:${name}`} class={className} size={size} />

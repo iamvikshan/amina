@@ -6,15 +6,9 @@ import {
   setAuthCookies,
   clearAuthCookies,
 } from '@/lib/cookie-utils';
+import type { RouteConfig } from '@types';
 
 const authUrl = discordAuth.getAuthUrl();
-
-// Add this type to better handle static/dynamic contexts
-type RouteConfig = {
-  path: string;
-  requiresAuth: boolean;
-  forceDynamic?: boolean;
-};
 
 // Define your routes configuration
 // IMPORTANT: More specific paths must come BEFORE general ones

@@ -1,4 +1,5 @@
-// @/middleware/errors/types.ts
+// Error Handling Types
+
 export class AppError extends Error {
   constructor(
     public message: string,
@@ -7,7 +8,13 @@ export class AppError extends Error {
   ) {
     super(message);
     this.name = this.constructor.name;
-    Error.captureStackTrace(this, this.constructor);
+
+    // V8-specific stack trace capture, with fallback for other JS engines
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, this.constructor);
+    } else {
+      this.stack = new Error().stack;
+    }
   }
 }
 
@@ -19,7 +26,7 @@ export class AuthenticationError extends AppError {
 
 export class AuthorizationError extends AppError {
   constructor(message: string = 'Access denied') {
-    super(message, 403, 'UNAUTHORIZED');
+    super(message, 403, 'FORBIDDEN');
   }
 }
 

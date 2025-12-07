@@ -1,5 +1,7 @@
-// @root/astro/lib/database/types/guild.ts
+// Database Guild Types
 import type { Document } from 'mongoose';
+
+export type AutomodAction = 'TIMEOUT' | 'KICK' | 'BAN';
 
 export interface IGuildServer {
   name: string;
@@ -36,7 +38,7 @@ export interface IGuildTicket {
 export interface IGuildAutomod {
   debug?: boolean;
   strikes: number;
-  action: 'TIMEOUT' | 'KICK' | 'BAN';
+  action: AutomodAction;
   wh_channels: string[];
   anti_attachments?: boolean;
   anti_invites?: boolean;
@@ -75,7 +77,7 @@ export interface IGuildLogs {
 }
 
 export interface IGuildMaxWarn {
-  action: 'TIMEOUT' | 'KICK' | 'BAN';
+  action: AutomodAction;
   limit: number;
 }
 

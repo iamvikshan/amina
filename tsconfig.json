@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@types": ["types"],
+      "@types/*": ["types/*"],
       "@components/*": ["src/components/*"],
       "@config/*": ["src/config/*"],
       "@content/*": ["src/content/*"],
@@ -14,6 +16,8 @@
       "@utils/*": ["src/utils/*"],
       "@layouts/*": ["src/layouts/*"],
       "@root/*": ["/*"]
-    }
-  }
+    },
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+  "include": ["src/**/*", "types/**/*"]
 }

@@ -150,7 +150,7 @@ Hidden throughout the dashboard, users might discover:
 
 **Story Fragments:**
 
-- "Before I joined the Night Guard, I wandered the Digital Empire alone, an imperial arms with no purpose, until I met _him_."
+- "Before I joined the Night Guard, I wandered the Digital Empire alone, the Imperial Arm with no purpose, until I met _him_."
 - "_He_ once told me: 'Power without purpose is just noise.'"
 - "The first server I protected... I'll never forget the day they said 'thank you.'"
 

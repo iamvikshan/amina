@@ -31,11 +31,12 @@ COPY package.json bun.lock ./
 # Install all dependencies (including devDependencies for build)
 RUN bun install --frozen-lockfile
 
-# Copy source code
+# Copy source code and type definitions
 COPY src/ ./src/
+COPY types/ ./types/
 COPY public/ ./public/
 COPY astro.config.mjs ./
-COPY tailwind.config.mjs ./
+COPY postcss.config.mjs ./
 COPY process-html.mjs ./
 COPY tsconfig.json ./
 

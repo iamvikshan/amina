@@ -359,8 +359,8 @@ const {
 
 <style>
   .sidebar-amina {
-    @apply relative bg-night-shadow;
-    border-right: 1px solid theme('colors.night.steel');
+    background-color: var(--color-night-shadow);
+    border-right: 1px solid var(--color-night-steel);
     height: 100vh;
     position: sticky;
     top: 0;
@@ -373,15 +373,16 @@ const {
   }
 
   .sidebar-nav::-webkit-scrollbar-track {
-    @apply bg-night-black;
+    background-color: var(--color-night-black);
   }
 
   .sidebar-nav::-webkit-scrollbar-thumb {
-    @apply bg-night-steel rounded-full;
+    background-color: var(--color-night-steel);
+    border-radius: 9999px;
   }
 
   .sidebar-nav::-webkit-scrollbar-thumb:hover {
-    @apply bg-night-slate;
+    background-color: var(--color-night-slate);
   }
 
   /* Active item glow effect */
@@ -399,7 +400,7 @@ const {
     transform: translateY(-50%);
     width: 3px;
     height: 70%;
-    background: theme('colors.amina.crimson');
+    background: var(--color-amina-crimson);
     border-radius: 0 4px 4px 0;
   }
 

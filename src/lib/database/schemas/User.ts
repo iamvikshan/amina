@@ -1,6 +1,6 @@
 // @root/astro/lib/database/schemas/User.ts
 import mongoose from 'mongoose';
-import type { IUser, IUserFlag, IUserProfile } from '../types/user';
+import type { IUser, IUserFlag, IUserProfile } from '@types';
 
 const FlagSchema = new mongoose.Schema<IUserFlag>({
   reason: { type: String, required: true },
@@ -13,7 +13,6 @@ const FlagSchema = new mongoose.Schema<IUserFlag>({
 const ProfileSchema = new mongoose.Schema<IUserProfile>({
   pronouns: { type: String, default: null },
   birthdate: { type: Date, default: null },
-  age: { type: Number, default: null },
   region: { type: String, default: null },
   languages: [{ type: String }],
   timezone: { type: String, default: null },
@@ -38,6 +37,27 @@ const ProfileSchema = new mongoose.Schema<IUserProfile>({
   },
   lastUpdated: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
+});
+
+// Virtual property to compute age from birthdate
+ProfileSchema.virtual('age').get(function () {
+  if (!this.birthdate) {
+    return null;
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - this.birthdate.getFullYear();
+  const monthDiff = today.getMonth() - this.birthdate.getMonth();
+
+  // Adjust age if birthday hasn't occurred yet this year
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < this.birthdate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
 });
 
 const UserSchema = new mongoose.Schema<IUser>(

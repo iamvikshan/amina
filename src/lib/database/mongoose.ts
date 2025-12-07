@@ -8,8 +8,8 @@ import type {
   IGuildWelcomeFarewell,
   IGuildTicket,
   IGuildLogs,
-} from './types/guild';
-import type { IUser, IUserProfile } from './types/user';
+} from '@types';
+import type { IUser, IUserProfile } from '@types';
 
 // Only validate at runtime when actually connecting, not during build
 function validateMongoUri(): string {

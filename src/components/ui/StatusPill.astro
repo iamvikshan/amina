@@ -2,7 +2,7 @@
 /**
  * Status Pill - Floating System Status Indicator
  * ==============================================
- * Shows real-time system health from Uptime Kuma
+ * Shows real-time system health from Instatus
  * Appears in bottom-right, fades when not hovered
  */
 
@@ -16,7 +16,7 @@ const defaultStatusConfig = {
   messageMobile: 'Status',
 } as const;
 
-const statusPageUrl = 'https://status.vikshan.me/status/amina';
+const statusPageUrl = 'https://mina.instatus.com';
 ---
 
 <div
@@ -167,8 +167,7 @@ const statusPageUrl = 'https://status.vikshan.me/status/amina';
     const dot = document.getElementById('status-pill-dot');
     const dotRing = document.getElementById('status-pill-dot-ring');
     const STATUS_PAGE_URL =
-      container?.getAttribute('data-status-url') ||
-      'https://status.vikshan.me/status/amina';
+      container?.getAttribute('data-status-url') || 'https://mina.instatus.com';
 
     type StatusPayload = {
       uptime: number;
@@ -276,13 +275,12 @@ const statusPageUrl = 'https://status.vikshan.me/status/amina';
       pill.style.color = config.color;
       pill.dataset.statusLevel = config.level;
 
-      const uptimeText =
-        typeof payload.uptime === 'number' ? payload.uptime.toFixed(2) : '0.00';
       const downText =
         typeof payload.downMonitors === 'number' ? payload.downMonitors : 0;
       const totalText =
         typeof payload.totalMonitors === 'number' ? payload.totalMonitors : 0;
-      const statusTitle = `Click to view detailed status (${uptimeText}% uptime, ${downText}/${totalText} down${payload.cached ? ' • cached' : ''})`;
+      const operationalText = totalText - downText;
+      const statusTitle = `${operationalText}/${totalText} services operational • Click for details${payload.cached ? ' • cached' : ''}`;
       pill.title = statusTitle;
       pill.setAttribute('href', STATUS_PAGE_URL);
 

@@ -1,8 +1,9 @@
 // @/lib/data-utils.ts
 import { GuildManager } from '@/lib/database/mongoose';
-import type { IGuild } from '@/lib/database/types/guild';
+import type { IGuild } from '@types';
 import { getAuthCookies } from '@/lib/cookie-utils';
 import type { AstroCookies } from 'astro';
+import type { DiscordUser, DiscordGuild } from '@types';
 
 // Cache interface
 interface Cache<T> {
@@ -18,16 +19,6 @@ export function clearGuildsCache(): void {
   guildsCache.clear();
 }
 
-export interface DiscordUser {
-  id: string;
-  username: string;
-  discriminator: string;
-  global_name: string;
-  avatar: string;
-  bot?: boolean;
-  verified?: boolean;
-}
-
 export function getAvatarUrl(user: DiscordUser): string {
   return user.avatar
     ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
@@ -36,16 +27,6 @@ export function getAvatarUrl(user: DiscordUser): string {
 
 export function getInitials(username?: string): string {
   return username ? username.charAt(0).toUpperCase() : '?';
-}
-
-export interface DiscordGuild {
-  id: string;
-  name: string;
-  icon: string | null;
-  owner: boolean;
-  permissions: string;
-  features: string[];
-  approximate_member_count?: number;
 }
 
 export function getServerIcon(guild: DiscordGuild): string | null {
@@ -212,7 +193,7 @@ export async function getConfiguredGuilds(
   const configuredGuildResults = await Promise.all(configuredGuildPromises);
 
   const configuredGuilds = configuredGuildResults.filter(
-    (guild): guild is IGuild => guild !== null
+    (guild: IGuild | null): guild is IGuild => guild !== null
   );
 
   return configuredGuilds;

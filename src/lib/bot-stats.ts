@@ -4,6 +4,7 @@
 
 import { connectDB } from '@/lib/database/mongoose';
 import mongoose from 'mongoose';
+import type { BotStats } from '@types';
 
 // Database types
 interface BotStatsData {
@@ -51,24 +52,6 @@ interface BotStatsCache {
 // In-memory cache (10 minute TTL to match bot update frequency)
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 let statsCache: BotStatsCache | null = null;
-
-export interface BotStats {
-  guildCount: number;
-  memberCount: number;
-  ping: number;
-  status: 'online' | 'idle' | 'dnd' | 'invisible';
-  cached: boolean;
-  cacheAge?: number; // in seconds
-  lastUpdated?: Date; // when bot last updated stats
-  channels?: number; // total channel count
-  uptimeHours?: number; // bot uptime in hours
-  presence?: {
-    status: 'online' | 'idle' | 'dnd' | 'invisible';
-    message: string;
-    type: string;
-    url: string;
-  };
-}
 
 /**
  * Fetch bot statistics from shared database (dev-configs collection)

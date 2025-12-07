@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+// import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import compressor from 'astro-compressor';
 import node from '@astrojs/node';
@@ -43,7 +43,7 @@ export default defineConfig({
   integrations: [
     react(),
     icon(),
-    tailwind(),
+    // tailwind(),
     sitemap(),
     compressor({ gzip: true, brotli: true }),
   ],
@@ -70,6 +70,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        '@types': path.resolve(__dirname, './types/index.d.ts'),
         '@components': path.resolve(__dirname, './src/components'),
         '@content': path.resolve(__dirname, './src/content'),
         '@config': path.resolve(__dirname, './src/config'),

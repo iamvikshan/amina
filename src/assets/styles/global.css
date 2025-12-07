@@ -1,7 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
 /* Amina Dashboard - Global Styles */
 /* Based on Akame ga Kill color palette and hybrid design approach */
 
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+/* ==================== TAILWIND V4 THEME ==================== */
+@theme {
+  /* === AMINA'S COLOR PALETTE === */
+  --color-amina-crimson: #dc143c;
+  --color-amina-blood-red: #8b0000;
+  --color-amina-rose-red: #e63946;
+
+  --color-night-black: #0a0a0a;
+  --color-night-shadow: #1a1a1a;
+  --color-night-steel: #2d2d2d;
+  --color-night-slate: #3d3d3d;
+
+  --color-imperial-gold: #ffd700;
+  --color-imperial-amber: #ffa500;
+  --color-imperial-bronze: #cd7f32;
+
+  --color-cyber-blue: #1e90ff;
+  --color-cyber-electric: #00ced1;
+  --color-cyber-ice: #87ceeb;
+
+  --color-discord-blurple: #5865f2;
+  --color-discord-green: #57f287;
+  --color-discord-red: #ed4245;
+  --color-discord-gray: #36393f;
+
+  /* === FONT FAMILIES === */
+  --font-family-heading:
+    Rajdhani, Orbitron, 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-family-body: Inter, Poppins, ui-sans-serif, system-ui, sans-serif;
+  --font-family-dialogue: Quicksand, Comfortaa, cursive;
+  --font-family-mono: 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* === BOX SHADOWS === */
+  --shadow-glow-crimson: 0 0 20px rgba(220, 20, 60, 0.6);
+  --shadow-glow-blue: 0 0 20px rgba(30, 144, 255, 0.6);
+  --shadow-glow-gold: 0 0 20px rgba(255, 215, 0, 0.6);
+  --shadow-glow-green: 0 0 20px rgba(87, 242, 135, 0.6);
+  --shadow-glow-red: 0 0 20px rgba(220, 20, 60, 0.6);
+
+  /* === ANIMATIONS === */
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-portrait-breathe: portrait-breathe 4s ease-in-out infinite;
+  --animate-spin-slow: spin 3s linear infinite;
+  --animate-bounce-slow: bounce 3s ease-in-out infinite;
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes portrait-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+}
 
 :root {
   /* === AKAME'S CRIMSON === */
@@ -60,13 +127,7 @@
   --transition-slow: 0.5s ease;
 }
 
-/* Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* Base Styles - Tailwind v4 handles resets, only add enhancements */
 body {
   font-family: 'Inter', 'Poppins', sans-serif;
   background-color: var(--midnight-black);

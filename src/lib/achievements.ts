@@ -1,20 +1,7 @@
 // Achievement System
 // Tracks user milestones and accomplishments
 
-export type Achievement = {
-  id: string;
-  name: string;
-  description: string;
-  icon: string; // Kaomoji or text symbol
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  unlocked: boolean;
-  unlockedAt?: Date;
-};
-
-export type AchievementCategory = {
-  category: string;
-  achievements: Achievement[];
-};
+import type { Achievement } from '@types';
 
 /**
  * Check which achievements the user has unlocked
