@@ -35,3 +35,5 @@ Dockerfile*
 
 # Specific data files to exclude
 types/*
+
+CHANGELOG.md
