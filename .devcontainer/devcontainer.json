@@ -1,6 +1,6 @@
 {
   "name": "Ubuntu + Bun + Docker",
-  "image": "ghcr.io/iamvikshan/devcontainers/ubuntu-bun:latest",
+  "image": "vikshan/ubuntu-bun:latest",
 
   // Add Docker-in-Docker feature
   "features": {

@@ -1,7 +1,7 @@
 name: Sync to GitLab
 on:
   push:
-    branches: [main]
+    branches: [main, api, dash]
   pull_request:
     types: [opened, closed, reopened]
   issues:
@@ -9,7 +9,7 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 */12 * * *"
   workflow_dispatch:
 
 jobs:
