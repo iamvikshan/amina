@@ -24,7 +24,10 @@ export const GET: APIRoute = async () => {
       ping: botStats.ping,
       status: botStats.status,
       cached: botStats.cached || uptimeStats.cached,
-      cacheAge: Math.max(botStats.cacheAge ?? 0, uptimeStats.cacheAge ?? 0),
+      cacheAge: Math.max(
+        botStats.cacheAge ?? 0,
+        uptimeStats.cached ? (uptimeStats.cacheAge ?? 0) : 0
+      ),
       generatedAt: new Date().toISOString(),
       channels: botStats.channels,
       uptimeHours: botStats.uptimeHours,

@@ -4,13 +4,15 @@
   "main": "dist/server/entry.mjs",
   "scripts": {
     "dev": "astro dev",
+    "dev:honox": "vite --config vite.config.mts",
     "start": "bun .",
     "build": "astro build && bun process-html.mjs",
+    "build:honox": "vite build --config vite.config.mts",
     "build:prod": "NODE_ENV=production astro check && astro build && bun process-html.mjs",
     "preview": "astro preview",
     "preview:prod": "NODE_ENV=production astro preview",
     "f": "prettier --write .",
-    "check": "astro check && prettier --check .",
+    "check": "tsc --noEmit && prettier --check .",
     "clean": "rm -rf dist .astro node_modules/.vite"
   },
   "dependencies": {
@@ -31,6 +33,8 @@
     "astro-compressor": "^1.2.0",
     "astro-icon": "^1.1.5",
     "gsap": "^3.13.0",
+    "hono": "^4.10.7",
+    "honox": "^0.1.52",
     "lenis": "^1.3.15",
     "lucide-react": "^0.555.0",
     "mongoose": "^9.0.1",
@@ -39,15 +43,19 @@
     "react-dom": "^19.2.1",
     "sharp": "^0.34.5",
     "sharp-ico": "^0.1.5",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.17",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.6",
+    "@hono/vite-dev-server": "^0.23.0",
+    "@hono/vite-ssg": "^0.3.0",
     "@types/node": "^24.10.1",
     "globby": "^16.0.0",
     "html-minifier-terser": "^7.2.0",
     "prettier": "^3.7.4",
     "prettier-plugin-astro": "^0.14.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6"
   }
 }

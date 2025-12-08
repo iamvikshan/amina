@@ -21,7 +21,7 @@ export const GET: APIRoute = async () => {
       totalMonitors,
       downMonitors,
       cached: stats.cached,
-      cacheAge: stats.cacheAge ?? null,
+      cacheAge: stats.cached ? (stats.cacheAge ?? null) : null,
       generatedAt: new Date().toISOString(),
     };
 

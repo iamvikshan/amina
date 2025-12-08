@@ -2,8 +2,10 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["src/*", "app/*"],
       "@types": ["types"],
       "@types/*": ["types/*"],
       "@components/*": ["src/components/*"],
@@ -19,5 +21,5 @@
     },
     "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "include": ["src/**/*", "types/**/*"]
+  "include": ["src/**/*", "app/**/*", "types/**/*"]
 }

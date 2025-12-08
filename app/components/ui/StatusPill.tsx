@@ -1,0 +1,323 @@
+import type { FC } from 'hono/jsx';
+
+/**
+ * StatusPill Component
+ * ====================
+ * Floating system status indicator showing real-time health
+ * Fetches from /api/status every 5 minutes
+ * Uses client-side script for live updates
+ * 
+ * Status Levels:
+ * - operational: All systems online, 95%+ uptime
+ * - degraded: One service down or 90-95% uptime
+ * - partial: Multiple services down or 80-90% uptime
+ * - major: Major outage or <80% uptime
+ */
+export const StatusPill: FC = () => {
+  const statusPageUrl = 'https://mina.instatus.com';
+  
+  const defaultConfig = {
+    level: 'loading',
+    color: '#94a3b8',
+    bgColor: 'rgba(148, 163, 184, 0.12)',
+    glowColor: 'rgba(148, 163, 184, 0.35)',
+    dotColor: '#94a3b8',
+    message: 'Checking',
+    messageMobile: 'Status',
+  };
+
+  const statusScript = `
+    (() => {
+      const STORAGE_KEY = 'status-pill-dismissed';
+      const API_ENDPOINT = '/api/status';
+      const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+      const container = document.getElementById('status-pill-container');
+      const pill = document.getElementById('status-pill');
+      const dismissBtn = document.getElementById('dismiss-status-pill');
+      const desktopText = document.getElementById('status-pill-text-desktop');
+      const mobileText = document.getElementById('status-pill-text-mobile');
+      const dot = document.getElementById('status-pill-dot');
+      const dotRing = document.getElementById('status-pill-dot-ring');
+      const STATUS_PAGE_URL = container?.getAttribute('data-status-url') || 'https://mina.instatus.com';
+
+      const STATUS_CONFIGS = {
+        operational: {
+          level: 'operational',
+          color: '#22c55e',
+          bgColor: 'rgba(34, 197, 94, 0.1)',
+          glowColor: 'rgba(34, 197, 94, 0.3)',
+          dotColor: '#22c55e',
+          message: 'Operational',
+          messageMobile: 'Operational',
+        },
+        degraded: {
+          level: 'degraded',
+          color: '#eab308',
+          bgColor: 'rgba(234, 179, 8, 0.1)',
+          glowColor: 'rgba(234, 179, 8, 0.3)',
+          dotColor: '#eab308',
+          message: 'Degraded',
+          messageMobile: 'Degraded',
+        },
+        partial: {
+          level: 'partial',
+          color: '#f97316',
+          bgColor: 'rgba(249, 115, 22, 0.1)',
+          glowColor: 'rgba(249, 115, 22, 0.3)',
+          dotColor: '#f97316',
+          message: 'Issues',
+          messageMobile: 'Issues',
+        },
+        major: {
+          level: 'major',
+          color: '#ef4444',
+          bgColor: 'rgba(239, 68, 68, 0.1)',
+          glowColor: 'rgba(239, 68, 68, 0.3)',
+          dotColor: '#ef4444',
+          message: 'Outage',
+          messageMobile: 'Outage',
+        },
+        loading: {
+          level: 'loading',
+          color: '#94a3b8',
+          bgColor: 'rgba(148, 163, 184, 0.12)',
+          glowColor: 'rgba(148, 163, 184, 0.35)',
+          dotColor: '#94a3b8',
+          message: 'Checking',
+          messageMobile: 'Status',
+        },
+      };
+
+      if (localStorage.getItem(STORAGE_KEY) === 'true') {
+        container?.remove();
+        return;
+      }
+
+      const getStatusConfig = (payload) => {
+        const { uptime, downMonitors, totalMonitors } = payload;
+
+        if (downMonitors === 0 && uptime >= 95) {
+          return STATUS_CONFIGS.operational;
+        }
+
+        if (downMonitors === 1 || (downMonitors === 0 && uptime >= 90 && uptime < 95)) {
+          return STATUS_CONFIGS.degraded;
+        }
+
+        if ((downMonitors >= 2 && downMonitors < totalMonitors / 2) || (downMonitors === 0 && uptime >= 80 && uptime < 90)) {
+          return STATUS_CONFIGS.partial;
+        }
+
+        return STATUS_CONFIGS.major;
+      };
+
+      const applyConfig = (config, payload) => {
+        if (!pill) return;
+
+        pill.style.backgroundColor = config.bgColor;
+        pill.style.borderColor = config.color;
+        pill.style.color = config.color;
+        pill.dataset.statusLevel = config.level;
+
+        const downText = typeof payload.downMonitors === 'number' ? payload.downMonitors : 0;
+        const totalText = typeof payload.totalMonitors === 'number' ? payload.totalMonitors : 0;
+        const operationalText = totalText - downText;
+        const statusTitle = \`\${operationalText}/\${totalText} services operational • Click for details\${payload.cached ? ' • cached' : ''}\`;
+        pill.title = statusTitle;
+        pill.setAttribute('href', STATUS_PAGE_URL);
+
+        if (desktopText) desktopText.textContent = config.message;
+        if (mobileText) mobileText.textContent = config.messageMobile;
+        if (dot) {
+          dot.style.backgroundColor = config.dotColor;
+          dot.style.boxShadow = \`0 0 6px \${config.glowColor}\`;
+        }
+        if (dotRing) {
+          dotRing.style.backgroundColor = config.dotColor;
+        }
+      };
+
+      const refreshStatus = async () => {
+        try {
+          const response = await fetch(API_ENDPOINT, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error(\`Status API returned \${response.status}\`);
+          }
+
+          const payload = await response.json();
+          const config = getStatusConfig(payload);
+          applyConfig(config, payload);
+        } catch (error) {
+          console.error('[StatusPill] Failed to fetch status data', error);
+          applyConfig(STATUS_CONFIGS.degraded, {
+            uptime: 0,
+            downMonitors: 1,
+            totalMonitors: 1,
+            cached: false,
+          });
+        }
+      };
+
+      refreshStatus();
+      setInterval(refreshStatus, REFRESH_INTERVAL);
+
+      dismissBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        container?.classList.add('dismissing');
+        localStorage.setItem(STORAGE_KEY, 'true');
+
+        setTimeout(() => {
+          container?.remove();
+        }, 400);
+      });
+
+      dismissBtn?.addEventListener('mouseenter', (event) => {
+        event.stopPropagation();
+      });
+    })();
+  `;
+
+  return (
+    <>
+      <style>
+        {`
+          /* Auto-fade animation after initial display */
+          .status-pill {
+            animation: fadeInThenSemiTransparent 4s ease-out forwards;
+          }
+
+          @keyframes fadeInThenSemiTransparent {
+            0% {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            20% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            80% {
+              opacity: 1;
+            }
+            100% {
+              opacity: 0.3;
+            }
+          }
+
+          /* Hover reveals full opacity */
+          #status-pill-container:hover .status-pill {
+            opacity: 1 !important;
+            animation: none;
+          }
+
+          /* Show dismiss button on container hover */
+          #status-pill-container:hover #dismiss-status-pill {
+            opacity: 1;
+          }
+
+          /* Slide out animation when dismissed */
+          @keyframes slideOut {
+            to {
+              opacity: 0;
+              transform: translateX(200px);
+            }
+          }
+
+          .dismissing {
+            animation: slideOut 0.4s ease-in forwards;
+          }
+        `}
+      </style>
+
+      <div
+        id="status-pill-container"
+        class="fixed bottom-6 right-6 z-50 transition-all duration-500"
+        data-visible="true"
+        data-status-url={statusPageUrl}
+      >
+        {/* Status Pill */}
+        <a
+          href={statusPageUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          id="status-pill"
+          class="status-pill group flex items-center gap-1 md:gap-1.5 px-1.5 py-1 md:px-2 md:py-1.5 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-105 shadow-lg text-xs"
+          style={`background-color: ${defaultConfig.bgColor}; border-color: ${defaultConfig.color}; color: ${defaultConfig.color};`}
+          title="Click to view detailed status (fetching live data...)"
+          data-status-level={defaultConfig.level}
+        >
+          {/* Pulsing Dot */}
+          <div class="relative flex items-center justify-center">
+            {/* Outer pulse ring */}
+            <div
+              class="absolute w-1.5 h-1.5 md:w-2 md:h-2 rounded-full animate-ping opacity-75"
+              style={`background-color: ${defaultConfig.dotColor};`}
+              id="status-pill-dot-ring"
+            />
+            {/* Inner solid dot */}
+            <div
+              class="relative w-1 h-1 md:w-1.5 md:h-1.5 rounded-full"
+              style={`background-color: ${defaultConfig.dotColor}; box-shadow: 0 0 6px ${defaultConfig.glowColor};`}
+              id="status-pill-dot"
+            />
+          </div>
+
+          {/* Status Text (Desktop) */}
+          <span
+            class="hidden md:inline-block text-xs font-mono font-medium"
+            id="status-pill-text-desktop"
+          >
+            {defaultConfig.message}
+          </span>
+
+          {/* Status Text (Mobile) */}
+          <span
+            class="md:hidden text-[10px] font-mono font-medium"
+            id="status-pill-text-mobile"
+          >
+            {defaultConfig.messageMobile}
+          </span>
+
+          {/* External link icon */}
+          <svg
+            class="w-2 h-2 md:w-2.5 md:h-2.5 opacity-50 group-hover:opacity-100 transition-opacity"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+            />
+          </svg>
+        </a>
+
+        {/* Dismiss Button */}
+        <button
+          id="dismiss-status-pill"
+          class="absolute -top-1 -right-1 w-3.5 h-3.5 md:w-4 md:h-4 rounded-full bg-night-steel border border-gray-600 text-gray-400 hover:bg-gray-700 hover:text-white hover:border-gray-500 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100 shadow-lg"
+          title="Dismiss status indicator"
+          type="button"
+        >
+          <svg
+            class="w-2 h-2 md:w-2.5 md:h-2.5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <script dangerouslySetInnerHTML={{ __html: statusScript }} />
+    </>
+  );
+};

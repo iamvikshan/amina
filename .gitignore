@@ -34,3 +34,5 @@ astro/
 .DS_Store
 dist
 .wrangler/
+.codesandbox/
+.codebuddy/*
