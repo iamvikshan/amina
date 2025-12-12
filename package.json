@@ -20,7 +20,7 @@
     "@astrojs/react": "4.4.2",
     "@astrojs/sitemap": "3.6.0",
     "@astrojs/tailwind": "6.0.2",
-    "@iconify-json/lucide": "^1.2.79",
+    "@iconify-json/lucide": "^1.2.80",
     "@preline/accordion": "^3.2.3",
     "@preline/collapse": "^3.2.3",
     "@preline/dropdown": "^3.2.3",
