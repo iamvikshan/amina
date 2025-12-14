@@ -1,5 +1,5 @@
 import type { FC } from 'hono/jsx';
-import { BrandLogo } from '@/components/BrandLogo';
+import { BrandLogo } from '@components/BrandLogo';
 
 export const HeaderSkeleton: FC = () => {
   return (

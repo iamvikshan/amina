@@ -1,7 +1,7 @@
 import type { FC } from 'hono/jsx';
 import type { Achievement } from '@types';
-import { getRarityColor } from '@/lib/achievements';
-import { ImagePaths } from '@/utils/cdn';
+import { getRarityColor } from '@lib/achievements';
+import { ImagePaths } from '@utils/cdn';
 
 interface AchievementBadgeProps {
   achievement: Achievement;

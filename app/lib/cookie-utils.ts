@@ -1,4 +1,4 @@
-// @/lib/cookie-utils.ts
+// @lib/cookie-utils.ts
 import type { Context } from 'hono';
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
 import type { TokenData } from '@types';

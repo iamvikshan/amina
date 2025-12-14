@@ -1,6 +1,6 @@
 import type { FC } from 'hono/jsx';
 import type { GuardianRank } from '@types';
-import { ImagePaths } from '@/utils/cdn';
+import { ImagePaths } from '@utils/cdn';
 
 interface GuardianBadgeProps {
   rank: GuardianRank;

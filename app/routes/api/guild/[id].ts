@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
-import { GuildManager } from '@/lib/database/mongoose';
-import { createResponse, createErrorResponse } from '@/lib/api-response';
+import { GuildManager } from '@lib/database/mongoose';
+import { createResponse, createErrorResponse } from '@lib/api-response';
 import { createRoute } from 'honox/factory';
 
 export const GET = createRoute(async (c: Context) => {

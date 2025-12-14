@@ -16,13 +16,6 @@ RUN bun install --frozen-lockfile --production
 # ============================================
 FROM oven/bun:alpine AS builder
 
-# Accept build args for environment variables needed during build
-ARG CLIENT_ID
-ARG CLIENT_SECRET
-ARG BOT_TOKEN
-ARG MONGO_CONNECTION
-ARG WEBHOOK_SECRET
-
 WORKDIR /app
 
 # Copy package files for dev dependencies and caching
@@ -31,21 +24,13 @@ COPY package.json bun.lock ./
 # Install all dependencies (including devDependencies for build)
 RUN bun install --frozen-lockfile
 
-# Copy source code and type definitions
-COPY src/ ./src/
-COPY types/ ./types/
+# Copy application source + build config
+COPY app/ ./app/
 COPY public/ ./public/
-COPY astro.config.mjs ./
-COPY postcss.config.mjs ./
-COPY process-html.mjs ./
+COPY types/ ./types/
+COPY postcss.config.mts ./
 COPY tsconfig.json ./
-
-# Make environment variables available to the build process
-ENV CLIENT_ID=${CLIENT_ID}
-ENV CLIENT_SECRET=${CLIENT_SECRET}
-ENV BOT_TOKEN=${BOT_TOKEN}
-ENV MONGO_CONNECTION=${MONGO_CONNECTION}
-ENV WEBHOOK_SECRET=${WEBHOOK_SECRET}
+COPY vite.config.mts ./
 
 # Build the application
 RUN bun run build
@@ -65,6 +50,7 @@ COPY --from=dependencies --chown=amina:amina /app/node_modules ./node_modules
 
 # Copy built application from builder stage
 COPY --from=builder --chown=amina:amina /app/dist ./dist
+COPY --from=builder --chown=amina:amina /app/public ./public
 
 USER amina
 
@@ -73,4 +59,4 @@ ENV NODE_ENV=production HOST=0.0.0.0 PORT=4321
 
 EXPOSE 4321
 
-CMD ["bun", "dist/server/entry.mjs"]
+CMD ["bun", "dist/index.js"]

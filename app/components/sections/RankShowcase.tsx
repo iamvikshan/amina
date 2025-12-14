@@ -1,6 +1,6 @@
 import type { FC } from 'hono/jsx';
-import { ImagePaths } from '@/utils/cdn';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { ImagePaths } from '@utils/cdn';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface Rank {
   id: number;

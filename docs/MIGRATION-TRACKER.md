@@ -2,7 +2,7 @@
 
 **Project:** Amina Dashboard (branch: `dash`)  
 **Started:** 2025-12-07  
-**Current Focus:** Phase 4 (Components) + Phase 5 (Routes; `/dash` pages deferred)  
+**Current Focus:** Phase 7 (Cleanup & optimization)  
 **Last Updated:** 2025-12-14
 
 This tracker is intentionally kept concise (<700 lines). Detailed phase notes live in `docs/summary/`.
@@ -17,10 +17,10 @@ This tracker is intentionally kept concise (<700 lines). Detailed phase notes li
 | **Phase 1** | ✅ Complete    | Infrastructure foundation (HonoX skeleton)                                 |
 | **Phase 2** | ✅ Complete    | Core libs + auth utilities ported (auth flow preserved)                    |
 | **Phase 3** | ✅ Complete    | Middleware translation (auth/error/cache)                                  |
-| **Phase 4** | 🟢 In Progress | Component migration (homepage + dashboard primitives)                      |
-| **Phase 5** | 🟢 In Progress | Route migration (page parity achieved; `/dash` pages intentionally paused) |
-| **Phase 6** | 🔲 Not Started | Progressive cutover                                                        |
-| **Phase 7** | 🔲 Not Started | Cleanup & optimization                                                     |
+| **Phase 4** | ✅ Complete    | Component migration (homepage + dashboard primitives)                      |
+| **Phase 5** | ✅ Complete    | Route migration (landing + 404 + APIs working; `/dash` pages deferred)     |
+| **Phase 6** | ✅ Complete    | Progressive cutover (HonoX validated; Astro removal approved)              |
+| **Phase 7** | 🟢 In Progress | Cleanup & optimization                                                     |
 
 ---
 
@@ -29,7 +29,7 @@ This tracker is intentionally kept concise (<700 lines). Detailed phase notes li
 ### 2025-12-14
 
 - Static assets moved out of `src/assets/**` → `public/assets/**` and referenced via `/assets/**`.
-  - CSS: `public/assets/styles/global.css`, `public/assets/styles/lenis.css`
+  - CSS: `app/assets/styles/global.css` (Vite entrypoint), `public/assets/styles/lenis.css`
   - Scripts: `public/assets/scripts/hydrateMetrics.js`, `public/assets/scripts/lenisSmoothScroll.js`
 - Dashboard UI building blocks ported to TSX (no `/dash` route changes): sidebar, cards, avatar dropdown, dashboard footer, character badges.
 - 404 page ported:
@@ -52,8 +52,10 @@ This tracker is intentionally kept concise (<700 lines). Detailed phase notes li
 
 ## Next Up
 
-- Port `Header.astro` → `app/components/navigation/Header.tsx` (use existing `UserAvatarDropdown.tsx`).
-- Verify there are no remaining runtime references to `/src/assets/**` in HonoX routes/layouts.
+- Remove Astro code/config/dependencies now that HonoX is validated.
+- Optimization phase:
+  - Switch bot stats / metrics DB reads from Mongoose → native `mongodb` driver.
+  - Fix font rendering/typography differences (deferred by default).
 
 ---
 

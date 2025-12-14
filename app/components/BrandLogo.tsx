@@ -1,5 +1,5 @@
 import type { FC } from 'hono/jsx';
-import { ImagePaths } from '@/utils/cdn';
+import { ImagePaths } from '@utils/cdn';
 
 interface BrandLogoProps {
   class?: string;

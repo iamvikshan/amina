@@ -1,19 +1,19 @@
 import { createRoute } from 'honox/factory';
-import { BaseLayout } from '@/components/layouts/BaseLayout';
-import { Header } from '@/components/navigation/Header';
-import { FooterSection } from '@/components/navigation/FooterSection';
-import { HeroAmina } from '@/components/sections/HeroAmina';
+import { BaseLayout } from '@components/layouts/BaseLayout';
+import { Header } from '@components/navigation/Header';
+import { FooterSection } from '@components/navigation/FooterSection';
+import { HeroAmina } from '@components/sections/HeroAmina';
 import {
   GuardianArsenal,
   type GuardianFeature,
-} from '@/components/sections/GuardianArsenal';
-import { DeploymentSteps } from '@/components/sections/DeploymentSteps';
-import { RankShowcase } from '@/components/sections/RankShowcase';
-import { GuardianTestimonials } from '@/components/sections/GuardianTestimonials';
-import { BattleStats } from '@/components/sections/BattleStats';
-import { CTAGuardian } from '@/components/sections/CTAGuardian';
-import { getBotStats } from '@/lib/bot-stats';
-import { getUptimeStats } from '@/lib/uptime';
+} from '@components/sections/GuardianArsenal';
+import { DeploymentSteps } from '@components/sections/DeploymentSteps';
+import { RankShowcase } from '@components/sections/RankShowcase';
+import { GuardianTestimonials } from '@components/sections/GuardianTestimonials';
+import { BattleStats } from '@components/sections/BattleStats';
+import { CTAGuardian } from '@components/sections/CTAGuardian';
+import { getBotStats } from '@lib/bot-stats';
+import { getUptimeStats } from '@lib/uptime';
 
 export default createRoute(async (c) => {
   let guildCount = 50000;

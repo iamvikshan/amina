@@ -1,7 +1,8 @@
 import type { FC } from 'hono/jsx';
-import { Meta } from '@/components/Meta';
-import { StatusPill } from '@/components/ui/StatusPill';
-import { SITE } from '@/config/site';
+import { Link } from 'honox/server';
+import { Meta } from '@components/Meta';
+import { StatusPill } from '@components/ui/StatusPill';
+import { SITE } from '@config/site';
 
 interface BaseLayoutProps {
   title?: string;
@@ -196,8 +197,8 @@ export const BaseLayout: FC<BaseLayoutProps> = ({
         {/* Dark mode initialization (blocking) */}
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
 
-        {/* Global CSS - direct link */}
-        <link rel="stylesheet" href="/assets/styles/global.css" />
+        {/* Global CSS - processed by Vite/PostCSS (Tailwind v4) */}
+        <Link href="/app/assets/styles/global.css" rel="stylesheet" />
 
         <style>
           {`

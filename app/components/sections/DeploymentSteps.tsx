@@ -1,8 +1,8 @@
 import type { FC } from 'hono/jsx';
-import { PrimaryBtn } from '@/components/ui/buttons/PrimaryBtn';
-import { TertiaryBtn } from '@/components/ui/buttons/TertiaryBtn';
-import { getInviteUrl } from '@/config/permalinks';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { PrimaryBtn } from '@components/ui/buttons/PrimaryBtn';
+import { TertiaryBtn } from '@components/ui/buttons/TertiaryBtn';
+import { getInviteUrl } from '@config/permalinks';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface DeploymentStepsProps {
   protectedRealmsLabel: string;

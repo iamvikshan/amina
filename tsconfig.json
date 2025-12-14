@@ -1,23 +1,23 @@
 {
-  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["app/*"],
       "@types": ["types"],
       "@types/*": ["types/*"],
       "@components/*": ["app/components/*"],
       "@config/*": ["app/config/*"],
-      "@content/*": ["app/content/*"],
-      "@data/*": ["app/data_files/*"],
-      "@images/*": ["app/images/*"],
-      "@scripts/*": ["app/assets/scripts/*"],
       "@styles/*": ["app/assets/styles/*"],
       "@utils/*": ["app/utils/*"],
-      "@layouts/*": ["app/layouts/*"],
-      "@root/*": ["/*"]
+      "@lib/*": ["app/lib/*"]
     },
     "typeRoots": ["./types"]
   },

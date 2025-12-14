@@ -22,7 +22,6 @@
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "astro-build.astro-vscode",
         "GitHub.copilot",
         "unifiedjs.vscode-mdx",
         "bradlc.vscode-tailwindcss",
@@ -39,7 +38,7 @@
   },
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "cd workspaces/amina && bun update",
+  "postCreateCommand": "bun update",
 
   // Set `remoteUser` to `root` to connect as root.
   "remoteUser": "root",

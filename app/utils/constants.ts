@@ -1,4 +1,4 @@
-// @/utils/constants.ts
+// @utils/constants.ts
 // Application-wide constants
 
 export const DISCORD_COLORS = {

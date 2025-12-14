@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
-import { env } from '@/config/env';
-import { clearAuthCookies, getAuthCookies } from '@/lib/cookie-utils';
+import { env } from '@config/env';
+import { clearAuthCookies, getAuthCookies } from '@lib/cookie-utils';
 import { createRoute } from 'honox/factory';
 
 export const POST = createRoute(async (c: Context) => {

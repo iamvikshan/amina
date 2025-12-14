@@ -1,7 +1,7 @@
-// @/lib/data-utils.ts
-import { GuildManager } from '@/lib/database/mongoose';
+// @lib/data-utils.ts
+import { GuildManager } from '@lib/database/mongoose';
 import type { IGuild } from '@types';
-import { getAuthCookies } from '@/lib/cookie-utils';
+import { getAuthCookies } from '@lib/cookie-utils';
 import type { Context } from 'hono';
 import type { DiscordUser, DiscordGuild } from '@types';
 

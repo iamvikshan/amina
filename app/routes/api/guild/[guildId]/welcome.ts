@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import { GuildManager } from '@/lib/database/mongoose';
+import { GuildManager } from '@lib/database/mongoose';
 import { createRoute } from 'honox/factory';
 
 export const POST = createRoute(async (c: Context) => {

@@ -1,6 +1,6 @@
 import type { FC } from 'hono/jsx';
 import type { SidebarFooter, SidebarHeader, SidebarSection } from '@types';
-import { SidebarIcon } from '@/components/ui/dashboard/SidebarIcon';
+import { SidebarIcon } from '@components/ui/dashboard/SidebarIcon';
 
 interface SidebarProps {
   sections: SidebarSection[];

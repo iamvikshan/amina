@@ -1,8 +1,8 @@
 import type { FC } from 'hono/jsx';
 import type { DiscordGuild } from '@types';
-import { getServerIcon } from '@/lib/data-utils';
-import { getInviteUrl } from '@/config/permalinks';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { getServerIcon } from '@lib/data-utils';
+import { getInviteUrl } from '@config/permalinks';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface ServerCardProps {
   guild: DiscordGuild;

@@ -1,6 +1,6 @@
 import type { FC } from 'hono/jsx';
-import { SITE, OG, SEO } from '@/config/site';
-import { ImagePaths } from '@/utils/cdn';
+import { SITE, OG, SEO } from '@config/site';
+import { ImagePaths } from '@utils/cdn';
 
 interface MetaProps {
   meta?: string;

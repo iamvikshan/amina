@@ -174,13 +174,11 @@ OAuth flow with Discord may break during migration, logging out users.
 ```nginx
 # Nginx routing
 location /auth/callback {
-    # Route to Astro during migration
-    proxy_pass http://astro:4321;
+  proxy_pass http://amina:4321;
 }
 
 location /dash {
-    # Route to HonoX after verification
-    proxy_pass http://honox:4322;
+  proxy_pass http://amina:4321;
 }
 ```
 
@@ -334,10 +332,10 @@ async function connectDB() {
 1. **Reduce HonoX Traffic**
 
    ```nginx
-   # Route 90% to Astro, 10% to HonoX
+     # Route 90% to stable, 10% to canary
    upstream backend {
-       server astro:4321 weight=9;
-       server honox:4322 weight=1;
+       server amina_stable:4321 weight=9;
+       server amina_canary:4321 weight=1;
    }
    ```
 

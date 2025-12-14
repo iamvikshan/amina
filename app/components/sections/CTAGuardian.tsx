@@ -1,7 +1,7 @@
 import type { FC } from 'hono/jsx';
-import { ImagePaths } from '@/utils/cdn';
-import { getInviteUrl } from '@/config/permalinks';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { ImagePaths } from '@utils/cdn';
+import { getInviteUrl } from '@config/permalinks';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 const statusColors = {
   online: {

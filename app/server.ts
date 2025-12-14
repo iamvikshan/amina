@@ -13,7 +13,11 @@ app.use('*', errorHandler);
 // In development, Vite will handle module assets.
 app.use('/static/*', serveStatic({ root: './dist' }));
 app.use('/assets/*', serveStatic({ root: './public' }));
-app.use('/favicon.ico', serveStatic({ path: './public/favicon.ico' }));
+app.use('/social.png', serveStatic({ path: './public/social.png' }));
+app.use(
+  '/banner-pattern.svg',
+  serveStatic({ path: './public/banner-pattern.svg' })
+);
 
 // Health check endpoint
 app.get('/health', (c) => {

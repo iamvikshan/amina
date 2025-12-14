@@ -1,7 +1,7 @@
-// @/lib/discord-auth.ts
+// @lib/discord-auth.ts
 import { z } from 'zod';
-import { env as runtimeEnv } from '@/config/env';
-import { getOAuthRedirect } from '@/config/permalinks';
+import { env as runtimeEnv } from '@config/env';
+import { getOAuthRedirect } from '@config/permalinks';
 import type { TokenData } from '@types';
 
 const envSchema = z.object({

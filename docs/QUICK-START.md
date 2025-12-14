@@ -11,7 +11,6 @@
 - **Target Bundle:** 84% reduction (640KB → 100KB)
 - **Keep:** GSAP (47KB), Alpine.js (15KB)
 - **Remove:** Lenis (8KB) → CSS replacement
-- **Remove:** Astro (570KB) → HonoX (50KB)
 
 ---
 
@@ -19,11 +18,11 @@
 
 ### Component Structure
 
-| Astro                           | HonoX                |
+| Legacy                          | HonoX                |
 | ------------------------------- | -------------------- |
 | `---` frontmatter               | ES6 imports          |
 | `<slot />`                      | `{children}`         |
-| `Astro.props.name`              | `{ name }` parameter |
+| `props` via framework context   | `{ name }` parameter |
 | `.astro` extension              | `.tsx` extension     |
 | `export const prerender = true` | SSG config in route  |
 
@@ -32,8 +31,8 @@
 ```typescript
 // ✅ CORRECT
 import type { DiscordUser, IGuild } from '@types';
-import { Header } from '@/components/navigation/Header';
-import { discordAuth } from '@/lib/discord-auth';
+import { Header } from '@components/navigation/Header';
+import { discordAuth } from '@lib/discord-auth';
 
 // ❌ WRONG
 import type { DiscordUser } from '@types/discord'; // No direct imports
@@ -43,11 +42,6 @@ import { Header } from '../../components/Header'; // No relative paths
 ### Request Data
 
 ```typescript
-// Astro
-const { guildId } = Astro.params;
-const code = Astro.url.searchParams.get('code');
-const token = Astro.cookies.get('access_token')?.value;
-
 // HonoX
 const guildId = c.req.param('id'); // Note: 'id' not 'guildId'
 const code = c.req.query('code');
@@ -57,19 +51,6 @@ const token = getCookie(c, 'access_token');
 ### Middleware
 
 ```typescript
-// Astro
-import { defineMiddleware } from 'astro:middleware';
-
-export const authGuard = defineMiddleware(
-  async ({ cookies, redirect }, next) => {
-    if (!cookies.has('access_token')) {
-      return redirect('/auth');
-    }
-    return next();
-  }
-);
-
-// HonoX
 import { createMiddleware } from 'hono/factory';
 import { getCookie } from 'hono/cookie';
 
@@ -90,7 +71,7 @@ export const authGuard = createMiddleware(async (c, next) => {
 ```tsx
 // app/routes/example.tsx
 import { createRoute } from 'honox/factory';
-import { BaseLayout } from '@/components/layouts/BaseLayout';
+import { BaseLayout } from '@components/layouts/BaseLayout';
 
 export default createRoute(async (c) => {
   const data = await fetchData();
@@ -109,7 +90,7 @@ export default createRoute(async (c) => {
 ```tsx
 // app/routes/dash/index.tsx
 import { createRoute } from 'honox/factory';
-import { getDiscordUserData } from '@/lib/data-utils';
+import { getDiscordUserData } from '@lib/data-utils';
 
 // Middleware applied in _middleware.ts
 export default createRoute(async (c) => {
@@ -287,13 +268,13 @@ deleteCookie(c, 'access_token');
 import type { DiscordUser, IGuild, TokenData } from '@types';
 
 // Use absolute paths with @
-import { Header } from '@/components/navigation/Header';
-import { discordAuth } from '@/lib/discord-auth';
+import { Header } from '@components/navigation/Header';
+import { discordAuth } from '@lib/discord-auth';
 
 // Group imports logically
 import type { ... } from '@types';           // Types first
-import { Component } from '@/components/...'; // Components
-import { utility } from '@/lib/...';          // Utilities
+import { Component } from '@components/...'; // Components
+import { utility } from '@lib/...';          // Utilities
 ```
 
 ### ❌ DON'T
@@ -346,7 +327,7 @@ setCookie(c, 'test', 'value', {
 }
 
 // Use absolute imports
-import { Header } from '@/components/navigation/Header'; // ✅
+import { Header } from '@components/navigation/Header'; // ✅
 import { Header } from '../../components/Header'; // ❌
 ```
 

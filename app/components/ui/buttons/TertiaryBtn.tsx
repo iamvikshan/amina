@@ -1,5 +1,5 @@
 import type { FC } from 'hono/jsx';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface TertiaryBtnProps {
   text?: string;

@@ -1,9 +1,9 @@
 import type { FC } from 'hono/jsx';
-import { ImagePaths } from '@/utils/cdn';
-import { PrimaryBtn } from '@/components/ui/buttons/PrimaryBtn';
-import { SecondaryBtn } from '@/components/ui/buttons/SecondaryBtn';
-import { getInviteUrl } from '@/config/permalinks';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { ImagePaths } from '@utils/cdn';
+import { PrimaryBtn } from '@components/ui/buttons/PrimaryBtn';
+import { SecondaryBtn } from '@components/ui/buttons/SecondaryBtn';
+import { getInviteUrl } from '@config/permalinks';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface HeroAminaProps {
   docsUrl?: string;

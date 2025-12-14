@@ -1,8 +1,8 @@
 import type { FC } from 'hono/jsx';
-import { ThemeIcon } from '@/components/ThemeIcon';
-import { BrandLogo } from '@/components/BrandLogo';
-import { LoginBtn } from '@/components/ui/buttons/LoginBtn';
-import { getAvatarUrl } from '@/lib/data-utils';
+import { ThemeIcon } from '@components/ThemeIcon';
+import { BrandLogo } from '@components/BrandLogo';
+import { LoginBtn } from '@components/ui/buttons/LoginBtn';
+import { getAvatarUrl } from '@lib/data-utils';
 import type { DiscordUser } from '@types';
 
 interface HeaderProps {
@@ -38,16 +38,16 @@ export const Header: FC<HeaderProps> = ({
   return (
     <>
       <header
-        class="sticky top-0 inset-x-0 h-14 w-full border-b z-[100000] select-none border-gray-200 dark:border-night-steel/80 bg-white/60 dark:bg-night-black/40 backdrop-blur-md header-fade-in"
+        class="sticky top-0 inset-x-0 h-14 w-full border-b z-100000 select-none border-gray-200 dark:border-night-steel/80 bg-white/60 dark:bg-night-black/40 backdrop-blur-md header-fade-in"
         style="isolation: isolate;"
       >
-        <section class="mx-auto w-full max-w-full md:max-w-screen-xl px-4 md:px-12 lg:px-20 flex items-center justify-between h-full">
+        <section class="mx-auto w-full max-w-full md:max-w-7xl px-4 md:px-12 lg:px-20 flex items-center justify-between h-full">
           <div class="hidden lg:flex items-center space-x-12 flex-1">
             <a class="flex items-center space-x-2" href={homeUrl}>
               <span class="flex items-center space-x-2">
                 <BrandLogo class="h-8 w-auto" />
                 <span
-                  class="text-lg font-bold font-heading !leading-none inline-block text-white hover:text-amina-crimson transition-colors"
+                  class="text-lg font-bold font-heading leading-none! inline-block text-white hover:text-amina-crimson transition-colors"
                   style="margin-top:4px"
                 >
                   Amina

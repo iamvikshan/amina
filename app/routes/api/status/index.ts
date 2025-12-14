@@ -1,4 +1,4 @@
-import { getUptimeStats } from '@/lib/uptime';
+import { getUptimeStats } from '@lib/uptime';
 import type { Context } from 'hono';
 import { createRoute } from 'honox/factory';
 

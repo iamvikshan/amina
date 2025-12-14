@@ -1,9 +1,9 @@
-// @/lib/bot-stats.ts
+// @lib/bot-stats.ts
 // Bot statistics utilities for fetching real-time bot data from shared database
 // Updated every 10 minutes by bot's presence handler
 
 import mongoose from 'mongoose';
-import { connectDB } from '@/lib/database/mongoose';
+import { connectDB } from '@lib/database/mongoose';
 import type { BotStats } from '@types';
 
 // Database types

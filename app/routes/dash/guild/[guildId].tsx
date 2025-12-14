@@ -1,6 +1,6 @@
 import { createRoute } from 'honox/factory';
-import { GuildManager } from '@/lib/database/mongoose';
-import { getDiscordUserData } from '@/lib/data-utils';
+import { GuildManager } from '@lib/database/mongoose';
+import { getDiscordUserData } from '@lib/data-utils';
 
 export default createRoute(async (c) => {
   c.header('Cache-Control', 'private, no-cache, must-revalidate');
@@ -11,7 +11,7 @@ export default createRoute(async (c) => {
   }
 
   try {
-    // Mirror Astro: load user (ensures auth cookies are valid) then guild from DB
+    // Load user (ensures auth cookies are valid) then guild from DB
     await getDiscordUserData(c);
 
     const guildManager = await GuildManager.getInstance();
@@ -38,7 +38,7 @@ export default createRoute(async (c) => {
         style={{ maxWidth: '900px', margin: '40px auto', padding: '0 16px' }}
       >
         <h1>{guild.server.name}</h1>
-        <p>Guild dashboard page is being migrated from Astro → HonoX.</p>
+        <p>Guild dashboard page is being migrated into the new HonoX UI.</p>
         <ul>
           <li>
             <strong>Guild ID:</strong> {guild._id}

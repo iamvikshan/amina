@@ -1,5 +1,5 @@
 // Environment variable validation and type safety
-// Usage: import { env } from '@/config/env'
+// Usage: import { env } from '@config/env'
 
 // Direct access to environment variables with fallbacks (server runtime)
 const NODE_ENV = (process.env.NODE_ENV || 'development') as

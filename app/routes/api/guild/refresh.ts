@@ -1,8 +1,8 @@
 import type { Context } from 'hono';
-import { clearGuildsCache } from '@/lib/data-utils';
-import { GuildManager } from '@/lib/database/mongoose';
-import { env, validateRequiredEnv } from '@/config/env';
-import { getAuthCookies } from '@/lib/cookie-utils';
+import { clearGuildsCache } from '@lib/data-utils';
+import { GuildManager } from '@lib/database/mongoose';
+import { env, validateRequiredEnv } from '@config/env';
+import { getAuthCookies } from '@lib/cookie-utils';
 import { createRoute } from 'honox/factory';
 
 // Rate limiting: Track last refresh time per guild (5 minute cooldown)

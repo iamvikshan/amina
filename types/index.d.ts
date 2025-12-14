@@ -46,7 +46,7 @@ export type { RouteConfig } from './auth.d.ts';
 export * from './hono.d.ts';
 
 // NOTE: Runtime error classes were moved out of /types.
-// Import them from `@/lib/errors` if needed at runtime.
+// Import them from `@lib/errors` if needed at runtime.
 
 // Global Types
 export type { Env, Favicon } from './global.d.ts';

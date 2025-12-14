@@ -1,8 +1,8 @@
-// @/lib/uptime.ts
+// @lib/uptime.ts
 // Instatus API integration for real-time status monitoring
 // Fetches component statuses from https://mina.instatus.com
 
-import { env } from '@/config/env';
+import { env } from '@config/env';
 import type { InstatusComponent, Monitor, UptimeStats } from '@types';
 
 // Cache interface

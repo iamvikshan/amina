@@ -1,6 +1,6 @@
 import type { NotFoundHandler } from 'hono';
 
-import { NotFoundPage } from '@/components/pages/NotFoundPage';
+import { NotFoundPage } from '@components/pages/NotFoundPage';
 
 const handler: NotFoundHandler = (c) => {
   c.status(404);

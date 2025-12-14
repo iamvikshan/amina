@@ -1,5 +1,5 @@
-import { URLS } from '@/config/site';
-import { getInviteUrl, getSocialUrl } from '@/config/permalinks';
+import { URLS } from '@config/site';
+import { getInviteUrl, getSocialUrl } from '@config/permalinks';
 
 /**
  * Navigation configuration generator

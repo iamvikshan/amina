@@ -1,6 +1,6 @@
 import { createRoute } from 'honox/factory';
-import { discordAuth } from '@/lib/discord-auth';
-import { setAuthCookies } from '@/lib/cookie-utils';
+import { discordAuth } from '@lib/discord-auth';
+import { setAuthCookies } from '@lib/cookie-utils';
 
 export default createRoute(async (c) => {
   const url = new URL(c.req.url);

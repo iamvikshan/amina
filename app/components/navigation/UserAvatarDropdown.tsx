@@ -1,8 +1,8 @@
 import type { FC } from 'hono/jsx';
 import type { DiscordUser } from '@types';
-import { URLS } from '@/config/site';
-import { Avatar } from '@/components/ui/avatars/Avatar';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { URLS } from '@config/site';
+import { Avatar } from '@components/ui/avatars/Avatar';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface UserAvatarDropdownProps {
   userData: DiscordUser;

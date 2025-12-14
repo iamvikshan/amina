@@ -1,10 +1,10 @@
 import type { FC } from 'hono/jsx';
-import { FooterSocialLink } from '@/components/ui/links/FooterSocialLink';
-import { BrandLogo } from '@/components/BrandLogo';
-import { AminaStatusCard } from '@/components/ui/character/AminaStatusCard';
-import { SITE, URLS } from '@/config/site';
-import enStrings from '@/utils/navigation';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { FooterSocialLink } from '@components/ui/links/FooterSocialLink';
+import { BrandLogo } from '@components/BrandLogo';
+import { AminaStatusCard } from '@components/ui/character/AminaStatusCard';
+import { SITE, URLS } from '@config/site';
+import enStrings from '@utils/navigation';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface Link {
   name: string;

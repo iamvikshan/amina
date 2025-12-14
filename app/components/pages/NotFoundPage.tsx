@@ -1,10 +1,10 @@
 import type { FC } from 'hono/jsx';
-import { SITE } from '@/config/site';
-import { ImagePaths } from '@/utils/cdn';
-import { BaseLayout } from '@/components/layouts/BaseLayout';
-import { Btn404 } from '@/components/ui/buttons/Btn404';
-import { SecondaryBtn } from '@/components/ui/buttons/SecondaryBtn';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+import { SITE } from '@config/site';
+import { ImagePaths } from '@utils/cdn';
+import { BaseLayout } from '@components/layouts/BaseLayout';
+import { Btn404 } from '@components/ui/buttons/Btn404';
+import { SecondaryBtn } from '@components/ui/buttons/SecondaryBtn';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
 
 interface NotFoundPageProps {
   title?: string;

@@ -9,7 +9,7 @@ import {
   AuthorizationError,
   NotFoundError,
   ValidationError,
-} from '@/lib/errors';
+} from '@lib/errors';
 
 /**
  * Global error handling middleware for HonoX

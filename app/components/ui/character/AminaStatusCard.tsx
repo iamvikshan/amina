@@ -1,5 +1,5 @@
 import type { FC } from 'hono/jsx';
-import { ImagePaths } from '@/utils/cdn';
+import { ImagePaths } from '@utils/cdn';
 
 export const AminaStatusCard: FC = () => {
   const script = `
@@ -145,7 +145,7 @@ export const AminaStatusCard: FC = () => {
           }
 
           .font-dialogue {
-            font-family: 'Quicksand', 'Comfortaa', cursive, system-ui;
+            font-family: var(--font-family-dialogue);
           }
         `}
       </style>

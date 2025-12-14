@@ -1,8 +1,6 @@
 // Global Type Definitions
 // These types are available globally throughout the application
 
-import type { ImageMetadata } from 'astro';
-
 // Environment Types
 declare global {
   interface ImportMetaEnv {
@@ -15,13 +13,6 @@ declare global {
   interface ImportMeta {
     readonly env: ImportMetaEnv;
   }
-}
-
-// Manifest Types
-export interface Favicon {
-  purpose: 'any' | 'maskable' | 'monochrome';
-  src: ImageMetadata;
-  sizes: number[];
 }
 
 // Environment Configuration Type

@@ -972,7 +972,7 @@ interface Props {
 
 ```tsx
 import type { FC } from 'hono/jsx';
-import { Meta } from '@/components/Meta';
+import { Meta } from '@components/Meta';
 
 interface BaseLayoutProps {
   title?: string;

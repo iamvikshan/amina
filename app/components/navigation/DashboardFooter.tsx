@@ -1,8 +1,8 @@
 import type { FC } from 'hono/jsx';
-import { SITE, URLS } from '@/config/site';
-import navigation from '@/utils/navigation';
-import { LucideIcon } from '@/components/ui/icons/LucideIcon';
-import { FooterSocialLink } from '@/components/ui/links/FooterSocialLink';
+import { SITE, URLS } from '@config/site';
+import navigation from '@utils/navigation';
+import { LucideIcon } from '@components/ui/icons/LucideIcon';
+import { FooterSocialLink } from '@components/ui/links/FooterSocialLink';
 
 export const DashboardFooter: FC = () => {
   const crafted = 'Forged by';

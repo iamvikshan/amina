@@ -15,7 +15,10 @@ export default defineConfig({
   plugins: [
     honox({
       client: {
-        input: ['/app/client.ts'],
+        input: [
+          '/app/client.ts', // the default value -> must be added if input is overridden
+          '/app/assets/styles/global.css', // add the style file entrypoint
+        ],
       },
     }),
     build(),
@@ -27,6 +30,10 @@ export default defineConfig({
     alias: {
       '@types': '/types',
       '@': '/app',
+      '@lib': '/app/lib',
+      '@utils': '/app/utils',
+      '@config': '/app/config',
+      '@components': '/app/components',
     },
   },
 });

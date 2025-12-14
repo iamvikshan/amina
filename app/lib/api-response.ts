@@ -1,4 +1,4 @@
-// @/lib/api-response.ts
+// @lib/api-response.ts
 
 export function createResponse<T>(data: T, status = 200): Response {
   return new Response(
