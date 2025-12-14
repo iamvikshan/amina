@@ -13,18 +13,18 @@ interface MetaProps {
  * ==============
  * SEO metadata, Open Graph, Twitter Cards, and structured data
  * Handles all <head> metadata except <title> (handled by BaseLayout)
- * 
+ *
  * Note: Using absolute URLs for social images (required by OG spec)
  */
-export const Meta: FC<MetaProps> = ({ 
-  meta = SITE.description, 
+export const Meta: FC<MetaProps> = ({
+  meta = SITE.description,
   structuredData = SEO.structuredData,
-  canonical 
+  canonical,
 }) => {
   const author = SITE.author;
   const ogTitle = OG.title;
   const ogDescription = OG.description;
-  
+
   // Construct absolute URL for social image
   // In production, this should use the actual domain
   const baseUrl = process.env.BASE_URL || 'https://4mina.app';
@@ -38,9 +38,9 @@ export const Meta: FC<MetaProps> = ({
     <>
       {/* Structured Data (JSON-LD) */}
       {structuredData && (
-        <script 
-          type="application/ld+json" 
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} 
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       )}
 
@@ -81,11 +81,16 @@ export const Meta: FC<MetaProps> = ({
 
       {/* Favicons */}
       <link rel="icon" href="/favicon.ico" sizes="any" type="image/x-icon" />
-      <link rel="icon" href={ImagePaths.logo.headshotEmoji} type="image/svg+xml" sizes="any" />
+      <link
+        rel="icon"
+        href={ImagePaths.logo.headshotEmoji}
+        type="image/svg+xml"
+        sizes="any"
+      />
       <meta name="mobile-web-app-capable" content="yes" />
       <link rel="apple-touch-icon" href={ImagePaths.logo.headshotEmoji} />
       <link rel="shortcut icon" href={ImagePaths.logo.headshotEmoji} />
-      
+
       {/* Theme Color */}
       <meta name="theme-color" content="#facc15" />
     </>

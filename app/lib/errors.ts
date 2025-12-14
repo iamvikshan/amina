@@ -1,4 +1,4 @@
-// Error Handling Types
+// Runtime error classes (not type declarations)
 
 export class AppError extends Error {
   constructor(
@@ -9,7 +9,6 @@ export class AppError extends Error {
     super(message);
     this.name = this.constructor.name;
 
-    // V8-specific stack trace capture, with fallback for other JS engines
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, this.constructor);
     } else {

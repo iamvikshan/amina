@@ -92,52 +92,72 @@ export default createRoute((c) => {
             {user && (
               <div class="user-info">
                 {user.avatar && (
-                  <img 
+                  <img
                     src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
                     alt={user.username}
                     class="avatar"
                   />
                 )}
                 <div>
-                  <div><strong>{user.username}</strong></div>
-                  <div style="opacity: 0.8; font-size: 0.9em;">#{user.discriminator || '0000'}</div>
+                  <div>
+                    <strong>{user.username}</strong>
+                  </div>
+                  <div style="opacity: 0.8; font-size: 0.9em;">
+                    #{user.discriminator || '0000'}
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
           <div class="success">
-            <strong>✅ Authentication Successful!</strong><br />
-            You are viewing a protected route. The middleware is working correctly!
+            <strong>✅ Authentication Successful!</strong>
+            <br />
+            You are viewing a protected route. The middleware is working
+            correctly!
           </div>
 
           <h2>Middleware Tests Passed:</h2>
           <ul>
-            <li>✅ Authentication middleware (<code>authGuard</code>) - verified token</li>
-            <li>✅ User attachment middleware (<code>attachUser</code>) - loaded user data</li>
+            <li>
+              ✅ Authentication middleware (<code>authGuard</code>) - verified
+              token
+            </li>
+            <li>
+              ✅ User attachment middleware (<code>attachUser</code>) - loaded
+              user data
+            </li>
             <li>✅ Error handling middleware - wrapped entire request</li>
-            <li>✅ Route-specific middleware (<code>/dash/_middleware.ts</code>) - applied correctly</li>
+            <li>
+              ✅ Route-specific middleware (<code>/dash/_middleware.ts</code>) -
+              applied correctly
+            </li>
           </ul>
 
           <div class="grid">
             <div class="card">
               <h3>🔐 Security</h3>
-              <p>Two-tier rate limiting active, cookies secured with httpOnly + sameSite</p>
+              <p>
+                Two-tier rate limiting active, cookies secured with httpOnly +
+                sameSite
+              </p>
             </div>
             <div class="card">
               <h3>⚡ Performance</h3>
-              <p>5-minute API caching, .lean() queries, singleton DB connection</p>
+              <p>
+                5-minute API caching, .lean() queries, singleton DB connection
+              </p>
             </div>
             <div class="card">
               <h3>🎯 Migration</h3>
-              <p>Phase 3 complete - all middleware patterns preserved from Astro!</p>
+              <p>
+                Phase 3 complete - all middleware patterns preserved from Astro!
+              </p>
             </div>
           </div>
 
           <div style="margin-top: 2rem; opacity: 0.8;">
-            <a href="/test-auth">← Back to Auth Test</a> | 
-            <a href="/">Home</a> | 
-            <a href="/health">Health Check</a>
+            <a href="/">Home</a> | <a href="/health">Health Check</a>
           </div>
         </div>
       </body>

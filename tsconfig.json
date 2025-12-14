@@ -5,21 +5,21 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "paths": {
-      "@/*": ["src/*", "app/*"],
+      "@/*": ["app/*"],
       "@types": ["types"],
       "@types/*": ["types/*"],
-      "@components/*": ["src/components/*"],
-      "@config/*": ["src/config/*"],
-      "@content/*": ["src/content/*"],
-      "@data/*": ["src/data_files/*"],
-      "@images/*": ["src/images/*"],
-      "@scripts/*": ["src/assets/scripts/*"],
-      "@styles/*": ["src/assets/styles/*"],
-      "@utils/*": ["src/utils/*"],
-      "@layouts/*": ["src/layouts/*"],
+      "@components/*": ["app/components/*"],
+      "@config/*": ["app/config/*"],
+      "@content/*": ["app/content/*"],
+      "@data/*": ["app/data_files/*"],
+      "@images/*": ["app/images/*"],
+      "@scripts/*": ["app/assets/scripts/*"],
+      "@styles/*": ["app/assets/styles/*"],
+      "@utils/*": ["app/utils/*"],
+      "@layouts/*": ["app/layouts/*"],
       "@root/*": ["/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./types"]
+    "typeRoots": ["./types"]
   },
-  "include": ["src/**/*", "app/**/*", "types/**/*"]
+  "include": ["app/**/*", "types/**/*"]
 }

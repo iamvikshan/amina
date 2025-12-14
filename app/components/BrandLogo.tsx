@@ -12,9 +12,9 @@ interface BrandLogoProps {
  * Amina's iconic headshot emoji logo
  * Pure server-rendered image component
  */
-export const BrandLogo: FC<BrandLogoProps> = ({ 
-  class: className, 
-  alt = 'Amina Logo' 
+export const BrandLogo: FC<BrandLogoProps> = ({
+  class: className,
+  alt = 'Amina Logo',
 }) => {
   return (
     <img

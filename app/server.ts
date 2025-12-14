@@ -1,14 +1,17 @@
-import { Hono } from 'hono';
-import { serveStatic } from '@hono/node-server/serve-static';
+import { createApp } from 'honox/server';
+import { serveStatic } from 'hono/bun';
 import { showRoutes } from 'hono/dev';
-import { errorHandler } from './middleware';
+import { errorHandler } from '@/middleware';
 
-const app = new Hono();
+// HonoX app wires file-based routes under `app/routes/*`
+const app = createApp();
 
 // Apply global error handling middleware
 app.use('*', errorHandler);
 
-// Serve static files from public directory
+// Serve static files. In production, assets are emitted under dist/static.
+// In development, Vite will handle module assets.
+app.use('/static/*', serveStatic({ root: './dist' }));
 app.use('/assets/*', serveStatic({ root: './public' }));
 app.use('/favicon.ico', serveStatic({ path: './public/favicon.ico' }));
 
@@ -21,12 +24,7 @@ app.get('/health', (c) => {
   });
 });
 
-// Root route
-app.get('/', (c) => {
-  return c.html(
-    '<html><head><title>Amina Dashboard - HonoX</title></head><body><h1>HonoX is running! 🚀</h1><p>Port: 5173</p></body></html>'
-  );
-});
+// NOTE: Root route is served by `app/routes/index.tsx` via HonoX.
 
 // Show routes in development
 if (process.env.NODE_ENV !== 'production') {

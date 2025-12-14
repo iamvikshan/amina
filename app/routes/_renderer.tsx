@@ -1,17 +1,5 @@
 import { jsxRenderer } from 'hono/jsx-renderer';
 
-export default jsxRenderer(({ children }) => {
-  return (
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Amina Dashboard</title>
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-      <body>
-        {children}
-      </body>
-    </html>
-  );
-});
+// BaseLayout renders the full document shell (<html>, <head>, <body>).
+// Keep the renderer minimal to avoid nesting <html> tags.
+export default jsxRenderer(({ children }) => <>{children}</>);

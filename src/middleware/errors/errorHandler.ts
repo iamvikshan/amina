@@ -6,7 +6,7 @@ import {
   AuthorizationError,
   NotFoundError,
   ValidationError,
-} from '@types';
+} from '../../lib/errors';
 
 export function errorHandler(error: Error, context: APIContext) {
   console.error('Error caught by middleware:', {

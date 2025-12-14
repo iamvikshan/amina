@@ -36,3 +36,4 @@ dist
 .wrangler/
 .codesandbox/
 .codebuddy/*
+.github/

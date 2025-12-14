@@ -43,18 +43,19 @@ app/
 
 ## File Count by Phase
 
-| Phase | Files | Total Lines | Description |
-|-------|-------|-------------|-------------|
-| Phase 1 | 4 | ~150 | Bootstrap (server, client, renderer, test route) |
-| Phase 2 | 14 | ~850 | Core libraries (config, database, auth, utils) |
-| **Phase 3** | **9** | **~400** | **Middleware + test routes** |
-| **Total** | **27** | **~1,400** | **All app/ files so far** |
+| Phase       | Files  | Total Lines | Description                                      |
+| ----------- | ------ | ----------- | ------------------------------------------------ |
+| Phase 1     | 4      | ~150        | Bootstrap (server, client, renderer, test route) |
+| Phase 2     | 14     | ~850        | Core libraries (config, database, auth, utils)   |
+| **Phase 3** | **9**  | **~400**    | **Middleware + test routes**                     |
+| **Total**   | **27** | **~1,400**  | **All app/ files so far**                        |
 
 ## Middleware Overview
 
 ### 1. Authentication Middleware (`auth.ts`)
 
 **Flow Diagram:**
+
 ```
 Request to /dash
        ↓
@@ -86,6 +87,7 @@ Continue   Refresh token
 ```
 
 **Route Configuration:**
+
 ```typescript
 // Evaluated in order (specific → general)
 '/dash'              → Protected ✅
@@ -102,6 +104,7 @@ Continue   Refresh token
 ### 2. Error Handling Middleware (`error.ts`)
 
 **Error Flow:**
+
 ```
 Error thrown anywhere in app
          ↓
@@ -126,6 +129,7 @@ HTTPException      AppError hierarchy
 ```
 
 **Production vs Development:**
+
 ```typescript
 // Development
 {
@@ -147,14 +151,15 @@ HTTPException      AppError hierarchy
 
 **Cache Strategy Matrix:**
 
-| Route Type | Middleware | Cache-Control | Use Case |
-|------------|------------|---------------|----------|
-| **Static Assets** | `cacheStatic(3600)` | `public, max-age=3600` | Images, CSS, JS |
-| **API Responses** | `cacheAPI(300)` | `public, max-age=300, stale-while-revalidate=600` | `/api/metrics`, `/api/stats` |
-| **Protected Routes** | `noCache` | `no-store, no-cache, must-revalidate` | `/dash`, `/user` |
-| **Authentication** | `noCache` | `no-store, no-cache, must-revalidate` | `/auth/callback` |
+| Route Type           | Middleware          | Cache-Control                                     | Use Case                     |
+| -------------------- | ------------------- | ------------------------------------------------- | ---------------------------- |
+| **Static Assets**    | `cacheStatic(3600)` | `public, max-age=3600`                            | Images, CSS, JS              |
+| **API Responses**    | `cacheAPI(300)`     | `public, max-age=300, stale-while-revalidate=600` | `/api/metrics`, `/api/stats` |
+| **Protected Routes** | `noCache`           | `no-store, no-cache, must-revalidate`             | `/dash`, `/user`             |
+| **Authentication**   | `noCache`           | `no-store, no-cache, must-revalidate`             | `/auth/callback`             |
 
 **Cache Headers Applied:**
+
 ```http
 # Static assets (1 hour)
 Cache-Control: public, max-age=3600
@@ -171,26 +176,30 @@ Expires: 0
 ## Middleware Execution Order
 
 ### Global Middleware (Applied to All Routes)
+
 ```typescript
 // app/server.ts
-app.use('*', errorHandler);  // Wraps all requests
+app.use('*', errorHandler); // Wraps all requests
 ```
 
 ### Route-Specific Middleware
 
 #### Protected Routes (`/dash/*`)
+
 ```typescript
 // app/routes/dash/_middleware.ts
 Request → errorHandler → authGuard → attachUser → Route handler
 ```
 
 #### API Routes (`/api/*`)
+
 ```typescript
 // app/routes/api/_middleware.ts
 Request → errorHandler → noCache → Route handler
 ```
 
 #### Public Routes (`/`, `/test-auth`)
+
 ```typescript
 Request → errorHandler → Route handler
 ```
@@ -202,6 +211,7 @@ Request → errorHandler → Route handler
 **Purpose:** Verify authentication status without requiring login
 
 **Screenshot (Text):**
+
 ```
 ┌─────────────────────────────────────┐
 │  🔐 Authentication Test             │
@@ -223,6 +233,7 @@ Request → errorHandler → Route handler
 ```
 
 **After Login:**
+
 ```
 ┌─────────────────────────────────────┐
 │  🔐 Authentication Test             │
@@ -241,6 +252,7 @@ Request → errorHandler → Route handler
 **Purpose:** Test protected route middleware
 
 **Screenshot (Text):**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  🎮 Amina Dashboard          [Avatar] User  │
@@ -269,6 +281,7 @@ Request → errorHandler → Route handler
 ## Testing Scenarios
 
 ### ✅ Compilation Tests (PASSED)
+
 ```bash
 $ bun run check
 ✓ TypeScript compilation successful
@@ -278,18 +291,19 @@ $ bun run check
 
 ### 🔄 Integration Tests (Pending - Requires Server)
 
-| Test | Route | Expected Result | Status |
-|------|-------|----------------|--------|
-| Unauthenticated access | `/dash` | Redirect to Discord OAuth | Pending |
-| Authenticated access | `/dash` | Show dashboard | Pending |
-| Token expiry | `/dash` (after wait) | Auto-refresh + show page | Pending |
-| Invalid refresh token | `/dash` (invalid token) | Redirect to login | Pending |
-| 404 handling | `/nonexistent` | 404 JSON response | Pending |
-| 500 handling | Trigger error | 500 JSON response | Pending |
-| Cache headers | `/api/metrics` | Cache-Control present | Pending |
-| No cache headers | `/dash` | no-store, no-cache | Pending |
+| Test                   | Route                   | Expected Result           | Status  |
+| ---------------------- | ----------------------- | ------------------------- | ------- |
+| Unauthenticated access | `/dash`                 | Redirect to Discord OAuth | Pending |
+| Authenticated access   | `/dash`                 | Show dashboard            | Pending |
+| Token expiry           | `/dash` (after wait)    | Auto-refresh + show page  | Pending |
+| Invalid refresh token  | `/dash` (invalid token) | Redirect to login         | Pending |
+| 404 handling           | `/nonexistent`          | 404 JSON response         | Pending |
+| 500 handling           | Trigger error           | 500 JSON response         | Pending |
+| Cache headers          | `/api/metrics`          | Cache-Control present     | Pending |
+| No cache headers       | `/dash`                 | no-store, no-cache        | Pending |
 
 **To Run Integration Tests:**
+
 ```bash
 # 1. Start server
 bun run dev:honox
@@ -311,14 +325,15 @@ curl -I http://localhost:5173/api/status
 
 ### Middleware Overhead
 
-| Middleware | Astro (estimated) | Hono (estimated) | Impact |
-|------------|-------------------|------------------|--------|
-| authGuard | ~1-2ms | ~0.5-1ms | ✅ Faster |
-| errorHandler | ~0.5ms | ~0.3ms | ✅ Faster |
-| cacheAPI | ~0.1ms | ~0.1ms | ≈ Same |
-| **Total per request** | **~2-3ms** | **~1-2ms** | **✅ 33-50% faster** |
+| Middleware            | Astro (estimated) | Hono (estimated) | Impact               |
+| --------------------- | ----------------- | ---------------- | -------------------- |
+| authGuard             | ~1-2ms            | ~0.5-1ms         | ✅ Faster            |
+| errorHandler          | ~0.5ms            | ~0.3ms           | ✅ Faster            |
+| cacheAPI              | ~0.1ms            | ~0.1ms           | ≈ Same               |
+| **Total per request** | **~2-3ms**        | **~1-2ms**       | **✅ 33-50% faster** |
 
 ### Memory Usage
+
 - **No state stored in middleware** (stateless)
 - **Minimal memory overhead** (<1MB for all middleware)
 - **Singleton pattern preserved** (database connections)
@@ -326,6 +341,7 @@ curl -I http://localhost:5173/api/status
 ## Key Takeaways
 
 ### ✅ Successfully Migrated
+
 1. **Authentication flow** - 100% preserved from Astro
 2. **Error handling** - Improved with Hono's HTTPException
 3. **Route protection** - All routes properly guarded
@@ -333,6 +349,7 @@ curl -I http://localhost:5173/api/status
 5. **Cache strategy** - Optimized for different route types
 
 ### 🎯 Critical Patterns Preserved
+
 - Two-tier rate limiting (per-user + global)
 - 5-minute API response caching
 - Cookie security settings (httpOnly, secure, sameSite)
@@ -340,12 +357,15 @@ curl -I http://localhost:5173/api/status
 - Error type hierarchy (AppError → specific errors)
 
 ### 📈 Performance Improvements
+
 - Middleware execution: **33-50% faster**
 - Error handling: **More efficient** with HTTPException
 - Cache headers: **Optimized** with stale-while-revalidate
 
 ### 🚀 Ready for Phase 4
+
 With all middleware in place, we can now:
+
 - Migrate Astro components to JSX
 - Test full authentication flow
 - Build protected dashboard pages

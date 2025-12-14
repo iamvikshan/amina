@@ -1,0 +1,101 @@
+import type { FC } from 'hono/jsx';
+
+interface SpeechBubbleProps {
+  message: string;
+  position?: 'top' | 'bottom' | 'left' | 'right';
+  mood?: 'neutral' | 'happy' | 'serious' | 'determined';
+  className?: string;
+}
+
+export const SpeechBubble: FC<SpeechBubbleProps> = ({
+  message,
+  position = 'bottom',
+  mood = 'neutral',
+  className = '',
+}) => {
+  const moodColors = {
+    neutral: 'border-cyber-blue text-cyber-blue',
+    happy: 'border-discord-green text-discord-green',
+    serious: 'border-amber-gold text-amber-gold',
+    determined: 'border-amina-crimson text-amina-crimson',
+  } as const;
+
+  const tailPositions = {
+    top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
+    bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
+    left: 'right-full top-1/2 -translate-y-1/2 mr-2',
+    right: 'left-full top-1/2 -translate-y-1/2 ml-2',
+  } as const;
+
+  const tailStyles = {
+    top: 'top-full left-1/4 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent',
+    bottom:
+      'bottom-full left-1/4 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent',
+    left: 'left-full top-1/2 -translate-y-1/2 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent',
+    right:
+      'right-full top-1/2 -translate-y-1/2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent',
+  } as const;
+
+  return (
+    <>
+      <div
+        class={`speech-bubble-root relative inline-block ${tailPositions[position]} ${className}`}
+      >
+        <div
+          class={`speech-bubble bg-night-shadow border-2 rounded-xl px-4 py-3 max-w-xs ${moodColors[mood]} shadow-lg relative z-10`}
+        >
+          <p class="text-sm font-dialogue leading-relaxed">{message}</p>
+        </div>
+
+        <div
+          class={`absolute ${tailStyles[position]} ${moodColors[mood].split(' ')[0]}`}
+        />
+      </div>
+
+      <style>
+        {`
+          .speech-bubble-root .speech-bubble {
+            animation: bubble-appear 0.3s ease-out;
+          }
+
+          @keyframes bubble-appear {
+            0% {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .speech-bubble-root .speech-bubble::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            padding: 2px;
+            background: currentColor;
+            -webkit-mask:
+              linear-gradient(#fff 0 0) content-box,
+              linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            animation: pulse-border 2s ease-in-out infinite;
+          }
+
+          @keyframes pulse-border {
+            0%,
+            100% {
+              opacity: 0;
+            }
+            50% {
+              opacity: 0.3;
+            }
+          }
+        `}
+      </style>
+    </>
+  );
+};

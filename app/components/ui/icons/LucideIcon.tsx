@@ -11,17 +11,17 @@ interface LucideIconProps {
  * ====================
  * Renders Lucide icons via Iconify CDN
  * Using inline SVG with iconify-icon web component fallback
- * 
+ *
  * Note: For production, consider pre-bundling icons instead of CDN
  */
-export const LucideIcon: FC<LucideIconProps> = ({ 
-  name, 
-  class: className = '', 
-  size = 24 
+export const LucideIcon: FC<LucideIconProps> = ({
+  name,
+  class: className = '',
+  size = 24,
 }) => {
   // Use iconify-icon web component (loaded via CDN in BaseLayout)
   return (
-    <span 
+    <span
       class={`iconify ${className}`}
       data-icon={`lucide:${name}`}
       data-width={size}

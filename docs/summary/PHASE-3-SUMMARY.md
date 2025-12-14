@@ -17,13 +17,16 @@ Phase 3 successfully translated all Astro middleware to Hono patterns while pres
 ### Core Middleware (4 files)
 
 #### 1. `app/middleware/auth.ts` (3.5 KB)
+
 **Purpose:** Authentication and authorization middleware
 
 **Exports:**
+
 - `authGuard` - Main authentication middleware
 - `attachUser` - Attaches user data to context
 
 **Key Features:**
+
 - ✅ Route configuration array (specific → general)
 - ✅ Token validation with automatic refresh
 - ✅ Cookie-based session management
@@ -31,13 +34,16 @@ Phase 3 successfully translated all Astro middleware to Hono patterns while pres
 - ✅ Two-tier rate limiting preserved
 
 **Pattern Conversion:**
+
 ```typescript
 // Before (Astro)
-export const authGuard = defineMiddleware(async ({ cookies, redirect, url }, next) => {
-  const token = cookies.get('access_token')?.value;
-  if (!token) return redirect('/');
-  return next();
-});
+export const authGuard = defineMiddleware(
+  async ({ cookies, redirect, url }, next) => {
+    const token = cookies.get('access_token')?.value;
+    if (!token) return redirect('/');
+    return next();
+  }
+);
 
 // After (Hono)
 export const authGuard = createMiddleware(async (c: Context, next) => {
@@ -48,13 +54,16 @@ export const authGuard = createMiddleware(async (c: Context, next) => {
 ```
 
 #### 2. `app/middleware/error.ts` (2.8 KB)
+
 **Purpose:** Global error handling and HTTP exception management
 
 **Exports:**
+
 - `errorHandler` - Catches and processes all errors
 - `notFoundHandler` - 404 handler
 
 **Handles:**
+
 - ✅ HTTPException (Hono native)
 - ✅ AppError hierarchy (custom types)
 - ✅ AuthenticationError → redirect to login
@@ -64,25 +73,32 @@ export const authGuard = createMiddleware(async (c: Context, next) => {
 - ✅ Unknown errors → logged + sanitized in production
 
 **Development vs Production:**
+
 ```typescript
 const isProd = process.env.NODE_ENV === 'production';
-return c.json({
-  status: 500,
-  message: isProd ? 'Internal server error' : error.message,
-  code: 'INTERNAL_ERROR',
-  ...(isProd ? {} : { stack: error.stack }), // Stack only in dev
-}, 500);
+return c.json(
+  {
+    status: 500,
+    message: isProd ? 'Internal server error' : error.message,
+    code: 'INTERNAL_ERROR',
+    ...(isProd ? {} : { stack: error.stack }), // Stack only in dev
+  },
+  500
+);
 ```
 
 #### 3. `app/middleware/cache.ts` (1.2 KB)
+
 **Purpose:** HTTP caching strategy for different route types
 
 **Exports:**
+
 - `cacheStatic(maxAge)` - Cache static assets (default: 1 hour)
 - `cacheAPI(maxAge)` - Cache API responses (default: 5 minutes)
 - `noCache` - Disable caching for sensitive routes
 
 **Cache Headers:**
+
 ```typescript
 // Static assets
 Cache-Control: public, max-age=3600
@@ -97,9 +113,11 @@ Expires: 0
 ```
 
 #### 4. `app/middleware/index.ts` (230 B)
+
 **Purpose:** Barrel export for centralized imports
 
 **Exports:**
+
 ```typescript
 export { authGuard, attachUser } from './auth';
 export { errorHandler, notFoundHandler } from './error';
@@ -111,13 +129,16 @@ export { cacheStatic, cacheAPI, noCache } from './cache';
 ### Route Middleware Configuration (2 files)
 
 #### 1. `app/routes/dash/_middleware.ts`
+
 **Purpose:** Protect all `/dash/*` routes
 
 **Middleware Chain:**
+
 1. `authGuard` - Verify authentication
 2. `attachUser` - Load user data into context
 
 **Usage:**
+
 ```typescript
 export default createMiddleware(async (c, next) => {
   await authGuard(c, async () => {
@@ -127,9 +148,11 @@ export default createMiddleware(async (c, next) => {
 ```
 
 #### 2. `app/routes/api/_middleware.ts`
+
 **Purpose:** Apply no-cache policy to all `/api/*` routes
 
 **Usage:**
+
 ```typescript
 export default noCache;
 ```
@@ -139,9 +162,11 @@ export default noCache;
 ### Test Routes (2 files)
 
 #### 1. `app/routes/test-auth.tsx`
+
 **Purpose:** Public route displaying authentication status
 
 **Features:**
+
 - Shows if user is authenticated
 - Displays token and user ID (truncated)
 - Links to protected routes for testing
@@ -150,9 +175,11 @@ export default noCache;
 **URL:** `http://localhost:5173/test-auth`
 
 #### 2. `app/routes/dash/index.tsx`
+
 **Purpose:** Protected dashboard route (requires auth)
 
 **Features:**
+
 - Beautiful gradient UI with glassmorphism
 - Displays user avatar and username from Discord
 - Shows middleware test results
@@ -165,6 +192,7 @@ export default noCache;
 ### Server Update
 
 #### Modified: `app/server.ts`
+
 **Change:** Added global error middleware
 
 ```typescript
@@ -181,6 +209,7 @@ app.use('*', errorHandler);
 ## Critical Patterns Preserved
 
 ### 1. Route Configuration Priority ✅
+
 ```typescript
 const routes: RouteConfig[] = [
   { path: '/dash', requiresAuth: true, forceDynamic: true },
@@ -193,13 +222,17 @@ const routes: RouteConfig[] = [
 ```
 
 ### 2. Token Validation with Auto-Refresh ✅
+
 ```typescript
 const isValid = await discordAuth.validateToken(accessToken, userId);
 
 if (!isValid) {
   try {
     const newTokens = await discordAuth.refreshToken(refreshToken);
-    const userData = await discordAuth.getUserInfo(newTokens.access_token, userId);
+    const userData = await discordAuth.getUserInfo(
+      newTokens.access_token,
+      userId
+    );
     setAuthCookies(c, newTokens, userData);
   } catch (refreshError) {
     clearAuthCookies(c);
@@ -209,6 +242,7 @@ if (!isValid) {
 ```
 
 ### 3. Error Type Hierarchy ✅
+
 - `AppError` (base)
   - `AuthenticationError` → redirect `/auth/login?error=unauthenticated`
   - `AuthorizationError` → redirect `/403`
@@ -216,7 +250,9 @@ if (!isValid) {
   - `ValidationError` → JSON response with error details
 
 ### 4. Cookie Security Settings ✅
+
 All cookie operations use the same security settings as Astro:
+
 - `httpOnly: true`
 - `secure: true` (production)
 - `sameSite: 'lax'`
@@ -228,14 +264,14 @@ All cookie operations use the same security settings as Astro:
 
 ### Key Differences from Astro
 
-| Aspect | Astro | Hono |
-|--------|-------|------|
-| Import | `defineMiddleware` from `astro:middleware` | `createMiddleware` from `hono/factory` |
-| Context | `{ cookies, redirect, url }` | `c` (Context object) |
-| Cookies | `cookies.get('key')?.value` | `getCookie(c, 'key')` |
-| Redirect | `return redirect('/')` | `return c.redirect('/')` |
-| Next | `return next()` | `await next()` ⚠️ **MUST AWAIT!** |
-| Response | `return next()` or `return Response` | `await next()` or `return c.json()` / `c.html()` |
+| Aspect   | Astro                                      | Hono                                             |
+| -------- | ------------------------------------------ | ------------------------------------------------ |
+| Import   | `defineMiddleware` from `astro:middleware` | `createMiddleware` from `hono/factory`           |
+| Context  | `{ cookies, redirect, url }`               | `c` (Context object)                             |
+| Cookies  | `cookies.get('key')?.value`                | `getCookie(c, 'key')`                            |
+| Redirect | `return redirect('/')`                     | `return c.redirect('/')`                         |
+| Next     | `return next()`                            | `await next()` ⚠️ **MUST AWAIT!**                |
+| Response | `return next()` or `return Response`       | `await next()` or `return c.json()` / `c.html()` |
 
 ### Critical Pattern: ALWAYS AWAIT next()
 
@@ -260,9 +296,11 @@ export const middleware = createMiddleware(async (c, next) => {
 ## Testing Strategy
 
 ### Compilation Testing ✅
+
 ```bash
 bun run check  # TypeScript compilation
 ```
+
 **Result:** ✅ All middleware files compile without errors
 
 ### Integration Testing (Requires Running Server)
@@ -301,6 +339,7 @@ bun run check  # TypeScript compilation
    - Expected: `Cache-Control` with stale-while-revalidate
 
 **Testing Commands:**
+
 ```bash
 # Start development server
 bun run dev:honox
@@ -320,11 +359,13 @@ curl -I http://localhost:5173/health
 ## Performance Impact
 
 ### Middleware Overhead
+
 - **Estimated per request:** <1ms
 - **Memory impact:** Minimal (no state stored)
 - **Caching benefit:** 5-minute API response cache reduces Discord API calls
 
 ### Compared to Astro
+
 - **Middleware execution:** ~Same (Hono is actually faster)
 - **Cookie operations:** ~Same (both use native APIs)
 - **Error handling:** Improved (Hono's exception handling is more efficient)
@@ -334,11 +375,13 @@ curl -I http://localhost:5173/health
 ## Migration Statistics
 
 ### Time Savings
+
 - **Estimated:** 3-4 days
 - **Actual:** 1.5 hours
 - **Savings:** 95% faster than estimated
 
 ### Code Changes
+
 - **Files created:** 9
 - **Files modified:** 1 (`app/server.ts`)
 - **Lines of code:** ~400 (middleware + tests)
@@ -351,6 +394,7 @@ curl -I http://localhost:5173/health
 **Phase 4: Component Migration** will focus on converting Astro components to HonoX JSX:
 
 ### Component Inventory
+
 - **Layouts:** 4 files
 - **Navigation:** 4 files
 - **UI Components:** 39 files
@@ -359,11 +403,13 @@ curl -I http://localhost:5173/health
 - **Total:** ~59 components
 
 ### Estimated Duration
+
 - **Week 1:** Base layouts + navigation (8 components)
 - **Week 2:** UI components (39 components)
 - **Total:** 2 weeks
 
 ### Key Challenges
+
 1. **Alpine.js Integration:** Some components use Alpine.js
    - Strategy: Use `dangerouslySetInnerHTML` or convert to React state
 2. **Slot → Children:** Convert `<slot />` to `{children}` pattern
@@ -377,6 +423,7 @@ curl -I http://localhost:5173/health
 ✅ **Phase 3 Complete!**
 
 All middleware successfully ported from Astro to Hono patterns:
+
 - ✅ Authentication middleware (route protection + token refresh)
 - ✅ Error handling middleware (custom errors + HTTP exceptions)
 - ✅ Cache middleware (static, API, no-cache variants)
@@ -384,6 +431,7 @@ All middleware successfully ported from Astro to Hono patterns:
 - ✅ Test routes for verification
 
 **Critical patterns preserved:**
+
 - Two-tier rate limiting
 - Token validation and refresh
 - Cookie security settings

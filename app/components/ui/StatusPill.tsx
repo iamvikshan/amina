@@ -6,7 +6,7 @@ import type { FC } from 'hono/jsx';
  * Floating system status indicator showing real-time health
  * Fetches from /api/status every 5 minutes
  * Uses client-side script for live updates
- * 
+ *
  * Status Levels:
  * - operational: All systems online, 95%+ uptime
  * - degraded: One service down or 90-95% uptime
@@ -15,7 +15,7 @@ import type { FC } from 'hono/jsx';
  */
 export const StatusPill: FC = () => {
   const statusPageUrl = 'https://mina.instatus.com';
-  
+
   const defaultConfig = {
     level: 'loading',
     color: '#94a3b8',

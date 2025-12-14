@@ -2,23 +2,24 @@
 import { createMiddleware } from 'hono/factory';
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import {
   AppError,
   AuthenticationError,
   AuthorizationError,
   NotFoundError,
   ValidationError,
-} from '@types';
+} from '@/lib/errors';
 
 /**
  * Global error handling middleware for HonoX
- * 
+ *
  * Handles all errors thrown in the application:
  * - Custom AppError types (with status codes)
  * - Standard Error instances
  * - HTTP exceptions
  * - Unexpected errors
- * 
+ *
  * Behavior:
  * - Development: Returns full error details including stack traces
  * - Production: Returns sanitized error messages
@@ -50,7 +51,7 @@ export const errorHandler = createMiddleware(async (c: Context, next) => {
 
     // Handle custom AppError types
     if (error instanceof AppError) {
-      const status = error.statusCode;
+      const status = error.statusCode as ContentfulStatusCode;
 
       // Special redirects for auth errors
       if (error instanceof AuthenticationError) {
@@ -62,7 +63,7 @@ export const errorHandler = createMiddleware(async (c: Context, next) => {
       }
 
       if (error instanceof NotFoundError) {
-        return c.redirect('/404');
+        return c.notFound();
       }
 
       if (error instanceof ValidationError) {

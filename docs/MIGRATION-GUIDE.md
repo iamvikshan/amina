@@ -332,7 +332,7 @@ export async function getDiscordGuilds(c: Context): Promise<DiscordGuild[]> {
 
   guildsCache.set(accessToken, {
     data: guildsData,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 
   return guildsData;
@@ -357,11 +357,11 @@ export function clearGuildsCache(): void {
 
 ### 2.1 Library Decisions
 
-| Library       | Size | Status      | Justification                                       |
-| ------------- | ---- | ----------- | --------------------------------------------------- |
-| **GSAP**      | 47KB | ✅ **KEEP** | Complex timelines, review card animations, industry standard |
-| **Lenis**     | 8KB  | ❌ **REMOVE** | Sidebar scroll conflicts, CSS replacement available |
-| **Alpine.js** | 15KB | ✅ **KEEP** | Core interactivity, 58 files, fundamental to architecture |
+| Library       | Size | Status        | Justification                                                |
+| ------------- | ---- | ------------- | ------------------------------------------------------------ |
+| **GSAP**      | 47KB | ✅ **KEEP**   | Complex timelines, review card animations, industry standard |
+| **Lenis**     | 8KB  | ❌ **REMOVE** | Sidebar scroll conflicts, CSS replacement available          |
+| **Alpine.js** | 15KB | ✅ **KEEP**   | Core interactivity, 58 files, fundamental to architecture    |
 
 ### 2.2 GSAP: Keep for Complexity
 
@@ -375,6 +375,7 @@ export function clearGuildsCache(): void {
 **Use Cases:**
 
 ✅ **Use GSAP for:**
+
 - Counter animations with custom easing
 - Staggered card reveals (GuardianTestimonials)
 - Complex scroll-triggered sequences
@@ -382,6 +383,7 @@ export function clearGuildsCache(): void {
 - SVG morphing/path animations
 
 ❌ **Don't use GSAP for:**
+
 - Simple fade-in effects (use Intersection Observer)
 - Hover states (use CSS transitions)
 - Button interactions (use CSS transitions)
@@ -468,6 +470,7 @@ html {
 ```
 
 **Benefits:**
+
 - Zero JavaScript (8KB saved)
 - No conflicts with nested scroll
 - Respects `prefers-reduced-motion`
@@ -478,6 +481,7 @@ html {
 **Usage Statistics:** 58 files across the application
 
 **Why Essential:**
+
 1. **Declarative Syntax** - Matches Astro/HonoX component model
 2. **No Build Step** - Works directly in JSX
 3. **Tiny Footprint** - 15KB vs React 130KB
@@ -488,29 +492,31 @@ html {
 
 ```tsx
 // Use dangerouslySetInnerHTML for Alpine directives
-<div dangerouslySetInnerHTML={{
-  __html: `
+<div
+  dangerouslySetInnerHTML={{
+    __html: `
     <div x-data="{ open: false }">
       <button x-on:click="open = !open">Toggle</button>
       <div x-show="open">Content</div>
     </div>
-  `
-}} />
+  `,
+  }}
+/>
 ```
 
 ### 2.5 Animation Decision Matrix
 
-| Animation Type                 | Tool                        | Example                        |
-| ------------------------------ | --------------------------- | ------------------------------ |
-| **Simple fade-in/slide-in**    | Intersection Observer + CSS | Blog posts, testimonials       |
-| **Hover states**               | CSS transitions             | Buttons, links, cards          |
-| **Page transitions**           | View Transitions API        | Route changes                  |
-| **Counter animations**         | GSAP                        | Stats section (BattleStats)    |
-| **Staggered reveals**          | GSAP                        | Review cards                   |
-| **Scroll-triggered sequences** | GSAP ScrollTrigger          | Hero parallax                  |
-| **Smooth scrolling**           | CSS `scroll-behavior`       | Anchor links, page scroll      |
-| **Complex timelines**          | GSAP                        | Multi-step animations          |
-| **Interactive state**          | Alpine.js                   | Dropdowns, modals, toggles     |
+| Animation Type                 | Tool                        | Example                     |
+| ------------------------------ | --------------------------- | --------------------------- |
+| **Simple fade-in/slide-in**    | Intersection Observer + CSS | Blog posts, testimonials    |
+| **Hover states**               | CSS transitions             | Buttons, links, cards       |
+| **Page transitions**           | View Transitions API        | Route changes               |
+| **Counter animations**         | GSAP                        | Stats section (BattleStats) |
+| **Staggered reveals**          | GSAP                        | Review cards                |
+| **Scroll-triggered sequences** | GSAP ScrollTrigger          | Hero parallax               |
+| **Smooth scrolling**           | CSS `scroll-behavior`       | Anchor links, page scroll   |
+| **Complex timelines**          | GSAP                        | Multi-step animations       |
+| **Interactive state**          | Alpine.js                   | Dropdowns, modals, toggles  |
 
 ### 2.6 Accessibility
 
@@ -549,12 +555,14 @@ useEffect(() => {
 **CF Worker API:** `api.4mina.app` (deployed from `api` branch)
 
 **Technology Stack:**
+
 - Framework: Hono 4.10.7 (same as HonoX!)
 - Database: MongoDB 7.0.0
 - Validation: Zod 4.1.13
 - Runtime: Cloudflare Workers
 
 **KV Namespaces:**
+
 1. **CACHE** - Response caching
 2. **RATE_LIMIT** - Request throttling
 3. **BOTS** - Bot metadata
@@ -641,6 +649,7 @@ export default function BotStats() {
 ```
 
 **Pros:**
+
 - ✅ Leverages CF Worker edge caching
 - ✅ Reduces HonoX server load
 - ✅ Better scalability
@@ -660,6 +669,7 @@ export default new Hono().get('/', async (c) => {
 ```
 
 **Pros:**
+
 - ✅ Works without JavaScript
 - ✅ No flash of loading state
 - ✅ Can add server-side auth
@@ -702,6 +712,7 @@ This section provides a high-level overview of the migration phases. Each phase 
 **Status:** Complete (2025-12-07 → 2025-12-08)
 
 **Objectives:**
+
 - ✅ Comprehensive codebase analysis
 - ✅ Document authentication flow
 - ✅ Map type system dependencies
@@ -713,6 +724,7 @@ This section provides a high-level overview of the migration phases. Each phase 
 **Goal:** Build HonoX skeleton alongside Astro
 
 **Tasks:**
+
 1. Create `app/` directory structure
 2. Install HonoX dependencies
 3. Create `vite.config.ts` for HonoX
@@ -721,6 +733,7 @@ This section provides a high-level overview of the migration phases. Each phase 
 6. Test "Hello World" route
 
 **Success Criteria:**
+
 - [ ] HonoX dev server runs on port 5173
 - [ ] Basic route works
 - [ ] TypeScript compiles
@@ -731,6 +744,7 @@ This section provides a high-level overview of the migration phases. Each phase 
 **Goal:** Migrate shared libraries and utilities
 
 **Tasks:**
+
 1. Port `src/env.ts` → `app/config/env.ts`
 2. Port `src/config/site.ts` → `app/config/site.ts`
 3. Port `src/lib/discord-auth.ts` → `app/lib/discord-auth.ts`
@@ -741,6 +755,7 @@ This section provides a high-level overview of the migration phases. Each phase 
 8. Port `src/lib/achievements.ts` → `app/lib/achievements.ts`
 
 **Testing:**
+
 - Unit tests for each utility
 - Verify Discord OAuth flow
 - Test database connections
@@ -750,6 +765,7 @@ This section provides a high-level overview of the migration phases. Each phase 
 **Goal:** Convert Astro middleware to Hono middleware
 
 **Tasks:**
+
 1. Create `app/middleware/auth.ts`
 2. Create `app/middleware/cache.ts`
 3. Create `app/middleware/error.ts`
@@ -793,6 +809,7 @@ export const authGuard = createMiddleware(async (c, next) => {
 **Conversion Pattern:**
 
 **Before (Astro):**
+
 ```astro
 ---
 const { title } = Astro.props;
@@ -808,6 +825,7 @@ interface Props {
 ```
 
 **After (HonoX):**
+
 ```tsx
 import type { FC } from 'hono/jsx';
 
@@ -864,7 +882,7 @@ export default createRoute(async (c) => {
 export default createRoute(async (c) => {
   const guildId = c.req.param('id');
   const guild = await getGuild(guildId);
-  
+
   return c.render(
     <DashboardLayout title={guild.name}>
       <GuildConfig guild={guild} />
@@ -894,12 +912,14 @@ export default app;
 **Goal:** Gradually switch traffic to HonoX
 
 **Strategy:**
+
 1. Deploy both Astro and HonoX side-by-side
 2. Use feature flags to control routing
 3. Test each route thoroughly
 4. Monitor error rates and performance
 
 **Traffic Shift:**
+
 - Day 1-2: 10% → HonoX
 - Day 3-4: 25% → HonoX
 - Day 5-6: 50% → HonoX
@@ -910,6 +930,7 @@ export default app;
 **Goal:** Remove Astro dependencies and optimize
 
 **Tasks:**
+
 1. Remove `src/` directory
 2. Uninstall Astro packages
 3. Update `package.json` scripts
@@ -1057,7 +1078,9 @@ test('memory usage acceptable', async () => {
   const before = process.memoryUsage().heapUsed;
 
   await Promise.all(
-    Array(100).fill(null).map(() => app.request('/dash'))
+    Array(100)
+      .fill(null)
+      .map(() => app.request('/dash'))
   );
 
   const after = process.memoryUsage().heapUsed;
@@ -1073,15 +1096,15 @@ test('memory usage acceptable', async () => {
 
 ### 7.1 Performance Targets
 
-| Metric              | Current | Target  | Improvement |
-| ------------------- | ------- | ------- | ----------- |
-| Idle Memory         | 280MB   | < 50MB  | 82%+        |
-| Load Memory         | 450MB   | < 120MB | 73%+        |
-| Cold Start          | 2.1s    | < 500ms | 76%+        |
-| Bundle Size         | 640KB   | < 100KB | 84%+        |
-| TTFB (Homepage)     | 180ms   | < 50ms  | 72%+        |
-| TTFB (Dashboard)    | 420ms   | < 200ms | 52%+        |
-| Lighthouse Score    | 78      | > 95    | 22%+        |
+| Metric           | Current | Target  | Improvement |
+| ---------------- | ------- | ------- | ----------- |
+| Idle Memory      | 280MB   | < 50MB  | 82%+        |
+| Load Memory      | 450MB   | < 120MB | 73%+        |
+| Cold Start       | 2.1s    | < 500ms | 76%+        |
+| Bundle Size      | 640KB   | < 100KB | 84%+        |
+| TTFB (Homepage)  | 180ms   | < 50ms  | 72%+        |
+| TTFB (Dashboard) | 420ms   | < 200ms | 52%+        |
+| Lighthouse Score | 78      | > 95    | 22%+        |
 
 ### 7.2 Quality Targets
 

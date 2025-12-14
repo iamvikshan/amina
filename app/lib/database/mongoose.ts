@@ -1,7 +1,7 @@
 // @root/app/lib/database/mongoose.ts
 import mongoose from 'mongoose';
-import { Guild } from './schemas/Guild';
-import { User } from './schemas/User';
+import { Guild } from '@/lib/database/schemas/Guild';
+import { User } from '@/lib/database/schemas/User';
 import type {
   IGuild,
   IGuildAutomod,

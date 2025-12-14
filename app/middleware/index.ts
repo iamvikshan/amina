@@ -1,7 +1,7 @@
 // app/middleware/index.ts
 /**
  * Central export for all middleware
- * 
+ *
  * Import middleware from here to maintain consistency:
  * import { authGuard, errorHandler } from '@/middleware';
  */

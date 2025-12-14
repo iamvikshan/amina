@@ -1,53 +1,111 @@
-import type { Context } from 'hono';
+import { createRoute } from 'honox/factory';
+import { BaseLayout } from '@/components/layouts/BaseLayout';
+import { Header } from '@/components/navigation/Header';
+import { FooterSection } from '@/components/navigation/FooterSection';
+import { HeroAmina } from '@/components/sections/HeroAmina';
+import {
+  GuardianArsenal,
+  type GuardianFeature,
+} from '@/components/sections/GuardianArsenal';
+import { DeploymentSteps } from '@/components/sections/DeploymentSteps';
+import { RankShowcase } from '@/components/sections/RankShowcase';
+import { GuardianTestimonials } from '@/components/sections/GuardianTestimonials';
+import { BattleStats } from '@/components/sections/BattleStats';
+import { CTAGuardian } from '@/components/sections/CTAGuardian';
+import { getBotStats } from '@/lib/bot-stats';
+import { getUptimeStats } from '@/lib/uptime';
 
-export default function Home(c: Context) {
+export default createRoute(async (c) => {
+  let guildCount = 50000;
+  let memberCount = 5000000;
+  let ping = 0;
+  let status: 'online' | 'idle' | 'dnd' | 'invisible' = 'online';
+
+  try {
+    const botStats = await getBotStats();
+    guildCount = botStats.guildCount || guildCount;
+    memberCount = botStats.memberCount || memberCount;
+    ping = botStats.ping || ping;
+    status = botStats.status || status;
+  } catch {
+    // fall back to defaults
+  }
+
+  let uptime = 99.9;
+  try {
+    const uptimeStats = await getUptimeStats();
+    uptime = uptimeStats.uptime;
+  } catch {
+    // fall back to default
+  }
+
+  const formattedGuildCount =
+    guildCount >= 1000
+      ? `${Math.floor(guildCount / 1000)}k+`
+      : `${guildCount}+`;
+
+  const guardianFeatures: GuardianFeature[] = [
+    {
+      icon: 'swords',
+      kaomoji: '[X]',
+      title: 'Tactical Moderation',
+      subtitle: 'AUTO-MOD SYSTEM',
+      description:
+        'Advanced spam detection, profanity filtering, and automated warnings. Amina handles the night watch so you can sleep.',
+      image: '/assets/images/automated-tools.avif',
+      learnMoreUrl: 'https://docs.4mina.app/moderation',
+    },
+    {
+      icon: 'palette',
+      kaomoji: '(≧▽≦)',
+      title: 'Creative Command Center',
+      subtitle: 'ENGAGEMENT TOOLS',
+      description:
+        'Custom commands, interactive games, leveling systems, and social features. Keep your community active and entertained.',
+      image: '/assets/images/dashboard-image.avif',
+      learnMoreUrl: 'https://docs.4mina.app/commands',
+    },
+    {
+      icon: 'bar-chart-3',
+      kaomoji: '(｀･ω･´)',
+      title: 'Realm Management',
+      subtitle: 'ANALYTICS DASHBOARD',
+      description:
+        'Real-time server insights, member activity tracking, and growth metrics. Make data-driven decisions for your community.',
+      image: '/assets/images/features-image.avif',
+      learnMoreUrl: '/dash',
+    },
+  ];
+
   return c.render(
-    <div style={{ 
-      fontFamily: 'system-ui, sans-serif',
-      maxWidth: '800px',
-      margin: '50px auto',
-      padding: '20px',
-      textAlign: 'center'
-    }}>
-      <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-        🚀 HonoX Infrastructure
-      </h1>
-      <p style={{ fontSize: '1.2rem', color: '#666' }}>
-        Phase 1: Infrastructure Foundation Complete
-      </p>
-      <div style={{ 
-        marginTop: '2rem',
-        padding: '20px',
-        backgroundColor: '#f0f0f0',
-        borderRadius: '8px'
-      }}>
-        <h2>✅ Checklist</h2>
-        <ul style={{ 
-          listStyle: 'none',
-          padding: 0,
-          textAlign: 'left',
-          maxWidth: '500px',
-          margin: '0 auto'
-        }}>
-          <li>✅ Project structure created</li>
-          <li>✅ Dependencies installed (hono, honox, vite)</li>
-          <li>✅ Configuration files set up</li>
-          <li>✅ Bootstrap files created</li>
-          <li>✅ Test route working</li>
-        </ul>
-      </div>
-      <div style={{ marginTop: '2rem' }}>
-        <a href="/health" style={{ 
-          display: 'inline-block',
-          padding: '10px 20px',
-          backgroundColor: '#0070f3',
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '5px'
-        }}>
-          Check Health Status
-        </a>
-      </div>
-    </div>
+    <BaseLayout
+      description="Amina - Elite Discord Guardian Bot. Tactical moderation, creative engagement, and 24/7 protection for your realm. Join the Night Guard Protocol."
+      title="Amina - Your 24/7 Discord Guardian | Night Guard Protocol"
+    >
+      <Header />
+
+      <main class="space-y-0">
+        <HeroAmina formattedGuildCount={formattedGuildCount} uptime={uptime} />
+        <GuardianArsenal features={guardianFeatures} />
+        <DeploymentSteps
+          protectedRealmsLabel={`${formattedGuildCount} Realms`}
+        />
+        <RankShowcase />
+        <GuardianTestimonials
+          formattedGuildCount={formattedGuildCount}
+          uptime={uptime}
+        />
+        <BattleStats
+          guildCount={guildCount}
+          memberCount={memberCount}
+          uptime={uptime}
+        />
+        <CTAGuardian ping={ping} status={status} />
+      </main>
+
+      <FooterSection />
+
+      <script type="module" src="/assets/scripts/hydrateMetrics.js"></script>
+    </BaseLayout>
   );
-}
+});

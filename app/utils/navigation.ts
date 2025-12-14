@@ -1,61 +1,59 @@
-// @/utils/navigation.ts
-// Navigation utilities and link definitions
+import { URLS } from '@/config/site';
+import { getInviteUrl, getSocialUrl } from '@/config/permalinks';
 
-export interface NavLink {
-  text: string;
-  href: string;
-  icon?: string;
+/**
+ * Navigation configuration generator
+ * Called at request time so CLIENT_ID-based URLs are resolved.
+ */
+function getNavigation() {
+  const navBarLinks = [
+    { name: 'Home', url: '/' },
+    { name: 'Docs', url: URLS.docs, target: '_blank' },
+  ];
+
+  const footerLinks = [
+    {
+      section: 'Arsenal',
+      links: [
+        {
+          name: 'Documentation',
+          url: URLS.docs,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+        {
+          name: 'Recruit Amina',
+          url: getInviteUrl(),
+        },
+        { name: 'Command Center', url: '/dash' },
+      ],
+    },
+    {
+      section: 'Alliance',
+      links: [
+        {
+          name: 'GitHub',
+          url: URLS.github,
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        },
+        {
+          name: 'Support Server',
+          url: URLS.support,
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        },
+      ],
+    },
+  ];
+
+  const socialLinks = {
+    discord: getSocialUrl('discord'),
+    x: getSocialUrl('x'),
+    github: getSocialUrl('github'),
+  };
+
+  return { navBarLinks, footerLinks, socialLinks };
 }
 
-export interface SocialLink {
-  name: string;
-  href: string;
-  icon: string;
-}
-
-export const mainNavLinks: NavLink[] = [
-  { text: 'Home', href: '/' },
-  { text: 'Features', href: '/#features' },
-  { text: 'Docs', href: 'https://docs.4mina.app' },
-];
-
-export const dashboardNavLinks: NavLink[] = [
-  { text: 'Dashboard', href: '/dash', icon: 'layout-dashboard' },
-  { text: 'Servers', href: '/dash/guilds', icon: 'server' },
-  { text: 'Profile', href: '/dash/profile', icon: 'user' },
-  { text: 'Leaderboard', href: '/dash/leaderboard', icon: 'trophy' },
-];
-
-export const footerLinks = {
-  product: [
-    { text: 'Features', href: '/#features' },
-    { text: 'Documentation', href: 'https://docs.4mina.app' },
-    { text: 'Support Server', href: 'https://discord.gg/uMgS9evnmv' },
-  ],
-  company: [
-    { text: 'About', href: '/about' },
-    { text: 'GitHub', href: 'https://github.com/iamvikshan/amina' },
-  ],
-  legal: [
-    { text: 'Privacy Policy', href: '/privacy' },
-    { text: 'Terms of Service', href: '/terms' },
-  ],
-};
-
-export const socialLinks: SocialLink[] = [
-  {
-    name: 'Discord',
-    href: 'https://discord.gg/uMgS9evnmv',
-    icon: 'discord',
-  },
-  {
-    name: 'GitHub',
-    href: 'https://github.com/iamvikshan/amina',
-    icon: 'github',
-  },
-  {
-    name: 'X',
-    href: 'https://twitter.com/iamvikshan',
-    icon: 'x',
-  },
-];
+export default getNavigation();

@@ -32,16 +32,21 @@ export type { Achievement, AchievementCategory } from './achievements.d.ts';
 
 export type { GuardianRank } from './guardian-ranks.d.ts';
 
+// UI Types
+export type {
+  SidebarBadgeVariant,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarItem,
+  SidebarSection,
+} from './dashboard-ui.d.ts';
+
 // Middleware Types
 export type { RouteConfig } from './auth.d.ts';
+export * from './hono.d.ts';
 
-export {
-  AppError,
-  AuthenticationError,
-  AuthorizationError,
-  NotFoundError,
-  ValidationError,
-} from './errors';
+// NOTE: Runtime error classes were moved out of /types.
+// Import them from `@/lib/errors` if needed at runtime.
 
 // Global Types
 export type { Env, Favicon } from './global.d.ts';

@@ -1,7 +1,6 @@
 // app/middleware/auth.ts
 import { createMiddleware } from 'hono/factory';
 import type { Context } from 'hono';
-import { getCookie } from 'hono/cookie';
 import { discordAuth } from '@/lib/discord-auth';
 import {
   getAuthCookies,
@@ -31,18 +30,18 @@ const routes: RouteConfig[] = [
 
 /**
  * Authentication middleware for HonoX
- * 
+ *
  * CRITICAL: This middleware preserves the exact authentication flow from Astro:
  * - Token validation with refresh on expiry
  * - Two-tier rate limiting (per-user + global)
  * - Route-based protection (configurable via routes array)
  * - Secure cookie handling (httpOnly, secure, sameSite)
- * 
+ *
  * DO NOT MODIFY without thorough testing!
  */
 export const authGuard = createMiddleware(async (c: Context, next) => {
   const url = new URL(c.req.url);
-  
+
   // Find matching route config
   const matchingRoute = routes.find((route) =>
     url.pathname.startsWith(route.path)

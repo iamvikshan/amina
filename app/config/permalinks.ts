@@ -5,7 +5,7 @@
  * Inspired by AstroWind's permalink pattern.
  */
 
-import { SITE, URLS } from './site';
+import { SITE, URLS } from '@/config/site';
 
 // Get CLIENT_ID from environment (runtime only for HonoX)
 const getClientId = (): string => {

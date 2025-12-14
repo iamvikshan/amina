@@ -3,13 +3,12 @@
  * Protected route middleware for /dash/*
  * All routes under /dash require authentication
  */
-import { authGuard, attachUser } from '../../middleware';
+import { authGuard, attachUser } from '@/middleware';
 import { createMiddleware } from 'hono/factory';
 
-export default createMiddleware(async (c, next) => {
-  // Apply auth guard first
-  await authGuard(c, async () => {
-    // Then attach user data to context
+export default [
+  authGuard,
+  createMiddleware(async (c, next) => {
     await attachUser(c, next);
-  });
-});
+  }),
+];

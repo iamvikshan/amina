@@ -19,13 +19,13 @@
 
 ### Component Structure
 
-| Astro                           | HonoX                            |
-| ------------------------------- | -------------------------------- |
-| `---` frontmatter               | ES6 imports                      |
-| `<slot />`                      | `{children}`                     |
-| `Astro.props.name`              | `{ name }` parameter             |
-| `.astro` extension              | `.tsx` extension                 |
-| `export const prerender = true` | SSG config in route              |
+| Astro                           | HonoX                |
+| ------------------------------- | -------------------- |
+| `---` frontmatter               | ES6 imports          |
+| `<slot />`                      | `{children}`         |
+| `Astro.props.name`              | `{ name }` parameter |
+| `.astro` extension              | `.tsx` extension     |
+| `export const prerender = true` | SSG config in route  |
 
 ### Import Rules
 
@@ -60,12 +60,14 @@ const token = getCookie(c, 'access_token');
 // Astro
 import { defineMiddleware } from 'astro:middleware';
 
-export const authGuard = defineMiddleware(async ({ cookies, redirect }, next) => {
-  if (!cookies.has('access_token')) {
-    return redirect('/auth');
+export const authGuard = defineMiddleware(
+  async ({ cookies, redirect }, next) => {
+    if (!cookies.has('access_token')) {
+      return redirect('/auth');
+    }
+    return next();
   }
-  return next();
-});
+);
 
 // HonoX
 import { createMiddleware } from 'hono/factory';
@@ -187,7 +189,7 @@ export const Dropdown: FC<{ items: string[] }> = ({ items }) => {
         x-transition
         class="dropdown-menu"
       >
-        ${items.map(item => `<a href="#">${item}</a>`).join('')}
+        ${items.map((item) => `<a href="#">${item}</a>`).join('')}
       </div>
     </div>
   `;
@@ -352,7 +354,10 @@ import { Header } from '../../components/Header'; // ❌
 
 ```html
 <!-- Verify Alpine.js is loaded -->
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.2/dist/cdn.min.js" defer></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.2/dist/cdn.min.js"
+  defer
+></script>
 
 <!-- Test simple component -->
 <div x-data="{ test: 'works' }" x-text="test"></div>
@@ -411,15 +416,15 @@ docker compose logs -f   # Follow logs
 
 ### When to Use What
 
-| Need                      | Tool                  | Size | Example                 |
-| ------------------------- | --------------------- | ---- | ----------------------- |
-| Simple fade/slide         | CSS + Intersection    | 0KB  | Blog cards              |
-| Hover effects             | CSS transitions       | 0KB  | Buttons                 |
-| Smooth scrolling          | CSS scroll-behavior   | 0KB  | Anchor links            |
-| Counter animations        | GSAP                  | 47KB | BattleStats             |
-| Staggered card reveals    | GSAP + ScrollTrigger  | 47KB | GuardianTestimonials    |
-| Dropdowns/modals          | Alpine.js             | 15KB | User menu               |
-| Complex timelines         | GSAP                  | 47KB | Multi-step sequences    |
+| Need                   | Tool                 | Size | Example              |
+| ---------------------- | -------------------- | ---- | -------------------- |
+| Simple fade/slide      | CSS + Intersection   | 0KB  | Blog cards           |
+| Hover effects          | CSS transitions      | 0KB  | Buttons              |
+| Smooth scrolling       | CSS scroll-behavior  | 0KB  | Anchor links         |
+| Counter animations     | GSAP                 | 47KB | BattleStats          |
+| Staggered card reveals | GSAP + ScrollTrigger | 47KB | GuardianTestimonials |
+| Dropdowns/modals       | Alpine.js            | 15KB | User menu            |
+| Complex timelines      | GSAP                 | 47KB | Multi-step sequences |
 
 ### GSAP Example
 
@@ -490,24 +495,28 @@ html {
 Before marking a component "complete":
 
 ### Visual
+
 - [ ] Renders correctly
 - [ ] Responsive (mobile/tablet/desktop)
 - [ ] Dark mode works
 - [ ] Hover states work
 
 ### Functional
+
 - [ ] All props work
 - [ ] Event handlers work
 - [ ] Alpine.js directives work (if any)
 - [ ] Navigation works
 
 ### Technical
+
 - [ ] TypeScript compiles
 - [ ] No console errors
 - [ ] No console warnings
 - [ ] Performance acceptable
 
 ### Code Quality
+
 - [ ] Follows naming conventions
 - [ ] Proper type annotations
 - [ ] Comments for complex logic

@@ -3,7 +3,7 @@
 **Status:** ✅ Complete  
 **Date:** 2025-12-08  
 **Estimated Duration:** 1 week  
-**Actual Duration:** ~1 hour  
+**Actual Duration:** ~1 hour
 
 ---
 
@@ -37,11 +37,13 @@ Phase 1 successfully established the HonoX infrastructure alongside the existing
 ## 📦 Dependencies Added
 
 ### Core Dependencies
+
 - **hono** v4.10.7 - Lightweight web framework
 - **honox** v0.1.52 - Meta-framework built on Hono
 - **vite** v7.2.6 - Build tool and dev server
 
 ### Dev Dependencies
+
 - **@hono/vite-dev-server** v0.23.0 - Development server
 - **@hono/vite-ssg** v0.3.0 - Static site generation
 
@@ -52,13 +54,14 @@ Phase 1 successfully established the HonoX infrastructure alongside the existing
 ## ⚙️ Configuration Updates
 
 ### 1. TypeScript Configuration (`tsconfig.json`)
+
 ```json
 {
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "paths": {
-      "@/*": ["src/*", "app/*"]  // Support both Astro & HonoX
+      "@/*": ["src/*", "app/*"] // Support both Astro & HonoX
     }
   },
   "include": ["src/**/*", "app/**/*", "types/**/*"]
@@ -66,6 +69,7 @@ Phase 1 successfully established the HonoX infrastructure alongside the existing
 ```
 
 ### 2. Vite Configuration (`vite.config.mts`)
+
 ```typescript
 import { defineConfig } from 'vite';
 import honox from 'honox/vite';
@@ -83,10 +87,11 @@ export default defineConfig({
 ```
 
 ### 3. Package Scripts (`package.json`)
+
 ```json
 {
-  "dev": "astro dev",              // Port 4321
-  "dev:honox": "vite --config vite.config.mts",  // Port 5173
+  "dev": "astro dev", // Port 4321
+  "dev:honox": "vite --config vite.config.mts", // Port 5173
   "build:honox": "vite build --config vite.config.mts"
 }
 ```
@@ -95,34 +100,38 @@ export default defineConfig({
 
 ## ✅ Testing Results
 
-| Test | Status | Details |
-|------|--------|---------|
-| HonoX dev server (5173) | ✅ Pass | Successfully starts, HMR working |
-| Astro dev server (4321) | ✅ Pass | Unaffected, runs normally |
-| TypeScript compilation | ✅ Pass | 0 errors in both projects |
-| Route rendering | ✅ Pass | Test route displays correctly |
-| Simultaneous operation | ✅ Pass | Both servers run without conflicts |
+| Test                    | Status  | Details                            |
+| ----------------------- | ------- | ---------------------------------- |
+| HonoX dev server (5173) | ✅ Pass | Successfully starts, HMR working   |
+| Astro dev server (4321) | ✅ Pass | Unaffected, runs normally          |
+| TypeScript compilation  | ✅ Pass | 0 errors in both projects          |
+| Route rendering         | ✅ Pass | Test route displays correctly      |
+| Simultaneous operation  | ✅ Pass | Both servers run without conflicts |
 
 ---
 
 ## 🚀 Bootstrap Files Created
 
 ### 1. `app/server.ts`
+
 - Main Hono application instance
 - Static file serving
 - Health check endpoint (`/health`)
 - Development route logging
 
 ### 2. `app/client.ts`
+
 - Client-side hydration bootstrap
 - Prepares for interactive islands
 
 ### 3. `app/routes/_renderer.tsx`
+
 - Global JSX layout wrapper
 - HTML structure and meta tags
 - Applied to all routes automatically
 
 ### 4. `app/routes/index.tsx`
+
 - Test route at root (`/`)
 - Demonstrates JSX rendering
 - Shows Phase 1 completion checklist
@@ -133,11 +142,13 @@ export default defineConfig({
 ## 🐛 Issues Resolved
 
 ### ESM Compatibility Error
+
 **Problem:** `vite.config.ts` failed to load due to ESM module resolution  
 **Solution:** Renamed to `vite.config.mts` and updated package.json scripts  
 **Impact:** HonoX dev server now starts without errors
 
 ### TypeScript JSX Errors
+
 **Problem:** `_renderer.tsx` and `index.tsx` had type mismatches  
 **Solution:** Fixed renderer signature and route render call  
 **Impact:** 0 TypeScript errors across entire project
@@ -148,14 +159,14 @@ export default defineConfig({
 
 Current measurements (before optimization):
 
-| Metric | Astro (Current) | HonoX (Baseline) | Target |
-|--------|-----------------|------------------|--------|
-| Cold Start | ~2.1s | ~1.7s | <300ms |
-| Dev Server Ready | ~478ms | ~1702ms | N/A |
-| Idle Memory | 280MB | TBD | 35MB |
-| Bundle Size | 640KB | TBD | 100KB |
+| Metric           | Astro (Current) | HonoX (Baseline) | Target |
+| ---------------- | --------------- | ---------------- | ------ |
+| Cold Start       | ~2.1s           | ~1.7s            | <300ms |
+| Dev Server Ready | ~478ms          | ~1702ms          | N/A    |
+| Idle Memory      | 280MB           | TBD              | 35MB   |
+| Bundle Size      | 640KB           | TBD              | 100KB  |
 
-*Note: HonoX metrics will improve significantly in Phase 7 (Optimization)*
+_Note: HonoX metrics will improve significantly in Phase 7 (Optimization)_
 
 ---
 

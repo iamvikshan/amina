@@ -1,0 +1,286 @@
+import type { FC } from 'hono/jsx';
+import { PrimaryBtn } from '@/components/ui/buttons/PrimaryBtn';
+import { TertiaryBtn } from '@/components/ui/buttons/TertiaryBtn';
+import { getInviteUrl } from '@/config/permalinks';
+import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+
+interface DeploymentStepsProps {
+  protectedRealmsLabel: string;
+}
+
+interface Step {
+  number: number;
+  icon: string;
+  kaomoji: string;
+  title: string;
+  description: string;
+  duration: string;
+}
+
+const steps: Step[] = [
+  {
+    number: 1,
+    icon: 'link',
+    kaomoji: '[>_<]',
+    title: 'Invite Amina',
+    description:
+      "Click 'Add to Discord' and select your server. Grant necessary permissions for full guardian capabilities.",
+    duration: '30 seconds',
+  },
+  {
+    number: 2,
+    icon: 'settings',
+    kaomoji: '(｀･ω･´)',
+    title: 'Configure Settings',
+    description:
+      'Run /setup to initialize your guardian profile. Customize moderation rules, welcome messages, and role assignments.',
+    duration: '2 minutes',
+  },
+  {
+    number: 3,
+    icon: 'rocket',
+    kaomoji: '(•̀ᴗ•́)و',
+    title: 'Deploy & Relax',
+    description:
+      "Amina is now active 24/7. Monitor your server's health from the dashboard and earn guardian ranks as you grow.",
+    duration: 'Instant',
+  },
+];
+
+export const DeploymentSteps: FC<DeploymentStepsProps> = ({
+  protectedRealmsLabel,
+}) => {
+  const styleText = `
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .animate-float { animation: float 3s ease-in-out infinite; }
+
+    .progress-bar {
+      animation: progress-fill 1s ease-out forwards;
+      animation-delay: 0.5s;
+      transform-origin: left;
+    }
+
+    @keyframes progress-fill {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    .step-card {
+      opacity: 0;
+      transform: translateY(50px);
+      animation: fade-in-up 0.8s ease-out forwards;
+    }
+
+    .step-card[data-step='1'] { animation-delay: 0.2s; }
+    .step-card[data-step='2'] { animation-delay: 0.4s; }
+    .step-card[data-step='3'] { animation-delay: 0.6s; }
+
+    @keyframes fade-in-up {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+
+  const script = `
+    const stepCards = document.querySelectorAll('.step-card');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    stepCards.forEach((card) => observer.observe(card));
+  `;
+
+  return (
+    <>
+      <section class="py-20 md:py-32 bg-night-shadow relative overflow-hidden">
+        <div class="absolute inset-0 overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-b from-cyber-blue/5 via-transparent to-amina-crimson/5"></div>
+          <svg
+            class="absolute inset-0 w-full h-full"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <pattern
+                id="grid"
+                width="50"
+                height="50"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 50 0 L 0 0 0 50"
+                  fill="none"
+                  stroke="rgba(0, 206, 209, 0.1)"
+                  stroke-width="1"
+                ></path>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)"></rect>
+          </svg>
+        </div>
+
+        <div class="relative mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-16 space-y-4">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-night-steel/50 backdrop-blur-md border border-imperial-gold/30 text-imperial-gold">
+              <span class="text-xl">[]</span>
+              <span class="text-sm font-heading font-bold tracking-wider uppercase">
+                Quick Deployment Protocol
+              </span>
+            </div>
+
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
+              Guardian Online in{' '}
+              <span class="bg-gradient-to-r from-imperial-gold to-yellow-400 bg-clip-text text-transparent">
+                3 Steps
+              </span>
+            </h2>
+
+            <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+              No complex setup. No coding required. Amina deploys in under 3
+              minutes and starts protecting your realm immediately.
+            </p>
+          </div>
+
+          <div class="relative">
+            <div class="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-cyber-blue via-imperial-gold to-amina-crimson transform -translate-y-1/2 opacity-20"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8">
+              {steps.map((step, index) => (
+                <div class="step-card group relative" data-step={step.number}>
+                  <div class="relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-cyber-blue/30 rounded-2xl p-8 transition-all duration-500 hover:border-cyber-blue hover:shadow-glow-blue hover:scale-105 hover:-translate-y-2">
+                    <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                      <div class="relative">
+                        <div class="absolute inset-0 bg-cyber-blue rounded-full blur-lg opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div class="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyber-blue to-imperial-gold flex items-center justify-center border-4 border-night-shadow">
+                          <span class="text-xl font-heading font-bold text-night-shadow">
+                            {step.number}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-4 mb-6 mt-4">
+                      <div class="transition-transform duration-300 group-hover:scale-110">
+                        <LucideIcon
+                          name={step.icon}
+                          class="text-cyber-blue"
+                          size={48}
+                        />
+                      </div>
+                      <span class="text-3xl text-cyber-blue animate-float">
+                        {step.kaomoji}
+                      </span>
+                    </div>
+
+                    <div class="text-center space-y-4">
+                      <h3 class="text-2xl font-heading font-bold text-white group-hover:text-cyber-blue transition-colors duration-300">
+                        {step.title}
+                      </h3>
+
+                      <p class="text-gray-300 leading-relaxed">
+                        {step.description}
+                      </p>
+
+                      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-imperial-gold/10 border border-imperial-gold/30 text-imperial-gold text-sm font-mono">
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span>{step.duration}</span>
+                      </div>
+                    </div>
+
+                    <div class="absolute bottom-4 left-4 right-4 h-1 bg-night-shadow rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-gradient-to-r from-cyber-blue to-imperial-gold progress-bar"
+                        style={`width: ${(step.number / 3) * 100}%`}
+                      />
+                    </div>
+                  </div>
+
+                  {index < steps.length - 1 ? (
+                    <div class="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                      <svg
+                        class="w-8 h-8 text-cyber-blue opacity-50"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                      </svg>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="mt-16 text-center bg-gradient-to-r from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-2xl p-8 md:p-12">
+            <div class="space-y-6">
+              <div class="flex items-center justify-center gap-3">
+                <LucideIcon name="zap" class="text-imperial-gold" size={36} />
+                <h3 class="text-2xl md:text-3xl font-heading font-bold text-white">
+                  Ready to Deploy?
+                </h3>
+                <LucideIcon name="zap" class="text-imperial-gold" size={36} />
+              </div>
+
+              <p class="text-lg text-gray-300 max-w-2xl mx-auto">
+                Join{' '}
+                <span class="text-cyber-blue font-bold">
+                  {protectedRealmsLabel}
+                </span>{' '}
+                already protected by Amina. Start your guardian journey today.
+              </p>
+
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <PrimaryBtn
+                  url={getInviteUrl()}
+                  text="Add Amina Now"
+                  icon="discord"
+                />
+                <TertiaryBtn url="/docs/setup" text="Setup Guide" icon="star" />
+              </div>
+
+              <p class="text-sm text-gray-400 flex items-center justify-center gap-2">
+                <svg
+                  class="w-4 h-4 text-green-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                No credit card required · Free tier available forever
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <style>{styleText}</style>
+      <script dangerouslySetInnerHTML={{ __html: script }} />
+    </>
+  );
+};

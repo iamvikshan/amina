@@ -11,6 +11,7 @@
 ### ✅ Completed Components (9/59)
 
 #### Foundation Layer
+
 1. **BrandLogo.tsx** - Amina's logo component
    - Pure server-rendered image
    - CDN URL from utils/cdn.ts
@@ -35,6 +36,7 @@
    - Apple Liquid Glass styling preserved
 
 #### UI Components - Icons & Buttons
+
 5. **LucideIcon.tsx** - Icon wrapper
    - Iconify CDN integration (3.1.0)
    - Dynamic icon loading
@@ -56,6 +58,7 @@
    - Hover scale effect
 
 #### Layouts
+
 9. **BaseLayout.tsx** - Main layout wrapper
    - HSThemeAppearance script integration
    - Dark mode initialization (blocking)
@@ -69,6 +72,7 @@
 ## Key Technical Patterns Established
 
 ### 1. Alpine.js → dangerouslySetInnerHTML
+
 ```tsx
 // Pattern for Alpine.js components
 export const Component: FC = () => {
@@ -83,6 +87,7 @@ export const Component: FC = () => {
 ```
 
 ### 2. Client-Side Scripts in Components
+
 ```tsx
 // Pattern for client-side logic
 export const Component: FC = () => {
@@ -106,6 +111,7 @@ export const Component: FC = () => {
 ```
 
 ### 3. CSS-in-JSX for Scoped Styles
+
 ```tsx
 export const Component: FC = () => {
   return (
@@ -124,6 +130,7 @@ export const Component: FC = () => {
 ```
 
 ### 4. Theme Script Integration
+
 - HSThemeAppearance must be in BaseLayout
 - All theme toggle buttons use `data-hs-theme-click-value` attribute
 - Dark mode class added to `<html>` element
@@ -134,6 +141,7 @@ export const Component: FC = () => {
 ## Next Steps (Priority Order)
 
 ### Immediate (Session 2)
+
 1. **Header.tsx** (CRITICAL PATH)
    - Complex authentication state
    - Mobile menu with Alpine.js
@@ -152,6 +160,7 @@ export const Component: FC = () => {
    - Shows while fetching user data
 
 ### Week 1 Completion
+
 4. **Footer.tsx** - Static footer
 5. **DashboardFooter.tsx** - Dashboard-specific footer
 6. **HeroAmina.tsx** - Homepage hero section
@@ -162,21 +171,25 @@ export const Component: FC = () => {
 ## Technical Decisions Made
 
 ### 1. Icon Strategy
+
 - **Decision:** Use Iconify CDN (3.1.0) instead of astro-icon
 - **Reason:** Simpler integration, no build step needed
 - **Trade-off:** External dependency, but CDN is cached
 
 ### 2. Smooth Scroll
+
 - **Decision:** Keep Lenis for now, lazy load after page interaction
 - **Reason:** Better performance than CSS-only for complex animations
 - **Future:** Evaluate removal in Phase 7 (Optimization)
 
 ### 3. Theme Management
+
 - **Decision:** Keep HSThemeAppearance script pattern from Astro
 - **Reason:** Works well, no need to refactor
 - **Benefit:** Consistent behavior across migration
 
 ### 4. Global CSS
+
 - **Decision:** Direct `<link>` tag instead of CSS imports
 - **Reason:** Simpler for Hono, no build config needed
 - **Note:** May need adjustment for production bundling
@@ -186,16 +199,19 @@ export const Component: FC = () => {
 ## Issues Resolved
 
 ### 1. ImagePaths.og Property Missing
+
 - **Error:** `Property 'og' does not exist on type '{ ... }'`
 - **Fix:** Use `OG.image` from site config instead
 - **Location:** `app/components/Meta.tsx`
 
 ### 2. Style Import in BaseLayout
+
 - **Error:** `Type 'string' is not assignable to type 'Promise<string>'`
 - **Fix:** Changed from `Style` component to `<link rel="stylesheet">`
 - **Location:** `app/components/BaseLayout.tsx`
 
 ### 3. Known Issues (Phase 2 carryover)
+
 - `data-utils.ts` Context type mismatches - Will fix in Session 2
 - `middleware/auth.ts` Context type mismatches - Will fix in Session 2
 - These don't block component migration
@@ -205,11 +221,13 @@ export const Component: FC = () => {
 ## Performance Considerations
 
 ### Bundle Size Tracking
+
 - **Before:** N/A (Astro SSR)
 - **Current:** Not yet measured (components only)
 - **Target:** <100KB total bundle (Phase 0 goal)
 
 ### Component Size Estimates
+
 - BrandLogo: ~200 bytes
 - ThemeIcon: ~1.5 KB
 - Meta: ~2 KB
@@ -225,12 +243,14 @@ export const Component: FC = () => {
 ## Code Quality Metrics
 
 ### TypeScript Compliance
+
 - ✅ All new components have proper type annotations
 - ✅ FC<Props> pattern consistent
 - ✅ Props interfaces exported where reusable
 - ⚠️ Some `any` types in children props (acceptable for Hono JSX)
 
 ### Component Organization
+
 ```
 app/components/
 ├── BrandLogo.tsx
@@ -253,6 +273,7 @@ app/components/
 ## Testing Status
 
 ### Manual Testing Required (Post-Server Setup)
+
 - [ ] Theme toggle works (light → dark → light)
 - [ ] StatusPill fetches and displays status
 - [ ] StatusPill dismiss persists in localStorage
@@ -263,6 +284,7 @@ app/components/
 - [ ] Responsive layouts work (mobile/tablet/desktop)
 
 ### TypeScript Compilation
+
 - ✅ Components compile without errors (excluding Phase 2 carryover issues)
 - ⚠️ Full app compilation has known issues in middleware (Phase 2)
 
@@ -271,30 +293,41 @@ app/components/
 ## Migration Patterns Documented
 
 ### Slot → Children
+
 ```tsx
 // Before (Astro)
-<Layout><slot /></Layout>
+<Layout>
+  <slot />
+</Layout>;
 
 // After (HonoX)
-export const Layout: FC<{children?: any}> = ({ children }) => {
+export const Layout: FC<{ children?: any }> = ({ children }) => {
   return <div>{children}</div>;
 };
 ```
 
 ### Props Destructuring
+
 ```tsx
 // Before (Astro)
 const { title, description } = Astro.props;
-interface Props { title: string; description?: string; }
+interface Props {
+  title: string;
+  description?: string;
+}
 
 // After (HonoX)
-interface Props { title: string; description?: string; }
+interface Props {
+  title: string;
+  description?: string;
+}
 export const Component: FC<Props> = ({ title, description }) => {
   // ...
 };
 ```
 
 ### Class Names
+
 ```tsx
 // Before (Astro)
 <div class:list={['base', isActive && 'active']}>
@@ -308,15 +341,18 @@ export const Component: FC<Props> = ({ title, description }) => {
 ## Timeline Update
 
 ### Original Estimate
+
 - Phase 4: 2 weeks (10 working days)
 - 59 components total
 
 ### Current Progress
+
 - **Day 1:** 9 components (15%)
 - **Pace:** ~9 components/day
 - **Projected:** 6-7 days total (ahead of schedule!)
 
 ### Revised Estimate
+
 - **Foundation:** ✅ Complete (Day 1)
 - **Navigation:** Days 2-3 (Header, Footer, Dropdowns)
 - **Sections:** Days 4-5 (Hero, Stats, Features)
@@ -328,11 +364,13 @@ export const Component: FC<Props> = ({ title, description }) => {
 ## Blockers & Risks
 
 ### Current Blockers
+
 - ⚠️ **Header external API integration** - Waiting for api.4mina.app implementation
   - **Mitigation:** Implement server-side rendering for now, comment out API code
   - **Impact:** Low (can be added later without major refactoring)
 
 ### Potential Risks
+
 1. **Alpine.js compatibility**
    - **Risk:** Complex Alpine components may not work well with dangerouslySetInnerHTML
    - **Mitigation:** Test thoroughly, fall back to vanilla JS if needed
@@ -353,17 +391,20 @@ export const Component: FC<Props> = ({ title, description }) => {
 ## Notes for Next Session
 
 ### Must Complete
+
 1. Read full Header.astro implementation
 2. Plan UserAvatarDropdown migration
 3. Test Alpine.js dropdown pattern
 4. Verify authentication state display
 
 ### Nice to Have
+
 1. Start Footer components
 2. Begin HeroAmina section
 3. Test responsive layouts
 
 ### Research Topics
+
 1. Hono Islands for interactive components (alternative to Alpine.js)
 2. GSAP integration patterns
 3. Form handling in HonoX
@@ -373,6 +414,7 @@ export const Component: FC<Props> = ({ title, description }) => {
 ## Team Communication
 
 ### Status Update Template
+
 ```
 Phase 4 Progress - 2025-12-08
 ✅ Foundation complete (9 components)
@@ -382,6 +424,7 @@ Phase 4 Progress - 2025-12-08
 ```
 
 ### Demo Ready
+
 - ThemeIcon toggle (live)
 - StatusPill indicator (live)
 - Button styles (visual)

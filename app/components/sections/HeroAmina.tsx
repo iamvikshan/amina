@@ -1,0 +1,269 @@
+import type { FC } from 'hono/jsx';
+import { ImagePaths } from '@/utils/cdn';
+import { PrimaryBtn } from '@/components/ui/buttons/PrimaryBtn';
+import { SecondaryBtn } from '@/components/ui/buttons/SecondaryBtn';
+import { getInviteUrl } from '@/config/permalinks';
+import { LucideIcon } from '@/components/ui/icons/LucideIcon';
+
+interface HeroAminaProps {
+  docsUrl?: string;
+  formattedGuildCount: string;
+  uptime: number;
+}
+
+export const HeroAmina: FC<HeroAminaProps> = ({
+  docsUrl = '/docs',
+  formattedGuildCount,
+  uptime,
+}) => {
+  const addBotUrl = getInviteUrl();
+
+  const styleText = `
+    /* Glitch Text Effect */
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+      100% { transform: translate(0); }
+    }
+
+    .glitch-text {
+      position: relative;
+      animation: glitch 5s infinite;
+      animation-timing-function: steps(2);
+    }
+
+    /* Gradient Animation */
+    @keyframes gradient-x {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .animate-gradient-x {
+      background-size: 200% auto;
+      animation: gradient-x 3s ease infinite;
+    }
+
+    /* Slow Spin */
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-spin-slow {
+      animation: spin-slow 20s linear infinite;
+    }
+
+    /* Floating UI Elements */
+    @keyframes floating-ui {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .floating-ui {
+      animation: floating-ui 3s ease-in-out infinite;
+    }
+
+    /* Hero entrance animations */
+    .hero-content { animation: fade-in-up 1s ease-out; }
+    .hero-character { animation: fade-in-right 1.2s ease-out; }
+    .hero-image { animation: float 6s ease-in-out infinite; }
+
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fade-in-right {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+  `;
+
+  const particleScript = `
+    function initParticles() {
+      const container = document.getElementById('particles-hero');
+      if (!container) return;
+
+      const particleCount = 50;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        const size = Math.random() * 3 + 1;
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const duration = Math.random() * 20 + 10;
+        const delay = Math.random() * 5;
+
+        particle.style.cssText =
+          'position: absolute;' +
+          'width: ' + size + 'px;' +
+          'height: ' + size + 'px;' +
+          'background: ' +
+            (Math.random() > 0.5 ? '#00CED1' : '#DC143C') +
+            ';' +
+          'border-radius: 50%;' +
+          'left: ' + x + '%;' +
+          'top: ' + y + '%;' +
+          'opacity: ' + (Math.random() * 0.5 + 0.2) + ';' +
+          'animation: float-particle ' +
+            duration +
+            's linear ' +
+            delay +
+            's infinite;';
+
+        container.appendChild(particle);
+      }
+    }
+
+    const style = document.createElement('style');
+    const driftX = Math.random() * 50 - 25;
+    style.textContent =
+      '@keyframes float-particle {' +
+      '0% { transform: translateY(0) translateX(0); }' +
+      '50% { transform: translateY(-100px) translateX(' +
+        driftX +
+        'px); }' +
+      '100% { transform: translateY(-200px) translateX(0); opacity: 0; }' +
+      '}';
+    document.head.appendChild(style);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initParticles);
+    } else {
+      initParticles();
+    }
+  `;
+
+  return (
+    <>
+      <section
+        class="relative overflow-hidden bg-gradient-to-b from-night-black via-night-shadow to-night-black py-20 md:py-32"
+        id="hero"
+      >
+        <div class="absolute inset-0 overflow-hidden opacity-30">
+          <div class='absolute inset-0 bg-[url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwQ0VEMSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=")] opacity-20'></div>
+          <div id="particles-hero" class="absolute inset-0"></div>
+        </div>
+
+        <div class="absolute top-20 left-10 w-96 h-96 bg-amina-crimson/20 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          class="absolute bottom-20 right-10 w-96 h-96 bg-cyber-blue/20 rounded-full blur-3xl animate-pulse"
+          style="animation-delay: 1s"
+        ></div>
+
+        <div class="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8 hero-content">
+              <div class="space-y-4">
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight">
+                  <span class="block text-gray-100"> Protect Your </span>
+                  <span class="text-gray-100">
+                    Discord Server
+                    <sup class="text-cyber-blue/70 text-lg font-mono">
+                      *
+                    </sup>{' '}
+                    with{' '}
+                  </span>
+                  <span class="bg-gradient-to-r from-amina-crimson via-rose-red to-amina-crimson bg-clip-text text-transparent animate-gradient-x">
+                    Amina
+                  </span>
+                </h1>
+
+                <p class="text-xs text-gray-500 italic mt-2 font-mono">
+                  <span class="text-cyber-blue/70">*</span> Amina prefers to
+                  call them "realms" (✿◠‿◠)
+                </p>
+
+                <p class="text-xl md:text-2xl text-gray-300 max-w-2xl leading-relaxed">
+                  Your friendly guardian bringing tactical moderation, creative
+                  engagement and unwavering protection to your community.{' '}
+                  <span class="text-2xl">(•̀ᴗ•́)و</span>
+                </p>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-4">
+                <PrimaryBtn
+                  url={addBotUrl}
+                  text="Add to Discord"
+                  icon="discord"
+                />
+                <SecondaryBtn
+                  url={docsUrl}
+                  text="Documentation"
+                  icon="file-text"
+                />
+              </div>
+
+              <div class="flex flex-wrap items-center gap-6 pt-4 text-sm text-gray-400">
+                <div class="flex items-center gap-2">
+                  <LucideIcon
+                    name="shield"
+                    class="text-discord-green"
+                    size={20}
+                  />
+                  <span>
+                    <strong class="text-gray-200" data-stat="guilds-formatted">
+                      {formattedGuildCount}
+                    </strong>{' '}
+                    Protected Realms
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <LucideIcon name="zap" class="text-imperial-gold" size={20} />
+                  <span>
+                    <strong class="text-gray-200" data-stat="uptime-formatted">
+                      {uptime.toFixed(1)}%
+                    </strong>{' '}
+                    Uptime
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <LucideIcon name="moon" class="text-cyber-blue" size={20} />
+                  <span>
+                    <strong class="text-gray-200">24/7</strong> Guardian Active
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative lg:block hidden">
+              <div class="relative hero-character">
+                <div class="absolute inset-0 rounded-full bg-gradient-to-r from-cyber-blue/20 to-amina-crimson/20 blur-2xl animate-spin-slow"></div>
+
+                <div class="relative z-10">
+                  <img
+                    src={ImagePaths.hero.hero}
+                    alt="Amina - Your Discord Guardian"
+                    class="w-full h-auto drop-shadow-2xl hero-image"
+                    loading="eager"
+                    width={600}
+                    height={1067}
+                  />
+                </div>
+
+                <div class="absolute top-20 -left-10 bg-night-steel/80 backdrop-blur-md border border-cyber-blue/50 rounded-lg px-4 py-2 floating-ui">
+                  <p class="text-cyber-blue text-sm font-mono">
+                    :/ heyyo, i'm amina
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <style>{styleText}</style>
+      <script dangerouslySetInnerHTML={{ __html: particleScript }} />
+    </>
+  );
+};

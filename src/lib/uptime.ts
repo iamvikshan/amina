@@ -2,7 +2,6 @@
 // Instatus API integration for real-time status monitoring
 // Fetches component statuses from https://mina.instatus.com
 
-import { env } from '@/env';
 import type { InstatusComponent, Monitor, UptimeStats } from '@types';
 
 // Cache interface
