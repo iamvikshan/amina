@@ -29,10 +29,15 @@ stages:
 jobs:
   include:
     # ============================================
-    # Stage: Lint & Type Check (Pre-build)
+    # Stage: Lint & Runtime Test (Pre-build)
     # ============================================
     - stage: lint
-      name: "Unified Checks (TypeScript, ESLint, Prettier)"
+      name: "Code Quality & Native Runtime Test"
+      before_install:
+        # Install Doppler CLI for secrets
+        - curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg
+        - echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" | sudo tee /etc/apt/sources.list.d/doppler-cli.list
+        - sudo apt-get update && sudo apt-get install -y doppler
       install:
         # Install Bun
         - curl -fsSL https://bun.sh/install | bash
@@ -42,7 +47,54 @@ jobs:
         - bun install --frozen-lockfile --ignore-scripts
 
       script:
+        # 1. Run linting and type checks
         - bun run check
+
+        # 2. Create .env file from Doppler for native runtime test
+        - |
+          if [ -n "$DOPPLER_TOKEN" ]; then
+            doppler secrets download -p amina -c dev --no-file --format env > .env
+            echo "Doppler secrets loaded for native runtime test"
+          else
+            echo "DOPPLER_TOKEN not set, using minimal test env"
+            echo "NODE_ENV=test" > .env
+            echo "HEALTH_PORT=3000" >> .env
+          fi
+
+        # 3. Start app in background and test production readiness
+        - |
+          echo "Starting native Bun runtime test..."
+          mkdir -p logs
+          bun . > logs/app.log 2>&1 &
+          APP_PID=$!
+          echo "App started with PID $APP_PID"
+
+          # Wait for health endpoint
+          echo "Waiting for app to be healthy..."
+          for i in {1..30}; do
+            if curl -f -s http://localhost:3000/health > /dev/null 2>&1; then
+              echo "✓ Native app is healthy!"
+              kill $APP_PID 2>/dev/null || true
+              wait $APP_PID 2>/dev/null || true
+              exit 0
+            fi
+            echo "Attempt $i/30 - waiting..."
+            sleep 2
+          done
+
+          # Health check failed - show logs and exit
+          echo "✗ Native health check failed"
+          echo "=== App logs ==="
+          cat logs/app.log || echo "No logs available"
+          kill $APP_PID 2>/dev/null || true
+          wait $APP_PID 2>/dev/null || true
+          exit 1
+
+      after_script:
+        # Cleanup: Ensure process is killed and secrets are removed
+        - pkill -f "bun ." || true
+        - rm -f .env
+        - rm -rf logs
 
     # ============================================
     # Stage: Docker Build & Test (Post-build)
@@ -70,7 +122,7 @@ jobs:
 
         # Build and start services with docker compose
         - docker compose build amina
-        - docker compose up -d
+        - docker compose up -d amina
 
         # Wait for amina container to be healthy
         - |

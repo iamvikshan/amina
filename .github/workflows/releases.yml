@@ -59,7 +59,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Setup Bun and install dependencies
+      - name: Setup Bun (and node for some reason) and install dependencies
         uses: iamvikshan/.github/.github/actions/setup-node-bun@main
 
       - name: Semantic Release

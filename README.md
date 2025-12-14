@@ -13,7 +13,7 @@
 [![Forks](https://img.shields.io/github/forks/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=1E90FF)](https://github.com/iamvikshan/amina/network/members)
 [![Stars](https://img.shields.io/github/stars/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=FFD700)](https://github.com/iamvikshan/amina/stargazers)
 [![Issues](https://img.shields.io/github/issues/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=DC143C)](https://github.com/iamvikshan/amina/issues)
-[![License](https://img.shields.io/github/license/iamvikshan/amina.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white&color=00CED1)](https://github.com/iamvikshan/.github/blob/main/.github/LICENSE.md)
+[![License](https://img.shields.io/github/license/iamvikshan/amina.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white&color=00CED1)](https://github.com/iamvikshan/amina/blob/main/LICENSE.md)
 
   <p align="center">
     <strong> Protecting Communities • Creating Joy • Bringing People Together</strong>
