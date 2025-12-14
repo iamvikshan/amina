@@ -6,7 +6,7 @@
       "name": "amina-api",
       "dependencies": {
         "@hono/node-server": "^1.19.7",
-        "hono": "^4.10.8",
+        "hono": "^4.11.0",
         "mongodb": "^7.0.0",
         "zod": "^4.1.13",
       },
@@ -323,7 +323,7 @@
 
     "hasown": ["hasown@2.0.2", "", { "dependencies": { "function-bind": "^1.1.2" } }, "sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ=="],
 
-    "hono": ["hono@4.10.8", "", {}, "sha512-DDT0A0r6wzhe8zCGoYOmMeuGu3dyTAE40HHjwUsWFTEy5WxK1x2WDSsBPlEXgPbRIFY6miDualuUDbasPogIww=="],
+    "hono": ["hono@4.11.0", "", {}, "sha512-Jg8uZzN2ul8/qlyid5FO8O624F3AK0wKtkgoeEON1qBum1rM1itYBxoMKu/1SPJC7F1+xlIZsJMmc4HHhJ1AWg=="],
 
     "http-call": ["http-call@5.3.0", "", { "dependencies": { "content-type": "^1.0.4", "debug": "^4.1.1", "is-retry-allowed": "^1.1.0", "is-stream": "^2.0.0", "parse-json": "^4.0.0", "tunnel-agent": "^0.6.0" } }, "sha512-ahwimsC23ICE4kPl9xTBjKB4inbRaeLyZeRunC/1Jy/Z6X8tv22MEAjK+KBOMSVLaqXPTTmd8638waVIKLGx2w=="],
 
