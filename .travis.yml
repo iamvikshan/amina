@@ -4,7 +4,7 @@
 
 language: node_js
 node_js:
-  - 22
+  - 25
 os: linux
 dist: jammy
 
@@ -22,9 +22,9 @@ env:
 
 stages:
   - name: lint
-    if: type = pull_request OR branch = main
+    if: (type = pull_request AND branch = main) OR (type = push AND branch = main)
   - name: docker
-    if: branch = main AND type = push
+    if: (type = pull_request AND branch = main) OR (type = push AND branch = main)
 
 jobs:
   include:
@@ -38,9 +38,9 @@ jobs:
         - curl -fsSL https://bun.sh/install | bash
         - export BUN_INSTALL="$HOME/.bun"
         - export PATH="$BUN_INSTALL/bin:$PATH"
-        - bun --version
         # Install dependencies
-        - bun install --frozen-lockfile
+        - bun install --frozen-lockfile --ignore-scripts
+
       script:
         - bun run check
 

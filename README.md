@@ -13,6 +13,7 @@
 [![Forks](https://img.shields.io/github/forks/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=1E90FF)](https://github.com/iamvikshan/amina/network/members)
 [![Stars](https://img.shields.io/github/stars/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=FFD700)](https://github.com/iamvikshan/amina/stargazers)
 [![Issues](https://img.shields.io/github/issues/iamvikshan/amina.svg?style=for-the-badge&logo=github&color=DC143C)](https://github.com/iamvikshan/amina/issues)
+[![License](https://img.shields.io/github/license/iamvikshan/amina.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white&color=00CED1)](https://github.com/iamvikshan/.github/blob/main/.github/LICENSE.md)
 
   <p align="center">
     <strong> Protecting Communities • Creating Joy • Bringing People Together</strong>
@@ -29,11 +30,11 @@
 > [!IMPORTANT]
 >
 > **ACTIVE DEVELOPMENT STATUS**  
-> Amina is still being enhanced! Some defense systems nd features may be under construction.
+> Amina is still being enhanced! Some defense systems and features may be under construction.
 
 ## Who Am I?
 
-Hey there! I'm **Amina** (**mina**)— your guardian companion.
+Hey there! I'm **Amina** (**mina** preferably)— your guardian companion.
 
 Unlike those cold, emotionless bots, I was given something special: **a heart**. I don't just moderate servers; I **protect communities** and help them thrive. Think of me as your right hand in battle — someone who'll stand beside you, fight alongside you, and celebrate your victories, even the littlest.
 

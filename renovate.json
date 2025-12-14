@@ -3,32 +3,58 @@
   "extends": ["config:recommended", ":semanticCommits"],
   "baseBranches": ["api", "dash", "main"],
   "automerge": false,
-  "prConcurrentLimit": 5,
-  "prHourlyLimit": 2,
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 5,
   "labels": ["dependencies"],
-  "reviewers": ["iamvikshan"],
-  "schedule": ["before 4am"],
+  "assignees": ["iamvikshan"],
+  "schedule": ["before 4am every weekday"],
   "timezone": "Africa/Nairobi",
   "dependencyDashboard": true,
   "dependencyDashboardApproval": false,
   "rebaseWhen": "conflicted",
   "rangeStrategy": "bump",
+  "separateMinorPatch": true,
+  "separateMajorMinor": true,
+  "minimumReleaseAge": "3 days",
   "packageRules": [
     {
-      "description": "Automerge patch updates and digests",
+      "description": "Automerge patch updates and digests (safe bug fixes)",
       "matchUpdateTypes": ["patch", "digest"],
-      "automerge": true
+      "automerge": true,
+      "minimumReleaseAge": "0 days"
     },
     {
       "description": "Automerge minor updates for devDependencies (safe for lint/types)",
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor"],
-      "automerge": true
+      "automerge": true,
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "Require approval for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "minimumReleaseAge": "7 days",
+      "labels": ["dependencies", "major-update"]
+    },
+    {
+      "description": "Require approval for production dependency minor updates",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Automerge GitHub Actions (safe, doesn't affect code)",
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "minimumReleaseAge": "1 day"
     },
     {
       "groupName": "linters and formatters",
       "matchPackageNames": ["eslint", "prettier", "husky"],
-      "matchPackagePatterns": ["^eslint", "^prettier", "^@typescript-eslint"]
+      "matchPackagePatterns": ["^eslint", "^prettier", "^@typescript-eslint"],
+      "automerge": true
     },
     {
       "groupName": "semantic-release ecosystem",
@@ -36,15 +62,36 @@
         "^@semantic-release",
         "^semantic-release",
         "^conventional-changelog"
-      ]
+      ],
+      "automerge": true
     },
     {
       "groupName": "discord.js ecosystem",
-      "matchPackagePatterns": ["^discord.js", "^@discordjs"]
+      "matchPackagePatterns": ["^discord.js", "^@discordjs"],
+      "automerge": false,
+      "minimumReleaseAge": "5 days"
+    },
+    {
+      "groupName": "TypeScript and types",
+      "matchPackageNames": ["typescript"],
+      "matchPackagePatterns": ["^@types/"],
+      "automerge": true
+    },
+    {
+      "groupName": "Dockerfile base images",
+      "matchManagers": ["dockerfile"],
+      "automerge": true,
+      "minimumReleaseAge": "3 days"
     }
   ],
   "lockFileMaintenance": {
     "enabled": true,
+    "automerge": true,
+    "schedule": ["before 4am on monday"]
+  },
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "minimumReleaseAge": "0 days",
     "automerge": true
   }
 }

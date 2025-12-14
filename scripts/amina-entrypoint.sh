@@ -2,17 +2,20 @@
 # Entrypoint script to fix permissions for amina logs directory in development
 # This is only needed for docker-compose.yml where we mount the host directory
 
-# Fix ownership of logs directory to amina user (UID 1001, GID 1001)
-# This ensures the amina user can write log files to the mounted volume
-if [ -d /app/logs ]; then
-    if ! chown -R 1001:1001 /app/logs; then
-        echo "ERROR: chown failed for /app/logs" >&2
-        exit 1
-    fi
-    if ! chmod -R 755 /app/logs; then
-        echo "ERROR: chmod failed for /app/logs" >&2
-        exit 1
-    fi
+# Ensure logs directory exists and is writeable by amina (UID 1001, GID 1001)
+if ! mkdir -p /app/logs; then
+    echo "ERROR: mkdir failed for /app/logs" >&2
+    exit 1
+fi
+
+if ! chown -R 1001:1001 /app/logs; then
+    echo "ERROR: chown failed for /app/logs" >&2
+    exit 1
+fi
+
+if ! chmod -R 755 /app/logs; then
+    echo "ERROR: chmod failed for /app/logs" >&2
+    exit 1
 fi
 
 # Switch to amina user and execute the application with watch mode
