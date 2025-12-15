@@ -1,63 +1,174 @@
+/**
+ * Guild Overview Page
+ * Route: /dash/guild/:guildId
+ * Shows guild info and feature cards
+ */
+
 import { createRoute } from 'honox/factory';
-import { GuildManager } from '@lib/database/mongoose';
-import { getDiscordUserData } from '@lib/data-utils';
+import { GuildLayout } from '@/components/dashboard/layouts/GuildLayout';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/dashboard/ui/Card';
+import { Badge } from '@/components/dashboard/ui/Badge';
+import { getAllFeatures } from '@/config/features';
+import type { FeatureConfig, BreadcrumbItem } from '@types';
 
-export default createRoute(async (c) => {
-  c.header('Cache-Control', 'private, no-cache, must-revalidate');
+export default createRoute((c) => {
+  const guildId = c.req.param('guildId') || '';
 
-  const guildId = c.req.param('guildId');
-  if (!guildId) {
-    return c.redirect('/dash');
-  }
+  // TODO: Fetch guild data from database
+  const guild = {
+    id: guildId,
+    name: 'My Awesome Server',
+    icon: null as string | null,
+    banner: null as string | null,
+    memberCount: 1234,
+  };
 
-  try {
-    // Load user (ensures auth cookies are valid) then guild from DB
-    await getDiscordUserData(c);
+  // TODO: Fetch enabled features from database
+  const enabledFeatures: string[] = ['welcome', 'logging'];
 
-    const guildManager = await GuildManager.getInstance();
-    const guild = await guildManager.getGuild(guildId);
+  const breadcrumbs: BreadcrumbItem[] = [
+    { label: 'Dashboard', href: '/dash' },
+    { label: guild.name, href: `/dash/guild/${guildId}` },
+  ];
 
-    if (!guild) {
-      return c.redirect(
-        `/dash?error=${encodeURIComponent(
-          'Guild not found. Please add the bot to your server first.'
-        )}`
-      );
-    }
+  return c.render(
+    <GuildLayout
+      guildId={guildId}
+      guild={guild}
+      enabledFeatures={enabledFeatures}
+      activeId="overview"
+      breadcrumbs={breadcrumbs}
+      showBanner={true}
+    >
+      {/* Features Section */}
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-heading font-bold text-pure-white">
+              Features
+            </h2>
+            <p class="text-gray-400 text-sm mt-1">
+              Configure bot features for your server
+            </p>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-400">
+            <span class="w-2 h-2 rounded-full bg-discord-green" />
+            {enabledFeatures.length} enabled
+          </div>
+        </div>
 
-    if (guild.server.leftAt) {
-      return c.redirect(
-        `/dash?error=${encodeURIComponent(
-          'The bot has left this server. Please re-add it to manage settings.'
-        )}`
-      );
-    }
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {getAllFeatures().map((feature) => (
+            <FeatureCard
+              key={feature.id}
+              feature={feature}
+              guildId={guildId}
+              enabled={enabledFeatures.includes(feature.id)}
+            />
+          ))}
+        </div>
+      </section>
 
-    return c.render(
-      <main
-        style={{ maxWidth: '900px', margin: '40px auto', padding: '0 16px' }}
-      >
-        <h1>{guild.server.name}</h1>
-        <p>Guild dashboard page is being migrated into the new HonoX UI.</p>
-        <ul>
-          <li>
-            <strong>Guild ID:</strong> {guild._id}
-          </li>
-          <li>
-            <strong>Region:</strong> {guild.server.region}
-          </li>
-        </ul>
-        <p>
-          <a href="/dash">Back to dashboard</a>
-        </p>
-      </main>
-    );
-  } catch (err) {
-    console.error('Error loading guild dashboard:', err);
-    return c.redirect(
-      `/dash?error=${encodeURIComponent(
-        'Failed to load guild settings. Please try again.'
-      )}`
-    );
-  }
+      {/* Quick Stats Section */}
+      <section class="mt-8">
+        <h2 class="text-xl font-heading font-bold text-pure-white mb-4">
+          Quick Stats
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard
+            label="Members"
+            value={guild.memberCount.toLocaleString()}
+            icon="lucide:users"
+          />
+          <StatCard
+            label="Features"
+            value={enabledFeatures.length.toString()}
+            icon="lucide:puzzle"
+          />
+          <StatCard
+            label="Commands Used"
+            value="12.5K"
+            icon="lucide:terminal"
+          />
+          <StatCard
+            label="Messages"
+            value="45.2K"
+            icon="lucide:message-circle"
+          />
+        </div>
+      </section>
+    </GuildLayout>
+  );
 });
+
+/** Feature Card Component */
+function FeatureCard({
+  feature,
+  guildId,
+  enabled,
+}: {
+  feature: FeatureConfig;
+  guildId: string;
+  enabled: boolean;
+}) {
+  return (
+    <a href={`/dash/guild/${guildId}/features/${feature.id}`}>
+      <Card hover className="h-full group">
+        <CardHeader>
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-cyber-blue/10 flex items-center justify-center group-hover:bg-cyber-blue/20 transition-colors">
+              <span
+                class="iconify w-5 h-5 text-cyber-blue"
+                data-icon={feature.icon}
+              />
+            </div>
+            <Badge variant={enabled ? 'success' : 'default'}>
+              {enabled ? 'Enabled' : 'Disabled'}
+            </Badge>
+          </div>
+          <CardTitle className="text-base">{feature.name}</CardTitle>
+          <CardDescription className="text-sm line-clamp-2">
+            {feature.description}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div class="flex items-center gap-2 text-xs text-gray-500 group-hover:text-cyber-blue transition-colors">
+            <span class="iconify w-4 h-4" data-icon="lucide:settings-2" />
+            <span>Configure</span>
+          </div>
+        </CardContent>
+      </Card>
+    </a>
+  );
+}
+
+/** Stat Card Component */
+function StatCard({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon: string;
+}) {
+  return (
+    <Card className="p-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-night-steel flex items-center justify-center">
+          <span class="iconify w-5 h-5 text-gray-400" data-icon={icon} />
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-pure-white">{value}</p>
+          <p class="text-xs text-gray-500">{label}</p>
+        </div>
+      </div>
+    </Card>
+  );
+}

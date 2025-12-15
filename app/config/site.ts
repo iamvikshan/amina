@@ -15,7 +15,7 @@
 // Environment-based URL configuration
 // Defaults to production URL for safety - only uses localhost when explicitly in dev mode
 const isDev = process.env.NODE_ENV === 'development';
-const BASE_URL = isDev ? 'http://localhost:5173' : 'https://4mina.app';
+const BASE_URL = isDev ? 'http://localhost:4321' : 'https://4mina.app';
 
 // ============================================================================
 // Core Site Metadata
@@ -88,4 +88,20 @@ export const OG = {
   description:
     "Introducing Amina, a uniquely personable Discord bot with a flair for creativity and fun! Currently in development, she's looking for fellow creators and developers to help shape her features and personality. Join our community and be part of something special!",
   image: '/social.png',
+} as const;
+
+// ============================================================================
+// Unified Config Export (for components that need a single config object)
+// ============================================================================
+export const config = {
+  name: SITE.title,
+  title: SITE.title,
+  tagline: SITE.tagline,
+  description: SITE.description,
+  url: SITE.url,
+  links: {
+    docs: URLS.docs,
+    support: URLS.support,
+    github: URLS.github,
+  },
 } as const;

@@ -72,16 +72,16 @@ export const AminaStatusCard: FC = () => {
   return (
     <>
       <div
-        class="amina-status-card group relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-cyber-blue/30 rounded-xl p-4 transition-all duration-500 hover:border-cyber-blue/60 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(0,206,209,0.3)]"
+        class="amina-status-card group relative bg-linear-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-cyber-blue/30 rounded-xl p-4 transition-all duration-500 hover:border-cyber-blue/60 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(0,206,209,0.3)]"
         data-status="loading"
       >
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyber-blue to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div class="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-cyber-blue to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         <div class="flex items-center gap-4">
-          <div class="relative flex-shrink-0">
+          <div class="relative shrink-0">
             <div
-              class="relative w-16 h-16 rounded-full border-2 transition-all duration-500 portrait-container"
-              style="border-color: #00CED1; box-shadow: 0 0 12px rgba(0, 206, 209, 0.4);"
+              class="relative w-16 h-16 rounded-full border-2 transition-all duration-500 portrait-container border-cyber-blue"
+              style="box-shadow: 0 0 12px rgba(0, 206, 209, 0.4);"
             >
               <img
                 id="amina-portrait"
@@ -145,7 +145,7 @@ export const AminaStatusCard: FC = () => {
           }
 
           .font-dialogue {
-            font-family: var(--font-family-dialogue);
+            font-family: var(--font-dialogue);
           }
         `}
       </style>

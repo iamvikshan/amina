@@ -6,6 +6,6 @@
  * import { authGuard, errorHandler } from '@/middleware';
  */
 
-export { authGuard, attachUser } from './auth';
+export { authGuard, attachSession } from './auth';
 export { errorHandler, notFoundHandler } from './error';
 export { cacheStatic, cacheAPI, noCache } from './cache';

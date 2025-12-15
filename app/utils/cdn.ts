@@ -11,6 +11,22 @@
 // Cloudflare R2 CDN via custom domain (public read-only)
 export const CDN_BASE_URL = 'https://stuff.vikshan.me';
 
+// Discord CDN helpers
+export function getGuildIconUrl(guildId: string, icon: string | null): string {
+  if (icon) {
+    return `https://cdn.discordapp.com/icons/${guildId}/${icon}.png`;
+  }
+  return '';
+}
+
+export function getAvatarUrl(userId: string, avatar: string | null): string {
+  if (avatar) {
+    return `https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`;
+  }
+  // Default avatar
+  return `https://cdn.discordapp.com/embed/avatars/0.png`;
+}
+
 /**
  * Get CDN URL for an image
  * @param path - Path relative to amina folder (e.g., 'portraits/portrait-error.png')

@@ -4,6 +4,6 @@
 import { createClient } from 'honox/client';
 
 // Import global CSS - this gets processed by Vite/PostCSS (Tailwind v4)
-import './assets/styles/global.css';
+import '@styles/global.css';
 
 createClient();

@@ -28,10 +28,10 @@ export function getCanonical(path = ''): string {
  * Get the Discord OAuth redirect URL
  * Uses the site URL from config, no environment variables needed
  * @returns Full OAuth callback URL
- * @example getOAuthRedirect() → 'https://4mina.app/auth/callback'
+ * @example getOAuthRedirect() → 'https://4mina.app/api/auth/callback'
  */
 export function getOAuthRedirect(): string {
-  return getCanonical('auth/callback');
+  return getCanonical('api/auth/callback');
 }
 
 /**

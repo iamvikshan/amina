@@ -77,23 +77,34 @@ _Based on Amina's character story and inspired by Akame ga Kill's dramatic aesth
 
 ```css
 :root {
-  /* Headings - Sharp, Energetic (Anime Title Vibes) */
-  --font-heading: 'Rajdhani', 'Orbitron', 'Space Grotesk', sans-serif;
-  /* Bold, modern, tech-inspired but readable */
+  /* Headings - Bold, Energetic, Tactical */
+  --font-heading: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
+  /* Futuristic, dynamic, sharp angles with energy - matches Amina's confident warrior personality */
+  /* Weights: 600-900 for varying emphasis levels */
 
-  /* Body - Clean, Friendly */
-  --font-body: 'Inter', 'Poppins', sans-serif;
-  /* Modern, professional, excellent readability */
+  /* Body - Warm, Readable, Professional */
+  --font-body: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Rounded terminals add warmth while maintaining professionalism - protective guardian who cares */
+  /* Weights: 400-700 for hierarchy */
 
-  /* Character Dialogue - Personality */
-  --font-dialogue: 'Quicksand', 'Comfortaa', cursive;
-  /* Soft, friendly, distinguishes Amina's voice */
+  /* Character Dialogue - Friendly, Confident */
+  --font-dialogue: Comfortaa, ui-sans-serif, system-ui, sans-serif;
+  /* Rounded but structured - balance of warmth and strength, mature confidence */
+  /* Weights: 400-700 for expressiveness */
 
   /* Code/Monospace - Technical */
-  --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
-  /* For command displays, IDs, technical info */
+  --font-mono: 'Fira Code', ui-monospace, monospace;
+  /* For command displays, IDs, technical info - unchanged, perfect for utility */
 }
 ```
+
+**Font Selection Rationale:**
+
+These fonts were chosen to match Amina's character: a passionate, energetic 18-20 year old warrior who's both protective and approachable. The previous fonts (Rajdhani, Inter, Quicksand) felt too corporate/sterile or childish.
+
+- **Exo 2**: Replaces Rajdhani - angular geometry creates action/movement, matches gaming UI aesthetic and digital guardian theme
+- **Nunito Sans**: Replaces Inter - adds warmth through rounded terminals while staying professional, reflects caring protector personality
+- **Comfortaa**: Replaces Quicksand - maintains friendliness but with more confidence and maturity, distinguishes character voice without being childish
 
 ### Typography Scale
 

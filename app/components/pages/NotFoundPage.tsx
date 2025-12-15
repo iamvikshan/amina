@@ -15,8 +15,12 @@ export const NotFoundPage: FC<NotFoundPageProps> = ({
 }) => {
   const particlesScript =
     `
-    // Create error particles
+    // Create error particles using CSS variables for colors
     const container = document.querySelector('.error-particles');
+    const rootStyles = getComputedStyle(document.documentElement);
+    const crimson = rootStyles.getPropertyValue('--amina-crimson').trim() || '#DC143C';
+    const cyberBlue = rootStyles.getPropertyValue('--cyber-blue').trim() || '#00CED1';
+    
     if (container) {
       for (let i = 0; i < 25; i++) {
         const particle = document.createElement('div');
@@ -26,7 +30,7 @@ export const NotFoundPage: FC<NotFoundPageProps> = ({
           position: absolute;
           width: ${Math.random() * 3 + 1}px;
           height: ${Math.random() * 3 + 1}px;
-          background: ${Math.random() > 0.5 ? '#DC143C' : '#00CED1'};
+          background: ${Math.random() > 0.5 ? '${crimson}' : '${cyberBlue}'};
           border-radius: 50%;
           left: ${Math.random() * 100}%;
           top: ${Math.random() * 100}%;
@@ -64,7 +68,7 @@ export const NotFoundPage: FC<NotFoundPageProps> = ({
 
   return (
     <BaseLayout title={title}>
-      <section class="relative overflow-hidden bg-gradient-to-b from-night-black via-night-shadow to-night-black min-h-svh flex items-center">
+      <section class="relative overflow-hidden bg-linear-to-b from-night-black via-night-shadow to-night-black min-h-svh flex items-center">
         <div class="absolute inset-0">
           <div class='absolute inset-0 bg-[url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwQ0VEMSIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=")] opacity-30' />
 
@@ -101,7 +105,7 @@ export const NotFoundPage: FC<NotFoundPageProps> = ({
               <div class="space-y-4">
                 <h2 class="text-4xl lg:text-5xl font-heading font-bold text-white">
                   Oops,{' '}
-                  <span class="bg-gradient-to-r from-amina-crimson to-cyber-blue bg-clip-text text-transparent">
+                  <span class="bg-linear-to-r from-amina-crimson to-cyber-blue bg-clip-text text-transparent">
                     you broke it!
                   </span>
                 </h2>
@@ -124,7 +128,7 @@ export const NotFoundPage: FC<NotFoundPageProps> = ({
 
             <div class="flex justify-center lg:justify-end">
               <div class="relative group">
-                <div class="absolute inset-0 bg-gradient-to-t from-amina-crimson/30 via-transparent to-transparent blur-3xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-700" />
+                <div class="absolute inset-0 bg-linear-to-t from-amina-crimson/30 via-transparent to-transparent blur-3xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-700" />
 
                 <div class="relative">
                   <img

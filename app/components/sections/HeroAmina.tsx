@@ -104,12 +104,17 @@ export const HeroAmina: FC<HeroAminaProps> = ({
         const duration = Math.random() * 20 + 10;
         const delay = Math.random() * 5;
 
+        // Get theme colors from CSS variables
+        const rootStyles = getComputedStyle(document.documentElement);
+        const cyberBlue = rootStyles.getPropertyValue('--cyber-blue').trim() || '#00CED1';
+        const crimson = rootStyles.getPropertyValue('--amina-crimson').trim() || '#DC143C';
+        
         particle.style.cssText =
           'position: absolute;' +
           'width: ' + size + 'px;' +
           'height: ' + size + 'px;' +
           'background: ' +
-            (Math.random() > 0.5 ? '#00CED1' : '#DC143C') +
+            (Math.random() > 0.5 ? cyberBlue : crimson) +
             ';' +
           'border-radius: 50%;' +
           'left: ' + x + '%;' +
@@ -147,7 +152,7 @@ export const HeroAmina: FC<HeroAminaProps> = ({
   return (
     <>
       <section
-        class="relative overflow-hidden bg-gradient-to-b from-night-black via-night-shadow to-night-black py-20 md:py-32"
+        class="relative overflow-hidden bg-linear-to-b from-night-black via-night-shadow to-night-black py-20 md:py-32"
         id="hero"
       >
         <div class="absolute inset-0 overflow-hidden opacity-30">
@@ -174,7 +179,7 @@ export const HeroAmina: FC<HeroAminaProps> = ({
                     </sup>{' '}
                     with{' '}
                   </span>
-                  <span class="bg-gradient-to-r from-amina-crimson via-rose-red to-amina-crimson bg-clip-text text-transparent animate-gradient-x">
+                  <span class="bg-linear-to-r from-amina-crimson via-rose-red to-amina-crimson bg-clip-text text-transparent animate-gradient-x">
                     Amina
                   </span>
                 </h1>
@@ -238,7 +243,7 @@ export const HeroAmina: FC<HeroAminaProps> = ({
 
             <div class="relative lg:block hidden">
               <div class="relative hero-character">
-                <div class="absolute inset-0 rounded-full bg-gradient-to-r from-cyber-blue/20 to-amina-crimson/20 blur-2xl animate-spin-slow"></div>
+                <div class="absolute inset-0 rounded-full bg-linear-to-r from-cyber-blue/20 to-amina-crimson/20 blur-2xl animate-spin-slow"></div>
 
                 <div class="relative z-10">
                   <img

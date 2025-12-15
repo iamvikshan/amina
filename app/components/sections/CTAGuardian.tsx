@@ -127,7 +127,7 @@ export const CTAGuardian: FC<CTAGuardianProps> = ({ ping, status }) => {
 
   return (
     <>
-      <section class="py-20 md:py-32 bg-gradient-to-b from-night-shadow via-night-steel/30 to-night-shadow relative overflow-hidden">
+      <section class="py-20 md:py-32 bg-linear-to-b from-night-shadow via-night-steel/30 to-night-shadow relative overflow-hidden">
         <div class="absolute inset-0">
           <div class="absolute inset-0 bg-gradient-radial from-amina-crimson/20 via-transparent to-transparent" />
 
@@ -140,7 +140,7 @@ export const CTAGuardian: FC<CTAGuardianProps> = ({ ping, status }) => {
           <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             <div class="flex-1 flex justify-center lg:justify-end">
               <div class="relative group">
-                <div class="absolute inset-0 bg-gradient-to-t from-amina-crimson/30 via-cyber-blue/20 to-transparent blur-3xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-700" />
+                <div class="absolute inset-0 bg-linear-to-t from-amina-crimson/30 via-cyber-blue/20 to-transparent blur-3xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-700" />
 
                 <div class="relative">
                   <img
@@ -185,7 +185,7 @@ export const CTAGuardian: FC<CTAGuardianProps> = ({ ping, status }) => {
               <div class="space-y-4">
                 <h2 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight">
                   Your Realm Needs a{' '}
-                  <span class="bg-gradient-to-r from-amina-crimson via-rose-red to-imperial-gold bg-clip-text text-transparent">
+                  <span class="bg-linear-to-r from-amina-crimson via-rose-red to-imperial-gold bg-clip-text text-transparent">
                     Guardian
                   </span>
                 </h2>
@@ -205,7 +205,7 @@ export const CTAGuardian: FC<CTAGuardianProps> = ({ ping, status }) => {
                   '24/7 automated protection',
                 ].map((feature) => (
                   <div class="flex items-center gap-3 text-gray-300">
-                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <div class="shrink-0 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
                       <svg
                         class="w-4 h-4 text-green-500"
                         fill="currentColor"
@@ -226,7 +226,7 @@ export const CTAGuardian: FC<CTAGuardianProps> = ({ ping, status }) => {
               <div class="flex flex-col sm:flex-row items-center gap-4 pt-4">
                 <a
                   href={inviteUrl}
-                  class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-amina-crimson to-rose-red text-white rounded-xl font-heading font-bold text-lg hover:scale-105 hover:shadow-glow-red transition-all duration-300"
+                  class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 bg-linear-to-r from-amina-crimson to-rose-red text-white rounded-xl font-heading font-bold text-lg hover:scale-105 hover:shadow-glow-red transition-all duration-300"
                 >
                   <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z" />

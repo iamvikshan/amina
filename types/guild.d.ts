@@ -1,5 +1,4 @@
 // Database Guild Types
-import type { Document } from 'mongoose';
 
 export type AutomodAction = 'TIMEOUT' | 'KICK' | 'BAN';
 
@@ -109,7 +108,7 @@ export interface IGuildSuggestions {
   rejected_channel?: string;
 }
 
-export interface IGuild extends Document {
+export interface IGuild {
   name: any;
   approximate_member_count: any;
   owner: any;

@@ -12,7 +12,7 @@ import { RankShowcase } from '@components/sections/RankShowcase';
 import { GuardianTestimonials } from '@components/sections/GuardianTestimonials';
 import { BattleStats } from '@components/sections/BattleStats';
 import { CTAGuardian } from '@components/sections/CTAGuardian';
-import { getBotStats } from '@lib/bot-stats';
+import { getBotStats } from '@/lib/botStats';
 import { getUptimeStats } from '@lib/uptime';
 
 export default createRoute(async (c) => {

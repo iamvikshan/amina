@@ -13,13 +13,15 @@ interface Rank {
   kaomoji: string;
 }
 
+// Note: These colors match CSS variables --rank-* defined in global.css
+// Using hex values here as they're needed for inline JS styles
 const ranks: Rank[] = [
   {
     id: 1,
     name: 'Recruit',
     badge: ImagePaths.badges.recruit,
     requirement: '1 Realm',
-    color: '#808080',
+    color: '#808080', // --rank-recruit
     glowColor: 'rgba(128, 128, 128, 0.5)',
     description: 'Begin your guardian journey',
     kaomoji: '( •̀ω•́ )σ',
@@ -29,7 +31,7 @@ const ranks: Rank[] = [
     name: 'Scout',
     badge: ImagePaths.badges.scout,
     requirement: '2 Realms',
-    color: '#00CED1',
+    color: '#00CED1', // --rank-scout / --cyber-blue
     glowColor: 'rgba(0, 206, 209, 0.5)',
     description: 'Proven across multiple realms',
     kaomoji: '(๑•̀ㅂ•́)و',
@@ -39,7 +41,7 @@ const ranks: Rank[] = [
     name: 'Guard',
     badge: ImagePaths.badges.guard,
     requirement: '5 Realms',
-    color: '#4169E1',
+    color: '#4169E1', // --rank-guard
     glowColor: 'rgba(65, 105, 225, 0.5)',
     description: 'Defender of communities',
     kaomoji: '(｀･ω･´)',
@@ -49,7 +51,7 @@ const ranks: Rank[] = [
     name: 'Elite',
     badge: ImagePaths.badges.elite,
     requirement: '10 Realms',
-    color: '#9370DB',
+    color: '#9370DB', // --rank-elite
     glowColor: 'rgba(147, 112, 219, 0.5)',
     description: 'Master of coordination',
     kaomoji: '(☆▽☆)',
@@ -59,7 +61,7 @@ const ranks: Rank[] = [
     name: 'Commander',
     badge: ImagePaths.badges.commander,
     requirement: '15 Realms',
-    color: '#FFD700',
+    color: '#FFD700', // --rank-commander / --imperial-gold
     glowColor: 'rgba(255, 215, 0, 0.5)',
     description: 'Elite guardian leader',
     kaomoji: '(≧▽≦)',
@@ -69,7 +71,7 @@ const ranks: Rank[] = [
     name: 'Legend',
     badge: ImagePaths.badges.legend,
     requirement: '20+ Realms',
-    color: '#DC143C',
+    color: '#DC143C', // --rank-legend / --amina-crimson
     glowColor: 'rgba(220, 20, 60, 0.5)',
     description: 'Immortalized in guardian lore',
     kaomoji: '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧',
@@ -184,7 +186,7 @@ export const RankShowcase: FC = () => {
 
             <h2 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
               Rise Through the{' '}
-              <span class="bg-gradient-to-r from-imperial-gold via-amina-crimson to-cyber-blue bg-clip-text text-transparent">
+              <span class="bg-linear-to-r from-imperial-gold via-amina-crimson to-cyber-blue bg-clip-text text-transparent">
                 Ranks
               </span>
             </h2>
@@ -197,18 +199,18 @@ export const RankShowcase: FC = () => {
 
           <div class="relative">
             <div class="hidden lg:block absolute top-1/2 left-0 right-0 h-2 transform -translate-y-1/2">
-              <div class="h-full bg-gradient-to-r from-gray-600 via-purple-500 to-amina-crimson rounded-full opacity-30"></div>
+              <div class="h-full bg-linear-to-r from-gray-600 via-purple-500 to-amina-crimson rounded-full opacity-30"></div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-4">
               {ranks.map((rank, index) => (
                 <div class="rank-card group relative" data-rank={rank.id}>
                   <div
-                    class="relative bg-gradient-to-br from-night-steel/80 to-night-shadow/80 backdrop-blur-md border-2 border-gray-700/50 rounded-2xl p-6 transition-all duration-500 hover:border-[var(--rank-color)] hover:scale-110 hover:-translate-y-4 hover:shadow-glow"
+                    class="relative bg-linear-to-br from-night-steel/80 to-night-shadow/80 backdrop-blur-md border-2 border-gray-700/50 rounded-2xl p-6 transition-all duration-500 hover:border-(--rank-color) hover:scale-110 hover:-translate-y-4 hover:shadow-glow"
                     style={`--rank-color: ${rank.color}; --rank-glow: ${rank.glowColor};`}
                   >
-                    <div class="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-gradient-to-br from-night-steel to-night-shadow border-2 border-gray-700 flex items-center justify-center">
-                      <span class="text-xs font-bold text-gray-400 group-hover:text-[var(--rank-color)] transition-colors duration-300">
+                    <div class="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-linear-to-br from-night-steel to-night-shadow border-2 border-gray-700 flex items-center justify-center">
+                      <span class="text-xs font-bold text-gray-400 group-hover:text-(--rank-color) transition-colors duration-300">
                         {rank.id}
                       </span>
                     </div>
@@ -234,17 +236,17 @@ export const RankShowcase: FC = () => {
                     </div>
 
                     <div class="text-center space-y-2">
-                      <h3 class="text-xl font-heading font-bold text-gray-300 group-hover:text-[var(--rank-color)] transition-colors duration-300">
+                      <h3 class="text-xl font-heading font-bold text-gray-300 group-hover:text-(--rank-color) transition-colors duration-300">
                         {rank.name}
                       </h3>
 
-                      <p class="text-xs text-gray-400 leading-relaxed min-h-[2.5rem]">
+                      <p class="text-xs text-gray-400 leading-relaxed min-h-10">
                         {rank.description}
                       </p>
 
-                      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-night-shadow/80 border border-gray-700/50 group-hover:border-[var(--rank-color)] transition-colors duration-300">
+                      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-night-shadow/80 border border-gray-700/50 group-hover:border-(--rank-color) transition-colors duration-300">
                         <svg
-                          class="w-3 h-3 text-gray-400 group-hover:text-[var(--rank-color)] transition-colors duration-300"
+                          class="w-3 h-3 text-gray-400 group-hover:text-(--rank-color) transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -256,14 +258,14 @@ export const RankShowcase: FC = () => {
                             d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        <span class="text-xs font-mono text-gray-400 group-hover:text-[var(--rank-color)] transition-colors duration-300">
+                        <span class="text-xs font-mono text-gray-400 group-hover:text-(--rank-color) transition-colors duration-300">
                           {rank.requirement}
                         </span>
                       </div>
                     </div>
 
                     {index < ranks.length - 1 ? (
-                      <div class="hidden lg:block absolute top-1/2 -right-2 w-4 h-0.5 bg-gradient-to-r from-[var(--rank-color)] to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div class="hidden lg:block absolute top-1/2 -right-2 w-4 h-0.5 bg-linear-to-r from-(--rank-color) to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
                     ) : null}
                   </div>
                 </div>
@@ -272,7 +274,7 @@ export const RankShowcase: FC = () => {
           </div>
 
           <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center p-6 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-xl">
+            <div class="text-center p-6 bg-linear-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-cyber-blue/30 rounded-xl">
               <div class="flex justify-center mb-2">
                 <LucideIcon name="trophy" class="text-cyber-blue" size={40} />
               </div>
@@ -282,7 +284,7 @@ export const RankShowcase: FC = () => {
               <p class="text-gray-400 text-sm">Unique progression tiers</p>
             </div>
 
-            <div class="text-center p-6 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-imperial-gold/30 rounded-xl">
+            <div class="text-center p-6 bg-linear-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-imperial-gold/30 rounded-xl">
               <div class="flex justify-center mb-2">
                 <LucideIcon
                   name="sparkles"
@@ -296,7 +298,7 @@ export const RankShowcase: FC = () => {
               <p class="text-gray-400 text-sm">Hand-crafted badge designs</p>
             </div>
 
-            <div class="text-center p-6 bg-gradient-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-amina-crimson/30 rounded-xl">
+            <div class="text-center p-6 bg-linear-to-br from-night-steel/50 to-night-shadow/50 backdrop-blur-md border border-amina-crimson/30 rounded-xl">
               <div class="flex justify-center mb-2">
                 <LucideIcon name="award" class="text-amina-crimson" size={40} />
               </div>
@@ -314,7 +316,7 @@ export const RankShowcase: FC = () => {
             </p>
             <a
               href="/dash"
-              class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyber-blue to-imperial-gold text-night-shadow rounded-xl font-heading font-bold hover:scale-105 hover:shadow-glow-blue transition-all duration-300"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-cyber-blue to-imperial-gold text-night-shadow rounded-xl font-heading font-bold hover:scale-105 hover:shadow-glow-blue transition-all duration-300"
             >
               <svg
                 class="w-5 h-5"

@@ -2,7 +2,7 @@ import type { FC } from 'hono/jsx';
 import { ThemeIcon } from '@components/ThemeIcon';
 import { BrandLogo } from '@components/BrandLogo';
 import { LoginBtn } from '@components/ui/buttons/LoginBtn';
-import { getAvatarUrl } from '@lib/data-utils';
+import { getAvatarUrl } from '@/lib/data';
 import type { DiscordUser } from '@types';
 
 interface HeaderProps {
@@ -28,7 +28,7 @@ export const Header: FC<HeaderProps> = ({
         { name: 'Docs', url: 'https://docs.4mina.app', target: '_blank' },
       ];
 
-  const avatarUrl = userData ? getAvatarUrl(userData) : '';
+  const avatarUrl = userData ? getAvatarUrl(userData.id, userData.avatar) : '';
   const rankText =
     guardianRankLabel ||
     (typeof managedGuildsCount === 'number'
@@ -218,7 +218,7 @@ export const Header: FC<HeaderProps> = ({
           }
 
           nav a[aria-current='page'] {
-            color: #dc143c;
+            color: var(--amina-crimson);
             position: relative;
           }
 
@@ -229,7 +229,7 @@ export const Header: FC<HeaderProps> = ({
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, #dc143c 0%, #e63946 100%);
+            background: linear-gradient(90deg, var(--amina-crimson) 0%, var(--rose-red) 100%);
             box-shadow: 0 0 8px rgba(220, 20, 60, 0.6);
           }
 
@@ -271,7 +271,7 @@ export const Header: FC<HeaderProps> = ({
 
           #navbar-mobile-menu nav a:hover {
             transform: translateX(4px);
-            border-left: 2px solid #dc143c;
+            border-left: 2px solid var(--amina-crimson);
             padding-left: 1rem;
           }
         `}

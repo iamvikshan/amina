@@ -1,4 +1,5 @@
-import '@styles/lenis.css';
+// Lenis CSS is imported via global.css or BaseLayout
+// No separate CSS import needed here
 
 import Lenis from 'lenis';
 

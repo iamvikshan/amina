@@ -1,5 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap');
 @import 'tailwindcss' source('../..');
+@import './lenis.css';
 
 /* Amina Dashboard - Global Styles */
 /* Based on Akame ga Kill color palette and hybrid design approach */
@@ -29,12 +30,19 @@
   --color-discord-red: #ed4245;
   --color-discord-gray: #36393f;
 
+  /* === GUARDIAN RANK COLORS === */
+  --color-rank-recruit: #808080;
+  --color-rank-scout: #00ced1;
+  --color-rank-guard: #4169e1;
+  --color-rank-elite: #9370db;
+  --color-rank-commander: #ffd700;
+  --color-rank-legend: #dc143c;
+
   /* === FONT FAMILIES === */
-  --font-family-heading:
-    Rajdhani, ui-sans-serif, system-ui, sans-serif;
-  --font-family-body: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-family-dialogue: Quicksand, cursive, system-ui;
-  --font-family-mono: 'Fira Code', ui-monospace, monospace;
+  --font-heading: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-dialogue: Comfortaa, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, monospace;
 
   /* === BOX SHADOWS === */
   --shadow-glow-crimson: 0 0 20px rgba(220, 20, 60, 0.6);
@@ -98,6 +106,14 @@
   --discord-red: #ed4245;
   --discord-gray: #36393f;
 
+  /* === GUARDIAN RANK COLORS === */
+  --rank-recruit: #808080;
+  --rank-scout: #00ced1;
+  --rank-guard: #4169e1;
+  --rank-elite: #9370db;
+  --rank-commander: #ffd700;
+  --rank-legend: #dc143c;
+
   /* === NEUTRAL/UTILITY === */
   --pure-white: #ffffff;
   --off-white: #f5f5f5;
@@ -129,7 +145,7 @@
 
 /* Base Styles - Tailwind v4 handles resets, only add enhancements */
 body {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-body);
   background-color: var(--midnight-black);
   color: var(--pure-white);
   -webkit-font-smoothing: antialiased;
@@ -138,14 +154,14 @@ body {
 
 /* Typography Classes */
 .text-heading {
-  font-family: Rajdhani, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .text-dialogue {
-  font-family: Quicksand, cursive, system-ui;
+  font-family: var(--font-dialogue);
   font-weight: 500;
 }
 
@@ -284,7 +300,7 @@ textarea {
   border: 2px solid var(--cyber-blue);
   border-radius: 12px;
   padding: 1rem;
-  font-family: 'Quicksand', cursive;
+  font-family: var(--font-dialogue);
   color: var(--cyber-blue);
   box-shadow: var(--shadow-md), var(--glow-blue);
   max-width: 300px;
@@ -312,7 +328,7 @@ textarea {
   color: var(--pure-white);
   border: 2px solid transparent;
   padding: 0.75rem 1.5rem;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 1rem;
   text-transform: uppercase;
@@ -343,7 +359,7 @@ textarea {
   color: var(--electric-blue);
   border: 2px solid var(--electric-blue);
   padding: 0.75rem 1.5rem;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 1rem;
   text-transform: uppercase;
@@ -395,7 +411,7 @@ textarea {
   );
   color: var(--midnight-black);
   border-radius: 12px;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-heading);
   font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;

@@ -20,13 +20,15 @@ interface GuardianTestimonialsProps {
   uptime: number;
 }
 
+// Note: rankColor values match CSS variables --rank-* defined in global.css
+// Using hex values here as they're needed for inline JS styles
 const testimonials: Testimonial[] = [
   {
     name: 'Alex Rivera',
     role: 'Community Manager',
     rank: 'Legend',
     rankBadge: ImagePaths.badges.legend,
-    rankColor: '#DC143C',
+    rankColor: '#DC143C', // --rank-legend
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
     quote:
       "Amina transformed our 50k member server. Moderation is seamless, engagement tripled, and I finally get sleep. Best bot decision we've ever made.",
@@ -39,7 +41,7 @@ const testimonials: Testimonial[] = [
     role: 'Server Owner',
     rank: 'Commander',
     rankBadge: ImagePaths.badges.commander,
-    rankColor: '#FFD700',
+    rankColor: '#FFD700', // --rank-commander
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
     quote:
       'The custom commands and automated workflows saved us hundreds of hours. Amina feels like having a full mod team working 24/7.',
@@ -52,7 +54,7 @@ const testimonials: Testimonial[] = [
     role: 'Discord Admin',
     rank: 'Guard',
     rankBadge: ImagePaths.badges.guard,
-    rankColor: '#4169E1',
+    rankColor: '#4169E1', // --rank-guard
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus',
     quote:
       'Setup took 2 minutes. Within a week, our server activity doubled. The analytics dashboard is a game-changer for understanding our community.',
@@ -65,7 +67,7 @@ const testimonials: Testimonial[] = [
     role: 'Esports Coordinator',
     rank: 'Elite',
     rankBadge: ImagePaths.badges.elite,
-    rankColor: '#9370DB',
+    rankColor: '#9370DB', // --rank-elite
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
     quote:
       'Tournament automation with Amina is incredible. Bracket management, role assignments, and notifications all happen automatically.',
@@ -78,7 +80,7 @@ const testimonials: Testimonial[] = [
     role: 'Content Creator',
     rank: 'Scout',
     rankBadge: ImagePaths.badges.scout,
-    rankColor: '#00CED1',
+    rankColor: '#00CED1', // --rank-scout
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David',
     quote:
       "As a streamer, Amina's Twitch integration and subscriber perks system are perfect. My community loves the automated rewards.",
@@ -91,7 +93,7 @@ const testimonials: Testimonial[] = [
     role: 'Education Lead',
     rank: 'Elite',
     rankBadge: ImagePaths.badges.elite,
-    rankColor: '#9370DB',
+    rankColor: '#9370DB', // --rank-elite
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
     quote:
       'Running a study server with Amina is effortless. Study room management, timer commands, and focus mode features are brilliant.',
@@ -162,7 +164,7 @@ export const GuardianTestimonials: FC<GuardianTestimonialsProps> = ({
 
   return (
     <>
-      <section class="py-20 md:py-32 bg-gradient-to-b from-night-shadow via-night-steel/20 to-night-shadow relative overflow-hidden">
+      <section class="py-20 md:py-32 bg-linear-to-b from-night-shadow via-night-steel/20 to-night-shadow relative overflow-hidden">
         <div class="absolute inset-0 overflow-hidden">
           <div class="absolute top-20 left-10 w-96 h-96 bg-cyber-blue/10 rounded-full blur-3xl" />
           <div class="absolute bottom-20 right-10 w-96 h-96 bg-amina-crimson/10 rounded-full blur-3xl" />
@@ -180,7 +182,7 @@ export const GuardianTestimonials: FC<GuardianTestimonialsProps> = ({
             <h2 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white">
               Trusted by{' '}
               <span
-                class="bg-gradient-to-r from-cyber-blue via-imperial-gold to-amina-crimson bg-clip-text text-transparent"
+                class="bg-linear-to-r from-cyber-blue via-imperial-gold to-amina-crimson bg-clip-text text-transparent"
                 data-stat="guilds-formatted"
               >
                 {formattedGuildCount} Realms
@@ -196,7 +198,7 @@ export const GuardianTestimonials: FC<GuardianTestimonialsProps> = ({
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((testimonial, index) => (
               <div
-                class="testimonial-card group relative bg-gradient-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-gray-700/50 rounded-2xl p-6 transition-all duration-500 hover:border-[var(--rank-color)] hover:scale-105 hover:shadow-glow"
+                class="testimonial-card group relative bg-linear-to-br from-night-steel/70 to-night-shadow/70 backdrop-blur-md border-2 border-gray-700/50 rounded-2xl p-6 transition-all duration-500 hover:border-(--rank-color) hover:scale-105 hover:shadow-glow"
                 style={`--rank-color: ${testimonial.rankColor};`}
                 data-index={index}
               >
@@ -209,14 +211,14 @@ export const GuardianTestimonials: FC<GuardianTestimonialsProps> = ({
                     <img
                       src={testimonial.avatar}
                       alt={testimonial.name}
-                      class="w-16 h-16 rounded-full border-2 border-gray-700 group-hover:border-[var(--rank-color)] transition-colors duration-300"
+                      class="w-16 h-16 rounded-full border-2 border-gray-700 group-hover:border-(--rank-color) transition-colors duration-300"
                     />
                     <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-night-shadow" />
                   </div>
 
                   <div class="flex-1">
                     <div class="flex items-center gap-2 mb-1">
-                      <h3 class="text-lg font-heading font-bold text-white group-hover:text-[var(--rank-color)] transition-colors duration-300">
+                      <h3 class="text-lg font-heading font-bold text-white group-hover:text-(--rank-color) transition-colors duration-300">
                         {testimonial.name}
                       </h3>
                       <span class="text-lg">{testimonial.kaomoji}</span>
@@ -248,7 +250,7 @@ export const GuardianTestimonials: FC<GuardianTestimonialsProps> = ({
                       alt={`${testimonial.rank} Badge`}
                       class="relative w-12 h-12 pixelated transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12"
                     />
-                    <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-night-shadow border border-[var(--rank-color)] rounded text-xs font-mono text-[var(--rank-color)] whitespace-nowrap opacity-0 group-hover/badge:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-night-shadow border border-(--rank-color) rounded text-xs font-mono text-(--rank-color) whitespace-nowrap opacity-0 group-hover/badge:opacity-100 transition-opacity duration-300 pointer-events-none">
                       {testimonial.rank}
                     </div>
                   </div>
@@ -279,7 +281,7 @@ export const GuardianTestimonials: FC<GuardianTestimonialsProps> = ({
                   </div>
                 </div>
 
-                <div class="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-[var(--rank-color)]/30 group-hover:border-[var(--rank-color)] transition-colors duration-300" />
+                <div class="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-(--rank-color)/30 group-hover:border-(--rank-color) transition-colors duration-300" />
               </div>
             ))}
           </div>

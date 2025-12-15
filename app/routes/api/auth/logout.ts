@@ -1,58 +1,26 @@
-import type { Context } from 'hono';
-import { env } from '@config/env';
-import { clearAuthCookies, getAuthCookies } from '@lib/cookie-utils';
-import { createRoute } from 'honox/factory';
+/**
+ * Logout Endpoint
+ * Route: GET /api/auth/logout
+ * Clears session and redirects to home
+ */
 
-export const POST = createRoute(async (c: Context) => {
-  try {
-    // Get the access token before clearing cookies
-    const { accessToken } = getAuthCookies(c);
+import { Hono } from 'hono';
+import { sessionUtils } from '@lib/cookie-utils';
 
-    // Clear all auth cookies
-    clearAuthCookies(c);
+const app = new Hono();
 
-    // Revoke Discord OAuth2 token if it exists
-    if (accessToken) {
-      try {
-        const response = await fetch(
-          'https://discord.com/api/oauth2/token/revoke',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-              token: accessToken,
-              client_id: env.CLIENT_ID,
-              client_secret: env.CLIENT_SECRET,
-            }),
-          }
-        );
+app.get('/', async (c) => {
+  // TODO: Optionally revoke Discord token
+  // const session = sessionUtils.getSession(c);
+  // if (session?.accessToken) {
+  //   await discordAuth.revokeToken(session.accessToken);
+  // }
 
-        if (!response.ok) {
-          console.error(
-            'Failed to revoke Discord token:',
-            await response.text()
-          );
-        }
-      } catch (error) {
-        console.error('Error revoking Discord token:', error);
-        // Continue with logout even if token revocation fails
-      }
-    }
+  // Clear session cookie
+  sessionUtils.clearSession(c);
 
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: '/',
-        'Clear-Site-Data': '"cookies", "storage"',
-      },
-    });
-  } catch (error) {
-    console.error('Error during logout:', error);
-    return new Response(JSON.stringify({ error: 'Logout failed' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  // Redirect to home
+  return c.redirect('/');
 });
 
-export const GET = createRoute((c: Context) => c.redirect('/'));
+export default app;

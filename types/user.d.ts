@@ -1,5 +1,4 @@
 // Database User Types
-import type { Document } from 'mongoose';
 
 export interface IUserFlag {
   reason: string;
@@ -30,7 +29,7 @@ export interface IUserProfile {
   createdAt: Date;
 }
 
-export interface IUser extends Document {
+export interface IUser {
   _id: string;
   username: string;
   global_name: string;

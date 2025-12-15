@@ -7,10 +7,10 @@ export default defineConfig({
     'process.env': 'process.env',
   },
   ssr: {
-    // Prevent Vite's SSR runner from inlining/transpiling mongoose.
-    // When inlined, mongoose's CommonJS `require(...)` calls can execute
-    // in an ESM sandbox where `require` is undefined, crashing SSR.
-    external: ['mongoose'],
+    // Prevent Vite's SSR runner from inlining/transpiling mongodb.
+    // When inlined, mongodb's CommonJS entry can run in an ESM sandbox where
+    // `exports` is undefined, crashing SSR.
+    external: ['mongodb'],
   },
   plugins: [
     honox({
@@ -24,7 +24,7 @@ export default defineConfig({
     build(),
   ],
   server: {
-    port: 5173,
+    port: 4321,
   },
   resolve: {
     alias: {
@@ -34,6 +34,7 @@ export default defineConfig({
       '@utils': '/app/utils',
       '@config': '/app/config',
       '@components': '/app/components',
+      '@styles': '/app/assets/styles',
     },
   },
 });

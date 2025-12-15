@@ -1,4 +1,4 @@
-import { getBotStats } from '@lib/bot-stats';
+import { getBotStats } from '@/lib/botStats';
 import { getUptimeStats } from '@lib/uptime';
 import type { Context } from 'hono';
 import { createRoute } from 'honox/factory';
