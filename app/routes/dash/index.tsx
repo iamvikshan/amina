@@ -4,6 +4,7 @@
  */
 
 import { createRoute } from 'honox/factory';
+import { BaseLayout } from '@components/layouts/BaseLayout';
 import { AppLayout } from '@/components/dashboard/layouts/AppLayout';
 import { Sidebar } from '@/components/dashboard/layouts/Sidebar';
 import { Navbar } from '@/components/dashboard/layouts/Navbar';
@@ -85,32 +86,34 @@ export default createRoute(async (c) => {
   }
 
   return c.render(
-    <AppLayout sidebar={<Sidebar sections={sidebarSections} />}>
-      <div class="bg-night-shadow/50 border-b border-night-slate">
-        <Navbar breadcrumbs={breadcrumbs} />
-      </div>
-
-      <div class="max-w-7xl mx-auto p-6 md:p-8">
-        <div class="mb-8">
-          <h1 class="text-3xl font-heading font-bold text-pure-white mb-2">
-            Your Servers
-          </h1>
-          <p class="text-gray-400">
-            Select a server to manage Amina's features and settings
-          </p>
+    <BaseLayout title="Your Servers - Amina Dashboard">
+      <AppLayout sidebar={<Sidebar sections={sidebarSections} />}>
+        <div class="bg-night-shadow/50 border-b border-night-slate">
+          <Navbar breadcrumbs={breadcrumbs} />
         </div>
 
-        {guilds.length > 0 ? (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {guilds.map((guild: any) => (
-              <GuildCard key={guild.id} guild={guild} />
-            ))}
+        <div class="max-w-7xl mx-auto p-6 md:p-8">
+          <div class="mb-8">
+            <h1 class="text-3xl font-heading font-bold text-pure-white mb-2">
+              Your Servers
+            </h1>
+            <p class="text-gray-400">
+              Select a server to manage Amina's features and settings
+            </p>
           </div>
-        ) : (
-          <EmptyState />
-        )}
-      </div>
-    </AppLayout>
+
+          {guilds.length > 0 ? (
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {guilds.map((guild: any) => (
+                <GuildCard key={guild.id} guild={guild} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState />
+          )}
+        </div>
+      </AppLayout>
+    </BaseLayout>
   );
 });
 

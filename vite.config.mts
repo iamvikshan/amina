@@ -18,6 +18,7 @@ export default defineConfig({
         input: [
           '/app/client.ts', // the default value -> must be added if input is overridden
           '/app/assets/styles/global.css', // add the style file entrypoint
+          '/app/dashboard-client.tsx', // Chakra dashboard client entry
         ],
       },
     }),

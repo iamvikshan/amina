@@ -6,6 +6,7 @@
 
 import type { FC } from 'hono/jsx';
 import { cn } from '@/lib/dashboard/utils';
+import { BaseLayout } from '@components/layouts/BaseLayout';
 import { AppLayout } from './AppLayout';
 import { Sidebar, SidebarItem } from './Sidebar';
 import { Navbar } from './Navbar';
@@ -139,35 +140,39 @@ export const GuildLayout: FC<GuildLayoutProps> = ({
     />
   );
 
+  const pageTitle = `${guildName} - Amina Dashboard`;
+
   return (
-    <AppLayout sidebar={sidebar}>
-      {/* Navbar */}
-      <div class="bg-night-shadow/50 border-b border-night-slate">
-        <Navbar
-          breadcrumbs={breadcrumbs || defaultBreadcrumbs}
-          actions={navbarActions}
-        />
-      </div>
+    <BaseLayout title={pageTitle}>
+      <AppLayout sidebar={sidebar}>
+        {/* Navbar */}
+        <div class="bg-night-shadow/50 border-b border-night-slate">
+          <Navbar
+            breadcrumbs={breadcrumbs || defaultBreadcrumbs}
+            actions={navbarActions}
+          />
+        </div>
 
-      {/* Content Area */}
-      <div class={cn('max-w-7xl mx-auto p-6 md:p-8', className)}>
-        {/* Guild Banner */}
-        {showBanner && guild && (
-          <div class="mb-6">
-            <GuildBanner
-              guildId={guildId}
-              name={guildName}
-              icon={guild.icon}
-              banner={guild.banner}
-              memberCount={guild.memberCount}
-            />
-          </div>
-        )}
+        {/* Content Area */}
+        <div class={cn('max-w-7xl mx-auto p-6 md:p-8', className)}>
+          {/* Guild Banner */}
+          {showBanner && guild && (
+            <div class="mb-6">
+              <GuildBanner
+                guildId={guildId}
+                name={guildName}
+                icon={guild.icon}
+                banner={guild.banner}
+                memberCount={guild.memberCount}
+              />
+            </div>
+          )}
 
-        {/* Page Content */}
-        {children}
-      </div>
-    </AppLayout>
+          {/* Page Content */}
+          {children}
+        </div>
+      </AppLayout>
+    </BaseLayout>
   );
 };
 
