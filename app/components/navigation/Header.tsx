@@ -2,7 +2,7 @@ import type { FC } from 'hono/jsx';
 import { ThemeIcon } from '@components/ThemeIcon';
 import { BrandLogo } from '@components/BrandLogo';
 import { LoginBtn } from '@components/ui/buttons/LoginBtn';
-import { getAvatarUrl } from '@/lib/data';
+// import { getAvatarUrl } from '@/lib/data';
 import type { DiscordUser } from '@types';
 
 interface HeaderProps {
@@ -28,7 +28,7 @@ export const Header: FC<HeaderProps> = ({
         { name: 'Docs', url: 'https://docs.4mina.app', target: '_blank' },
       ];
 
-  const avatarUrl = userData ? getAvatarUrl(userData.id, userData.avatar) : '';
+  //  const avatarUrl = userData ? getAvatarUrl(userData.id, userData.avatar) : '';
   const rankText =
     guardianRankLabel ||
     (typeof managedGuildsCount === 'number'
@@ -83,7 +83,7 @@ export const Header: FC<HeaderProps> = ({
                   aria-label="Open dashboard"
                 >
                   <img
-                    src={avatarUrl}
+                    // src={avatarUrl}
                     alt={userData.global_name || userData.username}
                     class="h-8 w-8 rounded-full"
                     loading="lazy"
@@ -156,7 +156,7 @@ export const Header: FC<HeaderProps> = ({
                   aria-label="Open dashboard"
                 >
                   <img
-                    src={avatarUrl}
+                    // src={avatarUrl}
                     alt={userData.global_name || userData.username}
                     class="h-7 w-7 rounded-full"
                     loading="lazy"

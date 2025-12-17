@@ -1,13 +1,13 @@
 import { createApp } from 'honox/server';
 import { serveStatic } from 'hono/bun';
 import { showRoutes } from 'hono/dev';
-import { errorHandler } from '@/middleware';
+// import { errorHandler } from '@/middleware';
 
 // HonoX app wires file-based routes under `app/routes/*`
 const app = createApp();
 
 // Apply global error handling middleware
-app.use('*', errorHandler);
+//app.use('*', errorHandler);
 
 // Serve static files. In production, assets are emitted under dist/static.
 // In development, Vite will handle module assets.
