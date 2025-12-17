@@ -1,3 +1,13 @@
+# [v3.1.2](https://github.com/iamvikshan/amina/compare/v3.1.1...v3.1.2) (2025-12-17)
+
+
+
+## [3.1.2](https://github.com/iamvikshan/amina/compare/v3.1.1...v3.1.2) (2025-12-17)
+
+### Bug Fixes
+
+* **deps:** update dependency lavalink-client to ^2.7.7 ([#104](https://github.com/iamvikshan/amina/issues/104)) ([c84e210](https://github.com/iamvikshan/amina/commit/c84e210658414e4a762dcb1b6dfa4ab96c6e3562))
+
 # [v3.1.1](https://github.com/iamvikshan/amina/compare/v3.1.0...v3.1.1) (2025-12-05)
 
 ## [3.1.1](https://github.com/iamvikshan/amina/compare/v3.1.0...v3.1.1) (2025-12-05)
