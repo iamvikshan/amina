@@ -49,7 +49,7 @@
       "devDependencies": {
         "@hono/vite-build": "^1.8.0",
         "@hono/vite-dev-server": "^0.23.0",
-        "@hono/vite-ssg": "^0.3.0",
+        "@hono/vite-ssg": "^0.3.1",
         "@types/alpinejs": "^3.13.11",
         "@types/node": "^25.0.3",
         "globby": "^16.1.0",
@@ -193,7 +193,7 @@
 
     "@hono/vite-dev-server": ["@hono/vite-dev-server@0.23.0", "", { "dependencies": { "@hono/node-server": "^1.14.2", "minimatch": "^9.0.3" }, "peerDependencies": { "hono": "*", "miniflare": "*", "wrangler": "*" }, "optionalPeers": ["miniflare", "wrangler"] }, "sha512-tHV86xToed9Up0j/dubQW2PDP4aYNFDSfQrjcV6Ra7bqCGrxhtg/zZBmbgSco3aTxKOEPzDXKK+6seAAfsbIXw=="],
 
-    "@hono/vite-ssg": ["@hono/vite-ssg@0.3.0", "", { "peerDependencies": { "hono": ">=4.8.0" } }, "sha512-JFqLVPOwKBIgDJo4+tWoVH+zkg6ftLdJSntQ67eJUaBVhxZtISpPQv9jQ0G91Tqm+8C5O46sMVIa6ygtHf4CEg=="],
+    "@hono/vite-ssg": ["@hono/vite-ssg@0.3.1", "", { "peerDependencies": { "hono": ">=4.8.0" } }, "sha512-KhRsIl1dgSfo/y5EGkjckFag4Ezweq6lUHp+9KN+B6vt5No8amVBttXyr65s/og7F5inKTxORsX8htCJ/Pb+hA=="],
 
     "@hookform/resolvers": ["@hookform/resolvers@5.2.2", "", { "dependencies": { "@standard-schema/utils": "^0.3.0" }, "peerDependencies": { "react-hook-form": "^7.55.0" } }, "sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA=="],
 
