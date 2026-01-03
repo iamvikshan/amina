@@ -1,3 +1,13 @@
+# [v3.1.3](https://github.com/iamvikshan/amina/compare/v3.1.2...v3.1.3) (2026-01-03)
+
+
+
+## [3.1.3](https://github.com/iamvikshan/amina/compare/v3.1.2...v3.1.3) (2026-01-03)
+
+### Bug Fixes
+
+* **deps:** update dependency enhanced-ms to ^4.2.0 ([#134](https://github.com/iamvikshan/amina/issues/134)) ([6c204e0](https://github.com/iamvikshan/amina/commit/6c204e0271fd383ca0c2e9b4a77205ad37b8ed74))
+
 # [v3.1.2](https://github.com/iamvikshan/amina/compare/v3.1.1...v3.1.2) (2025-12-17)
 
 
