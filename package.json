@@ -12,7 +12,7 @@
     "f": "prettier --write ."
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.7",
+    "@hono/node-server": "^1.19.9",
     "hono": "^4.11.3",
     "mongodb": "^7.0.0",
     "zod": "^4.2.1"
