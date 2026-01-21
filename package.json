@@ -21,7 +21,7 @@
     "@cloudflare/workers-types": "^4.20260120.0",
     "@types/bun": "^1.3.6",
     "bump-cli": "^2.9.10",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.0",
     "typescript": "^5.9.3",
     "wrangler": "^4.56.0"
   }
