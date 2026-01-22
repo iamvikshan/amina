@@ -37,9 +37,8 @@ export async function setStatus(
   greetingType: GreetingType
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
-  const enabled = status.toUpperCase() === 'ON'
 
-  settings[greetingKey].enabled = enabled
+  settings[greetingKey].enabled = status.toUpperCase() === 'ON'
   await settings.save()
 
   return `configuration saved! ${greetingType === 'WELCOME' ? 'welcome' : 'farewell'} message has been ${status === 'ON' ? 'enabled' : 'disabled'}.`

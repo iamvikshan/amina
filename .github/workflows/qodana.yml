@@ -1,0 +1,122 @@
+name: Qodana
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main, api, dash]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qodana:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      security-events: write # For SARIF upload to GitHub Security
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Bun and install dependencies
+        uses: iamvikshan/.github/.github/actions/setup-bun@main
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2025.2
+        with:
+          pr-mode: ${{ github.event_name == 'pull_request' }}
+          args: |
+            --apply-fixes
+            --source-directory,./src
+            --source-directory,./types
+          upload-result: true
+          artifact-name: qodana-report
+          cache-default-branch-only: true
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1228412836 }}
+          QODANA_ENDPOINT: "https://qodana.cloud"
+
+      # Upload SARIF to GitHub Security tab
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+        continue-on-error: true
+
+      # Comment on PR with summary (for PRs only)
+      - name: Add PR Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const sarifPath = '${{ runner.temp }}/qodana/results/qodana.sarif.json';
+            const QODANA_COMMENT_MARKER = '<!-- qodana-analysis-comment -->';
+
+            if (!fs.existsSync(sarifPath)) {
+              console.log('SARIF file not found, skipping comment');
+              return;
+            }
+
+            let results = [];
+            try {
+              const sarif = JSON.parse(fs.readFileSync(sarifPath, 'utf8'));
+              results = sarif.runs?.[0]?.results || [];
+            } catch (parseError) {
+              console.error(`Failed to parse SARIF file at ${sarifPath}:`, parseError.message);
+              results = [];
+            }
+
+            const errors = results.filter(r => r.level === 'error').length;
+            const warnings = results.filter(r => r.level === 'warning').length;
+            const notes = results.filter(r => r.level === 'note').length;
+
+            const emoji = errors > 0 ? '❌' : warnings > 0 ? '⚠️' : '✅';
+
+            const body = `${QODANA_COMMENT_MARKER}
+            ## ${emoji} Qodana Analysis Results
+
+            | Severity | Count |
+            |----------|-------|
+            | 🔴 Errors | ${errors} |
+            | 🟡 Warnings | ${warnings} |
+            | 🔵 Notes | ${notes} |
+
+            [View full report on Qodana Cloud](https://qodana.cloud)`.trim();
+
+            // Find existing Qodana comment to update instead of creating duplicates
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const existingComment = comments.find(c => c.body?.includes(QODANA_COMMENT_MARKER));
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              });
+              console.log('Updated existing Qodana comment');
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              });
+              console.log('Created new Qodana comment');
+            }
+        continue-on-error: true

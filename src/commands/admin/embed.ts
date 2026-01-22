@@ -132,7 +132,7 @@ async function embedSetup(
   // Receive modal input
   const modal = await btnInteraction
     .awaitModalSubmit({
-      time: 1 * 60 * 1000,
+      time: 60 * 1000,
       filter: m =>
         m.customId === 'EMBED_MODAL' &&
         !!m.member &&
@@ -250,13 +250,24 @@ async function embedSetup(
 
       const name = modal.fields.getTextInputValue('name')
       const value = modal.fields.getTextInputValue('value')
-      let inline: boolean | string = modal.fields
+      const inlineStr = modal.fields
         .getTextInputValue('inline')
         .toLowerCase()
+        .trim()
 
-      if (inline === 'true') inline = true
-      else if (inline === 'false') inline = false
-      else inline = true // default to true
+      // Strict validation: only accept 'true' or 'false'
+      let inline: boolean
+      if (inlineStr === 'true') {
+        inline = true
+      } else if (inlineStr === 'false' || inlineStr === '') {
+        inline = false
+      } else {
+        await modal.reply({
+          content: mina.sayf('embed.setup.invalidInline', { value: inlineStr }),
+          ephemeral: true,
+        })
+        return
+      }
 
       const fields = embed.data.fields || []
       fields.push({ name, value, inline })

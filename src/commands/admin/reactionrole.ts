@@ -156,12 +156,8 @@ async function addRR(
     return `Oops! Failed to react. Is this a valid emoji: ${reaction} ?`
   }
 
+  const previousRoles = getReactionRoles(guild.id, channel.id, targetMessage.id)
   let reply = ''
-  const previousRoles = await getReactionRoles(
-    guild.id,
-    channel.id,
-    targetMessage.id
-  )
   if (previousRoles.length > 0) {
     const found = previousRoles.find(rr => rr.emote === emoji)
     if (found)
@@ -175,7 +171,7 @@ async function addRR(
     emoji as string,
     role.id
   )
-  return (reply += 'Done! Configuration saved successfully!')
+  return reply + 'Done! Configuration saved successfully!'
 }
 
 async function removeRR(

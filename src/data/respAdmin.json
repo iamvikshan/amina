@@ -62,7 +62,8 @@
       "fieldAdded": "field added!",
       "fieldRemoved": "field removed!",
       "noFields": "there are no fields to remove!",
-      "cannotSend": "i can't send embeds in that channel! please choose another one."
+      "cannotSend": "i can't send embeds in that channel! please choose another one.",
+      "invalidInline": "oops! \"{value}\" isn't valid for inline. use \"true\" or \"false\" and try again!"
     },
     "modal": {
       "title": "embed generator",

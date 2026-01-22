@@ -4,9 +4,9 @@ if [ "$CI" = "true" ] || [ "$HUSKY" = "0" ]; then
   exit 0
 fi
 
-# Run project checks (Linting & Type Checking)
+# Run project checks (Linting, Type Checking & Formatting)
 echo "Running pre-commit checks..."
-bun run check
+bun run check && bun run f:check
 
 # check dev config
 # bash ./scripts/iamvikshan.sh

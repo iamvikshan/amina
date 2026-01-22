@@ -12,7 +12,6 @@ dist/
 astro/dist/
 # generated types
 astro/.astro/
-astro/.idea/
 
 #tina
 astro/tina/__generated__
@@ -44,3 +43,4 @@ aws/
 .cursor/
 docs/
 .codesandbox/
+.idea/

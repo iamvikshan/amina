@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v6.0.1
 
       - name: Setup Bun and install dependencies
-        uses: iamvikshan/.github/.github/actions/setup-node-bun@main
+        uses: iamvikshan/.github/.github/actions/setup-bun@main
 
       - name: Run checks (TypeScript, ESLint, Prettier)
         run: bun run check

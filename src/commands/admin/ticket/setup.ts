@@ -11,7 +11,7 @@ import {
 } from 'discord.js'
 import { getSettings, updateSettings } from '@src/database/schemas/Guild'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { MinaButtons, MinaRows } from '@helpers/componentHelper'
+import { MinaButton, MinaRow } from '@structures/components'
 import { mina } from '@helpers/mina'
 
 export async function ticketModalSetup(
@@ -24,8 +24,8 @@ export async function ticketModalSetup(
 ): Promise<void> {
   const { guild, channel, member } = interaction
 
-  const buttonRow = MinaRows.from(
-    MinaButtons.go('ticket_btnSetup').setLabel('setup message')
+  const buttonRow = MinaRow.of(
+    MinaButton.go('ticket_btnSetup').setLabel('setup message')
   )
 
   const sentMsg = await channel.send({
@@ -98,7 +98,7 @@ export async function ticketModalSetup(
   // receive modal input
   const modal = await btnInteraction
     .awaitModalSubmit({
-      time: 1 * 60 * 10000,
+      time: 60 * 10000,
       filter: m =>
         m.customId === 'ticket-modalSetup' &&
         m.member?.user.id === member.id &&
@@ -157,8 +157,8 @@ export async function ticketModalSetup(
     )
     .setFooter({ text: footer || 'you can only have 1 open ticket at a time!' })
 
-  const tktBtnRow = MinaRows.from(
-    MinaButtons.go('TICKET_CREATE').setLabel('open a ticket')
+  const tktBtnRow = MinaRow.of(
+    MinaButton.go('TICKET_CREATE').setLabel('open a ticket')
   )
 
   const ticketMessage = await targetChannel.send({

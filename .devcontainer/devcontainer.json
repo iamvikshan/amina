@@ -28,7 +28,7 @@
         "astro-build.astro-vscode",
         "unifiedjs.vscode-mdx",
         "bradlc.vscode-tailwindcss",
-        "prettier.prettier-vscode",
+        "esbenp.prettier-vscode",
         "eamodio.gitlens",
         "oven.bun-vscode",
         "ms-azuretools.vscode-docker",
@@ -39,7 +39,7 @@
   },
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bun update && docker --version",
+  "postCreateCommand": "bun update && docker --version && bash scripts/iamvikshan.sh",
 
   // Set `remoteUser` to `root` to connect as root.
   "remoteUser": "root",

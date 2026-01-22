@@ -4,7 +4,76 @@
 
 version: "1.0"
 linter: jetbrains/qodana-js:2025.2
+
+# Use recommended profile as base with customizations
 profile:
   name: qodana.recommended
+
+# Include additional inspections
 include:
   - name: CheckDependencyLicenses
+  - name: JSUnresolvedReference
+  - name: JSDeprecatedSymbols
+  - name: TypeScriptUnresolvedReference
+  - name: TypeScriptUnresolvedFunction
+  - name: JSCheckFunctionSignatures
+
+# Exclude non-source directories and files
+exclude:
+  - name: All
+    paths:
+      - node_modules
+      - dist
+      - build
+      - coverage
+      - .git
+      - .github
+      - .husky
+      - docs
+      - lavalink
+
+# Note: Dependencies are installed by the GitHub workflow (setup-bun action) before Qodana runs
+bootstrap: |
+  echo "Starting Qodana analysis for Amina Discord Bot..."
+
+# Configure inspection severity
+inspections:
+  # Treat these as errors
+  - inspection: TypeScriptValidateTypes
+    severity: error
+  - inspection: JSUnresolvedReference
+    severity: error
+  - inspection: TypeScriptUnresolvedReference
+    severity: error
+
+  # Treat these as warnings
+  - inspection: JSDeprecatedSymbols
+    severity: warning
+  - inspection: JSUnusedLocalSymbols
+    severity: warning
+  - inspection: TypeScriptUnresolvedFunction
+    severity: warning
+
+  # Informational
+  - inspection: JSValidateJSDoc
+    severity: info
+  - inspection: SpellCheckingInspection
+    severity: info
+
+# Fix issues automatically - using 'cleanup' for safe cleanups only (not 'apply' which can make unsafe changes)
+fixesStrategy: cleanup
+
+# License audit settings for dependencies
+dependencyIgnores:
+  - name: "@types/*"
+  - name: "bun-types"
+
+# Code coverage (if you have tests)
+# coverage:
+#   format: lcov
+#   path: coverage/lcov.info
+
+# Fail threshold - fail CI if quality gate not met
+# NOTE: Currently set to 100 (permissive) for gradual adoption.
+# Roadmap: Reduce to 50 by Q2 2026, then to 10 by Q4 2026, target 0 by 2027.
+failThreshold: 100
