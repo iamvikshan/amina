@@ -59,7 +59,7 @@
     "@hono/vite-build": "^1.8.0",
     "@hono/vite-dev-server": "^0.24.1",
     "@hono/vite-ssg": "^0.3.3",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.0.10",
     "globby": "^16.1.0",
     "html-minifier-terser": "^7.2.0",
     "prettier": "^3.7.4",
