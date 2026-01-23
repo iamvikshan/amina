@@ -1,3 +1,13 @@
+# [v3.1.4](https://github.com/iamvikshan/amina/compare/v3.1.3...v3.1.4) (2026-01-23)
+
+
+
+## [3.1.4](https://github.com/iamvikshan/amina/compare/v3.1.3...v3.1.4) (2026-01-23)
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to ^9.1.4 ([#145](https://github.com/iamvikshan/amina/issues/145)) ([2e4ec57](https://github.com/iamvikshan/amina/commit/2e4ec57a21abde9348286087fe9da3b02be0446c))
+
 # [v3.1.3](https://github.com/iamvikshan/amina/compare/v3.1.2...v3.1.3) (2026-01-03)
 
 
