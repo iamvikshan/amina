@@ -54,7 +54,7 @@
         "@types/node": "^25.0.10",
         "globby": "^16.1.0",
         "html-minifier-terser": "^7.2.0",
-        "prettier": "^3.7.4",
+        "prettier": "^3.8.1",
         "typescript": "^5.9.3",
         "vite": "^7.3.1",
       },
@@ -857,7 +857,7 @@
 
     "preline": ["preline@3.2.3", "", { "dependencies": { "@floating-ui/dom": "^1.6.13", "apexcharts": "^4.5.0", "datatables.net-dt": "^2.2.2", "dropzone": "^6.0.0-beta.2", "nouislider": "^15.8.1", "vanilla-calendar-pro": "^3.0.4" } }, "sha512-S13MFdC/1FWFz3S+oW1PlyZ6Alo0SZxJ9HwaZRg5IQZjcbKqCFIOXAbAhQeX0izauqWJXIQdKofhfCWBizwleQ=="],
 
-    "prettier": ["prettier@3.7.4", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA=="],
+    "prettier": ["prettier@3.8.1", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg=="],
 
     "prop-types": ["prop-types@15.8.1", "", { "dependencies": { "loose-envify": "^1.4.0", "object-assign": "^4.1.1", "react-is": "^16.13.1" } }, "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="],
 
