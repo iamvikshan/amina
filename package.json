@@ -62,7 +62,7 @@
     "@types/node": "^25.0.10",
     "globby": "^16.1.0",
     "html-minifier-terser": "^7.2.0",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   }
