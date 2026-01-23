@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":semanticCommits"],
-  "baseBranches": ["api", "dash", "main"],
+  "baseBranchPatterns": ["api", "dash", "main"],
   "automerge": false,
   "prConcurrentLimit": 10,
   "prHourlyLimit": 5,
@@ -52,29 +52,34 @@
     },
     {
       "groupName": "linters and formatters",
-      "matchPackageNames": ["eslint", "prettier", "husky"],
-      "matchPackagePatterns": ["^eslint", "^prettier", "^@typescript-eslint"],
-      "automerge": true
-    },
-    {
-      "groupName": "semantic-release ecosystem",
-      "matchPackagePatterns": [
-        "^@semantic-release",
-        "^semantic-release",
-        "^conventional-changelog"
+      "matchPackageNames": [
+        "eslint",
+        "prettier",
+        "husky",
+        "/^eslint/",
+        "/^prettier/",
+        "/^@typescript-eslint/"
       ],
       "automerge": true
     },
     {
+      "groupName": "semantic-release ecosystem",
+      "automerge": true,
+      "matchPackageNames": [
+        "/^@semantic-release/",
+        "/^semantic-release/",
+        "/^conventional-changelog/"
+      ]
+    },
+    {
       "groupName": "discord.js ecosystem",
-      "matchPackagePatterns": ["^discord.js", "^@discordjs"],
       "automerge": false,
-      "minimumReleaseAge": "5 days"
+      "minimumReleaseAge": "5 days",
+      "matchPackageNames": ["/^discord.js/", "/^@discordjs/"]
     },
     {
       "groupName": "TypeScript and types",
-      "matchPackageNames": ["typescript"],
-      "matchPackagePatterns": ["^@types/"],
+      "matchPackageNames": ["typescript", "/^@types//"],
       "automerge": true
     },
     {
