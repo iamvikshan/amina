@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@types/alpinejs": "^3.13.11",
-    "@hono/vite-build": "^1.8.0",
+    "@hono/vite-build": "^1.9.2",
     "@hono/vite-dev-server": "^0.24.1",
     "@hono/vite-ssg": "^0.3.3",
     "@types/node": "^25.0.10",
