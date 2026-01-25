@@ -37,7 +37,7 @@
     "hono": "^4.11.5",
     "honox": "^0.1.53",
     "lenis": "^1.3.17",
-    "lucide-react": "^0.562.0",
+    "lucide-react": "^0.563.0",
     "mongodb": "^7.0.0",
     "preline": "^3.2.3",
     "react": "^19.2.3",
