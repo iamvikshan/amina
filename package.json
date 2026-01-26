@@ -19,7 +19,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.2.2",
-    "@iconify-json/lucide": "^1.2.86",
+    "@iconify-json/lucide": "^1.2.87",
     "@preline/accordion": "^3.2.3",
     "@preline/collapse": "^3.2.3",
     "@preline/dropdown": "^3.2.3",
