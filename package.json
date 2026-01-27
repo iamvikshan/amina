@@ -73,7 +73,7 @@
     "eslint-plugin-jsdoc": "^62.3.1",
     "husky": "^9.1.7",
     "prettier": "3.8.1",
-    "semantic-release-gitmoji": "^1.6.8",
+    "semantic-release-gitmoji": "^1.6.9",
     "typescript": "^5.9.3"
   },
   "keywords": [
