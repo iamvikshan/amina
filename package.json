@@ -43,7 +43,7 @@
     "discord.js": "^14.25.1",
     "enhanced-ms": "^4.2.0",
     "lavalink-client": "^2.7.8",
-    "lru-cache": "^11.2.4",
+    "lru-cache": "^11.2.5",
     "module-alias": "^2.2.3",
     "moment": "^2.30.1",
     "mongoose": "^9.1.5",
