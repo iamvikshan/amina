@@ -110,20 +110,20 @@ jobs:
 
       # Login to all registries
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3.6.0
+        uses: docker/login-action@v3.7.0
         with:
           username: vikshan
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3.6.0
+        uses: docker/login-action@v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
 
       - name: Log in to GitLab Container Registry
-        uses: docker/login-action@v3.6.0
+        uses: docker/login-action@v3.7.0
         with:
           registry: registry.gitlab.com
           username: oauth2
