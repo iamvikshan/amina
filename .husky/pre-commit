@@ -1,12 +1,61 @@
 # Skip Husky hooks in CI or when HUSKY is disabled
-if [ "$CI" = "true" ] || [ "$HUSKY" = "0" ]; then
+if [ "$CI" = "true" ] || [ -n "$GITHUB_ACTIONS" ] || [ "$HUSKY" = "0" ]; then
   echo "Husky hook skipped in CI or HUSKY=0"
   exit 0
+fi
+
+# Codespaces git identity check
+if [ -n "$CODESPACES" ]; then
+  # Source GIT_USER and GIT_EMAIL from the single source of truth
+  SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+  if [ -f "$SCRIPT_DIR/scripts/iamvikshan.sh" ]; then
+    # Extract variables using sed to handle single/double/no quotes robustly
+    # Pattern: export VAR="value" or export VAR='value' or export VAR=value
+    GIT_USER=$(grep -m1 '^export GIT_USER=' "$SCRIPT_DIR/scripts/iamvikshan.sh" | sed "s/^export GIT_USER=[\"']\{0,1\}\([^\"']*\)[\"']\{0,1\}$/\1/")
+    GIT_EMAIL=$(grep -m1 '^export GIT_EMAIL=' "$SCRIPT_DIR/scripts/iamvikshan.sh" | sed "s/^export GIT_EMAIL=[\"']\{0,1\}\([^\"']*\)[\"']\{0,1\}$/\1/")
+  else
+    echo "❌ Error: scripts/iamvikshan.sh not found. Cannot determine git identity."
+    exit 1
+  fi
+
+  # Validate that both variables were extracted successfully
+  if [ -z "$GIT_USER" ] || [ -z "$GIT_EMAIL" ]; then
+    echo "❌ Error: Failed to extract GIT_USER or GIT_EMAIL from scripts/iamvikshan.sh"
+    echo "   GIT_USER='$GIT_USER' GIT_EMAIL='$GIT_EMAIL'"
+    echo "   Please ensure the script contains 'export GIT_USER=...' and 'export GIT_EMAIL=...'"
+    exit 1
+  fi
+
+  CURRENT_USER=$(git config --global user.name 2>/dev/null || echo "")
+  CURRENT_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
+
+  if [ "$CURRENT_USER" != "$GIT_USER" ] || [ "$CURRENT_EMAIL" != "$GIT_EMAIL" ]; then
+    echo "⚠️  Git config mismatch detected in Codespaces!"
+    echo "   Expected: $GIT_USER <$GIT_EMAIL>"
+    echo "   Current:  $CURRENT_USER <$CURRENT_EMAIL>"
+    echo ""
+    echo "🔧 Running iamvikshan.sh to fix attribution..."
+
+    if [ ! -x "$SCRIPT_DIR/scripts/iamvikshan.sh" ]; then
+      echo ""
+      echo "❌ Error: $SCRIPT_DIR/scripts/iamvikshan.sh is not executable or does not exist."
+      echo "   Run: chmod +x scripts/iamvikshan.sh"
+      exit 1
+    fi
+
+    if "$SCRIPT_DIR/scripts/iamvikshan.sh"; then
+      echo ""
+      echo "✅ Git config updated. Please run 'git commit' again."
+      exit 1
+    else
+      echo ""
+      echo "❌ Error: iamvikshan.sh failed to update git config."
+      echo "   Please run '$SCRIPT_DIR/scripts/iamvikshan.sh' manually to debug."
+      exit 1
+    fi
+  fi
 fi
 
 # Run project checks (Linting, Type Checking & Formatting)
 echo "Running pre-commit checks..."
 bun run check && bun run f:check
-
-# check dev config
-# bash ./scripts/iamvikshan.sh

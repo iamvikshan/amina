@@ -1,7 +1,12 @@
 import { ChannelType, GuildVerificationLevel, Guild } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import advancedFormat from 'dayjs/plugin/advancedFormat'
+
+dayjs.extend(relativeTime)
+dayjs.extend(advancedFormat)
 
 export default async function guildInfo(guild: Guild) {
   const { name, id, preferredLocale, channels, roles, ownerId } = guild
@@ -13,7 +18,7 @@ export default async function guildInfo(guild: Guild) {
     owner = null
   }
 
-  const createdAt = moment(guild.createdAt)
+  const createdAt = dayjs(guild.createdAt)
 
   const totalChannels = channels.cache.size
   const categories = channels.cache.filter(

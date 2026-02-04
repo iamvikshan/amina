@@ -130,6 +130,6 @@ async function calculateRemindAt(
 
   // TODO: Implement timezone-aware calculation
   // For now, fallback to relative time
-  // This would require a library like date-fns-tz or moment-timezone
+  // This would require a library like date-fns-tz or dayjs/plugin/timezone
   return new Date(Date.now() + durationMs)
 }

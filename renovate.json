@@ -21,7 +21,7 @@
       "description": "Automerge patch updates and digests (safe bug fixes)",
       "matchUpdateTypes": ["patch", "digest"],
       "automerge": true,
-      "minimumReleaseAge": "0 days"
+      "minimumReleaseAge": "1 day"
     },
     {
       "description": "Automerge minor updates for devDependencies (safe for lint/types)",
@@ -48,7 +48,7 @@
       "description": "Automerge GitHub Actions (safe, doesn't affect code)",
       "matchManagers": ["github-actions"],
       "automerge": true,
-      "minimumReleaseAge": "1 day"
+      "minimumReleaseAge": "3 days"
     },
     {
       "groupName": "linters and formatters",
@@ -59,8 +59,7 @@
         "/^eslint/",
         "/^prettier/",
         "/^@typescript-eslint/"
-      ],
-      "automerge": true
+      ]
     },
     {
       "groupName": "semantic-release ecosystem",
@@ -79,7 +78,7 @@
     },
     {
       "groupName": "TypeScript and types",
-      "matchPackageNames": ["typescript", "/^@types//"],
+      "matchPackageNames": ["typescript", "/^@types/"],
       "automerge": true
     },
     {

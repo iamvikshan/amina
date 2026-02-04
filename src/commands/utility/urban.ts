@@ -4,8 +4,11 @@ import {
 } from 'discord.js'
 import { MESSAGES } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
-import moment from 'moment'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+
+dayjs.extend(relativeTime)
 
 const command: CommandData = {
   name: 'urban',
@@ -86,7 +89,7 @@ async function urban(word: string): Promise<{ embeds: MinaEmbed[] } | string> {
     )
 
   if (data.written_on) {
-    embed.setFooter({ text: `Created ${moment(data.written_on).fromNow()}` })
+    embed.setFooter({ text: `Created ${dayjs(data.written_on).fromNow()}` })
   }
 
   return { embeds: [embed] }

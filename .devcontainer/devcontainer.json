@@ -33,13 +33,16 @@
         "oven.bun-vscode",
         "ms-azuretools.vscode-docker",
         "WakaTime.vscode-wakatime",
-        "mongodb.mongodb-vscode"
+        "mongodb.mongodb-vscode",
+        "coderabbit.coderabbit-vscode",
+        "DeepScan.vscode-deepscan",
+        "jetbrains.qodana-code"
       ]
     }
   },
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bun update && docker --version && bash scripts/iamvikshan.sh",
+  "postCreateCommand": "[ -f scripts/iamvikshan.sh ] && chmod +x scripts/iamvikshan.sh; bun install",
 
   // Set `remoteUser` to `root` to connect as root.
   "remoteUser": "root",
