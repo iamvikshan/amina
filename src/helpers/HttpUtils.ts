@@ -1,7 +1,6 @@
 // src/helpers/HttpUtils.ts
 const sourcebin = require('sourcebin_js')
 import { error, debug } from '@helpers/Logger'
-import fetch from 'node-fetch'
 
 /**
  * HTTP response structure for JSON requests
@@ -72,7 +71,8 @@ export default class HttpUtils {
   static async getBuffer(url: string, options?: any): Promise<BufferResponse> {
     try {
       const response = options ? await fetch(url, options) : await fetch(url)
-      const buffer = await response.buffer()
+      const arrayBuffer = await response.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
       if (response.status !== 200) debug(`Response status: ${response.status}`)
       return {
         success: response.status === 200 ? true : false,

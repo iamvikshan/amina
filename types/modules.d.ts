@@ -193,7 +193,6 @@ declare module '@schemas/Member' {
 }
 
 declare module 'sourcebin_js';
-declare module 'node-fetch';
 
 export {}
 
