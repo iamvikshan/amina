@@ -19,7 +19,7 @@
         "@preline/tabs": "^3.2.3",
         "@tailwindcss/postcss": "^4.1.18",
         "@tanstack/react-query": "^5.90.20",
-        "alpinejs": "^3.15.6",
+        "alpinejs": "^3.15.8",
         "apexcharts": "^5.3.6",
         "chakra-react-select": "^6.1.1",
         "clsx": "^2.1.1",
@@ -581,7 +581,7 @@
 
     "acorn": ["acorn@8.15.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg=="],
 
-    "alpinejs": ["alpinejs@3.15.6", "", { "dependencies": { "@vue/reactivity": "~3.1.1" } }, "sha512-ETE0k88xU74URryk2JyvmrvyCyZG0Wo+2/tZux9gEvaPc/k5XcBSdvFHyW76puIFqhD+nHgeO/5j3pRRsHh6HA=="],
+    "alpinejs": ["alpinejs@3.15.8", "", { "dependencies": { "@vue/reactivity": "~3.1.1" } }, "sha512-zxIfCRTBGvF1CCLIOMQOxAyBuqibxSEwS6Jm1a3HGA9rgrJVcjEWlwLcQTVGAWGS8YhAsTRLVrtQ5a5QT9bSSQ=="],
 
     "apexcharts": ["apexcharts@5.3.6", "", { "dependencies": { "@svgdotjs/svg.draggable.js": "^3.0.4", "@svgdotjs/svg.filter.js": "^3.0.8", "@svgdotjs/svg.js": "^3.2.4", "@svgdotjs/svg.resize.js": "^2.0.2", "@svgdotjs/svg.select.js": "^4.0.1", "@yr/monotone-cubic-spline": "^1.0.3" } }, "sha512-sVEPw+J0Gp0IHQabKu8cfdsxlfME0e36Wid7RIaPclGM2OUt+O7O4+6mfAmTUYhy5bDk8cNHzEhPfVtLCIXEJA=="],
 
