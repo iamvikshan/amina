@@ -4,7 +4,7 @@
 
 language: node_js
 node_js:
-  - 25.4.0
+  - 25.6.0
 os: linux
 dist: jammy
 
