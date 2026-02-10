@@ -1,3 +1,14 @@
+# [v3.1.5](https://github.com/iamvikshan/amina/compare/v3.1.4...v3.1.5) (2026-02-10)
+
+
+
+## [3.1.5](https://github.com/iamvikshan/amina/compare/v3.1.4...v3.1.5) (2026-02-10)
+
+### Bug Fixes
+
+* **deps:** update dependency axios to ^1.13.5 ([#207](https://github.com/iamvikshan/amina/issues/207)) ([7e3575f](https://github.com/iamvikshan/amina/commit/7e3575f862f3122f6dd0108225ffe5dfc8c95f27))
+* **deps:** update dependency module-alias to ^2.3.4 ([#235](https://github.com/iamvikshan/amina/issues/235)) ([6b5a48d](https://github.com/iamvikshan/amina/commit/6b5a48d03fba2813ba862889c3bf149107592489))
+
 # [v3.1.4](https://github.com/iamvikshan/amina/compare/v3.1.3...v3.1.4) (2026-01-23)
 
 
