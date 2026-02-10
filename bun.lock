@@ -20,7 +20,7 @@
         "enhanced-ms": "^4.2.0",
         "lavalink-client": "^2.8.0",
         "lru-cache": "^11.2.5",
-        "module-alias": "^2.3.3",
+        "module-alias": "^2.3.4",
         "mongoose": "^9.1.6",
         "pino": "^10.3.0",
         "pino-pretty": "^13.1.3",
