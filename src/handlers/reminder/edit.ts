@@ -151,14 +151,12 @@ export async function handleEditActionMenu(
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
     const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
 
-    let currentTimeStr = ''
+    let currentTimeStr = '6h'
     if (diffHours > 0) {
       currentTimeStr = `${diffHours}h`
       if (diffMinutes > 0) currentTimeStr += ` ${diffMinutes}m`
     } else if (diffMinutes > 0) {
       currentTimeStr = `${diffMinutes}m`
-    } else {
-      currentTimeStr = '6h' // Default fallback
     }
 
     const durationInput = new TextInputBuilder({

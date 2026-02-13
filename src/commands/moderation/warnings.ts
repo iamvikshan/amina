@@ -49,7 +49,7 @@ const command: CommandData = {
 
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand()
-    let response: any = ''
+    let response: string | { embeds: MinaEmbed[] }
 
     if (!interaction.guild) {
       await interaction.followUp({

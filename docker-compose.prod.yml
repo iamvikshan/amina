@@ -53,9 +53,19 @@ services:
     volumes:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - lavalink-plugins:/opt/Lavalink/plugins
-      # Mount entrypoint script to fix permissions (similar to how Amina handles logs)
-      - ./scripts/lavalink-entrypoint.sh:/lavalink-entrypoint.sh:ro
-    entrypoint: ["/bin/sh", "/lavalink-entrypoint.sh"]
+    # Fix plugin directory permissions then switch to lavalink user
+    # Runs as root only for chown/chmod, then re-execs as lavalink so
+    # Java is PID 1 and receives signals (SIGTERM, SIGINT) properly.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        if [ -d /opt/Lavalink/plugins ]; then
+          chown -R lavalink:lavalink /opt/Lavalink/plugins
+          chmod -R 755 /opt/Lavalink/plugins
+        fi
+        cd /opt/Lavalink
+        exec setpriv --reuid=lavalink --regid=lavalink --init-groups /opt/java/openjdk/bin/java -jar Lavalink.jar
     networks:
       - amina-network
     ports:

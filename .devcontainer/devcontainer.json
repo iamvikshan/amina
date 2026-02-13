@@ -25,9 +25,6 @@
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "astro-build.astro-vscode",
-        "unifiedjs.vscode-mdx",
-        "bradlc.vscode-tailwindcss",
         "esbenp.prettier-vscode",
         "eamodio.gitlens",
         "oven.bun-vscode",
