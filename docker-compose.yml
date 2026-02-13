@@ -7,6 +7,9 @@ services:
     restart: "no"
     # Run as root initially to fix permissions, then switch to amina user in entrypoint
     user: root
+    depends_on:
+      lavalink:
+        condition: service_healthy
     env_file:
       - .env
     networks:

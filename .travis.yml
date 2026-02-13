@@ -103,6 +103,7 @@ jobs:
       name: "Docker Compose Build & Health Check"
       services:
         - docker
+      install: skip # Docker stage doesn't need npm/bun install - it builds inside the container
       before_install:
         # Install Doppler CLI for secrets
         - curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg

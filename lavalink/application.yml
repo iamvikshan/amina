@@ -5,7 +5,7 @@ server:
 lavalink:
   plugins:
     # Lavalink will automatically download these plugins on startup
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.16.0"
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.17.0"
       repository: "https://maven.lavalink.dev/releases"
 
     # Multi-platform support (Spotify, Apple Music, Deezer)
@@ -70,7 +70,6 @@ plugins:
     # Configure clients for better reliability and functionality
     # Using only valid client types that successfully resolve
     clients:
-      - WEB_REMIX
       - WEB
       - MUSIC
     # OAuth configuration (optional, for members-only content)
