@@ -17,7 +17,7 @@ const { ModelRouter } = await import('../src/services/modelRouter')
 describe('ModelRouter', () => {
   const router = new ModelRouter({
     model: 'gemini-3-flash-preview',
-    embeddingModel: 'text-embedding-005',
+    embeddingModel: 'gemini-embedding-001',
     extractionModel: 'gemini-2.5-flash-lite',
   })
 
@@ -29,7 +29,7 @@ describe('ModelRouter', () => {
 
   test('returns embedding model for embedding task', () => {
     const config = router.getModel('embedding')
-    expect(config.model).toBe('text-embedding-005')
+    expect(config.model).toBe('gemini-embedding-001')
     expect(config.taskType).toBe('embedding')
   })
 
@@ -42,7 +42,7 @@ describe('ModelRouter', () => {
   describe('reasoning', () => {
     const routerWithClaude = new ModelRouter({
       model: 'gemini-3-flash-preview',
-      embeddingModel: 'text-embedding-005',
+      embeddingModel: 'gemini-embedding-001',
       extractionModel: 'gemini-2.5-flash-lite',
       reasoningModel: 'claude-sonnet-4-5',
     })
@@ -76,7 +76,7 @@ describe('ModelRouter', () => {
   test('getRoutingSummary shows all models', () => {
     const summary = router.getRoutingSummary()
     expect(summary.chat).toBe('gemini-3-flash-preview')
-    expect(summary.embedding).toBe('text-embedding-005')
+    expect(summary.embedding).toBe('gemini-embedding-001')
     expect(summary.extraction).toBe('gemini-2.5-flash-lite')
     expect(summary.reasoning).toBe('gemini-3-flash-preview (fallback)')
   })
@@ -86,7 +86,7 @@ describe('ModelRouter', () => {
       () =>
         new ModelRouter({
           model: '',
-          embeddingModel: 'text-embedding-005',
+          embeddingModel: 'gemini-embedding-001',
           extractionModel: 'gemini-2.5-flash-lite',
         })
     ).toThrow(/model is required and cannot be empty/)
@@ -97,7 +97,7 @@ describe('ModelRouter', () => {
       () =>
         new ModelRouter({
           model: 'gemini-3-flash-preview',
-          embeddingModel: 'text-embedding-005',
+          embeddingModel: 'gemini-embedding-001',
           extractionModel: 'gemini-2.5-flash-lite',
           reasoningModel: '',
         })

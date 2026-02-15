@@ -93,7 +93,7 @@ describe('MemoryService (new SDK)', () => {
     service = new MemoryService()
     await service.initialize({
       authConfig: { mode: 'api-key', apiKey: 'test-api-key' },
-      embeddingModel: 'text-embedding-005',
+      embeddingModel: 'gemini-embedding-001',
       extractionModel: 'gemini-2.5-flash-lite',
     })
   })
@@ -106,7 +106,7 @@ describe('MemoryService (new SDK)', () => {
     // Verify embedContent was called with correct shape
     expect(mockEmbedContent).toHaveBeenCalledTimes(1)
     const callArgs = mockEmbedContent.mock.calls[0][0] as any
-    expect(callArgs.model).toBe('text-embedding-005')
+    expect(callArgs.model).toBe('gemini-embedding-001')
     expect(callArgs.contents).toBe('test_key: test_value')
   })
 

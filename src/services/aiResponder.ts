@@ -338,7 +338,7 @@ export class AiResponderService {
       const conversationId = this.getConversationId(message)
 
       // Get history BEFORE appending current message
-      let history = conversationBuffer.getHistory(conversationId)
+      let history = await conversationBuffer.getHistory(conversationId)
 
       // Validate: history must start with 'user' role (Google AI requirement)
       while (history.length > 0 && history[0].role !== 'user') {

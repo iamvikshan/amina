@@ -1,6 +1,11 @@
 // @root/src/structures/conversationBuffer.ts
 
 import Logger from '../helpers/Logger'
+import {
+  upsertConversation,
+  loadConversation,
+  deleteConversation,
+} from '../database/schemas/Conversation'
 
 // ContentPart is globally declared in types/services.d.ts
 export interface Message {
@@ -22,8 +27,12 @@ interface ConversationEntry {
 export class ConversationBuffer {
   private cache: Map<string, ConversationEntry> = new Map()
   private readonly MAX_MESSAGES = 20
-  private readonly TTL_MS = 10 * 60 * 1000 // 10 minutes
+  private readonly TTL_MS = 30 * 60 * 1000 // 30 minutes
   private cleanupInterval: Timer | null = null
+  /** Tombstone map: conversations recently cleared (value = timestamp) that should not be restored from DB */
+  private clearedTimestamps: Map<string, number> = new Map()
+  private pendingPersists: Map<string, Timer> = new Map()
+  private readonly PERSIST_DEBOUNCE_MS = 2000 // 2 second debounce
 
   constructor() {
     // Start daemon cleanup every 5 minutes
@@ -106,6 +115,9 @@ export class ConversationBuffer {
   ) {
     if (parts.length === 0) return // No-op for empty parts
 
+    // Clear tombstone if conversation is being recreated after a clear()
+    this.clearedTimestamps.delete(conversationId)
+
     const entry = this.cache.get(conversationId) || {
       messages: [],
       createdAt: Date.now(),
@@ -138,23 +150,97 @@ export class ConversationBuffer {
     Logger.debug(
       `Message appended - ConvID: ${conversationId}, Role: ${role}, Count: ${entry.messages.length}`
     )
+
+    // Fire-and-forget persistence to MongoDB
+    this.persistToDb(conversationId, entry.messages).catch((err: any) =>
+      Logger.warn(
+        `Failed to persist conversation ${conversationId}: ${err.message}`
+      )
+    )
   }
 
-  getHistory(conversationId: string, maxMessages = 9): Message[] {
+  async getHistory(
+    conversationId: string,
+    maxMessages = 9
+  ): Promise<Message[]> {
     const entry = this.cache.get(conversationId)
 
-    if (!entry || Date.now() - entry.lastActivityAt > this.TTL_MS) {
-      this.cache.delete(conversationId)
-      return []
+    if (entry) {
+      // Check if expired
+      if (Date.now() - entry.lastActivityAt > this.TTL_MS) {
+        this.cache.delete(conversationId)
+        return []
+      }
+
+      // Cache hit — return from memory
+      const messages =
+        maxMessages <= 0 ? [] : entry.messages.slice(-maxMessages)
+      Logger.debug(
+        `Retrieved conversation history - ConvID: ${conversationId}, Count: ${messages.length}`
+      )
+      return messages
     }
 
-    // Return last N messages
-    const messages = maxMessages <= 0 ? [] : entry.messages.slice(-maxMessages)
-    Logger.debug(
-      `Retrieved conversation history - ConvID: ${conversationId}, Count: ${messages.length}`
-    )
+    // Cache miss — try loading from MongoDB
+    // Skip DB load if this conversation was recently cleared (tombstone)
+    const clearedAt = this.clearedTimestamps.get(conversationId)
+    if (clearedAt !== undefined && Date.now() - clearedAt < this.TTL_MS)
+      return []
 
-    return messages
+    try {
+      const dbMessages = await loadConversation(conversationId, this.TTL_MS)
+      if (dbMessages && dbMessages.length > 0) {
+        // Validate/normalize DB messages to expected Message shape
+        const validatedMessages = this.validateDbMessages(dbMessages)
+        if (validatedMessages.length === 0) return []
+
+        // Restore to cache — use current time as lastActivityAt since user is actively requesting
+        const now = Date.now()
+        const restoredEntry: ConversationEntry = {
+          messages: validatedMessages,
+          createdAt: now,
+          lastActivityAt: now,
+        }
+        this.cache.set(conversationId, restoredEntry)
+        const messages =
+          maxMessages <= 0 ? [] : restoredEntry.messages.slice(-maxMessages)
+        Logger.debug(
+          `Restored conversation from DB - ConvID: ${conversationId}, Count: ${messages.length}`
+        )
+        return messages
+      }
+    } catch (error: any) {
+      Logger.warn(`Failed to load conversation from DB: ${error.message}`)
+    }
+
+    return []
+  }
+
+  /**
+   * Validate and normalize raw DB documents into the expected Message shape.
+   * Filters out any documents that cannot be meaningfully converted.
+   */
+  private validateDbMessages(dbMessages: any[]): Message[] {
+    const validated: Message[] = []
+    for (const doc of dbMessages) {
+      // role must be 'user' or 'model'
+      const role = doc?.role
+      if (role !== 'user' && role !== 'model') continue
+
+      // parts must be an array; default to empty array if missing/invalid
+      const parts: ContentPart[] = Array.isArray(doc.parts) ? doc.parts : []
+
+      // timestamp must be a number; default to current time if missing
+      const timestamp =
+        typeof doc.timestamp === 'number' ? doc.timestamp : Date.now()
+
+      const msg: Message = { role, parts, timestamp }
+      if (doc.userId) msg.userId = String(doc.userId)
+      if (doc.username) msg.username = String(doc.username)
+      if (doc.displayName) msg.displayName = String(doc.displayName)
+      validated.push(msg)
+    }
+    return validated
   }
 
   pruneExpired() {
@@ -168,9 +254,17 @@ export class ConversationBuffer {
       }
     }
 
+    // Prune stale tombstones
+    for (const [id, timestamp] of this.clearedTimestamps.entries()) {
+      if (now - timestamp > this.TTL_MS) {
+        this.clearedTimestamps.delete(id)
+        prunedCount++
+      }
+    }
+
     if (prunedCount > 0) {
       Logger.debug(
-        `Pruned expired conversations - Removed: ${prunedCount}, Remaining: ${this.cache.size}`
+        `Pruned expired conversations/tombstones - Removed: ${prunedCount}, Remaining: ${this.cache.size}`
       )
     }
   }
@@ -184,11 +278,63 @@ export class ConversationBuffer {
     ) // Every 5 minutes
   }
 
+  /**
+   * Debounced persistence to MongoDB.
+   * Waits PERSIST_DEBOUNCE_MS before writing to avoid rapid writes
+   * during ReAct loops.
+   */
+  private persistToDb(
+    conversationId: string,
+    messages: Message[]
+  ): Promise<void> {
+    return new Promise<void>(resolve => {
+      // Clear any pending persist for this conversation
+      const existing = this.pendingPersists.get(conversationId)
+      if (existing) clearTimeout(existing)
+
+      // Debounce: wait before writing to avoid rapid writes
+      const timer = setTimeout(async () => {
+        this.pendingPersists.delete(conversationId)
+        try {
+          await upsertConversation(conversationId, messages, this.MAX_MESSAGES)
+        } catch (err: any) {
+          Logger.warn(`Failed to persist conversation: ${err.message}`)
+        }
+        resolve()
+      }, this.PERSIST_DEBOUNCE_MS)
+
+      this.pendingPersists.set(conversationId, timer)
+    })
+  }
+
+  /**
+   * Clear a conversation from both cache and database.
+   */
+  clear(conversationId: string) {
+    this.cache.delete(conversationId)
+    // Tombstone: prevent DB restore until new messages are appended
+    this.clearedTimestamps.set(conversationId, Date.now())
+    // Cancel any pending persist for this conversation
+    const pending = this.pendingPersists.get(conversationId)
+    if (pending) {
+      clearTimeout(pending)
+      this.pendingPersists.delete(conversationId)
+    }
+    deleteConversation(conversationId).catch((err: any) =>
+      Logger.warn(`Failed to delete conversation from DB: ${err.message}`)
+    )
+  }
+
   shutdown() {
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval)
       this.cleanupInterval = null
     }
+    // Clear pending debounced writes
+    for (const timer of this.pendingPersists.values()) {
+      clearTimeout(timer)
+    }
+    this.pendingPersists.clear()
   }
 }
 

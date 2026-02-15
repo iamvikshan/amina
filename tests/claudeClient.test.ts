@@ -107,7 +107,7 @@ describe('ModelRouter Claude integration', () => {
   test('reasoning dispatches to Claude when configured', () => {
     const router = new ModelRouter({
       model: 'gemini-3-flash-preview',
-      embeddingModel: 'text-embedding-005',
+      embeddingModel: 'gemini-embedding-001',
       extractionModel: 'gemini-2.5-flash-lite',
       reasoningModel: 'claude-sonnet-4-5',
     })
@@ -120,7 +120,7 @@ describe('ModelRouter Claude integration', () => {
   test('reasoning falls back to Gemini when Claude not configured', () => {
     const router = new ModelRouter({
       model: 'gemini-3-flash-preview',
-      embeddingModel: 'text-embedding-005',
+      embeddingModel: 'gemini-embedding-001',
       extractionModel: 'gemini-2.5-flash-lite',
     })
 
@@ -133,6 +133,6 @@ describe('ModelRouter Claude integration', () => {
     expect(ModelRouter.isClaudeModel('claude-sonnet-4-5')).toBe(true)
     expect(ModelRouter.isClaudeModel('claude-3-opus-20240229')).toBe(true)
     expect(ModelRouter.isClaudeModel('gemini-3-flash-preview')).toBe(false)
-    expect(ModelRouter.isClaudeModel('text-embedding-005')).toBe(false)
+    expect(ModelRouter.isClaudeModel('gemini-embedding-001')).toBe(false)
   })
 })

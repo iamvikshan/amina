@@ -5,7 +5,7 @@ mock.module('../src/database/schemas/Dev', () => ({
   getAiConfig: async () => ({
     globallyEnabled: false,
     model: 'gemini-3-flash-preview',
-    embeddingModel: 'text-embedding-005',
+    embeddingModel: 'gemini-embedding-001',
     extractionModel: 'gemini-2.5-flash-lite',
     maxTokens: 1024,
     timeoutMs: 30000,
@@ -26,7 +26,7 @@ mock.module('../src/config/config', () => ({
   config: {
     AI: {
       MODEL: 'gemini-3-flash-preview',
-      EMBEDDING_MODEL: 'text-embedding-005',
+      EMBEDDING_MODEL: 'gemini-embedding-001',
       EXTRACTION_MODEL: 'gemini-2.5-flash-lite',
     },
   },

@@ -25,7 +25,7 @@ const logger = Logger
 
 export class MemoryService {
   private ai: GoogleGenAI | null = null
-  private embeddingModel: string = 'text-embedding-005' // fallback; overridden by config
+  private embeddingModel: string = 'gemini-embedding-001' // fallback; overridden by config
   private extractionModel: string = 'gemini-2.5-flash-lite' // fallback; overridden by config
   private dedupThreshold: number = 0.85
   private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
@@ -90,7 +90,13 @@ export class MemoryService {
     _userId: string,
     _guildId: string | null
   ): Promise<MemoryFact[]> {
-    if (!this.ai || conversationHistory.length < 3) return []
+    if (!this.ai) {
+      logger.warn(
+        'extractMemories skipped: Memory Service not initialized (AI client missing)'
+      )
+      return []
+    }
+    if (conversationHistory.length < 3) return []
 
     try {
       // Build conversation context with speaker attribution
@@ -155,7 +161,12 @@ If nothing worth remembering, return: []`
     guildId: string | null,
     context: string
   ): Promise<boolean> {
-    if (!this.ai) return false
+    if (!this.ai) {
+      logger.warn(
+        'storeMemory skipped: Memory Service not initialized (AI client missing)'
+      )
+      return false
+    }
 
     try {
       // Generate embedding for the memory
@@ -266,7 +277,12 @@ If nothing worth remembering, return: []`
       globalServerMemories?: boolean
     }
   ): Promise<RecalledMemory[]> {
-    if (!this.ai) return []
+    if (!this.ai) {
+      logger.warn(
+        'recallMemories skipped: Memory Service not initialized (AI client missing)'
+      )
+      return []
+    }
 
     try {
       // Generate embedding for the query
@@ -491,7 +507,12 @@ If nothing worth remembering, return: []`
    * Generate an embedding vector for the given text.
    */
   async generateEmbedding(text: string): Promise<number[] | null> {
-    if (!this.ai) return null
+    if (!this.ai) {
+      logger.warn(
+        'generateEmbedding skipped: Memory Service not initialized (AI client missing)'
+      )
+      return null
+    }
     try {
       const embeddingResult = await this.ai.models.embedContent({
         model: this.embeddingModel,

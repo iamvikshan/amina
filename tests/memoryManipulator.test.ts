@@ -170,7 +170,7 @@ describe('MemoryManipulator', () => {
     memoryService = new MemoryService()
     await memoryService.initialize({
       authConfig: { mode: 'api-key', apiKey: 'test-api-key' },
-      embeddingModel: 'text-embedding-005',
+      embeddingModel: 'gemini-embedding-001',
       extractionModel: 'gemini-2.5-flash-lite',
     })
 
