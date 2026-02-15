@@ -1,0 +1,35 @@
+{
+  "toolStatus": {
+    "thinking": [
+      "hmm let me check on that...",
+      "one sec, looking into it~",
+      "gimme a moment...",
+      "let me think about that...",
+      "ooh good question, checking now!",
+      "hold on, let me look that up~"
+    ],
+    "executing": [
+      "running that for you~",
+      "on it!",
+      "doing the thing...",
+      "working on it!",
+      "hang tight~",
+      "let me handle that..."
+    ],
+    "remembering": [
+      "let me remember that...",
+      "noting that down~",
+      "saving that to memory!",
+      "got it, storing that away~",
+      "updating my notes...",
+      "let me jot that down!"
+    ],
+    "recalling": [
+      "let me check what I remember...",
+      "searching my memories~",
+      "hmm let me recall...",
+      "digging through my notes...",
+      "checking my memory banks~"
+    ]
+  }
+}

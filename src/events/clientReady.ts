@@ -34,28 +34,28 @@ export default async (client: BotClient): Promise<void> => {
   // Initialize Memory Service
   const { configCache } = await import('@src/config/aiResponder')
   try {
-    const config = await configCache.getConfig()
+    const aiConfig = await configCache.getConfig()
     // Build auth config from discriminated AiConfig — credentials are pre-parsed by configCache
     const authConfig: AiAuthConfig =
-      config.authMode === 'vertex'
+      aiConfig.authMode === 'vertex'
         ? {
             mode: 'vertex',
-            project: config.vertexProjectId,
-            location: config.vertexRegion,
-            credentials: config.parsedCredentials,
+            project: aiConfig.vertexProjectId,
+            location: aiConfig.vertexRegion,
+            credentials: aiConfig.parsedCredentials,
           }
         : (() => {
-            if (!config.geminiKey) {
+            if (!aiConfig.geminiKey) {
               throw new Error('API key mode requires a non-empty GEMINI_KEY')
             }
-            return { mode: 'api-key' as const, apiKey: config.geminiKey }
+            return { mode: 'api-key' as const, apiKey: aiConfig.geminiKey }
           })()
 
     await memoryService.initialize({
       authConfig,
-      embeddingModel: config.embeddingModel,
-      extractionModel: config.extractionModel,
-      dedupThreshold: config.dedupThreshold,
+      embeddingModel: aiConfig.embeddingModel,
+      extractionModel: aiConfig.extractionModel,
+      dedupThreshold: aiConfig.dedupThreshold,
     })
 
     // Initialize Memory Manipulator tools

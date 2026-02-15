@@ -17,6 +17,7 @@ import automod from './respAutomod.json'
 import report from './respReport.json'
 import purge from './respPurge.json'
 import profile from './respProfile.json'
+import toolStatus from './respToolStatus.json'
 
 // Merge all response modules into a single object
 const responses = {
@@ -36,6 +37,7 @@ const responses = {
   ...report,
   ...purge,
   ...profile,
+  ...toolStatus,
 } as const
 
 export default responses

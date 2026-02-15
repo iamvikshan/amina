@@ -223,7 +223,7 @@ export class MemoryManipulator {
     const formatted = memories
       .map(
         (m, i) =>
-          `${i + 1}. ${m.key}: ${m.value} (relevance: ${(m.score * 100).toFixed(0)}%)`
+          `${i + 1}. ${m.key}: ${m.value} (relevance: ${((m.score ?? 0) * 100).toFixed(0)}%)`
       )
       .join('\n')
 

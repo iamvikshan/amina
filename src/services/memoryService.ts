@@ -511,7 +511,8 @@ If nothing worth remembering, return: []`
     description: string,
     newValue: string,
     userId: string,
-    guildId: string | null
+    guildId: string | null,
+    memoryType: string = 'user'
   ): Promise<{ found: boolean; oldValue?: string; newValue?: string }> {
     const embedding = await this.generateEmbedding(description)
     if (!embedding) return { found: false }
@@ -521,7 +522,7 @@ If nothing worth remembering, return: []`
         embedding,
         userId,
         guildId,
-        'user'
+        memoryType
       )
       if (!existing || existing.score < this.dedupThreshold) {
         return { found: false }
@@ -556,7 +557,8 @@ If nothing worth remembering, return: []`
   async deleteMemoryByMatch(
     description: string,
     userId: string,
-    guildId: string | null
+    guildId: string | null,
+    memoryType: string = 'user'
   ): Promise<{ found: boolean; deletedValue?: string }> {
     const embedding = await this.generateEmbedding(description)
     if (!embedding) return { found: false }
@@ -566,7 +568,7 @@ If nothing worth remembering, return: []`
         embedding,
         userId,
         guildId,
-        'user'
+        memoryType
       )
       if (!existing || existing.score < this.dedupThreshold) {
         return { found: false }

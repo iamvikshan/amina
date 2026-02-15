@@ -18,6 +18,8 @@ import { extractMediaFromMessage } from '../helpers/mediaExtractor'
 import { aiCommandRegistry } from './aiCommandRegistry'
 import { VirtualInteraction } from '../structures/VirtualInteraction'
 import aiPermissions from '../data/aiPermissions.json'
+import { mina } from '../helpers/mina'
+import { getToolStatusCategory } from '../helpers/toolStatus'
 
 const logger = Logger
 
@@ -536,6 +538,7 @@ export class AiResponderService {
       const MAX_ITERATIONS = 5 // Safety limit to prevent infinite loops
       let iteration = 0
       let currentHistory = [...formattedHistory]
+      let statusMessage: Message | null = null
 
       while (
         result.functionCalls &&
@@ -543,6 +546,18 @@ export class AiResponderService {
         iteration < MAX_ITERATIONS
       ) {
         iteration++
+
+        // Send a personality-flavored status message on first tool call
+        if (iteration === 1 && !statusMessage && result.functionCalls) {
+          const toolNames = result.functionCalls.map(fc => fc.name)
+          const category = getToolStatusCategory(toolNames)
+          const statusText = mina.say(category)
+          try {
+            statusMessage = await message.reply(statusText)
+          } catch {
+            // If status message fails to send, continue without it
+          }
+        }
 
         // Skip sending intermediate text - we'll let AI comment after seeing the result
         // This keeps chat cleaner: command output → AI commentary
@@ -706,13 +721,31 @@ export class AiResponderService {
 
       // Send final text reply if present
       if (result.text && result.text.trim()) {
-        await message.reply(result.text)
+        if (statusMessage) {
+          // Edit the status message with the final response
+          try {
+            await statusMessage.edit(result.text)
+          } catch {
+            // If edit fails (e.g., message deleted), send as new reply
+            await message.reply(result.text)
+          }
+        } else {
+          // No tool calls were made — send as normal reply
+          await message.reply(result.text)
+        }
         // Append bot response to conversation buffer with full model content
         conversationBuffer.appendParts(
           conversationId,
           'model',
           result.modelContent ?? [{ text: result.text }]
         )
+      } else if (statusMessage) {
+        // No final text but status message exists — clean up orphan
+        try {
+          await statusMessage.delete()
+        } catch {
+          // Ignore if already deleted
+        }
       }
 
       // Warn if we hit the iteration limit
