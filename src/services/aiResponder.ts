@@ -562,6 +562,42 @@ export class AiResponderService {
           const commandName = call.name
           let args = call.args
 
+          // Check if this is a native tool (memory manipulation, etc.)
+          if (aiCommandRegistry.isNativeTool(commandName)) {
+            const metadata = aiCommandRegistry.getMetadata(commandName)
+            if (metadata) {
+              const permissionCheck = await this.checkCommandPermissions(
+                message,
+                commandName,
+                metadata,
+                args
+              )
+              if (!permissionCheck.allowed) {
+                functionResults.push(permissionCheck.reason)
+                continue
+              }
+            }
+
+            try {
+              const nativeContext = {
+                userId: message.author.id,
+                guildId: message.guild?.id ?? null,
+              }
+              const toolResult = await aiCommandRegistry.executeNativeTool(
+                commandName,
+                args,
+                nativeContext
+              )
+              functionResults.push(toolResult)
+            } catch (err: any) {
+              logger.error(
+                `Failed to execute native tool ${commandName}: ${err.message}`
+              )
+              functionResults.push(`Tool ${commandName} failed: ${err.message}`)
+            }
+            continue
+          }
+
           const command = aiCommandRegistry.getCommand(commandName)
           const metadata = aiCommandRegistry.getMetadata(commandName)
 

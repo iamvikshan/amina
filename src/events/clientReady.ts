@@ -10,6 +10,7 @@ import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/aiResponder'
 import { aiCommandRegistry } from '@src/services/aiCommandRegistry'
 import { memoryService } from '@src/services/memoryService'
+import { memoryManipulator } from '@src/services/memoryManipulator'
 import { config } from '@src/config'
 import BotUtils from '../helpers/BotUtils'
 
@@ -56,6 +57,10 @@ export default async (client: BotClient): Promise<void> => {
       extractionModel: config.extractionModel,
       dedupThreshold: config.dedupThreshold,
     })
+
+    // Initialize Memory Manipulator tools
+    memoryManipulator.initialize(memoryService)
+    memoryManipulator.registerTools(aiCommandRegistry)
   } catch (error: any) {
     client.logger.warn(
       `Memory Service disabled - configuration error: ${error.message || error}`

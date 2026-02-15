@@ -30,12 +30,26 @@ interface FunctionDeclaration {
   }
 }
 
+// Native tool types (for tools not backed by slash commands)
+export type NativeToolHandler = (
+  args: Record<string, unknown>,
+  context: NativeToolContext
+) => Promise<string>
+
+export interface NativeToolContext {
+  userId: string
+  guildId: string | null
+}
+
 export class AiCommandRegistry {
   private client: BotClient | null = null
   private isInitialized: boolean = false
   private commandCache: Map<string, CommandData> = new Map()
   private toolDefinitions: FunctionDeclaration[] = []
   private toolMetadata: Map<string, AiToolMetadata> = new Map()
+  private nativeToolHandlers: Map<string, NativeToolHandler> = new Map()
+  private nativeToolDefinitions: FunctionDeclaration[] = []
+  private nativeToolMetadata: Map<string, AiToolMetadata> = new Map()
 
   initialize(client: BotClient) {
     if (this.isInitialized) return // Already initialized
@@ -48,9 +62,10 @@ export class AiCommandRegistry {
   refreshRegistry() {
     if (!this.client) return
 
+    // Clear only slash command entries; preserve native tools
     this.commandCache.clear()
-    this.toolDefinitions = []
-    this.toolMetadata.clear()
+    this.toolDefinitions = [...this.nativeToolDefinitions]
+    this.toolMetadata = new Map(this.nativeToolMetadata)
 
     this.client.slashCommands.forEach(cmd => {
       // Filter commands
@@ -83,6 +98,68 @@ export class AiCommandRegistry {
 
   getMetadata(name: string): AiToolMetadata | undefined {
     return this.toolMetadata.get(name)
+  }
+
+  /**
+   * Register native tools (not backed by slash commands)
+   */
+  registerNativeTools(
+    tools: Array<{
+      declaration: FunctionDeclaration
+      handler: NativeToolHandler
+      permissionModel?: PermissionModel
+    }>
+  ) {
+    for (const tool of tools) {
+      const name = tool.declaration.name
+
+      // Remove existing native tool definition with same name (idempotent)
+      const existingIdx = this.nativeToolDefinitions.findIndex(
+        d => d.name === name
+      )
+      if (existingIdx !== -1) {
+        this.nativeToolDefinitions.splice(existingIdx, 1)
+      }
+
+      this.nativeToolHandlers.set(name, tool.handler)
+      this.nativeToolDefinitions.push(tool.declaration)
+
+      const metadata: AiToolMetadata = {
+        name,
+        permissionModel: tool.permissionModel ?? 'open',
+        userPermissions: [],
+        freeWillAllowed: true,
+      }
+      this.nativeToolMetadata.set(name, metadata)
+
+      // Also update active definitions/metadata — remove old and add new
+      const activeIdx = this.toolDefinitions.findIndex(d => d.name === name)
+      if (activeIdx !== -1) {
+        this.toolDefinitions.splice(activeIdx, 1)
+      }
+      this.toolDefinitions.push(tool.declaration)
+      this.toolMetadata.set(name, metadata)
+    }
+  }
+
+  /**
+   * Check if a tool is a native tool (not a slash command)
+   */
+  isNativeTool(name: string): boolean {
+    return this.nativeToolHandlers.has(name)
+  }
+
+  /**
+   * Execute a native tool by name
+   */
+  async executeNativeTool(
+    name: string,
+    args: Record<string, unknown>,
+    context: NativeToolContext
+  ): Promise<string> {
+    const handler = this.nativeToolHandlers.get(name)
+    if (!handler) throw new Error(`Native tool ${name} not found`)
+    return handler(args, context)
   }
 
   /**

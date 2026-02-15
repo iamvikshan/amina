@@ -486,6 +486,104 @@ If nothing worth remembering, return: []`
       return 0
     }
   }
+
+  /**
+   * Generate an embedding vector for the given text.
+   */
+  async generateEmbedding(text: string): Promise<number[] | null> {
+    if (!this.ai) return null
+    try {
+      const embeddingResult = await this.ai.models.embedContent({
+        model: this.embeddingModel,
+        contents: text,
+      })
+      return embeddingResult.embeddings?.[0]?.values ?? null
+    } catch (error: any) {
+      logger.error(`Failed to generate embedding: ${error.message}`)
+      return null
+    }
+  }
+
+  /**
+   * Find and update an existing memory that semantically matches the description.
+   */
+  async updateMemoryByMatch(
+    description: string,
+    newValue: string,
+    userId: string,
+    guildId: string | null
+  ): Promise<{ found: boolean; oldValue?: string; newValue?: string }> {
+    const embedding = await this.generateEmbedding(description)
+    if (!embedding) return { found: false }
+
+    try {
+      const existing = await findSimilarMemory(
+        embedding,
+        userId,
+        guildId,
+        'user'
+      )
+      if (!existing || existing.score < this.dedupThreshold) {
+        return { found: false }
+      }
+
+      const oldValue = existing.value
+      await Model.findByIdAndUpdate(
+        existing._id,
+        {
+          $set: {
+            value: newValue,
+            lastAccessedAt: new Date(),
+          },
+          $inc: { accessCount: 1 },
+        },
+        { runValidators: true }
+      )
+
+      logger.debug(
+        `Updated memory "${existing.key}" for user ${userId} (score: ${existing.score.toFixed(3)})`
+      )
+      return { found: true, oldValue, newValue }
+    } catch (error: any) {
+      logger.error(`Failed to update memory by match: ${error.message}`)
+      return { found: false }
+    }
+  }
+
+  /**
+   * Find and delete an existing memory that semantically matches the description.
+   */
+  async deleteMemoryByMatch(
+    description: string,
+    userId: string,
+    guildId: string | null
+  ): Promise<{ found: boolean; deletedValue?: string }> {
+    const embedding = await this.generateEmbedding(description)
+    if (!embedding) return { found: false }
+
+    try {
+      const existing = await findSimilarMemory(
+        embedding,
+        userId,
+        guildId,
+        'user'
+      )
+      if (!existing || existing.score < this.dedupThreshold) {
+        return { found: false }
+      }
+
+      const deletedValue = existing.value
+      await Model.findByIdAndDelete(existing._id)
+
+      logger.debug(
+        `Deleted memory "${existing.key}" for user ${userId} (score: ${existing.score.toFixed(3)})`
+      )
+      return { found: true, deletedValue }
+    } catch (error: any) {
+      logger.error(`Failed to delete memory by match: ${error.message}`)
+      return { found: false }
+    }
+  }
 }
 
 // Singleton instance

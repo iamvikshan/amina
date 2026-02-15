@@ -42,7 +42,11 @@
       "daily",
       "beg",
       "redflag",
-      "react"
+      "react",
+      "remember_fact",
+      "update_memory",
+      "forget_memory",
+      "recall_memories"
     ],
     "userRequestOnly": [
       "gamble",
