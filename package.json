@@ -33,7 +33,6 @@
     "@google/genai": "^1.41.0",
     "@honeybadger-io/js": "^6.12.3",
     "@octokit/rest": "^22.0.1",
-    "@upstash/vector": "^1.2.2",
     "@vitalets/google-translate-api": "^9.2.1",
     "axios": "^1.13.5",
     "common-tags": "^1.8.2",

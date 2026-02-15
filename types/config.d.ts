@@ -31,7 +31,6 @@ declare global {
       TIMEOUT_MS: number
       TEMPERATURE: number
       DM_ENABLED_GLOBALLY: boolean
-      UPSTASH_URL: string
     }
     SERVER: {
       HEALTH_PORT: number
@@ -115,7 +114,6 @@ declare global {
 
     // API Keys & Tokens
     readonly GEMINI_KEY?: string
-    readonly UPSTASH_VECTOR?: string
     readonly GOOGLE_SERVICE_ACCOUNT_JSON?: string
     readonly VERTEX_PROJECT_ID?: string
     readonly VERTEX_REGION?: string
@@ -148,8 +146,6 @@ declare global {
     systemPrompt: string
     temperature: number
     dmEnabledGlobally: boolean
-    upstashUrl: string
-    upstashToken: string
   }
 
   interface ApiKeyAiConfig extends AiConfigBase {
@@ -159,7 +155,6 @@ declare global {
     vertexProjectId?: string
     vertexRegion?: string
     googleServiceAccountJson?: string
-    parsedCredentials?: undefined
   }
 
   /**

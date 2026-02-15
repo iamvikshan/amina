@@ -46,7 +46,6 @@ declare module '@src/config' {
       TIMEOUT_MS: number
       TEMPERATURE: number
       DM_ENABLED_GLOBALLY: boolean
-      UPSTASH_URL: string
     }
     SERVER: {
       HEALTH_PORT: number
@@ -137,7 +136,6 @@ declare module '@src/config' {
 
     // API Keys & Tokens
     readonly GEMINI_KEY?: string
-    readonly UPSTASH_VECTOR?: string
     readonly WEATHERSTACK_KEY?: string
     readonly STRANGE_API_KEY?: string
     readonly GH_TOKEN?: string

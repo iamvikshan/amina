@@ -34,30 +34,27 @@ export default async (client: BotClient): Promise<void> => {
   const { configCache } = await import('@src/config/aiResponder')
   try {
     const config = await configCache.getConfig()
-    if (!config.upstashUrl || !config.upstashToken) {
-      client.logger.warn(
-        'Memory Service disabled - missing Upstash configuration'
-      )
-    } else {
-      // Build auth config from discriminated AiConfig — credentials are pre-parsed by configCache
-      const authConfig: AiAuthConfig =
-        config.authMode === 'vertex'
-          ? {
-              mode: 'vertex',
-              project: config.vertexProjectId,
-              location: config.vertexRegion,
-              credentials: config.parsedCredentials,
+    // Build auth config from discriminated AiConfig — credentials are pre-parsed by configCache
+    const authConfig: AiAuthConfig =
+      config.authMode === 'vertex'
+        ? {
+            mode: 'vertex',
+            project: config.vertexProjectId,
+            location: config.vertexRegion,
+            credentials: config.parsedCredentials,
+          }
+        : (() => {
+            if (!config.geminiKey) {
+              throw new Error('API key mode requires a non-empty GEMINI_KEY')
             }
-          : { mode: 'api-key', apiKey: config.geminiKey ?? '' }
+            return { mode: 'api-key' as const, apiKey: config.geminiKey }
+          })()
 
-      await memoryService.initialize(
-        authConfig,
-        config.upstashUrl,
-        config.upstashToken,
-        config.embeddingModel,
-        config.extractionModel
-      )
-    }
+    await memoryService.initialize({
+      authConfig,
+      embeddingModel: config.embeddingModel,
+      extractionModel: config.extractionModel,
+    })
   } catch (error: any) {
     client.logger.warn(
       `Memory Service disabled - configuration error: ${error.message || error}`

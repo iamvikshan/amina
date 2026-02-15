@@ -1,6 +1,7 @@
 // @root/src/helpers/claudeClient.ts
 
 import AnthropicVertex, { type ClientOptions } from '@anthropic-ai/vertex-sdk'
+import { APIError } from '@anthropic-ai/vertex-sdk/core/error'
 import { GoogleAuth, type JWTInput } from 'google-auth-library'
 import Logger from './Logger'
 
@@ -79,11 +80,20 @@ export class ClaudeClient {
         tokensUsed,
         latency: Date.now() - startTime,
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const latency = Date.now() - startTime
-      Logger.error(`Claude API error: ${error.message}`, error)
+      const message = error instanceof Error ? error.message : String(error)
+      const status = error instanceof APIError ? error.status : 'unknown'
+      Logger.error(
+        `Claude API error: ${message}`,
+        error instanceof APIError
+          ? error
+          : error instanceof Error
+            ? error
+            : new Error(message)
+      )
       Logger.debug(
-        `Claude error details: status=${error.status}, latency=${latency}ms`
+        `Claude error details: status=${status}, latency=${latency}ms`
       )
       throw error
     }

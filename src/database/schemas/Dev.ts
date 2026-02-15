@@ -79,10 +79,6 @@ const Schema = new mongoose.Schema(
         type: Boolean,
         default: config.AI.DM_ENABLED_GLOBALLY,
       },
-      upstashUrl: {
-        type: String,
-        default: config.AI.UPSTASH_URL,
-      },
       embeddingModel: {
         type: String,
         default: config.AI.EMBEDDING_MODEL,

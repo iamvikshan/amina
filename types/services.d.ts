@@ -28,8 +28,9 @@ declare global {
 
   /**
    * Represents a single part of a Content message.
-   * Matches the Google GenAI SDK Part shape — discriminated by key presence.
-   * Exactly one top-level key should be set per instance.
+   * Matches the Google GenAI SDK Part shape.
+   * Narrow via key-presence checks: 'text' in part, 'inlineData' in part, etc.
+   * There is no conventional discriminant field; use type guards at runtime.
    */
   type ContentPart =
     | { text: string }

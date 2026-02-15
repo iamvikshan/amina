@@ -19,7 +19,6 @@ const config: Config = {
     TIMEOUT_MS: 20000,
     TEMPERATURE: 0.7,
     DM_ENABLED_GLOBALLY: true,
-    UPSTASH_URL: 'https://up-wolf-22896-us1-vector.upstash.io',
   },
   SERVER: {
     HEALTH_PORT: 3000,

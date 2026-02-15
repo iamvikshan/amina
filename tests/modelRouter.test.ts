@@ -66,6 +66,11 @@ describe('ModelRouter', () => {
     test('hasReasoningModel returns true when configured', () => {
       expect(routerWithClaude.hasReasoningModel()).toBe(true)
     })
+
+    test('getRoutingSummary shows reasoning model when configured', () => {
+      const summary = routerWithClaude.getRoutingSummary()
+      expect(summary.reasoning).toBe('claude-sonnet-4-5')
+    })
   })
 
   test('getRoutingSummary shows all models', () => {
@@ -73,6 +78,35 @@ describe('ModelRouter', () => {
     expect(summary.chat).toBe('gemini-3-flash-preview')
     expect(summary.embedding).toBe('text-embedding-005')
     expect(summary.extraction).toBe('gemini-2.5-flash-lite')
-    expect(summary.reasoning).toContain('fallback')
+    expect(summary.reasoning).toBe('gemini-3-flash-preview (fallback)')
+  })
+
+  test('throws on empty model string', () => {
+    expect(
+      () =>
+        new ModelRouter({
+          model: '',
+          embeddingModel: 'text-embedding-005',
+          extractionModel: 'gemini-2.5-flash-lite',
+        })
+    ).toThrow(/model is required and cannot be empty/)
+  })
+
+  test('throws on empty reasoningModel when provided', () => {
+    expect(
+      () =>
+        new ModelRouter({
+          model: 'gemini-3-flash-preview',
+          embeddingModel: 'text-embedding-005',
+          extractionModel: 'gemini-2.5-flash-lite',
+          reasoningModel: '',
+        })
+    ).toThrow(/reasoningModel cannot be an empty string/)
+  })
+
+  test('isClaudeModel is case-insensitive', () => {
+    expect(ModelRouter.isClaudeModel('Claude-3-opus')).toBe(true)
+    expect(ModelRouter.isClaudeModel('CLAUDE-SONNET-4-5')).toBe(true)
+    expect(ModelRouter.isClaudeModel('gemini-3-flash')).toBe(false)
   })
 })

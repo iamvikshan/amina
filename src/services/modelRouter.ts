@@ -27,6 +27,21 @@ export class ModelRouter {
     extractionModel: string
     reasoningModel?: string | null
   }) {
+    if (!config.model?.trim())
+      throw new TypeError('model is required and cannot be empty')
+    if (!config.embeddingModel?.trim())
+      throw new TypeError('embeddingModel is required and cannot be empty')
+    if (!config.extractionModel?.trim())
+      throw new TypeError('extractionModel is required and cannot be empty')
+    if (
+      config.reasoningModel !== undefined &&
+      config.reasoningModel !== null &&
+      !config.reasoningModel.trim()
+    ) {
+      throw new TypeError(
+        'reasoningModel cannot be an empty string when provided'
+      )
+    }
     this.chatModel = config.model
     this.embeddingModel = config.embeddingModel
     this.extractionModel = config.extractionModel
@@ -61,8 +76,9 @@ export class ModelRouter {
   /**
    * Check if a model ID is a Claude model (for routing to ClaudeClient)
    */
-  static isClaudeModel(modelId: string): boolean {
-    return modelId.startsWith('claude-')
+  static isClaudeModel(modelId: string | null | undefined): boolean {
+    if (!modelId || typeof modelId !== 'string') return false
+    return modelId.toLowerCase().startsWith('claude-')
   }
 
   /**

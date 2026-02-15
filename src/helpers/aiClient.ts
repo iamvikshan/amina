@@ -9,6 +9,9 @@ import type { MediaItem } from './mediaExtractor'
 // These are still exported for runtime use, but types are global
 export type { AiResponse, ConversationMessage }
 
+/** Maximum image size in bytes (10 MB) */
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024
+
 export class AiClient {
   private ai: GoogleGenAI
   private model: string
@@ -53,7 +56,19 @@ export class AiClient {
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.statusText}`)
       }
+      const contentLength = response.headers.get('content-length')
+      if (contentLength && parseInt(contentLength, 10) > MAX_IMAGE_SIZE) {
+        throw new Error(
+          `Image too large: ${contentLength} bytes (max ${MAX_IMAGE_SIZE})`
+        )
+      }
+
       const arrayBuffer = await response.arrayBuffer()
+      if (arrayBuffer.byteLength > MAX_IMAGE_SIZE) {
+        throw new Error(
+          `Image too large: ${arrayBuffer.byteLength} bytes (max ${MAX_IMAGE_SIZE})`
+        )
+      }
       return Buffer.from(arrayBuffer).toString('base64')
     } catch (error: any) {
       const safeUrl = (() => {
@@ -83,11 +98,17 @@ export class AiClient {
 
         let mimeType = media.mimeType
         if (!mimeType) {
-          if (media.url.toLowerCase().endsWith('.png')) {
+          let ext = ''
+          try {
+            ext = new URL(media.url, 'http://localhost').pathname.toLowerCase()
+          } catch {
+            ext = media.url.toLowerCase()
+          }
+          if (ext.endsWith('.png')) {
             mimeType = 'image/png'
-          } else if (media.url.toLowerCase().endsWith('.gif')) {
+          } else if (ext.endsWith('.gif')) {
             mimeType = 'image/gif'
-          } else if (media.url.toLowerCase().endsWith('.webp')) {
+          } else if (ext.endsWith('.webp')) {
             mimeType = 'image/webp'
           } else {
             mimeType = 'image/jpeg'

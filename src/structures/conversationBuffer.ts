@@ -37,9 +37,8 @@ export class ConversationBuffer {
    */
   static getTextContent(message: Message): string {
     return message.parts
-      .map(part => ('text' in part ? part.text : null))
-      .filter((text): text is string => text !== null && text.trim() !== '')
-      .map(text => text.trim())
+      .map(part => ('text' in part ? part.text.trim() : null))
+      .filter((text): text is string => text !== null && text !== '')
       .join(' ')
   }
 
@@ -83,6 +82,7 @@ export class ConversationBuffer {
     username?: string,
     displayName?: string
   ) {
+    if (!content || !content.trim()) return // Skip empty/whitespace-only content
     this.appendParts(
       conversationId,
       role,
@@ -104,6 +104,8 @@ export class ConversationBuffer {
     username?: string,
     displayName?: string
   ) {
+    if (parts.length === 0) return // No-op for empty parts
+
     const entry = this.cache.get(conversationId) || {
       messages: [],
       createdAt: Date.now(),

@@ -93,6 +93,7 @@ export class AiResponderService {
             'AI globally enabled with api-key mode but GEMINI_KEY is empty'
           )
           this.client = null
+          this.currentClientConfig = null
           return
         }
         if (
@@ -102,10 +103,17 @@ export class AiResponderService {
             !config.googleServiceAccountJson ||
             !config.parsedCredentials)
         ) {
+          const missing = [
+            !config.vertexProjectId && 'vertexProjectId',
+            !config.vertexRegion && 'vertexRegion',
+            !config.googleServiceAccountJson && 'googleServiceAccountJson',
+            !config.parsedCredentials && 'parsedCredentials',
+          ].filter(Boolean)
           logger.error(
-            'AI globally enabled with vertex mode but missing required Vertex AI credentials'
+            `AI globally enabled with vertex mode but missing required credential(s): ${missing.join(', ')}`
           )
           this.client = null
+          this.currentClientConfig = null
           return
         }
 

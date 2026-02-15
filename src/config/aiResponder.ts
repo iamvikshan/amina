@@ -84,13 +84,14 @@ interface AiDbConfig {
   systemPrompt: string
   temperature: number
   dmEnabledGlobally: boolean
-  upstashUrl: string
 }
 
 class ConfigCache {
   private cache: AiDbConfig | null = null
   private lastFetch: number = 0
   private readonly TTL = 5 * 60 * 1000 // 5 minutes
+  private parsedCreds: GoogleServiceAccountCredentials | null = null
+  private lastSecretJson: string = '' // track secret changes
 
   async getConfig(): Promise<AiConfig> {
     // Fetch from MongoDB - schema defaults ensure all values exist
@@ -110,16 +111,14 @@ class ConfigCache {
     // Common config fields from DB
     const baseConfig = {
       globallyEnabled: cache.globallyEnabled,
-      model: cache.model ?? config.AI.MODEL,
-      embeddingModel: cache.embeddingModel ?? config.AI.EMBEDDING_MODEL,
-      extractionModel: cache.extractionModel ?? config.AI.EXTRACTION_MODEL,
+      model: cache.model || config.AI.MODEL,
+      embeddingModel: cache.embeddingModel || config.AI.EMBEDDING_MODEL,
+      extractionModel: cache.extractionModel || config.AI.EXTRACTION_MODEL,
       maxTokens: cache.maxTokens,
       timeoutMs: cache.timeoutMs,
       systemPrompt: cache.systemPrompt,
       temperature: cache.temperature,
       dmEnabledGlobally: cache.dmEnabledGlobally,
-      upstashUrl: cache.upstashUrl,
-      upstashToken: secret.UPSTASH_VECTOR || '',
     }
 
     // Validate common config when AI is enabled
@@ -133,15 +132,20 @@ class ConfigCache {
       if (!baseConfig.systemPrompt) throw new Error('System prompt is required')
     }
 
-    // Determine auth mode: prefer Vertex AI when service account is available
-    // Parse and validate service account JSON if present
+    // Cache parsed credentials — only re-validate when secret changes
     let parsedCredentials: GoogleServiceAccountCredentials | undefined
     let vertexProjectId = secret.VERTEX_PROJECT_ID || ''
-    const vertexRegion = secret.VERTEX_REGION || 'us-central1'
+    const vertexRegion = secret.VERTEX_REGION || 'global'
 
     if (googleServiceAccountJson && baseConfig.globallyEnabled) {
-      parsedCredentials = validateServiceAccountJson(googleServiceAccountJson)
-      // Extract project_id from service account JSON if VERTEX_PROJECT_ID is not set
+      if (
+        googleServiceAccountJson !== this.lastSecretJson ||
+        !this.parsedCreds
+      ) {
+        this.parsedCreds = validateServiceAccountJson(googleServiceAccountJson)
+        this.lastSecretJson = googleServiceAccountJson
+      }
+      parsedCredentials = this.parsedCreds
       if (!vertexProjectId) {
         vertexProjectId = parsedCredentials.project_id
       }
@@ -180,6 +184,8 @@ class ConfigCache {
   invalidate() {
     this.cache = null
     this.lastFetch = 0
+    this.parsedCreds = null
+    this.lastSecretJson = ''
   }
 
   /**

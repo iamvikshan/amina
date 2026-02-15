@@ -362,7 +362,9 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
           inline: true,
         }
       )
-      .setFooter({ text: 'memory system powered by upstash vector + mongodb' })
+      .setFooter({
+        text: 'memory system powered by mongodb atlas vector search',
+      })
       .setTimestamp()
 
     // Use editReply if available (hub context), otherwise followUp (command context)

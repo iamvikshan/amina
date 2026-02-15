@@ -37,7 +37,7 @@ describe('ClaudeClient', () => {
     mockCreate.mockClear()
     client = new ClaudeClient({
       project: 'test-project',
-      location: 'us-central1',
+      location: 'global',
       model: 'claude-sonnet-4-5',
       timeout: 30000,
     })
@@ -80,18 +80,26 @@ describe('ClaudeClient', () => {
     // Short timeout client
     const shortClient = new ClaudeClient({
       project: 'test-project',
-      location: 'us-central1',
+      location: 'global',
       model: 'claude-sonnet-4-5',
       timeout: 10, // 10ms timeout
     })
 
+    let timerId: ReturnType<typeof setTimeout> | undefined
     mockCreate.mockImplementationOnce(
-      () => new Promise(resolve => setTimeout(resolve, 5000))
+      () =>
+        new Promise(resolve => {
+          timerId = setTimeout(resolve, 5000)
+        })
     )
 
-    await expect(shortClient.generateText('System', 'Message')).rejects.toThrow(
-      'Claude API timeout'
-    )
+    try {
+      await expect(
+        shortClient.generateText('System', 'Message')
+      ).rejects.toThrow('Claude API timeout')
+    } finally {
+      if (timerId) clearTimeout(timerId)
+    }
   })
 })
 

@@ -2,6 +2,16 @@
 
 import mongoose from 'mongoose'
 
+// REQUIRED: Create Atlas Vector Search index on the 'aimemories' collection:
+// {
+//   "fields": [
+//     { "type": "vector", "path": "embedding", "numDimensions": 768, "similarity": "cosine" },
+//     { "type": "filter", "path": "userId" },
+//     { "type": "filter", "path": "guildId" },
+//     { "type": "filter", "path": "memoryType" }
+//   ]
+// }
+
 const Schema = new mongoose.Schema(
   {
     userId: { type: String, required: true, index: true },
@@ -16,7 +26,17 @@ const Schema = new mongoose.Schema(
     value: { type: String, required: true },
     context: { type: String, default: '' }, // Snippet of conversation
     importance: { type: Number, default: 5, min: 1, max: 10 },
-    vectorId: { type: String, required: true, unique: true }, // Upstash vector ID
+    embedding: {
+      type: [Number],
+      default: [],
+      validate: {
+        validator: (v: number[]) =>
+          v.length === 0 ||
+          (v.length === 768 && v.every(n => Number.isFinite(n))),
+        message:
+          'Embedding must be empty or exactly 768 finite numbers (NaN/Infinity not allowed)',
+      },
+    }, // 768-dimension vector for Atlas Vector Search
     lastAccessedAt: { type: Date, default: Date.now },
     accessCount: { type: Number, default: 0 },
   },
@@ -87,24 +107,22 @@ export async function getUserMemoryCount(
 }
 
 // Delete oldest memories for a user (by creation date, keeping most important)
-// Returns object with deletedCount and vectorIds for Upstash deletion
 export async function deleteOldestMemories(
   userId: string,
   guildId: string | null,
   keepCount: number
-): Promise<{ deletedCount: number; vectorIds: string[] }> {
+): Promise<{ deletedCount: number }> {
   // Get all memories sorted by importance (desc) then createdAt (asc)
   const allMemories = await Model.find({ userId, guildId })
     .sort({ importance: -1, createdAt: 1 })
     .lean()
 
   if (allMemories.length <= keepCount) {
-    return { deletedCount: 0, vectorIds: [] } // No deletion needed
+    return { deletedCount: 0 } // No deletion needed
   }
 
   // Keep the top N by importance, delete the rest
   const toDelete = allMemories.slice(keepCount)
-  const vectorIds = toDelete.map(m => m.vectorId)
 
   // Delete from MongoDB
   const result = await Model.deleteMany({
@@ -113,7 +131,6 @@ export async function deleteOldestMemories(
 
   return {
     deletedCount: result.deletedCount || 0,
-    vectorIds, // Return vectorIds for Upstash deletion
   }
 }
 
@@ -148,4 +165,49 @@ export async function pruneMemories(options: {
   })
 
   return result.deletedCount || 0
+}
+
+/** Maximum numCandidates for Atlas Vector Search (prevents unbounded scans) */
+const MAX_NUM_CANDIDATES = 1000
+
+// NOTE: $vectorSearch is a MongoDB Atlas-only feature.
+// This function will fail on standalone/replica-set MongoDB deployments.
+export async function vectorSearch(
+  queryVector: number[],
+  filter: Record<string, unknown>,
+  limit: number
+): Promise<
+  Array<{
+    _id: any
+    key: string
+    value: string
+    context: string
+    importance: number
+    guildId: string | null
+    score: number
+  }>
+> {
+  return await Model.aggregate([
+    {
+      $vectorSearch: {
+        index: 'vector_index',
+        path: 'embedding',
+        queryVector,
+        numCandidates: Math.min(limit * 10, MAX_NUM_CANDIDATES),
+        limit,
+        filter,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        key: 1,
+        value: 1,
+        context: 1,
+        importance: 1,
+        guildId: 1,
+        score: { $meta: 'vectorSearchScore' },
+      },
+    },
+  ])
 }

@@ -1,17 +1,16 @@
 // @root/src/services/memoryService.ts
 
-import { Index } from '@upstash/vector'
 import { GoogleGenAI, type GoogleGenAIOptions } from '@google/genai'
 import Logger from '../helpers/Logger'
 import {
   saveMemory,
   getUserMemories,
-  updateMemoryAccess,
   deleteUserMemories,
   getMemoryStats,
   pruneMemories,
   getUserMemoryCount,
   deleteOldestMemories,
+  vectorSearch,
   Model,
 } from '../database/schemas/AiMemory'
 import {
@@ -24,25 +23,18 @@ const logger = Logger
 // MemoryFact and RecalledMemory are now globally available - see types/services.d.ts
 
 export class MemoryService {
-  private upstashIndex: Index | null = null
   private ai: GoogleGenAI | null = null
   private embeddingModel: string = 'text-embedding-005' // fallback; overridden by config
   private extractionModel: string = 'gemini-2.5-flash-lite' // fallback; overridden by config
   private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
 
-  async initialize(
-    authConfig: AiAuthConfig,
-    upstashUrl: string,
-    upstashToken: string,
-    embeddingModel?: string,
+  async initialize(options: {
+    authConfig: AiAuthConfig
+    embeddingModel?: string
     extractionModel?: string
-  ) {
+  }) {
     try {
-      // Initialize Upstash Vector
-      this.upstashIndex = new Index({
-        url: upstashUrl,
-        token: upstashToken,
-      })
+      const { authConfig } = options
 
       // Initialize Gemini based on auth mode
       if (authConfig.mode === 'vertex') {
@@ -51,24 +43,30 @@ export class MemoryService {
             'Vertex AI requires non-empty project and location in authConfig'
           )
         }
-        const options: GoogleGenAIOptions = {
+        const genaiOptions: GoogleGenAIOptions = {
           vertexai: true,
           project: authConfig.project,
           location: authConfig.location,
         }
         if (authConfig.credentials) {
-          options.googleAuthOptions = {
+          genaiOptions.googleAuthOptions = {
             credentials: authConfig.credentials,
           }
         }
-        this.ai = new GoogleGenAI(options)
+        this.ai = new GoogleGenAI(genaiOptions)
       } else {
+        if (!authConfig.apiKey) {
+          throw new Error(
+            'API key mode requires a non-empty apiKey in authConfig'
+          )
+        }
         this.ai = new GoogleGenAI({ apiKey: authConfig.apiKey })
       }
 
       // Use configured models if provided
-      if (embeddingModel) this.embeddingModel = embeddingModel
-      if (extractionModel) this.extractionModel = extractionModel
+      if (options.embeddingModel) this.embeddingModel = options.embeddingModel
+      if (options.extractionModel)
+        this.extractionModel = options.extractionModel
 
       logger.success(`Memory Service initialized (auth: ${authConfig.mode})`)
     } catch (error: any) {
@@ -144,7 +142,7 @@ If nothing worth remembering, return: []`
   }
 
   /**
-   * Store a memory in both MongoDB and Upstash
+   * Store a memory in MongoDB with its embedding vector
    */
   async storeMemory(
     fact: MemoryFact,
@@ -152,7 +150,7 @@ If nothing worth remembering, return: []`
     guildId: string | null,
     context: string
   ): Promise<boolean> {
-    if (!this.upstashIndex || !this.ai) return false
+    if (!this.ai) return false
 
     try {
       // Generate embedding for the memory
@@ -167,23 +165,7 @@ If nothing worth remembering, return: []`
         return false
       }
 
-      // Generate unique vector ID
-      const vectorId = `mem_${userId}_${guildId || 'dm'}_${Date.now()}`
-
-      // Store vector in Upstash
-      await this.upstashIndex.upsert({
-        id: vectorId,
-        vector: embedding,
-        metadata: {
-          userId,
-          guildId: guildId || 'dm',
-          key: fact.key,
-          value: fact.value,
-          importance: fact.importance,
-        },
-      })
-
-      // Store metadata in MongoDB
+      // Store everything in MongoDB (including embedding vector)
       await saveMemory({
         userId,
         guildId,
@@ -192,30 +174,21 @@ If nothing worth remembering, return: []`
         value: fact.value,
         context,
         importance: fact.importance,
-        vectorId,
+        embedding,
       })
 
       // Check memory limit and delete oldest if exceeded
       const currentCount = await getUserMemoryCount(userId, guildId)
       if (currentCount > this.MAX_MEMORIES_PER_USER) {
-        const { deletedCount, vectorIds } = await deleteOldestMemories(
+        const { deletedCount } = await deleteOldestMemories(
           userId,
           guildId,
           this.MAX_MEMORIES_PER_USER
         )
-
-        // Delete from Upstash as well
-        if (vectorIds.length > 0 && this.upstashIndex) {
-          try {
-            await this.upstashIndex.delete(vectorIds)
-            logger.debug(
-              `Deleted ${deletedCount} oldest memories for user ${userId} (context: ${guildId || 'DM'})`
-            )
-          } catch (error: any) {
-            logger.warn(
-              `Failed to delete old memories from Upstash: ${error.message}`
-            )
-          }
+        if (deletedCount > 0) {
+          logger.debug(
+            `Deleted ${deletedCount} oldest memories for user ${userId} (context: ${guildId || 'DM'})`
+          )
         }
       }
 
@@ -228,7 +201,9 @@ If nothing worth remembering, return: []`
   }
 
   /**
-   * Recall relevant memories for a message
+   * Recall relevant memories for a message.
+   * Note: when post-filtering is needed (server context with global memories but not combining DM),
+   * the actual number of results may be less than the requested limit due to Atlas filter limitations.
    */
   async recallMemories(
     userMessage: string,
@@ -240,7 +215,7 @@ If nothing worth remembering, return: []`
       globalServerMemories?: boolean
     }
   ): Promise<RecalledMemory[]> {
-    if (!this.upstashIndex || !this.ai) return []
+    if (!this.ai) return []
 
     try {
       // Generate embedding for the query
@@ -254,100 +229,83 @@ If nothing worth remembering, return: []`
         return []
       }
 
-      // Query Upstash for similar memories
-      const results = await this.upstashIndex.query({
-        vector: queryVector,
-        topK: limit * 3, // Get more to filter by user/guild/preferences
-        includeMetadata: true,
-      })
+      // Build filter for Atlas Vector Search
+      const filter: Record<string, unknown> = { userId }
 
-      // STRICT filtering with user preferences
-      const memories: RecalledMemory[] = results
-        .filter(r => {
-          const meta = r.metadata as any
-          // Must match user
-          if (meta.userId !== userId) return false
-
-          const memoryGuildId = meta.guildId
-          const isDmMemory = memoryGuildId === null || memoryGuildId === 'dm'
-          const isServerMemory =
-            memoryGuildId !== null && memoryGuildId !== 'dm'
-
-          if (guildId) {
-            // Server context
-            if (userPrefs?.combineDmWithServer) {
-              // Allow both server AND DM memories
-              if (isServerMemory) {
-                // Server memory: check global preference
-                if (userPrefs?.globalServerMemories !== false) {
-                  // Global: allow all server memories
-                  return true
-                } else {
-                  // Per-server: only current server
-                  return memoryGuildId === guildId
-                }
-              } else {
-                // DM memory: allow if combining
-                return true
-              }
-            } else {
-              // ONLY server memories (strict)
-              if (isServerMemory) {
-                // Server memory: check global preference
-                if (userPrefs?.globalServerMemories !== false) {
-                  // Global: allow all server memories
-                  return true
-                } else {
-                  // Per-server: only current server
-                  return memoryGuildId === guildId
-                }
-              } else {
-                // DM memory: reject (strict separation)
-                return false
-              }
-            }
+      if (guildId) {
+        // Server context
+        if (userPrefs?.combineDmWithServer) {
+          // Allow both server AND DM memories
+          if (userPrefs?.globalServerMemories !== false) {
+            // Global server + DM: no guildId filter (just userId)
           } else {
-            // DM context
-            if (userPrefs?.combineDmWithServer) {
-              // Allow both DM AND server memories
-              return true
-            } else {
-              // ONLY DM memories (strict)
-              return isDmMemory
-            }
+            // Per-server + DM
+            filter.guildId = { $in: [guildId, null] }
           }
-        })
-        .slice(0, limit)
-        .map(r => {
-          const meta = r.metadata as any
-          return {
-            id: r.id,
-            key: meta.key,
-            value: meta.value,
-            score: r.score || 0,
-            context: '', // We'll fetch from MongoDB if needed
+        } else {
+          // ONLY server memories (strict)
+          if (userPrefs?.globalServerMemories !== false) {
+            // Global server: exclude DM (guildId must not be null)
+            // Atlas $vectorSearch filter doesn't support $ne, so we skip guildId filter
+            // and rely on the data — most memories will have a guildId set
+          } else {
+            // Per-server only
+            filter.guildId = guildId
           }
-        })
-
-      // Update access tracking in MongoDB
-      // Use appropriate query based on preferences for MongoDB lookup
-      const mongoQueryGuildId =
-        userPrefs?.globalServerMemories !== false && guildId
-          ? null // Query all server memories
-          : guildId
-
-      for (const memory of memories) {
-        // Find MongoDB record by vectorId and update
-        const mongoMemory = await getUserMemories(
-          userId,
-          mongoQueryGuildId,
-          100
-        )
-        const match = mongoMemory.find(m => m.vectorId === memory.id)
-        if (match) {
-          await updateMemoryAccess(match._id.toString())
-          memory.context = match.context
         }
+      } else {
+        // DM context
+        if (userPrefs?.combineDmWithServer) {
+          // Allow both DM AND server memories: no guildId filter
+        } else {
+          // ONLY DM memories (strict)
+          filter.guildId = null
+        }
+      }
+
+      // Use Atlas Vector Search — overfetch to compensate for post-filtering
+      const needsPostFilter =
+        guildId &&
+        userPrefs?.globalServerMemories !== false &&
+        !userPrefs?.combineDmWithServer
+      const fetchSize = needsPostFilter
+        ? Math.max(limit * 2, limit + 10) // Overfetch to compensate for post-filtering; +10 is a best-effort heuristic fallback due to Atlas $vectorSearch filter limitations
+        : limit
+      let results = await vectorSearch(queryVector, filter, fetchSize)
+
+      // Post-filter: when in server context with global memories but NOT combining DM,
+      // exclude DM memories (guildId === null) that may have slipped through
+      if (needsPostFilter) {
+        results = results.filter(r => r.guildId != null)
+        const finalCount = results.length
+        if (finalCount < limit) {
+          logger.debug(
+            `Post-filtering reduced results: limit=${limit}, fetchSize=${fetchSize}, finalCount=${finalCount}`
+          )
+        }
+      }
+
+      // Trim back to requested limit after post-filtering
+      results = results.slice(0, limit)
+
+      const memories: RecalledMemory[] = results.map(r => ({
+        id: r._id,
+        key: r.key,
+        value: r.value,
+        score: r.score,
+        context: r.context,
+      }))
+
+      // Bulk update access tracking
+      if (memories.length > 0) {
+        const ids = results.map(r => r._id)
+        await Model.updateMany(
+          { _id: { $in: ids } },
+          {
+            $set: { lastAccessedAt: new Date() },
+            $inc: { accessCount: 1 },
+          }
+        )
       }
 
       logger.debug(`Recalled ${memories.length} memories for user ${userId}`)
@@ -362,21 +320,8 @@ If nothing worth remembering, return: []`
    * Delete all memories for a user
    */
   async forgetUser(userId: string, guildId: string | null): Promise<number> {
-    if (!this.upstashIndex) return 0
-
     try {
-      // Get all memories from MongoDB
-      const memories = await getUserMemories(userId, guildId, 1000)
-
-      // Delete from Upstash
-      const vectorIds = memories.map(m => m.vectorId)
-      if (vectorIds.length > 0) {
-        await this.upstashIndex.delete(vectorIds)
-      }
-
-      // Delete from MongoDB
       const deletedCount = await deleteUserMemories(userId, guildId)
-
       logger.log(`Forgot ${deletedCount} memories for user ${userId}`)
       return deletedCount
     } catch (error: any) {
@@ -476,10 +421,7 @@ If nothing worth remembering, return: []`
    * Prune old memories
    */
   async pruneOldMemories(): Promise<number> {
-    if (!this.upstashIndex) return 0
-
     try {
-      // Get memories to prune from MongoDB
       const deleted = await pruneMemories({
         olderThanDays: 90,
         maxImportance: 3,

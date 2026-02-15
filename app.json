@@ -73,11 +73,6 @@
       "required": false,
       "value": ""
     },
-    "UPSTASH_VECTOR": {
-      "description": "Upstash Vector Database token (https://upstash.com)",
-      "required": false,
-      "value": ""
-    },
     "WEATHERSTACK_KEY": {
       "description": "Weather command API key (https://weatherstack.com)",
       "required": false,

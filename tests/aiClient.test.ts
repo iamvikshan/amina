@@ -58,7 +58,7 @@ describe('AiClient', () => {
 
   test('initializes with vertex config', () => {
     const vertexClient = new AiClient(
-      { mode: 'vertex', project: 'test-project', location: 'us-central1' },
+      { mode: 'vertex', project: 'test-project', location: 'global' },
       'gemini-3-flash-preview',
       30000
     )

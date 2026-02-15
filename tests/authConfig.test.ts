@@ -12,15 +12,13 @@ mock.module('../src/database/schemas/Dev', () => ({
     systemPrompt: 'test',
     temperature: 0.7,
     dmEnabledGlobally: false,
-    upstashUrl: '',
   }),
 }))
 mock.module('../src/config/secrets', () => ({
   secret: {
     GEMINI_KEY: '',
-    UPSTASH_VECTOR: '',
     VERTEX_PROJECT_ID: '',
-    VERTEX_REGION: 'us-central1',
+    VERTEX_REGION: 'global',
     GOOGLE_SERVICE_ACCOUNT_JSON: '',
   },
 }))
@@ -71,6 +69,7 @@ describe('Service Account JSON Validation', () => {
     const json = JSON.stringify({
       private_key:
         '-----BEGIN RSA PRIVATE KEY-----\nfake\n-----END RSA PRIVATE KEY-----',
+      project_id: 'test-project',
     })
     const base64 = Buffer.from(json).toString('base64')
     expect(() => validateServiceAccountJson(base64)).toThrow(/client_email/)

@@ -10,7 +10,6 @@ declare global {
       // Secrets - Optional
       LOGS_WEBHOOK?: string
       GEMINI_KEY?: string
-      UPSTASH_VECTOR?: string
       WEATHERSTACK_KEY?: string
       STRANGE_API_KEY?: string
       GH_TOKEN?: string

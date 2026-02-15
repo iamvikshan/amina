@@ -37,35 +37,33 @@ mock.module('../src/helpers/Logger', () => ({
 }))
 
 // Mock database schemas
+const mockSaveMemory = mock(() => Promise.resolve())
+const mockGetUserMemories = mock(() => Promise.resolve([]))
+const mockDeleteUserMemories = mock(() => Promise.resolve(0))
+const mockGetMemoryStats = mock(() =>
+  Promise.resolve({ total: 0, byType: [], topUsers: [] })
+)
+const mockPruneMemories = mock(() => Promise.resolve(0))
+const mockGetUserMemoryCount = mock(() => Promise.resolve(0))
+const mockDeleteOldestMemories = mock(() =>
+  Promise.resolve({ deletedCount: 0 })
+)
+const mockVectorSearch = mock(() => Promise.resolve([]))
+const mockUpdateMany = mock(() => Promise.resolve({ modifiedCount: 0 }))
+
 mock.module('../src/database/schemas/AiMemory', () => ({
-  saveMemory: mock(() => Promise.resolve()),
-  getUserMemories: mock(() => Promise.resolve([])),
-  updateMemoryAccess: mock(() => Promise.resolve()),
-  deleteUserMemories: mock(() => Promise.resolve(0)),
-  getMemoryStats: mock(() =>
-    Promise.resolve({ total: 0, byType: [], topUsers: [] })
-  ),
-  pruneMemories: mock(() => Promise.resolve(0)),
-  getUserMemoryCount: mock(() => Promise.resolve(0)),
-  deleteOldestMemories: mock(() =>
-    Promise.resolve({ deletedCount: 0, vectorIds: [] })
-  ),
+  saveMemory: mockSaveMemory,
+  getUserMemories: mockGetUserMemories,
+  deleteUserMemories: mockDeleteUserMemories,
+  getMemoryStats: mockGetMemoryStats,
+  pruneMemories: mockPruneMemories,
+  getUserMemoryCount: mockGetUserMemoryCount,
+  deleteOldestMemories: mockDeleteOldestMemories,
+  vectorSearch: mockVectorSearch,
   Model: {
     distinct: mock(() => Promise.resolve([])),
     aggregate: mock(() => Promise.resolve([])),
-  },
-}))
-
-// Mock @upstash/vector
-const mockUpsert = mock(() => Promise.resolve())
-const mockQuery = mock(() => Promise.resolve([]))
-const mockDelete = mock(() => Promise.resolve())
-
-mock.module('@upstash/vector', () => ({
-  Index: class MockIndex {
-    upsert = mockUpsert
-    query = mockQuery
-    delete = mockDelete
+    updateMany: mockUpdateMany,
   },
 }))
 
@@ -77,17 +75,21 @@ describe('MemoryService (new SDK)', () => {
   beforeEach(async () => {
     mockEmbedContent.mockClear()
     mockGenerateContent.mockClear()
-    mockUpsert.mockClear()
-    mockQuery.mockClear()
-    mockDelete.mockClear()
+    mockSaveMemory.mockClear()
+    mockGetUserMemoryCount.mockClear()
+    mockDeleteOldestMemories.mockClear()
+    mockVectorSearch.mockClear()
+    mockUpdateMany.mockClear()
+    mockDeleteUserMemories.mockClear()
+    mockGetUserMemories.mockClear()
+    mockGetMemoryStats.mockClear()
+    mockPruneMemories.mockClear()
     service = new MemoryService()
-    await service.initialize(
-      { mode: 'api-key', apiKey: 'test-api-key' },
-      'https://test.upstash.io',
-      'test-token',
-      'text-embedding-005',
-      'gemini-2.5-flash-lite'
-    )
+    await service.initialize({
+      authConfig: { mode: 'api-key', apiKey: 'test-api-key' },
+      embeddingModel: 'text-embedding-005',
+      extractionModel: 'gemini-2.5-flash-lite',
+    })
   })
 
   test('embedding via new SDK uses ai.models.embedContent', async () => {
@@ -102,17 +104,24 @@ describe('MemoryService (new SDK)', () => {
     expect(callArgs.contents).toBe('test_key: test_value')
   })
 
-  test('embedding result extraction uses embeddings[0].values', async () => {
+  test('embedding result is stored with saveMemory including embedding array', async () => {
     const fact = { key: 'name', value: 'Alice', importance: 8 }
     const result = await service.storeMemory(fact, 'user1', null, 'context')
 
     // If the embedding extraction works, storeMemory should succeed
     expect(result).toBe(true)
 
-    // Verify upsert was called with the embedding from embeddings[0].values
-    expect(mockUpsert).toHaveBeenCalledTimes(1)
-    const upsertArgs = mockUpsert.mock.calls[0][0] as any
-    expect(upsertArgs.vector).toEqual(new Array(768).fill(0.1))
+    // Verify saveMemory was called with embedding (not vectorId)
+    expect(mockSaveMemory).toHaveBeenCalledTimes(1)
+    const saveArgs = mockSaveMemory.mock.calls[0][0] as any
+    expect(saveArgs.embedding).toEqual(new Array(768).fill(0.1))
+    expect(saveArgs.userId).toBe('user1')
+    expect(saveArgs.guildId).toBeNull()
+    expect(saveArgs.key).toBe('name')
+    expect(saveArgs.value).toBe('Alice')
+    expect(saveArgs.importance).toBe(8)
+    // vectorId should NOT be present
+    expect(saveArgs.vectorId).toBeUndefined()
   })
 
   test('extraction uses ai.models.generateContent', async () => {
@@ -173,5 +182,93 @@ describe('MemoryService (new SDK)', () => {
       importance: 8,
       memoryType: 'user',
     })
+  })
+
+  test('recallMemories uses vectorSearch with correct filter', async () => {
+    const mockResults = [
+      {
+        _id: 'mem1',
+        key: 'name',
+        value: 'Alice',
+        context: 'said her name',
+        importance: 8,
+        guildId: 'guild1',
+        score: 0.95,
+      },
+      {
+        _id: 'mem2',
+        key: 'food',
+        value: 'pizza',
+        context: 'likes pizza',
+        importance: 5,
+        guildId: 'guild1',
+        score: 0.8,
+      },
+    ]
+    mockVectorSearch.mockImplementationOnce(() => Promise.resolve(mockResults))
+
+    const memories = await service.recallMemories(
+      'What is my name?',
+      'user1',
+      'guild1',
+      5
+    )
+
+    // Verify embedContent was called for the query
+    expect(mockEmbedContent).toHaveBeenCalledTimes(1)
+
+    // Verify vectorSearch was called with the right params
+    expect(mockVectorSearch).toHaveBeenCalledTimes(1)
+    const [queryVector, filter, limit] = mockVectorSearch.mock.calls[0] as any
+    expect(queryVector).toEqual(new Array(768).fill(0.1))
+    expect(filter.userId).toBe('user1')
+    // Overfetch to compensate for DM post-filtering (Math.max(5*2, 5+10) = 15)
+    expect(limit).toBe(15)
+
+    // Default prefs: global server mode — no guildId filter applied
+    expect(filter.guildId).toBeUndefined()
+
+    // Verify returned memories
+    expect(memories).toHaveLength(2)
+    expect(memories[0].key).toBe('name')
+    expect(memories[0].value).toBe('Alice')
+    expect(memories[0].score).toBe(0.95)
+    expect(memories[0].context).toBe('said her name')
+    expect(memories[1].key).toBe('food')
+
+    // Verify bulk access tracking
+    expect(mockUpdateMany).toHaveBeenCalledTimes(1)
+  })
+
+  test('recallMemories DM context filters guildId to null', async () => {
+    mockVectorSearch.mockImplementationOnce(() => Promise.resolve([]))
+
+    await service.recallMemories('hello', 'user1', null, 5)
+
+    expect(mockVectorSearch).toHaveBeenCalledTimes(1)
+    const [, filter] = mockVectorSearch.mock.calls[0] as any
+    expect(filter.userId).toBe('user1')
+    expect(filter.guildId).toBeNull()
+  })
+
+  test('forgetUser calls deleteUserMemories directly', async () => {
+    mockDeleteUserMemories.mockImplementationOnce(() => Promise.resolve(3))
+
+    const count = await service.forgetUser('user1', 'guild1')
+
+    expect(count).toBe(3)
+    expect(mockDeleteUserMemories).toHaveBeenCalledWith('user1', 'guild1')
+  })
+
+  test('prunes oldest memories when over limit', async () => {
+    mockGetUserMemoryCount.mockImplementationOnce(() => Promise.resolve(60))
+    mockDeleteOldestMemories.mockImplementationOnce(() =>
+      Promise.resolve({ deletedCount: 10 })
+    )
+
+    const fact = { key: 'test', value: 'test', importance: 5 }
+    await service.storeMemory(fact, 'user1', null, 'ctx')
+
+    expect(mockDeleteOldestMemories).toHaveBeenCalledTimes(1)
   })
 })

@@ -139,18 +139,26 @@ describe('ConversationBuffer (parts-based)', () => {
     expect(history).toHaveLength(2)
   })
 
-  test('append with empty string creates message with empty text part', () => {
+  test('append with empty string is a no-op', () => {
     buffer.append('test-conv', 'user', '')
     const history = buffer.getHistory('test-conv')
-    expect(history).toHaveLength(1)
-    expect(history[0].parts).toEqual([{ text: '' }])
+    expect(history).toHaveLength(0)
   })
 
-  test('appendParts with empty array creates message with no parts', () => {
+  test('appendParts with empty array is a no-op', () => {
+    buffer.appendParts('test-conv', 'model', [])
+    const history = buffer.getHistory('test-conv')
+    expect(history).toHaveLength(0)
+  })
+
+  test('appendParts with empty array does not affect existing messages', () => {
+    buffer.append('test-conv', 'user', 'existing message')
     buffer.appendParts('test-conv', 'model', [])
     const history = buffer.getHistory('test-conv')
     expect(history).toHaveLength(1)
-    expect(history[0].parts).toEqual([])
+    expect(ConversationBuffer.getTextContent(history[0])).toBe(
+      'existing message'
+    )
   })
 
   test('getTextContent on message with only non-text parts returns empty string', () => {

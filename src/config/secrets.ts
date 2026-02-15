@@ -103,9 +103,6 @@ export const secrets: Secrets = {
   get GEMINI_KEY() {
     return getOptionalSecret('GEMINI_KEY')
   },
-  get UPSTASH_VECTOR() {
-    return getOptionalSecret('UPSTASH_VECTOR')
-  },
   get GOOGLE_SERVICE_ACCOUNT_JSON() {
     return getOptionalSecret('GOOGLE_SERVICE_ACCOUNT_JSON')
   },
