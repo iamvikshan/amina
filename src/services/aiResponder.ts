@@ -8,6 +8,7 @@ import { GoogleAiClient } from '../helpers/googleAiClient'
 // ConversationMessage is now globally available - see types/services.d.ts
 import {
   conversationBuffer,
+  ConversationBuffer,
   type Message as BufferMessage,
 } from '../structures/conversationBuffer'
 import { memoryService } from './memoryService'
@@ -495,7 +496,10 @@ export class AiResponderService {
         // TODO!: might want to send intermediate text and delete it after AI responds
         if (result.text && result.text.trim()) {
           // Just add to history so AI has context, but don't send to user
-          currentHistory.push({ role: 'model', content: result.text })
+          currentHistory.push({
+            role: 'model',
+            parts: result.modelContent ?? [{ text: result.text }],
+          })
         }
 
         // Process all function calls in this response
@@ -573,7 +577,7 @@ export class AiResponderService {
         if (!result.text || !result.text.trim()) {
           currentHistory.push({
             role: 'model',
-            content: '[Executing requested commands...]',
+            parts: [{ text: '[Executing requested commands...]' }],
           })
           conversationBuffer.append(
             conversationId,
@@ -608,14 +612,18 @@ export class AiResponderService {
         )
 
         // Add the feedback to history for next iteration (if any)
-        currentHistory.push({ role: 'user', content: systemFeedback })
+        currentHistory.push({ role: 'user', parts: [{ text: systemFeedback }] })
       }
 
       // Send final text reply if present
       if (result.text && result.text.trim()) {
         await message.reply(result.text)
-        // Append bot response to conversation buffer
-        conversationBuffer.append(conversationId, 'model', result.text)
+        // Append bot response to conversation buffer with full model content
+        conversationBuffer.appendParts(
+          conversationId,
+          'model',
+          result.modelContent ?? [{ text: result.text }]
+        )
       }
 
       // Warn if we hit the iteration limit
@@ -961,21 +969,7 @@ export class AiResponderService {
   private formatHistoryForAI(
     history: BufferMessage[]
   ): globalThis.ConversationMessage[] {
-    return history.map(msg => {
-      if (msg.role === 'model') {
-        return { role: 'model', content: msg.content }
-      }
-
-      // User message with attribution
-      if (msg.userId && msg.displayName) {
-        // Format: "Alice: I like pizza"
-        const attributedContent = `${msg.displayName}: ${msg.content}`
-        return { role: 'user', content: attributedContent }
-      }
-
-      // Fallback for old messages without attribution
-      return { role: 'user', content: msg.content }
-    })
+    return history.map(msg => ConversationBuffer.formatWithAttribution(msg))
   }
 
   /**
@@ -1073,7 +1067,7 @@ export class AiResponderService {
       // Store each memory
       const conversationSnippet = history
         .slice(-3)
-        .map(m => m.content.substring(0, 50))
+        .map(m => ConversationBuffer.getTextContent(m).substring(0, 50))
         .join(' | ')
 
       for (const fact of facts) {

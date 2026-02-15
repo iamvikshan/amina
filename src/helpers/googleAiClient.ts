@@ -1,6 +1,6 @@
 // @root/src/helpers/googleAiClient.ts
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import Logger from './Logger'
 import type { MediaItem } from './mediaExtractor'
 
@@ -11,12 +11,12 @@ const logger = Logger
 export type { AiResponse, ConversationMessage }
 
 export class GoogleAiClient {
-  private genAI: GoogleGenerativeAI
+  private ai: GoogleGenAI
   private model: string
   private timeout: number
 
   constructor(apiKey: string, model: string, timeout: number) {
-    this.genAI = new GoogleGenerativeAI(apiKey)
+    this.ai = new GoogleGenAI({ apiKey })
     this.model = model
     this.timeout = timeout
   }
@@ -42,8 +42,10 @@ export class GoogleAiClient {
   /**
    * Convert media items to Gemini API format
    */
-  private async convertMediaToParts(mediaItems: MediaItem[]): Promise<any[]> {
-    const parts: any[] = []
+  private async convertMediaToParts(
+    mediaItems: MediaItem[]
+  ): Promise<ContentPart[]> {
+    const parts: ContentPart[] = []
 
     for (const media of mediaItems) {
       try {
@@ -92,64 +94,61 @@ export class GoogleAiClient {
     const startTime = Date.now()
 
     try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.model,
-        systemInstruction: systemPrompt,
-        tools: tools ? [{ functionDeclarations: tools }] : undefined,
-      })
+      // Build contents array from history + current message
+      const contents: ConversationMessage[] = [...conversationHistory]
 
-      // Build chat history from conversation buffer
-      const history = conversationHistory.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.content }],
-      }))
-
-      // Start chat with history
-      const chat = model.startChat({
-        history,
-        generationConfig: {
-          maxOutputTokens: maxTokens,
-          temperature,
-        },
-      })
-
-      // Build message parts
-      const messageParts: any[] = []
-
-      // Add text if present
+      // Build current user message parts
+      const userParts: ContentPart[] = []
       if (userMessage.trim()) {
-        messageParts.push({ text: userMessage })
+        userParts.push({ text: userMessage })
       }
-
-      // Add media if present
       if (mediaItems && mediaItems.length > 0) {
         const mediaParts = await this.convertMediaToParts(mediaItems)
-        messageParts.push(...mediaParts)
+        userParts.push(...mediaParts)
+      }
+      // Only add user message if there are actual parts to send (avoids 400 errors from empty parts[])
+      if (userParts.length > 0) {
+        contents.push({ role: 'user', parts: userParts })
       }
 
-      // Send message with timeout
-      const result = await this.withTimeout(
-        chat.sendMessage(messageParts),
+      // Call generateContent
+      const response = await this.withTimeout(
+        this.ai.models.generateContent({
+          model: this.model,
+          contents,
+          config: {
+            systemInstruction: systemPrompt,
+            maxOutputTokens: maxTokens,
+            temperature,
+            tools: tools ? [{ functionDeclarations: tools }] : undefined,
+          },
+        }),
         this.timeout
       )
 
-      const response = await result.response
-      const text = response.text()
-
-      // Check for function calls
-      const functionCalls = response.functionCalls()
-
+      const text = response.text ?? ''
+      const functionCalls = response.functionCalls
+      const tokensUsed = response.usageMetadata?.totalTokenCount ?? 0
       const latency = Date.now() - startTime
 
-      // Note: Google AI doesn't return token counts in the same way as OpenAI
-      // We'll estimate or leave as 0 for now
-      const tokensUsed = 0
+      // We always use the first candidate (single-candidate mode)
+      const modelContent = response.candidates?.[0]?.content?.parts as
+        | ContentPart[]
+        | undefined
 
       return {
         text,
         tokensUsed,
         latency,
-        functionCalls: functionCalls ? functionCalls : undefined,
+        functionCalls: functionCalls?.map(fc => {
+          if (!fc.name) {
+            logger.warn(
+              `Function call received without name, using 'unknown'. Full call: ${JSON.stringify(fc)}`
+            )
+          }
+          return { name: fc.name ?? 'unknown', args: fc.args }
+        }),
+        modelContent: modelContent ?? (text ? [{ text }] : undefined),
       }
     } catch (error: any) {
       const latency = Date.now() - startTime
@@ -176,9 +175,6 @@ export class GoogleAiClient {
   }
 
   private handleError(error: any, latency: number) {
-    // Don't throw in handleError since we already throw in catch block
-    // Just log appropriately
-
     if (!error) {
       logger.error('Unknown error occurred')
       return
@@ -202,7 +198,6 @@ export class GoogleAiClient {
       return
     }
 
-    // For unhandled errors, try to log what we can
     try {
       logger.error(
         `Unhandled AI error - Type: ${typeof error}, Message: ${errorMessage}`

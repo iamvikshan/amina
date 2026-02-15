@@ -1,7 +1,7 @@
 // @root/src/services/memoryService.ts
 
 import { Index } from '@upstash/vector'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import Logger from '../helpers/Logger'
 import {
   saveMemory,
@@ -14,7 +14,10 @@ import {
   deleteOldestMemories,
   Model,
 } from '../database/schemas/AiMemory'
-import type { Message } from '../structures/conversationBuffer'
+import {
+  ConversationBuffer,
+  type Message,
+} from '../structures/conversationBuffer'
 
 const logger = Logger
 
@@ -22,7 +25,7 @@ const logger = Logger
 
 export class MemoryService {
   private upstashIndex: Index | null = null
-  private genAI: GoogleGenerativeAI | null = null
+  private ai: GoogleGenAI | null = null
   private embeddingModel: string = 'text-embedding-005' // fallback; overridden by config
   private extractionModel: string = 'gemini-2.5-flash-lite' // fallback; overridden by config
   private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
@@ -42,7 +45,7 @@ export class MemoryService {
       })
 
       // Initialize Gemini for embeddings
-      this.genAI = new GoogleGenerativeAI(geminiKey)
+      this.ai = new GoogleGenAI({ apiKey: geminiKey })
 
       // Use configured models if provided
       if (embeddingModel) this.embeddingModel = embeddingModel
@@ -65,26 +68,23 @@ export class MemoryService {
     _userId: string,
     _guildId: string | null
   ): Promise<MemoryFact[]> {
-    if (!this.genAI || conversationHistory.length < 3) return []
+    if (!this.ai || conversationHistory.length < 3) return []
 
     try {
-      const model = this.genAI.getGenerativeModel({
-        model: this.extractionModel,
-      })
-
       // Build conversation context with speaker attribution
       const conversationText = conversationHistory
         .slice(-10) // Last 10 messages
         .map(m => {
+          const text = ConversationBuffer.getTextContent(m)
           if (m.role === 'model') {
-            return `model: ${m.content}`
+            return `model: ${text}`
           }
           // User message with attribution if available
           if (m.userId && m.displayName) {
-            return `${m.displayName}: ${m.content}`
+            return `${m.displayName}: ${text}`
           }
           // Fallback for old messages without attribution
-          return `user: ${m.content}`
+          return `user: ${text}`
         })
         .join('\n')
 
@@ -102,8 +102,11 @@ Return ONLY valid JSON array (no markdown, no explanation):
 
 If nothing worth remembering, return: []`
 
-      const result = await model.generateContent(extractionPrompt)
-      const response = result.response.text().trim()
+      const result = await this.ai.models.generateContent({
+        model: this.extractionModel,
+        contents: extractionPrompt,
+      })
+      const response = (result.text ?? '').trim()
 
       // Clean response - remove markdown code blocks if present
       const cleanResponse = response
@@ -130,17 +133,20 @@ If nothing worth remembering, return: []`
     guildId: string | null,
     context: string
   ): Promise<boolean> {
-    if (!this.upstashIndex || !this.genAI) return false
+    if (!this.upstashIndex || !this.ai) return false
 
     try {
       // Generate embedding for the memory
-      const embeddingModel = this.genAI.getGenerativeModel({
-        model: this.embeddingModel,
-      })
-
       const embeddingText = `${fact.key}: ${fact.value}`
-      const embeddingResult = await embeddingModel.embedContent(embeddingText)
-      const embedding = embeddingResult.embedding.values
+      const embeddingResult = await this.ai.models.embedContent({
+        model: this.embeddingModel,
+        contents: embeddingText,
+      })
+      const embedding = embeddingResult.embeddings?.[0]?.values
+      if (!embedding) {
+        logger.warn('Failed to generate embedding: no values returned')
+        return false
+      }
 
       // Generate unique vector ID
       const vectorId = `mem_${userId}_${guildId || 'dm'}_${Date.now()}`
@@ -215,16 +221,19 @@ If nothing worth remembering, return: []`
       globalServerMemories?: boolean
     }
   ): Promise<RecalledMemory[]> {
-    if (!this.upstashIndex || !this.genAI) return []
+    if (!this.upstashIndex || !this.ai) return []
 
     try {
       // Generate embedding for the query
-      const embeddingModel = this.genAI.getGenerativeModel({
+      const embeddingResult = await this.ai.models.embedContent({
         model: this.embeddingModel,
+        contents: userMessage,
       })
-
-      const embeddingResult = await embeddingModel.embedContent(userMessage)
-      const queryVector = embeddingResult.embedding.values
+      const queryVector = embeddingResult.embeddings?.[0]?.values
+      if (!queryVector) {
+        logger.warn('Failed to generate query embedding: no values returned')
+        return []
+      }
 
       // Query Upstash for similar memories
       const results = await this.upstashIndex.query({

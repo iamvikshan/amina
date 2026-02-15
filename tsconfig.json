@@ -62,5 +62,13 @@
     "emitDecoratorMetadata": true
   },
   "include": ["src/**/*", "types/**/*"],
-  "exclude": ["node_modules", "**/node_modules/*", "dist", "build", "logs"]
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*",
+    "dist",
+    "build",
+    "logs",
+    "test",
+    "tests"
+  ]
 }

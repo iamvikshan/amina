@@ -6,7 +6,7 @@ import { secret } from './secrets'
 import { config } from './config'
 
 class ConfigCache {
-  private cache: any = null
+  private cache: Record<string, any> | null = null
   private lastFetch: number = 0
   private readonly TTL = 5 * 60 * 1000 // 5 minutes
 
@@ -18,21 +18,25 @@ class ConfigCache {
       this.lastFetch = Date.now()
     }
 
+    const cache = this.cache
+    if (!cache) {
+      throw new Error('AI config cache is empty')
+    }
     const geminiKey = secret.GEMINI_KEY || ''
 
     // DB is the single source of truth - config.ts values seed the DB on first run
     const aiConfig: AiConfig = {
-      globallyEnabled: this.cache.globallyEnabled,
-      model: this.cache.model || config.AI.MODEL,
-      embeddingModel: this.cache.embeddingModel || config.AI.EMBEDDING_MODEL,
-      extractionModel: this.cache.extractionModel || config.AI.EXTRACTION_MODEL,
-      maxTokens: this.cache.maxTokens,
-      timeoutMs: this.cache.timeoutMs,
-      systemPrompt: this.cache.systemPrompt,
-      temperature: this.cache.temperature,
-      dmEnabledGlobally: this.cache.dmEnabledGlobally,
+      globallyEnabled: cache.globallyEnabled,
+      model: cache.model ?? config.AI.MODEL,
+      embeddingModel: cache.embeddingModel ?? config.AI.EMBEDDING_MODEL,
+      extractionModel: cache.extractionModel ?? config.AI.EXTRACTION_MODEL,
+      maxTokens: cache.maxTokens,
+      timeoutMs: cache.timeoutMs,
+      systemPrompt: cache.systemPrompt,
+      temperature: cache.temperature,
+      dmEnabledGlobally: cache.dmEnabledGlobally,
       geminiKey,
-      upstashUrl: this.cache.upstashUrl,
+      upstashUrl: cache.upstashUrl,
       upstashToken: secret.UPSTASH_VECTOR || '',
       vertexProjectId: secret.VERTEX_PROJECT_ID || '',
       vertexRegion: secret.VERTEX_REGION || 'us-central1',
@@ -44,6 +48,11 @@ class ConfigCache {
       if (!aiConfig.geminiKey && !aiConfig.googleServiceAccountJson) {
         throw new Error(
           'Either GEMINI_KEY or GOOGLE_SERVICE_ACCOUNT_JSON is required'
+        )
+      }
+      if (aiConfig.googleServiceAccountJson && !aiConfig.vertexProjectId) {
+        throw new Error(
+          'VERTEX_PROJECT_ID is required when GOOGLE_SERVICE_ACCOUNT_JSON is provided'
         )
       }
       if (!aiConfig.model) throw new Error('Model name is required')

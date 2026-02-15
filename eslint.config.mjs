@@ -118,7 +118,8 @@ export default [
       '.git/**',
       'coverage/**',
       '*.min.js',
-      'astro/**',
+      'tests/**',
+      '**/*.{test,spec}.ts',
     ],
   },
 ]

@@ -4,9 +4,10 @@ import Logger from '../helpers/Logger'
 
 const logger = Logger
 
+// ContentPart is globally declared in types/services.d.ts
 export interface Message {
   role: 'user' | 'model'
-  content: string
+  parts: ContentPart[]
   timestamp: number
   // User attribution fields (optional for backward compatibility)
   userId?: string // Discord user ID
@@ -31,10 +32,64 @@ export class ConversationBuffer {
     this.startCleanupDaemon()
   }
 
+  /**
+   * Extract text content from a parts-based message
+   */
+  static getTextContent(message: Message): string {
+    return message.parts
+      .map(part => (typeof part.text === 'string' ? part.text : null))
+      .filter((text): text is string => text !== null)
+      .join('')
+  }
+
+  /**
+   * Format a message with speaker attribution for AI context.
+   * Preserves non-text parts (images, function calls, etc.)
+   */
+  static formatWithAttribution(msg: Message): ConversationMessage {
+    if (msg.role === 'model') {
+      return { role: 'model', parts: msg.parts }
+    }
+    if (msg.userId && msg.displayName) {
+      const textContent = ConversationBuffer.getTextContent(msg)
+      const attributedText = `${msg.displayName}: ${textContent}`
+      const nonTextParts = msg.parts.filter(p => p.text == null)
+      return {
+        role: 'user',
+        parts: [{ text: attributedText }, ...nonTextParts],
+      }
+    }
+    return { role: 'user', parts: msg.parts }
+  }
+
+  /**
+   * Append a text message (auto-converts to parts format)
+   */
   append(
     conversationId: string,
     role: 'user' | 'model',
     content: string,
+    userId?: string,
+    username?: string,
+    displayName?: string
+  ) {
+    this.appendParts(
+      conversationId,
+      role,
+      [{ text: content }],
+      userId,
+      username,
+      displayName
+    )
+  }
+
+  /**
+   * Append a message with full parts (preserves function calls, media, etc.)
+   */
+  appendParts(
+    conversationId: string,
+    role: 'user' | 'model',
+    parts: ContentPart[],
     userId?: string,
     username?: string,
     displayName?: string
@@ -47,7 +102,7 @@ export class ConversationBuffer {
 
     const message: Message = {
       role,
-      content,
+      parts: [...parts], // Defensive copy to prevent external mutations
       timestamp: Date.now(),
     }
 
@@ -82,7 +137,7 @@ export class ConversationBuffer {
     }
 
     // Return last N messages
-    const messages = entry.messages.slice(-maxMessages)
+    const messages = maxMessages <= 0 ? [] : entry.messages.slice(-maxMessages)
     logger.debug(
       `Retrieved conversation history - ConvID: ${conversationId}, Count: ${messages.length}`
     )
