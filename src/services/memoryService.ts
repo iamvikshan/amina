@@ -23,13 +23,16 @@ const logger = Logger
 export class MemoryService {
   private upstashIndex: Index | null = null
   private genAI: GoogleGenerativeAI | null = null
-  private embeddingModel = 'embedding-001'
+  private embeddingModel: string = 'text-embedding-005' // fallback; overridden by config
+  private extractionModel: string = 'gemini-2.5-flash-lite' // fallback; overridden by config
   private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
 
   async initialize(
     geminiKey: string,
     upstashUrl: string,
-    upstashToken: string
+    upstashToken: string,
+    embeddingModel?: string,
+    extractionModel?: string
   ) {
     try {
       // Initialize Upstash Vector
@@ -40,6 +43,10 @@ export class MemoryService {
 
       // Initialize Gemini for embeddings
       this.genAI = new GoogleGenerativeAI(geminiKey)
+
+      // Use configured models if provided
+      if (embeddingModel) this.embeddingModel = embeddingModel
+      if (extractionModel) this.extractionModel = extractionModel
 
       logger.success('Memory Service initialized with Upstash Vector')
     } catch (error: any) {
@@ -62,7 +69,7 @@ export class MemoryService {
 
     try {
       const model = this.genAI.getGenerativeModel({
-        model: 'gemini-flash-latest',
+        model: this.extractionModel,
       })
 
       // Build conversation context with speaker attribution

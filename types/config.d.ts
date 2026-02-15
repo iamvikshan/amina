@@ -24,6 +24,8 @@ declare global {
       // These values seed the database on first run
       // After initialization, all changes must be made via dev commands or MongoDB
       MODEL: string
+      EMBEDDING_MODEL: string
+      EXTRACTION_MODEL: string
       // VISION_MODEL: string
       MAX_TOKENS: number
       TIMEOUT_MS: number
@@ -114,6 +116,9 @@ declare global {
     // API Keys & Tokens
     readonly GEMINI_KEY?: string
     readonly UPSTASH_VECTOR?: string
+    readonly GOOGLE_SERVICE_ACCOUNT_JSON?: string
+    readonly VERTEX_PROJECT_ID?: string
+    readonly VERTEX_REGION?: string
     readonly WEATHERSTACK_KEY?: string
     readonly STRANGE_API_KEY?: string
     readonly GH_TOKEN?: string
@@ -136,6 +141,8 @@ declare global {
   interface AiConfig {
     globallyEnabled: boolean
     model: string
+    embeddingModel: string
+    extractionModel: string
     maxTokens: number
     timeoutMs: number
     systemPrompt: string
@@ -144,6 +151,9 @@ declare global {
     geminiKey: string
     upstashUrl: string
     upstashToken: string
+    vertexProjectId?: string
+    vertexRegion?: string
+    googleServiceAccountJson?: string
   }
 }
 

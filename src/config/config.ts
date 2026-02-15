@@ -11,7 +11,9 @@ const config: Config = {
   AI: {
     // These values seed the database on first run
     // After initialization, all changes must be made via dev commands or directly in MongoDB
-    MODEL: 'gemini-flash-latest',
+    MODEL: 'gemini-3-flash-preview',
+    EMBEDDING_MODEL: 'text-embedding-005', // Upgrade to gemini-embedding-001 (3072-dim SOTA) in Phase 2 with @google/genai SDK
+    EXTRACTION_MODEL: 'gemini-2.5-flash-lite',
     // VISION_MODEL: 'gemini-3-pro-preview', // Used for images/videos/gifs
     MAX_TOKENS: 1024,
     TIMEOUT_MS: 20000,

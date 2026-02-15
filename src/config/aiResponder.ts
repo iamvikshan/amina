@@ -3,6 +3,7 @@
 // AiConfig type is globally available from types/global.d.ts
 import { getAiConfig } from '../database/schemas/Dev'
 import { secret } from './secrets'
+import { config } from './config'
 
 class ConfigCache {
   private cache: any = null
@@ -18,16 +19,13 @@ class ConfigCache {
     }
 
     const geminiKey = secret.GEMINI_KEY || ''
-    if (!geminiKey && this.cache.globallyEnabled) {
-      throw new Error(
-        'GEMINI_KEY environment variable is required when AI is enabled'
-      )
-    }
 
     // DB is the single source of truth - config.ts values seed the DB on first run
     const aiConfig: AiConfig = {
       globallyEnabled: this.cache.globallyEnabled,
-      model: this.cache.model,
+      model: this.cache.model || config.AI.MODEL,
+      embeddingModel: this.cache.embeddingModel || config.AI.EMBEDDING_MODEL,
+      extractionModel: this.cache.extractionModel || config.AI.EXTRACTION_MODEL,
       maxTokens: this.cache.maxTokens,
       timeoutMs: this.cache.timeoutMs,
       systemPrompt: this.cache.systemPrompt,
@@ -36,13 +34,18 @@ class ConfigCache {
       geminiKey,
       upstashUrl: this.cache.upstashUrl,
       upstashToken: secret.UPSTASH_VECTOR || '',
+      vertexProjectId: secret.VERTEX_PROJECT_ID || '',
+      vertexRegion: secret.VERTEX_REGION || 'us-central1',
+      googleServiceAccountJson: secret.GOOGLE_SERVICE_ACCOUNT_JSON || '',
     }
 
     // Validate config when AI is enabled
     if (aiConfig.globallyEnabled) {
-      if (!aiConfig.geminiKey) throw new Error('GEMINI_KEY is required')
-      if (!aiConfig.upstashToken)
-        throw new Error('UPSTASH_VECTOR token is required')
+      if (!aiConfig.geminiKey && !aiConfig.googleServiceAccountJson) {
+        throw new Error(
+          'Either GEMINI_KEY or GOOGLE_SERVICE_ACCOUNT_JSON is required'
+        )
+      }
       if (!aiConfig.model) throw new Error('Model name is required')
       if (!aiConfig.systemPrompt) throw new Error('System prompt is required')
     }

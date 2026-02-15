@@ -15,3 +15,5 @@ docs/
 .codesandbox/
 .idea/
 plans/
+
+gen-lang-client-*.json

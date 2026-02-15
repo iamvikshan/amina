@@ -106,6 +106,15 @@ export const secrets: Secrets = {
   get UPSTASH_VECTOR() {
     return getOptionalSecret('UPSTASH_VECTOR')
   },
+  get GOOGLE_SERVICE_ACCOUNT_JSON() {
+    return getOptionalSecret('GOOGLE_SERVICE_ACCOUNT_JSON')
+  },
+  get VERTEX_PROJECT_ID() {
+    return getOptionalSecret('VERTEX_PROJECT_ID')
+  },
+  get VERTEX_REGION() {
+    return getOptionalSecret('VERTEX_REGION')
+  },
   get WEATHERSTACK_KEY() {
     return getOptionalSecret('WEATHERSTACK_KEY')
   },

@@ -83,6 +83,14 @@ const Schema = new mongoose.Schema(
         type: String,
         default: config.AI.UPSTASH_URL,
       },
+      embeddingModel: {
+        type: String,
+        default: config.AI.EMBEDDING_MODEL,
+      },
+      extractionModel: {
+        type: String,
+        default: config.AI.EXTRACTION_MODEL,
+      },
       updatedAt: {
         type: Date,
         default: Date.now,

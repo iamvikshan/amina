@@ -38,7 +38,9 @@ export default async (client: BotClient): Promise<void> => {
       await memoryService.initialize(
         config.geminiKey,
         config.upstashUrl,
-        config.upstashToken
+        config.upstashToken,
+        config.embeddingModel,
+        config.extractionModel
       )
       //  client.logger.success('Memory Service initialized')
     } else {
