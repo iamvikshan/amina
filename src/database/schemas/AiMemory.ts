@@ -52,6 +52,12 @@ Schema.index({ lastAccessedAt: 1 }) // For pruning
 
 export const Model = mongoose.model('ai-memory', Schema)
 
+// Drop orphan vectorId_1 index left from pre-Phase 4 schema
+// This is a one-time cleanup; once the index is gone, the catch branch runs harmlessly
+void Model.collection.dropIndex('vectorId_1').catch(() => {
+  // Index doesn't exist (already cleaned up) — safe to ignore
+})
+
 // Get memories for a user in a specific context
 export async function getUserMemories(
   userId: string,
@@ -165,6 +171,70 @@ export async function pruneMemories(options: {
   })
 
   return result.deletedCount || 0
+}
+
+/**
+ * Find the most similar existing memory for a user in a given context.
+ * Used for semantic deduplication before storing new memories.
+ * Scoped to the same userId + guildId + memoryType to prevent cross-category merges.
+ * Returns the best match with its similarity score, or null if no match found.
+ */
+export async function findSimilarMemory(
+  queryVector: number[],
+  userId: string,
+  guildId: string | null,
+  memoryType: string
+): Promise<{
+  _id: any
+  key: string
+  value: string
+  context: string
+  importance: number
+  score: number
+} | null> {
+  const filter: Record<string, unknown> = { userId, memoryType }
+  // Atlas $vectorSearch doesn't support null in filters, so only add guildId when non-null
+  if (guildId !== null) {
+    filter.guildId = guildId
+  }
+
+  // When guildId is null (DM context), overfetch to ensure we find DM-scoped memories
+  // after post-filtering out guild-scoped results
+  const searchLimit = guildId === null ? 10 : 1
+
+  const results = await Model.aggregate([
+    {
+      $vectorSearch: {
+        index: 'vector_index',
+        path: 'embedding',
+        queryVector,
+        numCandidates: 20,
+        limit: searchLimit,
+        filter,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        key: 1,
+        value: 1,
+        context: 1,
+        importance: 1,
+        guildId: 1,
+        score: { $meta: 'vectorSearchScore' },
+      },
+    },
+  ])
+
+  if (results.length === 0) return null
+
+  // For DM context, post-filter to only keep memories with null guildId
+  if (guildId === null) {
+    const dmResults = results.filter(r => r.guildId == null)
+    return dmResults.length > 0 ? dmResults[0] : null
+  }
+
+  return results[0]
 }
 
 /** Maximum numCandidates for Atlas Vector Search (prevents unbounded scans) */

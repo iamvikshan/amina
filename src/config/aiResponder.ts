@@ -84,6 +84,7 @@ interface AiDbConfig {
   systemPrompt: string
   temperature: number
   dmEnabledGlobally: boolean
+  dedupThreshold: number
 }
 
 class ConfigCache {
@@ -119,6 +120,7 @@ class ConfigCache {
       systemPrompt: cache.systemPrompt,
       temperature: cache.temperature,
       dmEnabledGlobally: cache.dmEnabledGlobally,
+      dedupThreshold: cache.dedupThreshold ?? config.AI.DEDUP_THRESHOLD,
     }
 
     // Validate common config when AI is enabled

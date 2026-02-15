@@ -50,6 +50,8 @@ const mockDeleteOldestMemories = mock(() =>
 )
 const mockVectorSearch = mock(() => Promise.resolve([]))
 const mockUpdateMany = mock(() => Promise.resolve({ modifiedCount: 0 }))
+const mockFindSimilarMemory = mock(() => Promise.resolve(null))
+const mockFindByIdAndUpdate = mock(() => Promise.resolve())
 
 mock.module('../src/database/schemas/AiMemory', () => ({
   saveMemory: mockSaveMemory,
@@ -60,10 +62,12 @@ mock.module('../src/database/schemas/AiMemory', () => ({
   getUserMemoryCount: mockGetUserMemoryCount,
   deleteOldestMemories: mockDeleteOldestMemories,
   vectorSearch: mockVectorSearch,
+  findSimilarMemory: mockFindSimilarMemory,
   Model: {
     distinct: mock(() => Promise.resolve([])),
     aggregate: mock(() => Promise.resolve([])),
     updateMany: mockUpdateMany,
+    findByIdAndUpdate: mockFindByIdAndUpdate,
   },
 }))
 
@@ -80,6 +84,8 @@ describe('MemoryService (new SDK)', () => {
     mockDeleteOldestMemories.mockClear()
     mockVectorSearch.mockClear()
     mockUpdateMany.mockClear()
+    mockFindSimilarMemory.mockClear()
+    mockFindByIdAndUpdate.mockClear()
     mockDeleteUserMemories.mockClear()
     mockGetUserMemories.mockClear()
     mockGetMemoryStats.mockClear()
@@ -270,5 +276,150 @@ describe('MemoryService (new SDK)', () => {
     await service.storeMemory(fact, 'user1', null, 'ctx')
 
     expect(mockDeleteOldestMemories).toHaveBeenCalledTimes(1)
+  })
+
+  test('storeMemory merges with existing memory above dedup threshold', async () => {
+    // Existing similar memory found
+    mockFindSimilarMemory.mockImplementationOnce(() =>
+      Promise.resolve({
+        _id: 'existing-mem-id',
+        key: 'favorite_food',
+        value: 'pizza',
+        context: 'mentioned earlier',
+        importance: 6,
+        score: 0.92,
+      })
+    )
+
+    const fact = {
+      key: 'favorite_food',
+      value: 'pepperoni pizza',
+      importance: 8,
+    }
+    const result = await service.storeMemory(
+      fact,
+      'user1',
+      'guild1',
+      'updated context'
+    )
+
+    expect(result).toBe(true)
+    // Verify findSimilarMemory was called with memoryType
+    expect(mockFindSimilarMemory).toHaveBeenCalledTimes(1)
+    const [, , , memType] = mockFindSimilarMemory.mock.calls[0] as any
+    expect(memType).toBe('user') // default memoryType
+    // Should NOT create a new memory
+    expect(mockSaveMemory).not.toHaveBeenCalled()
+    // Should update existing memory
+    expect(mockFindByIdAndUpdate).toHaveBeenCalledTimes(1)
+    const [id, update] = mockFindByIdAndUpdate.mock.calls[0] as any
+    expect(id).toBe('existing-mem-id')
+    expect(update.$set.value).toBe('pepperoni pizza')
+    expect(update.$set.context).toBe('updated context')
+    // Average importance: (6 + 8) / 2 = 7
+    expect(update.$set.importance).toBe(7)
+    expect(update.$inc.accessCount).toBe(1)
+  })
+
+  test('storeMemory creates new memory below dedup threshold', async () => {
+    // Existing memory found but below threshold
+    mockFindSimilarMemory.mockImplementationOnce(() =>
+      Promise.resolve({
+        _id: 'existing-mem-id',
+        key: 'hobby',
+        value: 'reading',
+        context: 'some context',
+        importance: 5,
+        score: 0.6, // Below 0.85 threshold
+      })
+    )
+
+    const fact = { key: 'favorite_color', value: 'blue', importance: 5 }
+    const result = await service.storeMemory(fact, 'user1', 'guild1', 'ctx')
+
+    expect(result).toBe(true)
+    // Should create a new memory (not merge)
+    expect(mockSaveMemory).toHaveBeenCalledTimes(1)
+    expect(mockFindByIdAndUpdate).not.toHaveBeenCalled()
+  })
+
+  test('storeMemory creates new memory when no similar exists', async () => {
+    // No similar memory found
+    mockFindSimilarMemory.mockImplementationOnce(() => Promise.resolve(null))
+
+    const fact = { key: 'name', value: 'Bob', importance: 8 }
+    const result = await service.storeMemory(fact, 'user1', null, 'intro')
+
+    expect(result).toBe(true)
+    expect(mockSaveMemory).toHaveBeenCalledTimes(1)
+    expect(mockFindByIdAndUpdate).not.toHaveBeenCalled()
+  })
+
+  test('storeMemory skips dedup when threshold is 0', async () => {
+    // Create a service with dedup disabled
+    const noDedupService = new MemoryService()
+    await noDedupService.initialize({
+      authConfig: { mode: 'api-key', apiKey: 'test-key' },
+      dedupThreshold: 0,
+    })
+
+    const fact = { key: 'test', value: 'val', importance: 5 }
+    await noDedupService.storeMemory(fact, 'user1', null, 'ctx')
+
+    // findSimilarMemory should NOT be called when threshold is 0
+    expect(mockFindSimilarMemory).not.toHaveBeenCalled()
+    expect(mockSaveMemory).toHaveBeenCalledTimes(1)
+  })
+
+  test('merged memory importance is capped at 10', async () => {
+    mockFindSimilarMemory.mockImplementationOnce(() =>
+      Promise.resolve({
+        _id: 'mem-id',
+        key: 'fact',
+        value: 'old',
+        context: 'old ctx',
+        importance: 10,
+        score: 0.95,
+      })
+    )
+
+    const fact = { key: 'fact', value: 'new', importance: 10 }
+    await service.storeMemory(fact, 'user1', null, 'new ctx')
+
+    const [, update] = mockFindByIdAndUpdate.mock.calls[0] as any
+    expect(update.$set.importance).toBe(10) // (10+10)/2 = 10, capped at 10
+  })
+
+  test('merged memory importance has lower bound of 1', async () => {
+    mockFindSimilarMemory.mockImplementationOnce(() =>
+      Promise.resolve({
+        _id: 'mem-id',
+        key: 'fact',
+        value: 'old',
+        context: 'old ctx',
+        importance: 1,
+        score: 0.95,
+      })
+    )
+
+    const fact = { key: 'fact', value: 'new', importance: 1 }
+    await service.storeMemory(fact, 'user1', null, 'new ctx')
+
+    const [, update] = mockFindByIdAndUpdate.mock.calls[0] as any
+    expect(update.$set.importance).toBe(1) // (1+1)/2 = 1, floor at 1
+  })
+
+  test('storeMemory falls through to insert when dedup check fails', async () => {
+    mockFindSimilarMemory.mockImplementationOnce(() =>
+      Promise.reject(new Error('Atlas vector search unavailable'))
+    )
+
+    const fact = { key: 'test', value: 'val', importance: 5 }
+    const result = await service.storeMemory(fact, 'user1', null, 'ctx')
+
+    // Should succeed by falling through to normal insert
+    expect(result).toBe(true)
+    expect(mockSaveMemory).toHaveBeenCalledTimes(1)
+    expect(mockFindByIdAndUpdate).not.toHaveBeenCalled()
   })
 })

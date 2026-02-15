@@ -19,6 +19,7 @@ const config: Config = {
     TIMEOUT_MS: 20000,
     TEMPERATURE: 0.7,
     DM_ENABLED_GLOBALLY: true,
+    DEDUP_THRESHOLD: 0.85,
   },
   SERVER: {
     HEALTH_PORT: 3000,

@@ -87,6 +87,12 @@ const Schema = new mongoose.Schema(
         type: String,
         default: config.AI.EXTRACTION_MODEL,
       },
+      dedupThreshold: {
+        type: Number,
+        default: config.AI.DEDUP_THRESHOLD,
+        min: 0,
+        max: 1,
+      },
       updatedAt: {
         type: Date,
         default: Date.now,

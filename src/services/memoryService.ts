@@ -11,6 +11,7 @@ import {
   getUserMemoryCount,
   deleteOldestMemories,
   vectorSearch,
+  findSimilarMemory,
   Model,
 } from '../database/schemas/AiMemory'
 import {
@@ -26,12 +27,14 @@ export class MemoryService {
   private ai: GoogleGenAI | null = null
   private embeddingModel: string = 'text-embedding-005' // fallback; overridden by config
   private extractionModel: string = 'gemini-2.5-flash-lite' // fallback; overridden by config
+  private dedupThreshold: number = 0.85
   private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
 
   async initialize(options: {
     authConfig: AiAuthConfig
     embeddingModel?: string
     extractionModel?: string
+    dedupThreshold?: number
   }) {
     try {
       const { authConfig } = options
@@ -67,6 +70,8 @@ export class MemoryService {
       if (options.embeddingModel) this.embeddingModel = options.embeddingModel
       if (options.extractionModel)
         this.extractionModel = options.extractionModel
+      if (options.dedupThreshold !== undefined)
+        this.dedupThreshold = options.dedupThreshold
 
       logger.success(`Memory Service initialized (auth: ${authConfig.mode})`)
     } catch (error: any) {
@@ -163,6 +168,52 @@ If nothing worth remembering, return: []`
       if (!embedding) {
         logger.warn('Failed to generate embedding: no values returned')
         return false
+      }
+
+      // Semantic deduplication: check for similar existing memory (best-effort)
+      if (this.dedupThreshold > 0) {
+        try {
+          const memoryType = fact.memoryType || 'user'
+          const existing = await findSimilarMemory(
+            embedding,
+            userId,
+            guildId,
+            memoryType
+          )
+          if (existing && existing.score >= this.dedupThreshold) {
+            // Merge: update existing memory with newest value, average importance, update context
+            const mergedImportance = Math.max(
+              1,
+              Math.min(
+                10,
+                Math.round((existing.importance + fact.importance) / 2)
+              )
+            )
+            await Model.findByIdAndUpdate(
+              existing._id,
+              {
+                $set: {
+                  value: fact.value,
+                  context,
+                  importance: mergedImportance,
+                  embedding,
+                  lastAccessedAt: new Date(),
+                },
+                $inc: { accessCount: 1 },
+              },
+              { runValidators: true }
+            )
+            logger.debug(
+              `Merged memory "${fact.key}" (score: ${existing.score.toFixed(3)}) for user ${userId}`
+            )
+            return true
+          }
+        } catch (dedupError: any) {
+          // Dedup is best-effort — if vector search fails, fall through to normal insert
+          logger.debug(
+            `Dedup check failed, proceeding with insert: ${dedupError.message}`
+          )
+        }
       }
 
       // Store everything in MongoDB (including embedding vector)

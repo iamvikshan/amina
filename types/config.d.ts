@@ -31,6 +31,7 @@ declare global {
       TIMEOUT_MS: number
       TEMPERATURE: number
       DM_ENABLED_GLOBALLY: boolean
+      DEDUP_THRESHOLD: number
     }
     SERVER: {
       HEALTH_PORT: number
@@ -146,6 +147,7 @@ declare global {
     systemPrompt: string
     temperature: number
     dmEnabledGlobally: boolean
+    dedupThreshold: number
   }
 
   interface ApiKeyAiConfig extends AiConfigBase {

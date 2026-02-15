@@ -176,9 +176,18 @@ export class AiClient {
       const latency = Date.now() - startTime
 
       // We always use the first candidate (single-candidate mode)
-      const modelContent = response.candidates?.[0]?.content?.parts as
-        | ContentPart[]
-        | undefined
+      const rawParts = response.candidates?.[0]?.content?.parts
+      const modelContent: ContentPart[] | undefined = rawParts
+        ? rawParts.filter(
+            (p): p is ContentPart =>
+              typeof p === 'object' &&
+              p !== null &&
+              ('text' in p ||
+                'inlineData' in p ||
+                'functionCall' in p ||
+                'functionResponse' in p)
+          )
+        : undefined
 
       return {
         text,

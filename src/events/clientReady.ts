@@ -54,6 +54,7 @@ export default async (client: BotClient): Promise<void> => {
       authConfig,
       embeddingModel: config.embeddingModel,
       extractionModel: config.extractionModel,
+      dedupThreshold: config.dedupThreshold,
     })
   } catch (error: any) {
     client.logger.warn(
