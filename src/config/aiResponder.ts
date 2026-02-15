@@ -1,12 +1,94 @@
 // @root/src/config/aiResponder.ts
 
 // AiConfig type is globally available from types/global.d.ts
-import { getAiConfig } from '../database/schemas/Dev'
+import { getAiConfig } from '@schemas/Dev'
 import { secret } from './secrets'
 import { config } from './config'
 
+/**
+ * Validate a base64-encoded Google service account JSON.
+ * Decodes, parses, and checks for required keys.
+ * @returns The parsed service account object if valid
+ * @throws Error with descriptive message if invalid
+ */
+export function validateServiceAccountJson(
+  base64Json: string
+): GoogleServiceAccountCredentials {
+  // Buffer.from(str, 'base64') never throws — validate format first
+  if (
+    base64Json.length === 0 ||
+    base64Json.length % 4 !== 0 ||
+    !/^[A-Za-z0-9+/]*={0,2}$/.test(base64Json)
+  ) {
+    throw new Error(
+      'GOOGLE_SERVICE_ACCOUNT_JSON is not valid base64. ' +
+        'Generate with: cat service-account.json | base64 -w 0'
+    )
+  }
+
+  const decoded = Buffer.from(base64Json, 'base64').toString('utf-8')
+
+  let parsed: Record<string, unknown>
+  try {
+    parsed = JSON.parse(decoded)
+  } catch {
+    throw new Error(
+      'GOOGLE_SERVICE_ACCOUNT_JSON decoded but is not valid JSON. ' +
+        'Ensure you base64-encoded the raw JSON key file.'
+    )
+  }
+
+  if (!parsed.client_email || typeof parsed.client_email !== 'string') {
+    throw new Error(
+      'Service account JSON is missing required field "client_email". ' +
+        'Ensure you are encoding the full service account key file.'
+    )
+  }
+
+  if (!parsed.private_key || typeof parsed.private_key !== 'string') {
+    throw new Error(
+      'Service account JSON is missing required field "private_key". ' +
+        'Ensure you are encoding the full service account key file.'
+    )
+  }
+
+  if (!parsed.project_id || typeof parsed.project_id !== 'string') {
+    throw new Error(
+      'Service account JSON is missing required field "project_id". ' +
+        'Ensure you are encoding the full service account key file.'
+    )
+  }
+
+  return parsed as GoogleServiceAccountCredentials
+}
+
+/**
+ * Detect the auth mode based on available credentials.
+ * Vertex AI is preferred when service account JSON and project ID are available.
+ */
+export function detectAuthMode(
+  googleServiceAccountJson: string,
+  vertexProjectId: string
+): 'api-key' | 'vertex' {
+  return googleServiceAccountJson && vertexProjectId ? 'vertex' : 'api-key'
+}
+
+/** Shape of the raw DB document returned by getAiConfig() */
+interface AiDbConfig {
+  globallyEnabled: boolean
+  model: string
+  embeddingModel: string
+  extractionModel: string
+  maxTokens: number
+  timeoutMs: number
+  systemPrompt: string
+  temperature: number
+  dmEnabledGlobally: boolean
+  upstashUrl: string
+}
+
 class ConfigCache {
-  private cache: Record<string, any> | null = null
+  private cache: AiDbConfig | null = null
   private lastFetch: number = 0
   private readonly TTL = 5 * 60 * 1000 // 5 minutes
 
@@ -23,9 +105,10 @@ class ConfigCache {
       throw new Error('AI config cache is empty')
     }
     const geminiKey = secret.GEMINI_KEY || ''
+    const googleServiceAccountJson = secret.GOOGLE_SERVICE_ACCOUNT_JSON || ''
 
-    // DB is the single source of truth - config.ts values seed the DB on first run
-    const aiConfig: AiConfig = {
+    // Common config fields from DB
+    const baseConfig = {
       globallyEnabled: cache.globallyEnabled,
       model: cache.model ?? config.AI.MODEL,
       embeddingModel: cache.embeddingModel ?? config.AI.EMBEDDING_MODEL,
@@ -35,31 +118,63 @@ class ConfigCache {
       systemPrompt: cache.systemPrompt,
       temperature: cache.temperature,
       dmEnabledGlobally: cache.dmEnabledGlobally,
-      geminiKey,
       upstashUrl: cache.upstashUrl,
       upstashToken: secret.UPSTASH_VECTOR || '',
-      vertexProjectId: secret.VERTEX_PROJECT_ID || '',
-      vertexRegion: secret.VERTEX_REGION || 'us-central1',
-      googleServiceAccountJson: secret.GOOGLE_SERVICE_ACCOUNT_JSON || '',
     }
 
-    // Validate config when AI is enabled
-    if (aiConfig.globallyEnabled) {
-      if (!aiConfig.geminiKey && !aiConfig.googleServiceAccountJson) {
+    // Validate common config when AI is enabled
+    if (baseConfig.globallyEnabled) {
+      if (!geminiKey && !googleServiceAccountJson) {
         throw new Error(
           'Either GEMINI_KEY or GOOGLE_SERVICE_ACCOUNT_JSON is required'
         )
       }
-      if (aiConfig.googleServiceAccountJson && !aiConfig.vertexProjectId) {
-        throw new Error(
-          'VERTEX_PROJECT_ID is required when GOOGLE_SERVICE_ACCOUNT_JSON is provided'
-        )
-      }
-      if (!aiConfig.model) throw new Error('Model name is required')
-      if (!aiConfig.systemPrompt) throw new Error('System prompt is required')
+      if (!baseConfig.model) throw new Error('Model name is required')
+      if (!baseConfig.systemPrompt) throw new Error('System prompt is required')
     }
 
-    return aiConfig
+    // Determine auth mode: prefer Vertex AI when service account is available
+    // Parse and validate service account JSON if present
+    let parsedCredentials: GoogleServiceAccountCredentials | undefined
+    let vertexProjectId = secret.VERTEX_PROJECT_ID || ''
+    const vertexRegion = secret.VERTEX_REGION || 'us-central1'
+
+    if (googleServiceAccountJson && baseConfig.globallyEnabled) {
+      parsedCredentials = validateServiceAccountJson(googleServiceAccountJson)
+      // Extract project_id from service account JSON if VERTEX_PROJECT_ID is not set
+      if (!vertexProjectId) {
+        vertexProjectId = parsedCredentials.project_id
+      }
+    }
+
+    // Auto-detect auth mode using centralized logic;
+    // Vertex requires globallyEnabled so parsedCredentials is guaranteed to be defined
+    const authMode = detectAuthMode(googleServiceAccountJson, vertexProjectId)
+
+    if (
+      authMode === 'vertex' &&
+      baseConfig.globallyEnabled &&
+      parsedCredentials
+    ) {
+      return {
+        ...baseConfig,
+        authMode: 'vertex' as const,
+        vertexProjectId,
+        vertexRegion,
+        googleServiceAccountJson,
+        parsedCredentials,
+        geminiKey: geminiKey || undefined,
+      }
+    }
+
+    return {
+      ...baseConfig,
+      authMode: 'api-key' as const,
+      geminiKey: geminiKey || undefined,
+      vertexProjectId: vertexProjectId || undefined,
+      vertexRegion,
+      googleServiceAccountJson: googleServiceAccountJson || undefined,
+    }
   }
 
   invalidate() {

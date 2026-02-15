@@ -1,41 +1,73 @@
-// @root/src/helpers/googleAiClient.ts
+// @root/src/helpers/aiClient.ts
 
-import { GoogleGenAI } from '@google/genai'
+import { GoogleGenAI, type GoogleGenAIOptions } from '@google/genai'
+import type { JWTInput } from 'google-auth-library'
 import Logger from './Logger'
 import type { MediaItem } from './mediaExtractor'
-
-const logger = Logger
 
 // AiResponse and ConversationMessage are now globally available - see types/services.d.ts
 // These are still exported for runtime use, but types are global
 export type { AiResponse, ConversationMessage }
 
-export class GoogleAiClient {
+export class AiClient {
   private ai: GoogleGenAI
   private model: string
   private timeout: number
+  private authMode: 'api-key' | 'vertex'
 
-  constructor(apiKey: string, model: string, timeout: number) {
-    this.ai = new GoogleGenAI({ apiKey })
+  constructor(authConfig: AiAuthConfig, model: string, timeout: number) {
+    if (authConfig.mode === 'vertex') {
+      const options: GoogleGenAIOptions = {
+        vertexai: true,
+        project: authConfig.project,
+        location: authConfig.location,
+      }
+      if (authConfig.credentials) {
+        options.googleAuthOptions = {
+          credentials: authConfig.credentials as JWTInput,
+        }
+      }
+      this.ai = new GoogleGenAI(options)
+      this.authMode = 'vertex'
+    } else {
+      this.ai = new GoogleGenAI({ apiKey: authConfig.apiKey })
+      this.authMode = 'api-key'
+    }
     this.model = model
     this.timeout = timeout
+  }
+
+  /** Get the current auth mode */
+  getAuthMode(): 'api-key' | 'vertex' {
+    return this.authMode
   }
 
   /**
    * Fetch image data from URL and convert to base64
    */
   private async fetchImageAsBase64(url: string): Promise<string> {
+    const controller = new AbortController()
+    const timerId = setTimeout(() => controller.abort(), this.timeout)
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, { signal: controller.signal })
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.statusText}`)
       }
       const arrayBuffer = await response.arrayBuffer()
-      const base64 = Buffer.from(arrayBuffer).toString('base64')
-      return base64
+      return Buffer.from(arrayBuffer).toString('base64')
     } catch (error: any) {
-      logger.warn(`Failed to fetch image from ${url}: ${error.message}`)
+      const safeUrl = (() => {
+        try {
+          const u = new URL(url)
+          return u.origin + u.pathname
+        } catch {
+          return '<invalid-url>'
+        }
+      })()
+      Logger.warn(`Failed to fetch image from ${safeUrl}: ${error.message}`)
       throw error
+    } finally {
+      clearTimeout(timerId)
     }
   }
 
@@ -45,17 +77,12 @@ export class GoogleAiClient {
   private async convertMediaToParts(
     mediaItems: MediaItem[]
   ): Promise<ContentPart[]> {
-    const parts: ContentPart[] = []
-
-    for (const media of mediaItems) {
+    const tasks = mediaItems.map(async (media): Promise<ContentPart | null> => {
       try {
-        // Fetch and convert to base64
         const base64Data = await this.fetchImageAsBase64(media.url)
 
-        // Determine MIME type
         let mimeType = media.mimeType
-        if (!mimeType || mimeType === 'image/jpeg') {
-          // Try to infer from URL
+        if (!mimeType) {
           if (media.url.toLowerCase().endsWith('.png')) {
             mimeType = 'image/png'
           } else if (media.url.toLowerCase().endsWith('.gif')) {
@@ -67,19 +94,15 @@ export class GoogleAiClient {
           }
         }
 
-        parts.push({
-          inlineData: {
-            data: base64Data,
-            mimeType,
-          },
-        })
-      } catch (error: any) {
-        logger.warn(`Failed to process media ${media.url}: ${error.message}`)
-        // Continue with other media items
+        return { inlineData: { data: base64Data, mimeType } }
+      } catch (_error: any) {
+        // Error already logged by fetchImageAsBase64
+        return null
       }
-    }
+    })
 
-    return parts
+    const results = await Promise.all(tasks)
+    return results.filter((part): part is ContentPart => part !== null)
   }
 
   async generateResponse(
@@ -142,21 +165,16 @@ export class GoogleAiClient {
         latency,
         functionCalls: functionCalls?.map(fc => {
           if (!fc.name) {
-            logger.warn(
+            Logger.warn(
               `Function call received without name, using 'unknown'. Full call: ${JSON.stringify(fc)}`
             )
           }
-          return { name: fc.name ?? 'unknown', args: fc.args }
+          return { name: fc.name ?? 'unknown', args: fc.args ?? {} }
         }),
         modelContent: modelContent ?? (text ? [{ text }] : undefined),
       }
     } catch (error: any) {
       const latency = Date.now() - startTime
-      const errorMessage = error?.message || String(error)
-      logger.error(`AI API error in generateResponse: ${errorMessage}`, error)
-      logger.debug(
-        `Error details: ${JSON.stringify({ status: error?.status, name: error?.name, message: error?.message })}`
-      )
       this.handleError(error || new Error('Unknown error'), latency)
       throw error
     }
@@ -166,17 +184,18 @@ export class GoogleAiClient {
     promise: Promise<T>,
     timeoutMs: number
   ): Promise<T> {
+    let timerId: ReturnType<typeof setTimeout>
     return Promise.race([
-      promise,
-      new Promise<T>((_, reject) =>
-        setTimeout(() => reject(new Error('API timeout')), timeoutMs)
-      ),
+      promise.finally(() => clearTimeout(timerId)),
+      new Promise<T>((_, reject) => {
+        timerId = setTimeout(() => reject(new Error('API timeout')), timeoutMs)
+      }),
     ])
   }
 
   private handleError(error: any, latency: number) {
     if (!error) {
-      logger.error('Unknown error occurred')
+      Logger.error('Unknown error occurred')
       return
     }
 
@@ -184,27 +203,27 @@ export class GoogleAiClient {
     const errorStatus = error.status
 
     if (errorMessage === 'API timeout') {
-      logger.warn(`AI API timeout after ${latency}ms`)
+      Logger.warn(`AI API timeout after ${latency}ms`)
       return
     }
 
     if (errorStatus === 429 || errorMessage.includes('quota')) {
-      logger.warn(`AI API quota exceeded: ${errorMessage}`)
+      Logger.warn(`AI API quota exceeded: ${errorMessage}`)
       return
     }
 
     if (errorStatus === 400) {
-      logger.warn(`AI API invalid request: ${errorMessage}`)
+      Logger.warn(`AI API invalid request: ${errorMessage}`)
       return
     }
 
     try {
-      logger.error(
+      Logger.error(
         `Unhandled AI error - Type: ${typeof error}, Message: ${errorMessage}`
       )
-      if (error.stack) logger.debug(`Stack: ${error.stack}`)
+      if (error.stack) Logger.debug(`Stack: ${error.stack}`)
     } catch (_logError) {
-      logger.error('Failed to log AI error details')
+      Logger.error('Failed to log AI error details')
     }
   }
 }

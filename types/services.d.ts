@@ -1,6 +1,10 @@
 // Service-related type definitions
 
 declare global {
+  type AiAuthConfig =
+    | { mode: 'api-key'; apiKey: string }
+    | { mode: 'vertex'; project: string; location: string; credentials?: import('google-auth-library').JWTInput }
+
   type ResponseMode = 'dm' | 'mention' | 'freeWill' | false
 
   interface RateLimitEntry {
@@ -24,25 +28,20 @@ declare global {
 
   /**
    * Represents a single part of a Content message.
-   * Matches the Google GenAI SDK Part shape.
-   * Only one of these fields should be set per instance:
-   * - text: Plain text content
-   * - inlineData: Base64-encoded media (images, audio, video)
-   * - functionCall: A function/tool call from the model
-   * - functionResponse: A response to a function call
+   * Matches the Google GenAI SDK Part shape — discriminated by key presence.
+   * Exactly one top-level key should be set per instance.
    */
-  interface ContentPart {
-    text?: string
-    inlineData?: { data: string; mimeType: string }
-    functionCall?: { name: string; args: Record<string, any> }
-    functionResponse?: { name: string; response: Record<string, any> }
-  }
+  type ContentPart =
+    | { text: string }
+    | { inlineData: { data: string; mimeType: string } }
+    | { functionCall: { name: string; args: Record<string, unknown> } }
+    | { functionResponse: { name: string; response: Record<string, unknown> } }
 
   interface AiResponse {
     text: string
     tokensUsed: number
     latency: number
-    functionCalls?: { name: string; args: any }[]
+    functionCalls?: { name: string; args: Record<string, unknown> }[]
     modelContent?: ContentPart[] // Full model response parts for history preservation
   }
 

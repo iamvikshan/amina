@@ -82,7 +82,7 @@ describe('MemoryService (new SDK)', () => {
     mockDelete.mockClear()
     service = new MemoryService()
     await service.initialize(
-      'test-api-key',
+      { mode: 'api-key', apiKey: 'test-api-key' },
       'https://test.upstash.io',
       'test-token',
       'text-embedding-005',
@@ -128,30 +128,32 @@ describe('MemoryService (new SDK)', () => {
       })
     )
 
+    const fixedTimestamp = 1700000000000
+
     const messages = [
       {
         role: 'user' as const,
         parts: [{ text: 'My name is Alice' }],
-        timestamp: Date.now(),
+        timestamp: fixedTimestamp,
         userId: 'u1',
         displayName: 'Alice',
       },
       {
         role: 'model' as const,
         parts: [{ text: 'Nice to meet you Alice!' }],
-        timestamp: Date.now(),
+        timestamp: fixedTimestamp + 1000,
       },
       {
         role: 'user' as const,
         parts: [{ text: 'I like pizza' }],
-        timestamp: Date.now(),
+        timestamp: fixedTimestamp + 2000,
         userId: 'u1',
         displayName: 'Alice',
       },
       {
         role: 'model' as const,
         parts: [{ text: 'Pizza is great!' }],
-        timestamp: Date.now(),
+        timestamp: fixedTimestamp + 3000,
       },
     ]
 

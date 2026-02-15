@@ -4,7 +4,7 @@ import type { GuildMember, Message } from 'discord.js'
 import { getSettings } from '../database/schemas/Guild'
 import { getUser } from '../database/schemas/User'
 import { configCache } from '../config/aiResponder'
-import { GoogleAiClient } from '../helpers/googleAiClient'
+import { AiClient } from '../helpers/aiClient'
 // ConversationMessage is now globally available - see types/services.d.ts
 import {
   conversationBuffer,
@@ -24,7 +24,7 @@ const logger = Logger
 // ResponseMode and RateLimitEntry are now globally available - see types/services.d.ts
 
 export class AiResponderService {
-  private client: GoogleAiClient | null = null
+  private client: AiClient | null = null
   private rateLimits: Map<string, RateLimitEntry> = new Map()
   private failureCount: Map<string, number[]> = new Map() // guildId -> timestamps
   private readonly USER_COOLDOWN_MS = 3000 // 3 seconds per user
@@ -35,7 +35,7 @@ export class AiResponderService {
   private currentClientConfig: {
     model: string
     timeoutMs: number
-    geminiKey: string
+    authConfig: string // serialized for comparison
   } | null = null
   // private readonly MAX_FREEWILL_CHANNELS = 2 // Max channels for regular guilds (unlimited for test guild)
 
@@ -86,37 +86,82 @@ export class AiResponderService {
       //   `AI Config loaded - Enabled: ${config.globallyEnabled}, Model: ${config.model}, HasKey: ${!!config.geminiKey}`
       // )
 
-      if (config.globallyEnabled && config.geminiKey) {
-        // Only recreate client if model, timeout, or key changed
+      if (config.globallyEnabled) {
+        // Validate credentials based on auth mode
+        if (config.authMode === 'api-key' && !config.geminiKey) {
+          logger.error(
+            'AI globally enabled with api-key mode but GEMINI_KEY is empty'
+          )
+          this.client = null
+          return
+        }
+        if (
+          config.authMode === 'vertex' &&
+          (!config.vertexProjectId ||
+            !config.vertexRegion ||
+            !config.googleServiceAccountJson ||
+            !config.parsedCredentials)
+        ) {
+          logger.error(
+            'AI globally enabled with vertex mode but missing required Vertex AI credentials'
+          )
+          this.client = null
+          return
+        }
+
+        // Build auth config — credentials pre-parsed by configCache
+        const geminiKey = config.geminiKey ?? ''
+        const authConfig: AiAuthConfig =
+          config.authMode === 'vertex'
+            ? {
+                mode: 'vertex',
+                project: config.vertexProjectId,
+                location: config.vertexRegion,
+                credentials: config.parsedCredentials,
+              }
+            : { mode: 'api-key', apiKey: geminiKey }
+
+        // Fingerprint for change detection — includes credential hash for rotation
+        const credentialFingerprint =
+          config.authMode === 'vertex' && config.googleServiceAccountJson
+            ? Bun.hash(config.googleServiceAccountJson).toString(16).slice(0, 8)
+            : config.authMode === 'api-key' && geminiKey
+              ? Bun.hash(geminiKey).toString(16).slice(0, 8)
+              : 'none'
+        const authConfigKey = `${config.authMode}:${
+          config.authMode === 'vertex'
+            ? `${config.vertexProjectId}:${config.vertexRegion}`
+            : 'gemini'
+        }:${credentialFingerprint}`
+
         const needsClientRecreation =
           !this.currentClientConfig ||
           this.currentClientConfig.model !== config.model ||
           this.currentClientConfig.timeoutMs !== config.timeoutMs ||
-          this.currentClientConfig.geminiKey !== config.geminiKey
+          this.currentClientConfig.authConfig !== authConfigKey
 
         if (needsClientRecreation) {
-          this.client = new GoogleAiClient(
-            config.geminiKey,
-            config.model,
-            config.timeoutMs
-          )
+          this.client = new AiClient(authConfig, config.model, config.timeoutMs)
           this.currentClientConfig = {
             model: config.model,
             timeoutMs: config.timeoutMs,
-            geminiKey: config.geminiKey,
+            authConfig: authConfigKey,
           }
-          logger.success(`AI Responder initialized - Model: ${config.model}`)
+          logger.success(
+            `AI Responder initialized - Model: ${config.model}, Auth: ${config.authMode}`
+          )
         } else {
           logger.debug(
             'AI Responder config unchanged, skipping client recreation'
           )
         }
       } else {
-        // Disable client if globally disabled or no key
         if (this.client) {
           this.client = null
           this.currentClientConfig = null
-          logger.log('AI Responder disabled (global toggle off or no key)')
+          logger.log(
+            'AI Responder disabled (global toggle off or no credentials)'
+          )
         }
       }
     } catch (error: any) {

@@ -165,7 +165,33 @@ describe('ConversationBuffer (parts-based)', () => {
   test('getTextContent preserves empty string text parts', () => {
     buffer.appendParts('test-conv', 'model', [{ text: '' }, { text: 'hello' }])
     const history = buffer.getHistory('test-conv')
-    // With the fix, empty string text parts are preserved
+    // Verify raw data preservation
+    expect(history[0].parts).toHaveLength(2)
+    expect(history[0].parts[0]).toEqual({ text: '' })
+    expect(history[0].parts[1]).toEqual({ text: 'hello' })
+    // getTextContent joins non-empty text parts with space; empty parts are skipped
     expect(ConversationBuffer.getTextContent(history[0])).toBe('hello')
+  })
+
+  test('getTextContent joins multiple non-empty parts with space', () => {
+    buffer.appendParts('test-conv', 'model', [
+      { text: 'hello' },
+      { text: 'world' },
+    ])
+    const history = buffer.getHistory('test-conv')
+    expect(ConversationBuffer.getTextContent(history[0])).toBe('hello world')
+  })
+
+  test('multiple conversations are isolated', () => {
+    buffer.append('conv-a', 'user', 'Message for A')
+    buffer.append('conv-b', 'user', 'Message for B')
+
+    const historyA = buffer.getHistory('conv-a')
+    const historyB = buffer.getHistory('conv-b')
+
+    expect(historyA).toHaveLength(1)
+    expect(historyB).toHaveLength(1)
+    expect(ConversationBuffer.getTextContent(historyA[0])).toBe('Message for A')
+    expect(ConversationBuffer.getTextContent(historyB[0])).toBe('Message for B')
   })
 })

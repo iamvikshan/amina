@@ -34,17 +34,29 @@ export default async (client: BotClient): Promise<void> => {
   const { configCache } = await import('@src/config/aiResponder')
   try {
     const config = await configCache.getConfig()
-    if (config.geminiKey && config.upstashUrl && config.upstashToken) {
+    if (!config.upstashUrl || !config.upstashToken) {
+      client.logger.warn(
+        'Memory Service disabled - missing Upstash configuration'
+      )
+    } else {
+      // Build auth config from discriminated AiConfig — credentials are pre-parsed by configCache
+      const authConfig: AiAuthConfig =
+        config.authMode === 'vertex'
+          ? {
+              mode: 'vertex',
+              project: config.vertexProjectId,
+              location: config.vertexRegion,
+              credentials: config.parsedCredentials,
+            }
+          : { mode: 'api-key', apiKey: config.geminiKey ?? '' }
+
       await memoryService.initialize(
-        config.geminiKey,
+        authConfig,
         config.upstashUrl,
         config.upstashToken,
         config.embeddingModel,
         config.extractionModel
       )
-      //  client.logger.success('Memory Service initialized')
-    } else {
-      client.logger.warn('Memory Service disabled - missing configuration')
     }
   } catch (error: any) {
     client.logger.warn(
@@ -168,11 +180,10 @@ export default async (client: BotClient): Promise<void> => {
           )
 
           if (attempt < maxRetries) {
-            const waitTime = retryAfter || Math.pow(2, attempt) * 1000 // Exponential backoff fallback
             client.logger.log(
-              `Waiting ${Math.ceil(waitTime / 1000)}s before retry...`
+              `Waiting ${Math.ceil(retryAfter / 1000)}s before retry...`
             )
-            await new Promise(resolve => setTimeout(resolve, waitTime))
+            await new Promise(resolve => setTimeout(resolve, retryAfter))
           } else {
             client.logger.error(
               `❌ Failed to register ${commandType} commands after ${maxRetries} attempts due to rate limiting`

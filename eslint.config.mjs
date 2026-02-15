@@ -118,8 +118,6 @@ export default [
       '.git/**',
       'coverage/**',
       '*.min.js',
-      'tests/**',
-      '**/*.{test,spec}.ts',
     ],
   },
 ]

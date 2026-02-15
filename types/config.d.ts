@@ -138,7 +138,7 @@ declare global {
     }>
   }
 
-  interface AiConfig {
+  interface AiConfigBase {
     globallyEnabled: boolean
     model: string
     embeddingModel: string
@@ -148,13 +148,46 @@ declare global {
     systemPrompt: string
     temperature: number
     dmEnabledGlobally: boolean
-    geminiKey: string
     upstashUrl: string
     upstashToken: string
+  }
+
+  interface ApiKeyAiConfig extends AiConfigBase {
+    authMode: 'api-key'
+    geminiKey?: string
+    // Optional — may have vertex fields even in api-key mode (for display/future fallback)
     vertexProjectId?: string
     vertexRegion?: string
     googleServiceAccountJson?: string
+    parsedCredentials?: undefined
   }
+
+  /**
+   * Parsed Google service account JSON credentials.
+   * Index signature allows extra vendor-specific fields.
+   */
+  interface GoogleServiceAccountCredentials {
+    project_id: string
+    private_key: string
+    client_email: string
+    private_key_id?: string
+    client_id?: string
+    type?: string
+    auth_uri?: string
+    token_uri?: string
+    [key: string]: unknown
+  }
+
+  interface VertexAiConfig extends AiConfigBase {
+    authMode: 'vertex'
+    vertexProjectId: string
+    vertexRegion: string
+    googleServiceAccountJson: string
+    parsedCredentials: GoogleServiceAccountCredentials
+    geminiKey?: string // optional fallback key
+  }
+
+  type AiConfig = ApiKeyAiConfig | VertexAiConfig
 }
 
 export {}

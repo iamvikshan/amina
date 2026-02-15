@@ -1,7 +1,7 @@
 // @root/src/services/memoryService.ts
 
 import { Index } from '@upstash/vector'
-import { GoogleGenAI } from '@google/genai'
+import { GoogleGenAI, type GoogleGenAIOptions } from '@google/genai'
 import Logger from '../helpers/Logger'
 import {
   saveMemory,
@@ -31,7 +31,7 @@ export class MemoryService {
   private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
 
   async initialize(
-    geminiKey: string,
+    authConfig: AiAuthConfig,
     upstashUrl: string,
     upstashToken: string,
     embeddingModel?: string,
@@ -44,14 +44,33 @@ export class MemoryService {
         token: upstashToken,
       })
 
-      // Initialize Gemini for embeddings
-      this.ai = new GoogleGenAI({ apiKey: geminiKey })
+      // Initialize Gemini based on auth mode
+      if (authConfig.mode === 'vertex') {
+        if (!authConfig.project || !authConfig.location) {
+          throw new Error(
+            'Vertex AI requires non-empty project and location in authConfig'
+          )
+        }
+        const options: GoogleGenAIOptions = {
+          vertexai: true,
+          project: authConfig.project,
+          location: authConfig.location,
+        }
+        if (authConfig.credentials) {
+          options.googleAuthOptions = {
+            credentials: authConfig.credentials,
+          }
+        }
+        this.ai = new GoogleGenAI(options)
+      } else {
+        this.ai = new GoogleGenAI({ apiKey: authConfig.apiKey })
+      }
 
       // Use configured models if provided
       if (embeddingModel) this.embeddingModel = embeddingModel
       if (extractionModel) this.extractionModel = extractionModel
 
-      logger.success('Memory Service initialized with Upstash Vector')
+      logger.success(`Memory Service initialized (auth: ${authConfig.mode})`)
     } catch (error: any) {
       logger.error(
         `Failed to initialize Memory Service: ${error.message}`,

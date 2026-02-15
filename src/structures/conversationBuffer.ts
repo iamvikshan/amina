@@ -2,8 +2,6 @@
 
 import Logger from '../helpers/Logger'
 
-const logger = Logger
-
 // ContentPart is globally declared in types/services.d.ts
 export interface Message {
   role: 'user' | 'model'
@@ -33,13 +31,16 @@ export class ConversationBuffer {
   }
 
   /**
-   * Extract text content from a parts-based message
+   * Extract text content from a parts-based message.
+   * Parts are joined with a space so adjacent texts don't merge;
+   * empty text parts are skipped and surrounding whitespace is trimmed.
    */
   static getTextContent(message: Message): string {
     return message.parts
-      .map(part => (typeof part.text === 'string' ? part.text : null))
-      .filter((text): text is string => text !== null)
-      .join('')
+      .map(part => ('text' in part ? part.text : null))
+      .filter((text): text is string => text !== null && text.trim() !== '')
+      .map(text => text.trim())
+      .join(' ')
   }
 
   /**
@@ -51,12 +52,21 @@ export class ConversationBuffer {
       return { role: 'model', parts: msg.parts }
     }
     if (msg.userId && msg.displayName) {
-      const textContent = ConversationBuffer.getTextContent(msg)
-      const attributedText = `${msg.displayName}: ${textContent}`
-      const nonTextParts = msg.parts.filter(p => p.text == null)
+      const textContent = ConversationBuffer.getTextContent(msg).trim()
+      const nonTextParts = msg.parts.filter(p => !('text' in p))
+      if (textContent) {
+        return {
+          role: 'user',
+          parts: [
+            { text: `${msg.displayName}: ${textContent}` },
+            ...nonTextParts,
+          ],
+        }
+      }
+      // No text content — return only non-text parts
       return {
         role: 'user',
-        parts: [{ text: attributedText }, ...nonTextParts],
+        parts: nonTextParts.length > 0 ? nonTextParts : msg.parts,
       }
     }
     return { role: 'user', parts: msg.parts }
@@ -102,7 +112,7 @@ export class ConversationBuffer {
 
     const message: Message = {
       role,
-      parts: [...parts], // Defensive copy to prevent external mutations
+      parts: structuredClone(parts), // Defensive copy to prevent external mutations
       timestamp: Date.now(),
     }
 
@@ -123,7 +133,7 @@ export class ConversationBuffer {
     entry.lastActivityAt = Date.now()
     this.cache.set(conversationId, entry)
 
-    logger.debug(
+    Logger.debug(
       `Message appended - ConvID: ${conversationId}, Role: ${role}, Count: ${entry.messages.length}`
     )
   }
@@ -138,7 +148,7 @@ export class ConversationBuffer {
 
     // Return last N messages
     const messages = maxMessages <= 0 ? [] : entry.messages.slice(-maxMessages)
-    logger.debug(
+    Logger.debug(
       `Retrieved conversation history - ConvID: ${conversationId}, Count: ${messages.length}`
     )
 
@@ -157,7 +167,7 @@ export class ConversationBuffer {
     }
 
     if (prunedCount > 0) {
-      logger.debug(
+      Logger.debug(
         `Pruned expired conversations - Removed: ${prunedCount}, Remaining: ${this.cache.size}`
       )
     }

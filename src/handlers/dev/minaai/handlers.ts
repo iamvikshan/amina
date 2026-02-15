@@ -11,6 +11,7 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import Logger from '@helpers/Logger'
 import {
   toggleGlobal,
   setModel,
@@ -21,6 +22,8 @@ import {
   memoryStats,
 } from '@commands/dev/sub/minaAi'
 import { getAiConfig } from '@schemas/Dev'
+import { configCache } from '@src/config/aiResponder'
+import { ModelRouter } from '@src/services/modelRouter'
 import { postToBin } from '@helpers/HttpUtils'
 import { MinaRows, MinaButtons } from '@helpers/componentHelper'
 
@@ -31,6 +34,26 @@ export async function showMinaAiMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
   const config = await getAiConfig()
+
+  // Get full config with auth mode for display
+  let authModeDisplay = 'api-key'
+  let embeddingModelDisplay = 'default'
+  let extractionModelDisplay = 'default'
+  try {
+    const fullConfig = await configCache.getConfig()
+    authModeDisplay = `${fullConfig.authMode}${fullConfig.authMode === 'vertex' ? ` (${fullConfig.vertexRegion})` : ''}`
+    const router = new ModelRouter({
+      model: fullConfig.model,
+      embeddingModel: fullConfig.embeddingModel,
+      extractionModel: fullConfig.extractionModel,
+    })
+    const routing = router.getRoutingSummary()
+    embeddingModelDisplay = routing.embedding
+    extractionModelDisplay = routing.extraction
+  } catch (err) {
+    Logger.warn('Failed to load AI config cache for menu display', err)
+    // Config cache may fail if DB is unavailable — use defaults
+  }
 
   // Generate pastebin link for prompt if it exists
   let promptField = 'Not set'
@@ -87,6 +110,21 @@ export async function showMinaAiMenu(
       {
         name: 'temperature',
         value: `${config.temperature || 'not set'}`,
+        inline: true,
+      },
+      {
+        name: 'auth mode',
+        value: `\`${authModeDisplay}\``,
+        inline: true,
+      },
+      {
+        name: 'embedding model',
+        value: `\`${embeddingModelDisplay}\``,
+        inline: true,
+      },
+      {
+        name: 'extraction model',
+        value: `\`${extractionModelDisplay}\``,
         inline: true,
       },
       {

@@ -1,6 +1,6 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
-// Mock the @google/genai module before importing GoogleAiClient
+// Mock the @google/genai module before importing AiClient
 const mockGenerateContent = mock(() =>
   Promise.resolve({
     text: 'Hello!',
@@ -41,14 +41,32 @@ mock.module('../src/helpers/Logger', () => ({
   },
 }))
 
-import { GoogleAiClient } from '../src/helpers/googleAiClient'
+import { AiClient } from '../src/helpers/aiClient'
 
-describe('GoogleAiClient (new SDK)', () => {
-  let client: GoogleAiClient
+describe('AiClient', () => {
+  let client: AiClient
 
   beforeEach(() => {
     mockGenerateContent.mockClear()
-    client = new GoogleAiClient('test-api-key', 'gemini-3-flash-preview', 30000)
+    mockEmbedContent.mockClear()
+    client = new AiClient(
+      { mode: 'api-key', apiKey: 'test-api-key' },
+      'gemini-3-flash-preview',
+      30000
+    )
+  })
+
+  test('initializes with vertex config', () => {
+    const vertexClient = new AiClient(
+      { mode: 'vertex', project: 'test-project', location: 'us-central1' },
+      'gemini-3-flash-preview',
+      30000
+    )
+    expect(vertexClient.getAuthMode()).toBe('vertex')
+  })
+
+  test('initializes with api-key config', () => {
+    expect(client.getAuthMode()).toBe('api-key')
   })
 
   test('generateResponse returns structured content with text', async () => {
@@ -149,8 +167,11 @@ describe('GoogleAiClient (new SDK)', () => {
 
     expect(result.functionCalls).toBeDefined()
     expect(result.functionCalls).toHaveLength(1)
-    expect(result.functionCalls![0].name).toBe('timeout')
-    expect(result.functionCalls![0].args).toEqual({ user: '123', duration: 60 })
+    expect(result.functionCalls?.[0].name).toBe('timeout')
+    expect(result.functionCalls?.[0].args).toEqual({
+      user: '123',
+      duration: 60,
+    })
 
     // modelContent should include both text and function call parts
     expect(result.modelContent).toHaveLength(2)
@@ -159,7 +180,11 @@ describe('GoogleAiClient (new SDK)', () => {
   test('timeout handling', async () => {
     // Uses a very short timeout (10ms) with a mock that would take 5000ms
     // The race condition is deterministic: timeout always fires first
-    const shortTimeoutClient = new GoogleAiClient('test-key', 'model', 10)
+    const shortTimeoutClient = new AiClient(
+      { mode: 'api-key', apiKey: 'test-key' },
+      'model',
+      10
+    )
 
     mockGenerateContent.mockImplementationOnce(
       () => new Promise(resolve => setTimeout(resolve, 5000))

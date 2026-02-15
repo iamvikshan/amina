@@ -4,10 +4,37 @@ import { ChatInputCommandInteraction } from 'discord.js'
 import { updateAiConfig, getAiConfig } from '@schemas/Dev'
 import { configCache } from '@src/config/aiResponder'
 import { aiResponderService } from '@src/services/aiResponder'
+import { ModelRouter } from '@src/services/modelRouter'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
+import Logger from '@helpers/Logger'
 
 export async function aiStatus(interaction: ChatInputCommandInteraction) {
   const config = await getAiConfig()
+
+  // Get auth mode info - gracefully handle config cache errors
+  let authModeDisplay: string
+  let routingDisplay: Record<string, string>
+  try {
+    const fullConfig = await configCache.getConfig()
+    authModeDisplay = `\`${fullConfig.authMode}\`${fullConfig.authMode === 'vertex' ? ` (${fullConfig.vertexRegion})` : ''}`
+    const router = new ModelRouter({
+      model: fullConfig.model,
+      embeddingModel: fullConfig.embeddingModel,
+      extractionModel: fullConfig.extractionModel,
+    })
+    routingDisplay = router.getRoutingSummary()
+  } catch (err) {
+    Logger.warn(
+      `Failed to load AI config cache for status display: ${err instanceof Error ? err.message : String(err)}`
+    )
+    authModeDisplay = '`error loading config`'
+    routingDisplay = {
+      embedding: 'unknown',
+      extraction: 'unknown',
+      chat: 'unknown',
+      reasoning: 'unknown',
+    }
+  }
 
   const embed = MinaEmbed.primary()
     .setTitle('amina ai configuration status')
@@ -40,6 +67,21 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
       {
         name: 'temperature',
         value: `${config.temperature}`,
+        inline: true,
+      },
+      {
+        name: 'auth mode',
+        value: authModeDisplay,
+        inline: true,
+      },
+      {
+        name: 'embedding model',
+        value: `\`${routingDisplay.embedding || 'unknown'}\``,
+        inline: true,
+      },
+      {
+        name: 'extraction model',
+        value: `\`${routingDisplay.extraction || 'unknown'}\``,
         inline: true,
       },
       {
@@ -267,10 +309,8 @@ export async function toggleDm(
 }
 
 export async function memoryStats(interaction: ChatInputCommandInteraction) {
-  const memoryService = (await import('@src/services/memoryService'))
-    .memoryService
-
   try {
+    const { memoryService } = await import('@src/services/memoryService')
     const stats = await memoryService.getStats()
 
     const embed = MinaEmbed.primary()
@@ -335,9 +375,9 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
       await interaction.followUp({ embeds: [embed] })
     }
   } catch (error) {
-    ;(interaction.client as any).logger.error(
+    Logger.error(
       'Failed to fetch memory statistics:',
-      error
+      error instanceof Error ? error : new Error(String(error))
     )
     const errorEmbed = MinaEmbed.error().setDescription(
       'failed to fetch memory statistics. check logs for details.'

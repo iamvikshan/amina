@@ -29,6 +29,7 @@
     "url": "https://github.com/iamvikshan/amina/issues/new/choose"
   },
   "dependencies": {
+    "@anthropic-ai/vertex-sdk": "^0.14.3",
     "@google/genai": "^1.41.0",
     "@honeybadger-io/js": "^6.12.3",
     "@octokit/rest": "^22.0.1",
