@@ -463,6 +463,71 @@ check_existing_deployment() {
     if [ -d "$DEPLOY_PATH" ]; then
         log_warning "Deployment directory already exists: ${DEPLOY_PATH}"
         
+        # Check if this is a complete deployment with docker-compose.yml and .env
+        if [[ -f "${DEPLOY_PATH}/docker-compose.yml" && -f "${DEPLOY_PATH}/.env" ]]; then
+            # Check if any containers are running
+            local running_containers=0
+            running_containers=$(cd "${DEPLOY_PATH}" 2>/dev/null && (docker compose ps -q 2>/dev/null || true) | wc -l) || running_containers=0
+            
+            if [[ "$running_containers" -gt 0 ]]; then
+                log_info "Found running deployment with ${running_containers} container(s)"
+                echo ""
+                
+                if [[ "$DRY_RUN" == true ]]; then
+                    log_info "${DIM}[DRY-RUN]${NC} Would present smart restart/update menu:"
+                    log_info "${DIM}[DRY-RUN]${NC}   1) Restart services (no image changes)"
+                    log_info "${DIM}[DRY-RUN]${NC}   2) Update & restart (smart pull)"
+                    log_info "${DIM}[DRY-RUN]${NC}   3) Full reconfigure"
+                    return 0
+                fi
+                
+                if [[ "$FORCE" == true ]]; then
+                    log_info "Auto-selecting Update & Restart ${DIM}[--force mode]${NC}"
+                    update_services
+                    exit 0
+                fi
+                
+                echo -e "${BOLD}What would you like to do?${NC}"
+                echo ""
+                echo -e "  ${BOLD}1)${NC} Restart services (no image changes)"
+                echo -e "     ${DIM}Restart all containers without pulling new images${NC}"
+                echo ""
+                echo -e "  ${BOLD}2)${NC} Update & restart (smart pull)"
+                echo -e "     ${DIM}Pull latest images, restart only changed services, prune old images${NC}"
+                echo ""
+                echo -e "  ${BOLD}3)${NC} Full reconfigure"
+                echo -e "     ${DIM}Re-run full setup (clone repo, configure .env, redeploy)${NC}"
+                echo ""
+                
+                local choice
+                choice=$(read_input "Select an option (1-3)" "2")
+                
+                case "$choice" in
+                    1)
+                        restart_services
+                        exit 0
+                        ;;
+                    2)
+                        update_services
+                        exit 0
+                        ;;
+                    3)
+                        if ! confirm "Overwrite existing deployment?" "n"; then
+                            log_error "Deployment cancelled by user"
+                            exit 1
+                        fi
+                        log_info "Existing deployment will be overwritten"
+                        ;;
+                    *)
+                        log_error "Invalid option: ${choice}"
+                        exit 1
+                        ;;
+                esac
+                return 0
+            fi
+        fi
+        
+        # No running deployment found — fall through to original behavior
         if [[ "$DRY_RUN" == true ]]; then
             log_info "${DIM}[DRY-RUN]${NC} Would check for existing deployment"
             return 0
@@ -975,6 +1040,286 @@ configure_env_interactive() {
 }
 
 ################################################################################
+# Health Check & Dashboard Display (extracted for reuse)
+################################################################################
+
+show_health_and_dashboard() {
+    # ── Health check polling ──
+    echo ""
+    log_info "Waiting for services to become healthy..."
+    echo ""
+
+    local timeout=120
+    local interval=5
+    local elapsed=0
+    local amina_healthy=false
+    local lavalink_healthy=false
+    local cloudflared_healthy=false
+    local amina_status="unknown"
+    local lavalink_status="unknown"
+    local cloudflared_status="unknown"
+    local watchtower_status="unknown"
+
+    # Trap to restore terminal on interrupt during health polling
+    cleanup_health_poll() {
+        tput cnorm 2>/dev/null || true  # restore cursor
+        echo ""  # ensure newline
+        log_warning "Health check interrupted"
+    }
+    trap cleanup_health_poll INT TERM
+    tput civis 2>/dev/null || true  # hide cursor during polling
+
+    while [[ $elapsed -lt $timeout ]]; do
+        # Get container health status
+        amina_status=$(docker inspect --format='{{.State.Health.Status}}' amina 2>/dev/null || echo "not found")
+        lavalink_status=$(docker inspect --format='{{.State.Health.Status}}' lavalink 2>/dev/null || echo "not found")
+        cloudflared_status=$(docker inspect --format='{{.State.Health.Status}}' cloudflared 2>/dev/null || echo "not found")
+        watchtower_status=$(docker inspect --format='{{.State.Status}}' watchtower 2>/dev/null || echo "not found")
+
+        # Clear previous lines and show progress
+        tput el 2>/dev/null || true  # clear to end of line
+        printf "  Waiting for services to become healthy... (%ds/%ds)\n" "$elapsed" "$timeout"
+        tput el 2>/dev/null || true
+        printf "    amina:       %s\n" "$amina_status"
+        tput el 2>/dev/null || true
+        printf "    lavalink:    %s\n" "$lavalink_status"
+        tput el 2>/dev/null || true
+        printf "    cloudflared: %s\n" "$cloudflared_status"
+
+        if [[ "$amina_status" == "healthy" ]]; then
+            amina_healthy=true
+        fi
+        if [[ "$lavalink_status" == "healthy" ]]; then
+            lavalink_healthy=true
+        fi
+        if [[ "$cloudflared_status" == "healthy" ]]; then
+            cloudflared_healthy=true
+        fi
+
+        # All healthy — done
+        if [[ "$amina_healthy" == true && "$lavalink_healthy" == true && "$cloudflared_healthy" == true ]]; then
+            break
+        fi
+
+        # If unhealthy, stop waiting
+        if [[ "$amina_status" == "unhealthy" || "$lavalink_status" == "unhealthy" || "$cloudflared_status" == "unhealthy" ]]; then
+            break
+        fi
+
+        sleep "$interval"
+        elapsed=$((elapsed + interval))
+
+        # Move cursor up 4 lines to overwrite
+        tput cuu 4 2>/dev/null || printf "\033[4A"
+    done
+
+    tput cnorm 2>/dev/null || true  # restore cursor
+    trap - INT TERM  # remove health poll trap
+    echo ""
+
+    # ── Capture and display warnings from container logs ──
+    local warnings
+    warnings=$(docker compose logs --tail=100 2>&1 | grep -iE 'warn|warning|version mismatch|outdated|deprecated' || true)
+
+    if [[ -n "$warnings" ]]; then
+        echo -e "${BOLD}${YELLOW}══ Service Warnings ══${NC}"
+        echo ""
+        while IFS= read -r line; do
+            echo -e "  ${YELLOW}⚠${NC} ${DIM}${line}${NC}"
+        done <<< "$warnings"
+        echo ""
+    fi
+
+    # ── Display final dashboard ──
+    # Refresh statuses one last time
+    amina_status=$(docker inspect --format='{{.State.Health.Status}}' amina 2>/dev/null || echo "not found")
+    lavalink_status=$(docker inspect --format='{{.State.Health.Status}}' lavalink 2>/dev/null || echo "not found")
+    cloudflared_status=$(docker inspect --format='{{.State.Health.Status}}' cloudflared 2>/dev/null || echo "not found")
+    watchtower_status=$(docker inspect --format='{{.State.Status}}' watchtower 2>/dev/null || echo "not found")
+
+    local all_healthy=true
+
+    echo -e "${BOLD}${CYAN}══════════════════════════════════════════════════${NC}"
+    echo -e "${BOLD}${CYAN}  Your Amina Instance is Alive!${NC}"
+    echo -e "${BOLD}${CYAN}══════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "  ${BOLD}Service Status:${NC}"
+
+    if [[ "$amina_status" == "healthy" ]]; then
+        echo -e "    amina:       ${GREEN}✓ healthy${NC} (port 3000)"
+    else
+        echo -e "    amina:       ${RED}✗ ${amina_status}${NC} (port 3000)"
+        all_healthy=false
+    fi
+
+    if [[ "$lavalink_status" == "healthy" ]]; then
+        echo -e "    lavalink:    ${GREEN}✓ healthy${NC} (port 2333)"
+    else
+        echo -e "    lavalink:    ${RED}✗ ${lavalink_status}${NC} (port 2333)"
+        all_healthy=false
+    fi
+
+    if [[ "$cloudflared_status" == "healthy" ]]; then
+        echo -e "    cloudflared: ${GREEN}✓ healthy${NC}"
+    else
+        echo -e "    cloudflared: ${RED}✗ ${cloudflared_status}${NC}"
+        all_healthy=false
+    fi
+
+    if [[ "$watchtower_status" == "running" ]]; then
+        echo -e "    watchtower:  ${GREEN}✓ running${NC}"
+    else
+        echo -e "    watchtower:  ${RED}✗ ${watchtower_status}${NC}"
+        all_healthy=false
+    fi
+
+    echo ""
+    echo -e "  ${BOLD}Useful Commands:${NC}"
+    echo -e "    View logs:       ${DIM}cd ${DEPLOY_PATH} && docker compose logs -f${NC}"
+    echo -e "    Restart:         ${DIM}cd ${DEPLOY_PATH} && docker compose restart${NC}"
+    echo -e "    Stop:            ${DIM}cd ${DEPLOY_PATH} && docker compose down${NC}"
+    echo -e "    Update:          ${DIM}cd ${DEPLOY_PATH} && docker compose pull && docker compose up -d${NC}"
+    echo -e "    Clean orphans:   ${DIM}cd ${DEPLOY_PATH} && docker compose down --remove-orphans${NC}"
+    echo -e "    Prune images:    ${DIM}cd ${DEPLOY_PATH} && docker image prune -f${NC}"
+    echo -e "    Full cleanup:    ${DIM}docker system prune -f${NC}"
+    echo -e "    Uninstall:       ${DIM}./local.sh --uninstall ${DEPLOY_PATH}${NC}"
+    echo ""
+    echo -e "${BOLD}${CYAN}══════════════════════════════════════════════════${NC}"
+
+    # If any service is not healthy, show troubleshooting
+    if [[ "$all_healthy" != true ]]; then
+        echo ""
+        echo -e "  ${BOLD}${YELLOW}Troubleshooting:${NC}"
+        echo -e "    - Check .env:             ${DIM}cat ${DEPLOY_PATH}/.env${NC}"
+        echo -e "    - View amina logs:        ${DIM}docker logs amina --tail=50${NC}"
+        echo -e "    - View lavalink logs:     ${DIM}docker logs lavalink --tail=50${NC}"
+        echo -e "    - View cloudflared logs:  ${DIM}docker logs cloudflared --tail=50${NC}"
+        echo -e "    - Check Lavalink password matches in .env and lavalink/application.yml"
+        echo ""
+
+        # Show recent error logs for failed services
+        if [[ "$amina_status" != "healthy" ]]; then
+            echo -e "  ${BOLD}${RED}Recent amina logs:${NC}"
+            docker logs amina --tail=20 2>&1 | while IFS= read -r line; do
+                echo -e "    ${DIM}${line}${NC}"
+            done
+            echo ""
+        fi
+        if [[ "$lavalink_status" != "healthy" ]]; then
+            echo -e "  ${BOLD}${RED}Recent lavalink logs:${NC}"
+            docker logs lavalink --tail=20 2>&1 | while IFS= read -r line; do
+                echo -e "    ${DIM}${line}${NC}"
+            done
+            echo ""
+        fi
+        if [[ "$cloudflared_status" != "healthy" ]]; then
+            echo -e "  ${BOLD}${RED}Recent cloudflared logs:${NC}"
+            docker logs cloudflared --tail=20 2>&1 | while IFS= read -r line; do
+                echo -e "    ${DIM}${line}${NC}"
+            done
+            echo ""
+        fi
+    fi
+}
+
+################################################################################
+# Restart & Update Services
+################################################################################
+
+restart_services() {
+    log_step "Restarting services..."
+
+    if [[ "$DRY_RUN" == true ]]; then
+        log_info "${DIM}[DRY-RUN]${NC} Would run: cd ${DEPLOY_PATH} && docker compose restart"
+        log_info "${DIM}[DRY-RUN]${NC} Would poll health checks for up to 120 seconds"
+        log_info "${DIM}[DRY-RUN]${NC} Would display final deployment dashboard"
+        return 0
+    fi
+
+    cd "${DEPLOY_PATH}" || { log_error "Failed to enter deployment directory: ${DEPLOY_PATH}"; exit 1; }
+
+    if ! docker compose restart 2>&1; then
+        log_error "Failed to restart services"
+        exit 1
+    fi
+    log_success "Services restarted"
+
+    show_health_and_dashboard
+}
+
+update_services() {
+    log_step "Checking for image updates..."
+
+    if [[ "$DRY_RUN" == true ]]; then
+        log_info "${DIM}[DRY-RUN]${NC} Would capture current image IDs for all services"
+        log_info "${DIM}[DRY-RUN]${NC} Would run: cd ${DEPLOY_PATH} && docker compose pull"
+        log_info "${DIM}[DRY-RUN]${NC} Would compare image IDs to detect changes"
+        log_info "${DIM}[DRY-RUN]${NC} Would restart only changed services"
+        log_info "${DIM}[DRY-RUN]${NC} Would run: docker image prune -f"
+        log_info "${DIM}[DRY-RUN]${NC} Would display final deployment dashboard"
+        return 0
+    fi
+
+    cd "${DEPLOY_PATH}" || { log_error "Failed to enter deployment directory: ${DEPLOY_PATH}"; exit 1; }
+
+    # Service list (service name = container name in this setup)
+    local services=("amina" "lavalink" "cloudflared" "watchtower")
+    declare -A old_images
+    local changed_services=()
+
+    # Capture current image IDs for each running container
+    for svc in "${services[@]}"; do
+        old_images[$svc]=$(docker inspect --format='{{.Image}}' "$svc" 2>/dev/null || echo "none")
+    done
+
+    # Pull latest images
+    log_info "Pulling latest images..."
+    if ! docker compose pull 2>&1; then
+        log_warning "Some images may have failed to pull"
+    fi
+    log_success "Image pull complete"
+
+    # Compare image IDs to detect changes
+    echo ""
+    for svc in "${services[@]}"; do
+        local config_image new_id
+        config_image=$(docker inspect --format='{{.Config.Image}}' "$svc" 2>/dev/null || echo "")
+        if [[ -n "$config_image" ]]; then
+            new_id=$(docker image inspect --format='{{.Id}}' "$config_image" 2>/dev/null || echo "none")
+        else
+            new_id="none"
+        fi
+
+        if [[ "${old_images[$svc]}" != "$new_id" && "$new_id" != "none" ]]; then
+            echo -e "  ${svc}: ${YELLOW}image changed${NC}"
+            changed_services+=("$svc")
+        else
+            echo -e "  ${svc}: ${GREEN}up to date${NC}"
+        fi
+    done
+
+    echo ""
+
+    if [[ ${#changed_services[@]} -gt 0 ]]; then
+        log_info "Restarting changed services: ${changed_services[*]}"
+        if ! docker compose up -d --no-deps "${changed_services[@]}" 2>&1; then
+            log_error "Failed to restart changed services"
+            exit 1
+        fi
+        log_success "Changed services updated"
+    else
+        log_success "All images are up to date, no restart needed"
+    fi
+
+    # Prune old (dangling) images
+    log_info "Pruning dangling images..."
+    docker image prune -f 2>&1 | tail -1 || true
+    log_success "Image cleanup complete"
+
+    show_health_and_dashboard
+}
+
+################################################################################
 # Phase 3: Deployment, Startup, Health Checks & Warning Capture
 ################################################################################
 
@@ -1070,155 +1415,7 @@ deploy_services() {
     fi
     log_success "Docker Compose started"
 
-    # ── h) Health check polling ──
-    echo ""
-    log_info "Waiting for services to become healthy..."
-    echo ""
-
-    local timeout=120
-    local interval=5
-    local elapsed=0
-    local amina_healthy=false
-    local lavalink_healthy=false
-    local amina_status="unknown"
-    local lavalink_status="unknown"
-    local watchtower_status="unknown"
-
-    # Trap to restore terminal on interrupt during health polling
-    cleanup_health_poll() {
-        tput cnorm 2>/dev/null  # restore cursor
-        echo ""  # ensure newline
-        log_warning "Health check interrupted"
-    }
-    trap cleanup_health_poll INT TERM
-    tput civis 2>/dev/null  # hide cursor during polling
-
-    while [[ $elapsed -lt $timeout ]]; do
-        # Get container health status
-        amina_status=$(docker inspect --format='{{.State.Health.Status}}' amina 2>/dev/null || echo "not found")
-        lavalink_status=$(docker inspect --format='{{.State.Health.Status}}' lavalink 2>/dev/null || echo "not found")
-        watchtower_status=$(docker inspect --format='{{.State.Status}}' watchtower 2>/dev/null || echo "not found")
-
-        # Clear previous lines and show progress
-        tput el 2>/dev/null  # clear to end of line
-        printf "  Waiting for services to become healthy... (%ds/%ds)\n" "$elapsed" "$timeout"
-        tput el 2>/dev/null
-        printf "    amina:    %s\n" "$amina_status"
-        tput el 2>/dev/null
-        printf "    lavalink: %s\n" "$lavalink_status"
-
-        if [[ "$amina_status" == "healthy" ]]; then
-            amina_healthy=true
-        fi
-        if [[ "$lavalink_status" == "healthy" ]]; then
-            lavalink_healthy=true
-        fi
-
-        # Both healthy — done
-        if [[ "$amina_healthy" == true && "$lavalink_healthy" == true ]]; then
-            break
-        fi
-
-        # If unhealthy, stop waiting
-        if [[ "$amina_status" == "unhealthy" || "$lavalink_status" == "unhealthy" ]]; then
-            break
-        fi
-
-        sleep "$interval"
-        elapsed=$((elapsed + interval))
-
-        # Move cursor up 3 lines to overwrite
-        tput cuu 3 2>/dev/null || printf "\033[3A"
-    done
-
-    tput cnorm 2>/dev/null  # restore cursor
-    trap - INT TERM  # remove health poll trap
-    echo ""
-
-    # ── i) Capture and display warnings from container logs ──
-    local warnings
-    warnings=$(docker compose logs --tail=100 2>&1 | grep -iE 'warn|warning|version mismatch|outdated|deprecated' || true)
-
-    if [[ -n "$warnings" ]]; then
-        echo -e "${BOLD}${YELLOW}══ Service Warnings ══${NC}"
-        echo ""
-        while IFS= read -r line; do
-            echo -e "  ${YELLOW}⚠${NC} ${DIM}${line}${NC}"
-        done <<< "$warnings"
-        echo ""
-    fi
-
-    # ── j) Display final dashboard ──
-    # Refresh statuses one last time
-    amina_status=$(docker inspect --format='{{.State.Health.Status}}' amina 2>/dev/null || echo "not found")
-    lavalink_status=$(docker inspect --format='{{.State.Health.Status}}' lavalink 2>/dev/null || echo "not found")
-    watchtower_status=$(docker inspect --format='{{.State.Status}}' watchtower 2>/dev/null || echo "not found")
-
-    local all_healthy=true
-
-    echo -e "${BOLD}${CYAN}══════════════════════════════════════════════════${NC}"
-    echo -e "${BOLD}${CYAN}  Amina Discord Bot - Deployment Complete!${NC}"
-    echo -e "${BOLD}${CYAN}══════════════════════════════════════════════════${NC}"
-    echo ""
-    echo -e "  ${BOLD}Service Status:${NC}"
-
-    if [[ "$amina_status" == "healthy" ]]; then
-        echo -e "    amina:      ${GREEN}✓ healthy${NC} (port 3000)"
-    else
-        echo -e "    amina:      ${RED}✗ ${amina_status}${NC} (port 3000)"
-        all_healthy=false
-    fi
-
-    if [[ "$lavalink_status" == "healthy" ]]; then
-        echo -e "    lavalink:   ${GREEN}✓ healthy${NC} (port 2333)"
-    else
-        echo -e "    lavalink:   ${RED}✗ ${lavalink_status}${NC} (port 2333)"
-        all_healthy=false
-    fi
-
-    if [[ "$watchtower_status" == "running" ]]; then
-        echo -e "    watchtower:  ${GREEN}✓ running${NC}"
-    else
-        echo -e "    watchtower:  ${RED}✗ ${watchtower_status}${NC}"
-        all_healthy=false
-    fi
-
-    echo ""
-    echo -e "  ${BOLD}Useful Commands:${NC}"
-    echo -e "    View logs:       ${DIM}cd ${DEPLOY_PATH} && docker compose logs -f${NC}"
-    echo -e "    Restart:         ${DIM}cd ${DEPLOY_PATH} && docker compose restart${NC}"
-    echo -e "    Stop:            ${DIM}cd ${DEPLOY_PATH} && docker compose down${NC}"
-    echo -e "    Update:          ${DIM}cd ${DEPLOY_PATH} && docker compose pull && docker compose up -d${NC}"
-    echo -e "    Uninstall:       ${DIM}./local.sh --uninstall ${DEPLOY_PATH}${NC}"
-    echo ""
-    echo -e "${BOLD}${CYAN}══════════════════════════════════════════════════${NC}"
-
-    # If any service is not healthy, show troubleshooting
-    if [[ "$all_healthy" != true ]]; then
-        echo ""
-        echo -e "  ${BOLD}${YELLOW}Troubleshooting:${NC}"
-        echo -e "    - Check .env:             ${DIM}cat ${DEPLOY_PATH}/.env${NC}"
-        echo -e "    - View amina logs:        ${DIM}docker logs amina --tail=50${NC}"
-        echo -e "    - View lavalink logs:     ${DIM}docker logs lavalink --tail=50${NC}"
-        echo -e "    - Check Lavalink password matches in .env and lavalink/application.yml"
-        echo ""
-
-        # Show recent error logs for failed services
-        if [[ "$amina_status" != "healthy" ]]; then
-            echo -e "  ${BOLD}${RED}Recent amina logs:${NC}"
-            docker logs amina --tail=20 2>&1 | while IFS= read -r line; do
-                echo -e "    ${DIM}${line}${NC}"
-            done
-            echo ""
-        fi
-        if [[ "$lavalink_status" != "healthy" ]]; then
-            echo -e "  ${BOLD}${RED}Recent lavalink logs:${NC}"
-            docker logs lavalink --tail=20 2>&1 | while IFS= read -r line; do
-                echo -e "    ${DIM}${line}${NC}"
-            done
-            echo ""
-        fi
-    fi
+    show_health_and_dashboard
 }
 
 ################################################################################
