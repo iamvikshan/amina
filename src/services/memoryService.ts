@@ -9,7 +9,7 @@ import {
   getMemoryStats,
   pruneMemories,
   getUserMemoryCount,
-  deleteOldestMemories,
+  pruneLeastImportantMemories,
   vectorSearch,
   findSimilarMemory,
   Model,
@@ -242,14 +242,14 @@ If nothing worth remembering, return: []`
       // Check memory limit and delete oldest if exceeded
       const currentCount = await getUserMemoryCount(userId, guildId)
       if (currentCount > this.MAX_MEMORIES_PER_USER) {
-        const { deletedCount } = await deleteOldestMemories(
+        const { deletedCount } = await pruneLeastImportantMemories(
           userId,
           guildId,
           this.MAX_MEMORIES_PER_USER
         )
         if (deletedCount > 0) {
           logger.debug(
-            `Deleted ${deletedCount} oldest memories for user ${userId} (context: ${guildId || 'DM'})`
+            `Pruned ${deletedCount} least-important memories for user ${userId} (context: ${guildId || 'DM'})`
           )
         }
       }

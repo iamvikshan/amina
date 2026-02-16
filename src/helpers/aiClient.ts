@@ -218,9 +218,11 @@ export class AiClient {
     promise: Promise<T>,
     timeoutMs: number
   ): Promise<T> {
-    let timerId: ReturnType<typeof setTimeout>
+    let timerId: ReturnType<typeof setTimeout> | undefined
     return Promise.race([
-      promise.finally(() => clearTimeout(timerId)),
+      promise.finally(() => {
+        if (timerId) clearTimeout(timerId)
+      }),
       new Promise<T>((_, reject) => {
         timerId = setTimeout(() => reject(new Error('API timeout')), timeoutMs)
       }),

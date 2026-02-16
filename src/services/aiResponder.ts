@@ -552,7 +552,7 @@ export class AiResponderService {
         iteration++
 
         // Count actual tool calls in this iteration
-        totalToolCalls += result.functionCalls.length
+        totalToolCalls += result.functionCalls?.length ?? 0
 
         // Send a personality-flavored status message on first tool call
         if (iteration === 1 && !statusMessage && result.functionCalls) {

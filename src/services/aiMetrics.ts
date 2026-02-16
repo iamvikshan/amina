@@ -129,64 +129,64 @@ export class AiMetricsService {
 
       if (users.size === 0 && guilds.size === 0 && global.messages === 0) return
 
-      const deps = await this.resolveDeps()
-      const ops: Promise<any>[] = []
-
-      // Batch user updates
-      for (const [userId, entry] of users) {
-        ops.push(
-          deps.userModel.updateOne(
-            { _id: userId },
-            {
-              $inc: {
-                'minaAi.stats.messages': entry.messages,
-                'minaAi.stats.tokensUsed': entry.tokens,
-                'minaAi.stats.toolCalls': entry.toolCalls,
-                'minaAi.stats.memoriesCreated': entry.memoriesCreated,
-              },
-              $set: { 'minaAi.stats.lastInteraction': new Date() },
-            },
-            { upsert: true }
-          )
-        )
-      }
-
-      // Batch guild updates
-      for (const [guildId, entry] of guilds) {
-        ops.push(
-          deps.guildModel.updateOne(
-            { _id: guildId },
-            {
-              $inc: {
-                'aiResponder.stats.totalMessages': entry.messages,
-                'aiResponder.stats.tokensUsed': entry.tokens,
-                'aiResponder.stats.toolCalls': entry.toolCalls,
-              },
-            },
-            { upsert: true }
-          )
-        )
-      }
-
-      // Global stats
-      if (global.messages > 0) {
-        ops.push(
-          deps.incrementAiStats({
-            messages: global.messages,
-            tokens: global.tokens,
-            toolCalls: global.toolCalls,
-          })
-        )
-      }
-
       try {
+        const deps = await this.resolveDeps()
+        const ops: Promise<any>[] = []
+
+        // Batch user updates
+        for (const [userId, entry] of users) {
+          ops.push(
+            deps.userModel.updateOne(
+              { _id: userId },
+              {
+                $inc: {
+                  'minaAi.stats.messages': entry.messages,
+                  'minaAi.stats.tokensUsed': entry.tokens,
+                  'minaAi.stats.toolCalls': entry.toolCalls,
+                  'minaAi.stats.memoriesCreated': entry.memoriesCreated,
+                },
+                $set: { 'minaAi.stats.lastInteraction': new Date() },
+              },
+              { upsert: true }
+            )
+          )
+        }
+
+        // Batch guild updates
+        for (const [guildId, entry] of guilds) {
+          ops.push(
+            deps.guildModel.updateOne(
+              { _id: guildId },
+              {
+                $inc: {
+                  'aiResponder.stats.totalMessages': entry.messages,
+                  'aiResponder.stats.tokensUsed': entry.tokens,
+                  'aiResponder.stats.toolCalls': entry.toolCalls,
+                },
+              },
+              { upsert: true }
+            )
+          )
+        }
+
+        // Global stats
+        if (global.messages > 0) {
+          ops.push(
+            deps.incrementAiStats({
+              messages: global.messages,
+              tokens: global.tokens,
+              toolCalls: global.toolCalls,
+            })
+          )
+        }
+
         await Promise.all(ops)
         logger.debug(
           `AI metrics flushed: ${users.size} users, ${guilds.size} guilds, ${global.messages} global messages`
         )
       } catch (err: any) {
         logger.error(`AI metrics flush failed: ${err.message}`)
-        // Re-buffer failed data
+        // Re-buffer failed data (merges with any concurrent records)
         for (const [userId, entry] of users) {
           const existing = this.userBuffer.get(userId) ?? {
             messages: 0,

@@ -353,7 +353,7 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
         },
         {
           name: 'average importance',
-          value: `${stats.avgImportance.toFixed(2)} / 5.0`,
+          value: `${stats.avgImportance.toFixed(2)} / 10.0`,
           inline: true,
         },
         {
@@ -397,4 +397,5 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
   }
 }
 
+// export default 0 prevents this from being registered as a null command
 export default 0

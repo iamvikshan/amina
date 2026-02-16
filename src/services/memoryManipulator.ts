@@ -195,13 +195,13 @@ export class MemoryManipulator {
       return 'Error: "description" is required and must be a non-empty string.'
     }
 
-    const result = await this.memoryService.deleteMemoryByMatch(
-      description,
-      context.userId,
-      context.guildId
-    )
-
     try {
+      const result = await this.memoryService.deleteMemoryByMatch(
+        description,
+        context.userId,
+        context.guildId
+      )
+
       if (result.found) {
         return `Forgot: "${result.deletedValue}"`
       }

@@ -45,7 +45,7 @@ const mockGetMemoryStats = mock(() =>
 )
 const mockPruneMemories = mock(() => Promise.resolve(0))
 const mockGetUserMemoryCount = mock(() => Promise.resolve(0))
-const mockDeleteOldestMemories = mock(() =>
+const mockPruneLeastImportantMemories = mock(() =>
   Promise.resolve({ deletedCount: 0 })
 )
 const mockVectorSearch = mock(() => Promise.resolve([]))
@@ -60,7 +60,7 @@ mock.module('../src/database/schemas/AiMemory', () => ({
   getMemoryStats: mockGetMemoryStats,
   pruneMemories: mockPruneMemories,
   getUserMemoryCount: mockGetUserMemoryCount,
-  deleteOldestMemories: mockDeleteOldestMemories,
+  pruneLeastImportantMemories: mockPruneLeastImportantMemories,
   vectorSearch: mockVectorSearch,
   findSimilarMemory: mockFindSimilarMemory,
   Model: {
@@ -81,7 +81,7 @@ describe('MemoryService (new SDK)', () => {
     mockGenerateContent.mockClear()
     mockSaveMemory.mockClear()
     mockGetUserMemoryCount.mockClear()
-    mockDeleteOldestMemories.mockClear()
+    mockPruneLeastImportantMemories.mockClear()
     mockVectorSearch.mockClear()
     mockUpdateMany.mockClear()
     mockFindSimilarMemory.mockClear()
@@ -268,14 +268,14 @@ describe('MemoryService (new SDK)', () => {
 
   test('prunes oldest memories when over limit', async () => {
     mockGetUserMemoryCount.mockImplementationOnce(() => Promise.resolve(60))
-    mockDeleteOldestMemories.mockImplementationOnce(() =>
+    mockPruneLeastImportantMemories.mockImplementationOnce(() =>
       Promise.resolve({ deletedCount: 10 })
     )
 
     const fact = { key: 'test', value: 'test', importance: 5 }
     await service.storeMemory(fact, 'user1', null, 'ctx')
 
-    expect(mockDeleteOldestMemories).toHaveBeenCalledTimes(1)
+    expect(mockPruneLeastImportantMemories).toHaveBeenCalledTimes(1)
   })
 
   test('storeMemory merges with existing memory above dedup threshold', async () => {

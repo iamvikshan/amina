@@ -195,4 +195,34 @@ describe('AiMetricsService', () => {
     expect(mockGuildUpdateOne).not.toHaveBeenCalled()
     expect(mockIncrementAiStats).not.toHaveBeenCalled()
   })
+
+  test('flush merges concurrent records during failure', async () => {
+    // Seed initial data
+    service.record({
+      userId: 'user1',
+      guildId: 'guild1',
+      tokensUsed: 100,
+      toolCalls: 1,
+      memoriesCreated: 0,
+    })
+
+    // Make user DB mock call service.record() before rejecting
+    mockUserUpdateOne.mockImplementation(async () => {
+      service.record({
+        userId: 'user2',
+        guildId: 'guild2',
+        tokensUsed: 50,
+        toolCalls: 0,
+        memoriesCreated: 0,
+      })
+      throw new Error('DB error')
+    })
+
+    await service.flush()
+
+    // Original data should be re-buffered, plus concurrent data merged
+    expect(service.pendingUserCount).toBe(2) // user1 (re-buffered) + user2 (concurrent)
+    expect(service.pendingGuildCount).toBe(2) // guild1 (re-buffered) + guild2 (concurrent)
+    expect(service.pendingGlobalMessages).toBe(2) // 1 (re-buffered) + 1 (concurrent)
+  })
 })

@@ -373,6 +373,7 @@ export async function clearProfile(userId: string) {
             showRegion: false,
             showBirthdate: false,
             showPronouns: false,
+            showAiStats: false,
           },
         },
       },
@@ -406,10 +407,23 @@ export async function updateUserMinaAiPreferences(
   userId: string,
   preferences: any
 ) {
+  const updateFields: Record<string, any> = {}
+  if (preferences.ignoreMe !== undefined)
+    updateFields['minaAi.ignoreMe'] = preferences.ignoreMe
+  if (preferences.allowDMs !== undefined)
+    updateFields['minaAi.allowDMs'] = preferences.allowDMs
+  if (preferences.combineDmWithServer !== undefined)
+    updateFields['minaAi.combineDmWithServer'] = preferences.combineDmWithServer
+  if (preferences.globalServerMemories !== undefined)
+    updateFields['minaAi.globalServerMemories'] =
+      preferences.globalServerMemories
+
+  if (Object.keys(updateFields).length === 0) return null
+
   const user = await Model.findOneAndUpdate(
     { _id: userId },
-    { $set: { minaAi: preferences } },
-    { new: true, upsert: true }
+    { $set: updateFields },
+    { returnDocument: 'after', upsert: true }
   )
   if (user) cache.set(userId, user)
   return user

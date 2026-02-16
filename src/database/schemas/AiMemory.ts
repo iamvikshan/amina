@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 // REQUIRED: Create Atlas Vector Search index on the 'aimemories' collection:
 // {
 //   "fields": [
-//     { "type": "vector", "path": "embedding", "numDimensions": 768, "similarity": "cosine" },
+//     { "type": "vector", "path": "embedding", "numDimensions": 3072, "similarity": "cosine" },
 //     { "type": "filter", "path": "userId" },
 //     { "type": "filter", "path": "guildId" },
 //     { "type": "filter", "path": "memoryType" }
@@ -32,11 +32,11 @@ const Schema = new mongoose.Schema(
       validate: {
         validator: (v: number[]) =>
           v.length === 0 ||
-          (v.length === 768 && v.every(n => Number.isFinite(n))),
+          (v.length === 3072 && v.every(n => Number.isFinite(n))),
         message:
-          'Embedding must be empty or exactly 768 finite numbers (NaN/Infinity not allowed)',
+          'Embedding must be empty or exactly 3072 finite numbers (NaN/Infinity not allowed)',
       },
-    }, // 768-dimension vector for Atlas Vector Search
+    }, // 3072-dimension vector for Atlas Vector Search
     lastAccessedAt: { type: Date, default: Date.now },
     accessCount: { type: Number, default: 0 },
   },
@@ -53,10 +53,8 @@ Schema.index({ lastAccessedAt: 1 }) // For pruning
 export const Model = mongoose.model('ai-memory', Schema)
 
 // Drop orphan vectorId_1 index left from pre-Phase 4 schema
-// This is a one-time cleanup; once the index is gone, the catch branch runs harmlessly
-void Model.collection.dropIndex('vectorId_1').catch(() => {
-  // Index doesn't exist (already cleaned up) — safe to ignore
-})
+// void Model.collection.dropIndex('vectorId_1').catch(() => {
+//})
 
 // Get memories for a user in a specific context
 export async function getUserMemories(
@@ -112,8 +110,8 @@ export async function getUserMemoryCount(
   return await Model.countDocuments({ userId, guildId })
 }
 
-// Delete oldest memories for a user (by creation date, keeping most important)
-export async function deleteOldestMemories(
+// Prune least important memories for a user, keeping the top N by importance
+export async function pruneLeastImportantMemories(
   userId: string,
   guildId: string | null,
   keepCount: number

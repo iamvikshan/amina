@@ -49,7 +49,7 @@ mock.module('@google/genai', () => ({
 // Mock database schemas
 const mockSaveMemory = mock(() => Promise.resolve())
 const mockGetUserMemoryCount = mock(() => Promise.resolve(0))
-const mockDeleteOldestMemories = mock(() =>
+const mockPruneLeastImportantMemories = mock(() =>
   Promise.resolve({ deletedCount: 0 })
 )
 const mockVectorSearch = mock(() => Promise.resolve([]))
@@ -66,7 +66,7 @@ mock.module('../src/database/schemas/AiMemory', () => ({
   ),
   pruneMemories: mock(() => Promise.resolve(0)),
   getUserMemoryCount: mockGetUserMemoryCount,
-  deleteOldestMemories: mockDeleteOldestMemories,
+  pruneLeastImportantMemories: mockPruneLeastImportantMemories,
   vectorSearch: mockVectorSearch,
   findSimilarMemory: mockFindSimilarMemory,
   Model: {
@@ -154,7 +154,7 @@ describe('MemoryManipulator', () => {
     // Reset mocks
     mockSaveMemory.mockClear()
     mockGetUserMemoryCount.mockClear()
-    mockDeleteOldestMemories.mockClear()
+    mockPruneLeastImportantMemories.mockClear()
     mockVectorSearch.mockClear()
     mockFindSimilarMemory.mockClear()
     mockFindByIdAndUpdate.mockClear()

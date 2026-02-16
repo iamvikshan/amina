@@ -34,6 +34,10 @@ export class ConversationBuffer {
   /** Tombstone map: conversations recently cleared (value = timestamp) that should not be restored from DB */
   private clearedTimestamps: Map<string, number> = new Map()
   private pendingPersists: Map<string, Timer> = new Map()
+  private pendingPersistPromises: Map<
+    string,
+    { promise: Promise<void>; resolvers: Array<() => void> }
+  > = new Map()
   private readonly PERSIST_DEBOUNCE_MS = 2000 // 2 second debounce
 
   constructor() {
@@ -192,17 +196,14 @@ export class ConversationBuffer {
     // Use per-conversation loading lock to prevent duplicate DB restores
     let loadPromise = this.loadingPromises.get(conversationId)
     if (!loadPromise) {
-      loadPromise = this.loadFromDb(conversationId)
+      loadPromise = this.loadFromDb(conversationId).finally(() => {
+        this.loadingPromises.delete(conversationId)
+      })
       this.loadingPromises.set(conversationId, loadPromise)
     }
 
-    try {
-      const loaded = await loadPromise
-      const messages = maxMessages <= 0 ? [] : loaded.slice(-maxMessages)
-      return messages
-    } finally {
-      this.loadingPromises.delete(conversationId)
-    }
+    const loaded = await loadPromise
+    return maxMessages <= 0 ? [] : loaded.slice(-maxMessages)
   }
 
   /**
@@ -215,6 +216,11 @@ export class ConversationBuffer {
       if (dbMessages && dbMessages.length > 0) {
         const validatedMessages = this.validateDbMessages(dbMessages)
         if (validatedMessages.length === 0) return []
+
+        // Check tombstone before restoring — conversation may have been cleared during DB load
+        const clearedAt = this.clearedTimestamps.get(conversationId)
+        if (clearedAt !== undefined && Date.now() - clearedAt < this.TTL_MS)
+          return []
 
         const now = Date.now()
         const restoredEntry: ConversationEntry = {
@@ -305,24 +311,57 @@ export class ConversationBuffer {
     conversationId: string,
     messages: Message[]
   ): Promise<void> {
-    return new Promise<void>(resolve => {
-      // Clear any pending persist for this conversation
-      const existing = this.pendingPersists.get(conversationId)
-      if (existing) clearTimeout(existing)
+    const existing = this.pendingPersistPromises.get(conversationId)
 
-      // Debounce: wait before writing to avoid rapid writes
+    // Clear any pending timer for this conversation
+    const existingTimer = this.pendingPersists.get(conversationId)
+    if (existingTimer) clearTimeout(existingTimer)
+
+    if (existing) {
+      // Already have a pending promise — add a new resolver and reschedule the timer
+      return new Promise<void>(resolve => {
+        existing.resolvers.push(resolve)
+        const timer = setTimeout(async () => {
+          this.pendingPersists.delete(conversationId)
+          this.pendingPersistPromises.delete(conversationId)
+          try {
+            await upsertConversation(
+              conversationId,
+              messages,
+              this.MAX_MESSAGES
+            )
+          } catch (err: any) {
+            Logger.warn(`Failed to persist conversation: ${err.message}`)
+          }
+          for (const r of existing.resolvers) r()
+        }, this.PERSIST_DEBOUNCE_MS)
+        this.pendingPersists.set(conversationId, timer)
+      })
+    }
+
+    // Create a new shared promise entry
+    const entry: { promise: Promise<void>; resolvers: Array<() => void> } = {
+      resolvers: [],
+      promise: null as any,
+    }
+
+    entry.promise = new Promise<void>(resolve => {
+      entry.resolvers.push(resolve)
       const timer = setTimeout(async () => {
         this.pendingPersists.delete(conversationId)
+        this.pendingPersistPromises.delete(conversationId)
         try {
           await upsertConversation(conversationId, messages, this.MAX_MESSAGES)
         } catch (err: any) {
           Logger.warn(`Failed to persist conversation: ${err.message}`)
         }
-        resolve()
+        for (const r of entry.resolvers) r()
       }, this.PERSIST_DEBOUNCE_MS)
-
       this.pendingPersists.set(conversationId, timer)
     })
+
+    this.pendingPersistPromises.set(conversationId, entry)
+    return entry.promise
   }
 
   /**
@@ -338,6 +377,7 @@ export class ConversationBuffer {
       clearTimeout(pending)
       this.pendingPersists.delete(conversationId)
     }
+    this.pendingPersistPromises.delete(conversationId)
     deleteConversation(conversationId).catch((err: any) =>
       Logger.warn(`Failed to delete conversation from DB: ${err.message}`)
     )
@@ -353,6 +393,7 @@ export class ConversationBuffer {
       clearTimeout(timer)
     }
     this.pendingPersists.clear()
+    this.pendingPersistPromises.clear()
   }
 }
 
