@@ -16,7 +16,7 @@ const mockGenerateContent = mock(() =>
 
 const mockEmbedContent = mock(() =>
   Promise.resolve({
-    embeddings: [{ values: new Array(768).fill(0.1) }],
+    embeddings: [{ values: new Array(3072).fill(0.1) }],
   })
 )
 

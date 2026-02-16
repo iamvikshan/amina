@@ -12,7 +12,7 @@ const config: Config = {
     // These values seed the database on first run
     // After initialization, all changes must be made via dev commands or directly in MongoDB
     MODEL: 'gemini-3-flash-preview',
-    EMBEDDING_MODEL: 'gemini-embedding-001', // Upgrade to gemini-embedding-001 (3072-dim SOTA) in Phase 2 with @google/genai SDK
+    EMBEDDING_MODEL: 'gemini-embedding-001', // 3072-dim SOTA embedding model
     EXTRACTION_MODEL: 'gemini-2.5-flash-lite',
     // VISION_MODEL: 'gemini-3-pro-preview', // Used for images/videos/gifs
     MAX_TOKENS: 1024,

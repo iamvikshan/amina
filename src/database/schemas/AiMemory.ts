@@ -52,10 +52,6 @@ Schema.index({ lastAccessedAt: 1 }) // For pruning
 
 export const Model = mongoose.model('ai-memory', Schema)
 
-// Drop orphan vectorId_1 index left from pre-Phase 4 schema
-// void Model.collection.dropIndex('vectorId_1').catch(() => {
-//})
-
 // Get memories for a user in a specific context
 export async function getUserMemories(
   userId: string,
@@ -323,4 +319,84 @@ export async function vectorSearch(
       },
     },
   ])
+}
+
+/** Expected embedding dimensionality (must match Atlas Vector Search index numDimensions) */
+const EMBEDDING_DIMENSIONS = 3072
+
+/**
+ * Re-embed all existing memories using the provided embedding function.
+ * Used when migrating to a new embedding model with different dimensions.
+ * Processes memories sequentially within each batch to respect rate limits.
+ *
+ * @param embedFn - Function that takes text and returns an embedding vector
+ * @param batchSize - Number of memories to process per batch (default: 25)
+ * @param delayMs - Delay between batches in ms to respect rate limits (default: 1000)
+ * @returns Statistics about the re-embedding operation
+ */
+export async function reEmbedAllMemories(
+  embedFn: (text: string) => Promise<number[] | null>,
+  batchSize = 25,
+  delayMs = 1000
+): Promise<{
+  total: number
+  updated: number
+  failed: number
+  skipped: number
+}> {
+  const stats = { total: 0, updated: 0, failed: 0, skipped: 0 }
+
+  const cursor = Model.find({}).cursor({ batchSize })
+  let batch: Array<{ _id: any; key: string; value: string }> = []
+
+  for await (const doc of cursor) {
+    stats.total++
+    batch.push({ _id: doc._id, key: doc.key, value: doc.value })
+
+    if (batch.length >= batchSize) {
+      await processBatch(batch, embedFn, stats)
+      batch = []
+      if (delayMs > 0) await new Promise(r => setTimeout(r, delayMs))
+    }
+  }
+
+  // Process remaining
+  if (batch.length > 0) {
+    await processBatch(batch, embedFn, stats)
+  }
+
+  return stats
+}
+
+async function processBatch(
+  batch: Array<{ _id: any; key: string; value: string }>,
+  embedFn: (text: string) => Promise<number[] | null>,
+  stats: { updated: number; failed: number; skipped: number }
+): Promise<void> {
+  for (const doc of batch) {
+    try {
+      const text = `${doc.key}: ${doc.value}`
+      const embedding = await embedFn(text)
+      if (!embedding) {
+        stats.skipped++
+        continue
+      }
+      // Validate dimensions match the expected size before writing
+      if (
+        embedding.length !== EMBEDDING_DIMENSIONS ||
+        !embedding.every(Number.isFinite)
+      ) {
+        stats.failed++
+        continue
+      }
+      await Model.updateOne(
+        { _id: doc._id },
+        { $set: { embedding } },
+        { runValidators: true }
+      )
+      stats.updated++
+    } catch {
+      stats.failed++
+    }
+  }
 }

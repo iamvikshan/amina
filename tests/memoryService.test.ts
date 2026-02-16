@@ -11,7 +11,7 @@ const mockGenerateContent = mock(() =>
 
 const mockEmbedContent = mock(() =>
   Promise.resolve({
-    embeddings: [{ values: new Array(768).fill(0.1) }],
+    embeddings: [{ values: new Array(3072).fill(0.1) }],
   })
 )
 
@@ -120,7 +120,7 @@ describe('MemoryService (new SDK)', () => {
     // Verify saveMemory was called with embedding (not vectorId)
     expect(mockSaveMemory).toHaveBeenCalledTimes(1)
     const saveArgs = mockSaveMemory.mock.calls[0][0] as any
-    expect(saveArgs.embedding).toEqual(new Array(768).fill(0.1))
+    expect(saveArgs.embedding).toEqual(new Array(3072).fill(0.1))
     expect(saveArgs.userId).toBe('user1')
     expect(saveArgs.guildId).toBeNull()
     expect(saveArgs.key).toBe('name')
@@ -226,7 +226,7 @@ describe('MemoryService (new SDK)', () => {
     // Verify vectorSearch was called with the right params
     expect(mockVectorSearch).toHaveBeenCalledTimes(1)
     const [queryVector, filter, limit] = mockVectorSearch.mock.calls[0] as any
-    expect(queryVector).toEqual(new Array(768).fill(0.1))
+    expect(queryVector).toEqual(new Array(3072).fill(0.1))
     expect(filter.userId).toBe('user1')
     // Overfetch to compensate for DM post-filtering (Math.max(5*2, 5+10) = 15)
     expect(limit).toBe(15)
