@@ -172,7 +172,7 @@ describe('MemoryService (new SDK)', () => {
       },
     ]
 
-    const facts = await service.extractMemories(messages, 'u1', 'guild1')
+    const facts = await service.extractMemories(messages)
 
     // Verify generateContent was called with correct shape
     expect(mockGenerateContent).toHaveBeenCalledTimes(1)

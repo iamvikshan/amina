@@ -6,8 +6,6 @@ import type { BotClient } from '@src/structures'
 import { Logger } from '@helpers/Logger'
 import aiPermissions from '@src/data/aiPermissions.json'
 
-// const logger = Logger
-
 // Permission model types
 type PermissionModel = 'open' | 'userRequest' | 'privileged'
 
@@ -82,10 +80,6 @@ export class AiCommandRegistry {
         this.toolMetadata.set(cmd.name, metadata)
       }
     })
-
-    // logger.log(
-    //   `AI Command Registry: Registered ${this.toolDefinitions.length} tools`
-    // )
   }
 
   getTools(): FunctionDeclaration[] {

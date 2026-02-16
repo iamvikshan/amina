@@ -9,6 +9,14 @@ import type { MediaItem } from './mediaExtractor'
 // These are still exported for runtime use, but types are global
 export type { AiResponse, ConversationMessage }
 
+/** Custom error for circuit breaker open state */
+export class AiCircuitBreakerError extends Error {
+  constructor() {
+    super('AI circuit breaker open — service temporarily unavailable')
+    this.name = 'AiCircuitBreakerError'
+  }
+}
+
 /** Maximum image size in bytes (10 MB) */
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024
 
@@ -37,7 +45,6 @@ export class AiClient {
     'image/webp',
     'video/mp4',
     'video/webm',
-    'audio/mp3',
     'audio/mpeg',
     'audio/wav',
     'audio/ogg',
@@ -129,15 +136,25 @@ export class AiClient {
           } catch {
             ext = media.url.toLowerCase()
           }
-          if (ext.endsWith('.png')) {
-            mimeType = 'image/png'
-          } else if (ext.endsWith('.gif')) {
-            mimeType = 'image/gif'
-          } else if (ext.endsWith('.webp')) {
-            mimeType = 'image/webp'
-          } else {
-            mimeType = 'image/jpeg'
+
+          // Comprehensive MIME inference for images, video, and audio
+          const MIME_MAP: Record<string, string> = {
+            '.png': 'image/png',
+            '.gif': 'image/gif',
+            '.webp': 'image/webp',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.mp4': 'video/mp4',
+            '.webm': 'video/webm',
+            '.mp3': 'audio/mpeg',
+            '.wav': 'audio/wav',
+            '.ogg': 'audio/ogg',
           }
+
+          const matchedExt = Object.keys(MIME_MAP).find(e => ext.endsWith(e))
+          mimeType = matchedExt
+            ? MIME_MAP[matchedExt]
+            : 'application/octet-stream'
         }
 
         if (!AiClient.ALLOWED_MEDIA_TYPES.has(mimeType)) {
@@ -245,10 +262,7 @@ export class AiClient {
       }
     } catch (error: any) {
       // Don't count circuit breaker errors as new failures
-      if (
-        error?.message !==
-        'AI circuit breaker open \u2014 service temporarily unavailable'
-      ) {
+      if (!(error instanceof AiCircuitBreakerError)) {
         this.recordFailure()
       }
       const latency = Date.now() - startTime
@@ -291,9 +305,7 @@ export class AiClient {
       AiClient.circuitFailures >= AiClient.CIRCUIT_THRESHOLD &&
       Date.now() < AiClient.circuitOpenUntil
     ) {
-      throw new Error(
-        'AI circuit breaker open — service temporarily unavailable'
-      )
+      throw new AiCircuitBreakerError()
     }
     // Reset if we're past the open window
     if (

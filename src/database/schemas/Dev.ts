@@ -55,10 +55,7 @@ const Schema = new mongoose.Schema(
         type: String,
         default: config.AI.MODEL,
       },
-      // visionModel: {
-      //   type: String,
-      //   default: config.AI.VISION_MODEL,
-      // },
+
       maxTokens: {
         type: Number,
         default: config.AI.MAX_TOKENS,
@@ -254,9 +251,11 @@ export async function incrementAiStats(stats: {
   toolCalls?: number
 }): Promise<void> {
   const inc: Record<string, number> = {}
-  if (stats.messages) inc['BOT_STATS.ai.totalMessages'] = stats.messages
-  if (stats.tokens) inc['BOT_STATS.ai.totalTokens'] = stats.tokens
-  if (stats.toolCalls) inc['BOT_STATS.ai.totalToolCalls'] = stats.toolCalls
+  if (stats.messages !== undefined)
+    inc['BOT_STATS.ai.totalMessages'] = stats.messages
+  if (stats.tokens !== undefined) inc['BOT_STATS.ai.totalTokens'] = stats.tokens
+  if (stats.toolCalls !== undefined)
+    inc['BOT_STATS.ai.totalToolCalls'] = stats.toolCalls
   if (Object.keys(inc).length > 0) {
     await Model.updateOne({}, { $inc: inc }, { upsert: true })
   }

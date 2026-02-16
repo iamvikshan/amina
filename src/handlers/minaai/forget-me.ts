@@ -61,6 +61,13 @@ export async function handleForgetMeConfirm(
         allowDMs: false,
         combineDmWithServer: false,
         globalServerMemories: false,
+        stats: {
+          messages: 0,
+          tokensUsed: 0,
+          toolCalls: 0,
+          memoriesCreated: 0,
+          lastInteraction: null,
+        },
       }
     } else {
       userData.minaAi.ignoreMe = true

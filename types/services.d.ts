@@ -1,10 +1,6 @@
 // Service-related type definitions
 
 declare global {
-  type AiAuthConfig =
-    | { mode: 'api-key'; apiKey: string }
-    | { mode: 'vertex'; project: string; location: string; credentials?: import('google-auth-library').JWTInput }
-
   type ResponseMode = 'dm' | 'mention' | 'freeWill' | false
 
   interface RateLimitEntry {

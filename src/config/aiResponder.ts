@@ -4,6 +4,7 @@
 import { getAiConfig } from '@schemas/Dev'
 import { secret } from './secrets'
 import { config } from './config'
+import Logger from '@helpers/Logger'
 
 /**
  * Validate a base64-encoded Google service account JSON.
@@ -144,12 +145,32 @@ class ConfigCache {
         googleServiceAccountJson !== this.lastSecretJson ||
         !this.parsedCreds
       ) {
-        this.parsedCreds = validateServiceAccountJson(googleServiceAccountJson)
-        this.lastSecretJson = googleServiceAccountJson
+        try {
+          this.parsedCreds = validateServiceAccountJson(
+            googleServiceAccountJson
+          )
+          this.lastSecretJson = googleServiceAccountJson
+        } catch (err: any) {
+          // SA JSON is invalid — log and fall back to API key mode
+          Logger.warn(
+            `Service account JSON validation failed: ${err.message}. ` +
+              (geminiKey
+                ? 'Falling back to GEMINI_KEY.'
+                : 'No GEMINI_KEY available — AI will be disabled.')
+          )
+          this.parsedCreds = null
+          this.lastSecretJson = ''
+        }
       }
-      parsedCredentials = this.parsedCreds
-      if (!vertexProjectId) {
-        vertexProjectId = parsedCredentials.project_id
+      if (this.parsedCreds) {
+        parsedCredentials = this.parsedCreds
+        if (!vertexProjectId) {
+          vertexProjectId = parsedCredentials.project_id
+        }
+      } else if (!geminiKey) {
+        // No valid SA JSON and no GEMINI_KEY — disable AI to prevent
+        // returning an enabled config with no usable credentials
+        baseConfig.globallyEnabled = false
       }
     }
 

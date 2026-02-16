@@ -309,7 +309,7 @@ export class ConversationBuffer {
    */
   private persistToDb(
     conversationId: string,
-    messages: Message[]
+    _messages: Message[]
   ): Promise<void> {
     const existing = this.pendingPersistPromises.get(conversationId)
 
@@ -325,11 +325,9 @@ export class ConversationBuffer {
           this.pendingPersists.delete(conversationId)
           this.pendingPersistPromises.delete(conversationId)
           try {
-            await upsertConversation(
-              conversationId,
-              messages,
-              this.MAX_MESSAGES
-            )
+            // Read fresh messages from cache to avoid stale captures
+            const fresh = this.cache.get(conversationId)?.messages ?? []
+            await upsertConversation(conversationId, fresh, this.MAX_MESSAGES)
           } catch (err: any) {
             Logger.warn(`Failed to persist conversation: ${err.message}`)
           }
@@ -351,7 +349,9 @@ export class ConversationBuffer {
         this.pendingPersists.delete(conversationId)
         this.pendingPersistPromises.delete(conversationId)
         try {
-          await upsertConversation(conversationId, messages, this.MAX_MESSAGES)
+          // Read fresh messages from cache to avoid stale captures
+          const fresh = this.cache.get(conversationId)?.messages ?? []
+          await upsertConversation(conversationId, fresh, this.MAX_MESSAGES)
         } catch (err: any) {
           Logger.warn(`Failed to persist conversation: ${err.message}`)
         }

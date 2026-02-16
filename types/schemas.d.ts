@@ -128,6 +128,12 @@ declare global {
       allowDMs: boolean
       updatedAt?: Date
       updatedBy?: string
+      stats?: {
+        totalMessages: number
+        tokensUsed: number
+        toolCalls: number
+        activeUsers: number
+      }
     }
     colors: Array<{
       name: string
@@ -147,6 +153,13 @@ declare global {
       allowDMs: boolean
       combineDmWithServer: boolean
       globalServerMemories: boolean
+      stats: {
+        messages: number
+        tokensUsed: number
+        toolCalls: number
+        memoriesCreated: number
+        lastInteraction: Date | null
+      }
     }
     reputation: {
       received: number
@@ -195,6 +208,7 @@ declare global {
         showRegion: boolean
         showBirthdate: boolean
         showPronouns: boolean
+        showAiStats: boolean
       }
       lastUpdated: Date
       createdAt: Date

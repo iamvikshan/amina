@@ -423,7 +423,7 @@ export async function updateUserMinaAiPreferences(
   const user = await Model.findOneAndUpdate(
     { _id: userId },
     { $set: updateFields },
-    { returnDocument: 'after', upsert: true }
+    { returnDocument: 'after' }
   )
   if (user) cache.set(userId, user)
   return user

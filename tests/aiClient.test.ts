@@ -41,7 +41,7 @@ mock.module('../src/helpers/Logger', () => ({
   },
 }))
 
-import { AiClient } from '../src/helpers/aiClient'
+import { AiClient, AiCircuitBreakerError } from '../src/helpers/aiClient'
 
 describe('AiClient', () => {
   let client: AiClient
@@ -363,7 +363,7 @@ describe('AiClient', () => {
     // Circuit should be open
     await expect(
       client.generateResponse('System', [], 'Hello', 1000, 0.7)
-    ).rejects.toThrow('circuit breaker open')
+    ).rejects.toBeInstanceOf(AiCircuitBreakerError)
 
     // No API call should have been made
     expect(mockGenerateContent).not.toHaveBeenCalled()

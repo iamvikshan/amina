@@ -85,11 +85,7 @@ export class MemoryService {
   /**
    * Extract memories from a conversation
    */
-  async extractMemories(
-    conversationHistory: Message[],
-    _userId: string,
-    _guildId: string | null
-  ): Promise<MemoryFact[]> {
+  async extractMemories(conversationHistory: Message[]): Promise<MemoryFact[]> {
     if (!this.ai) {
       logger.warn(
         'extractMemories skipped: Memory Service not initialized (AI client missing)'

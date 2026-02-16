@@ -1,6 +1,8 @@
 // @root/src/config/secrets.ts
 // Centralized secret management - all sensitive credentials should be accessed through this module
 
+import Logger from '@helpers/Logger'
+
 // Secrets type is globally available from types/global.d.ts
 
 /**
@@ -69,6 +71,22 @@ export function validateSecrets(): void {
 }
 
 /**
+ * Log credential precedence when both Vertex AI service account
+ * and GEMINI_KEY are present. Does not enforce presence of any secret —
+ * SA JSON validation happens downstream in configCache.getConfig().
+ */
+export function logCredentialPrecedence(): void {
+  const hasServiceAccount = !!process.env.GOOGLE_SERVICE_ACCOUNT_JSON
+  const hasGeminiKey = !!process.env.GEMINI_KEY
+
+  if (hasServiceAccount && hasGeminiKey) {
+    Logger.log(
+      'Vertex AI credentials detected alongside GEMINI_KEY — Vertex credentials will take precedence'
+    )
+  }
+}
+
+/**
  * Convert Shoutrrr Discord URL format to standard Discord webhook URL
  * Shoutrrr format: discord://TOKEN@WEBHOOK_ID
  * Standard format: https://discord.com/api/webhooks/WEBHOOK_ID/TOKEN
@@ -126,9 +144,6 @@ export const secrets: Secrets = {
   },
   get SPOTIFY_CLIENT_SECRET() {
     return getOptionalSecret('SPOTIFY_CLIENT_SECRET')
-  },
-  get OPENAI() {
-    return getOptionalSecret('OPENAI')
   },
   get HONEYBADGER_API_KEY() {
     return getOptionalSecret('HONEYBADGER_API_KEY')

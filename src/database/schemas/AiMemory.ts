@@ -334,7 +334,7 @@ export async function findSimilarMemory(
     },
   ])
 
-  const dmResults = stage2.filter(r => r.guildId == null)
+  const dmResults = stage2.filter(r => r.guildId === null)
   return dmResults.length > 0 ? dmResults[0] : null
 }
 

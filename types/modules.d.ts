@@ -38,14 +38,14 @@ declare module '@src/config' {
       DONATE_URL?: string
     }
     AI: {
-      // These values seed the database on first run
-      // After initialization, all changes must be made via dev commands or MongoDB
       MODEL: string
-      // VISION_MODEL: string
+      EMBEDDING_MODEL: string
+      EXTRACTION_MODEL: string
       MAX_TOKENS: number
       TIMEOUT_MS: number
       TEMPERATURE: number
       DM_ENABLED_GLOBALLY: boolean
+      DEDUP_THRESHOLD: number
     }
     SERVER: {
       HEALTH_PORT: number
@@ -63,6 +63,7 @@ declare module '@src/config' {
       GUILDS: number
       USERS: number
       MEMBERS: number
+      REMINDERS: number
     }
     MESSAGES: {
       API_ERROR: string
@@ -136,12 +137,14 @@ declare module '@src/config' {
 
     // API Keys & Tokens
     readonly GEMINI_KEY?: string
+    readonly GOOGLE_SERVICE_ACCOUNT_JSON?: string
+    readonly VERTEX_PROJECT_ID?: string
+    readonly VERTEX_REGION?: string
     readonly WEATHERSTACK_KEY?: string
     readonly STRANGE_API_KEY?: string
     readonly GH_TOKEN?: string
     readonly SPOTIFY_CLIENT_ID?: string
     readonly SPOTIFY_CLIENT_SECRET?: string
-    readonly OPENAI?: string
     readonly HONEYBADGER_API_KEY?: string
     readonly WEBHOOK_SECRET?: string
 

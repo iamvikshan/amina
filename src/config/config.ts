@@ -14,7 +14,7 @@ const config: Config = {
     MODEL: 'gemini-3-flash-preview',
     EMBEDDING_MODEL: 'gemini-embedding-001', // 3072-dim SOTA embedding model
     EXTRACTION_MODEL: 'gemini-2.5-flash-lite',
-    // VISION_MODEL: 'gemini-3-pro-preview', // Used for images/videos/gifs
+
     MAX_TOKENS: 1024,
     TIMEOUT_MS: 20000,
     TEMPERATURE: 0.7,

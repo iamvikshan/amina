@@ -558,15 +558,10 @@ export class AiResponderService {
       let currentHistory = [...formattedHistory]
       let statusMessage: Message | null = null
 
-      while (
-        result.functionCalls &&
-        result.functionCalls.length > 0 &&
-        iteration < MAX_ITERATIONS
-      ) {
+      while (iteration < MAX_ITERATIONS) {
+        const functionCalls = result.functionCalls ?? []
+        if (functionCalls.length === 0) break
         iteration++
-
-        // Narrow once for TypeScript safety
-        const functionCalls = result.functionCalls
 
         // Count actual tool calls in this iteration
         totalToolCalls += functionCalls.length
@@ -1226,11 +1221,7 @@ export class AiResponderService {
 
     try {
       // Extract memories using AI
-      const facts = await memoryService.extractMemories(
-        history,
-        userId,
-        guildId
-      )
+      const facts = await memoryService.extractMemories(history)
 
       // Store each memory
       const conversationSnippet = history

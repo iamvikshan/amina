@@ -13,6 +13,7 @@ import { memoryService } from '@src/services/memoryService'
 import { memoryManipulator } from '@src/services/memoryManipulator'
 import { aiMetrics } from '@src/services/aiMetrics'
 import { config } from '@src/config'
+import { logCredentialPrecedence } from '@src/config/secrets'
 import BotUtils from '@helpers/BotUtils'
 
 /**
@@ -25,6 +26,9 @@ export default async (client: BotClient): Promise<void> => {
   )
 
   // Initialize AI Responder Service
+  // Log Vertex AI credential precedence
+  logCredentialPrecedence()
+
   await aiResponderService.initialize()
   // client.logger.success('AI Responder Service initialized')
 

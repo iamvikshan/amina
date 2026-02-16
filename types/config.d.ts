@@ -26,7 +26,6 @@ declare global {
       MODEL: string
       EMBEDDING_MODEL: string
       EXTRACTION_MODEL: string
-      // VISION_MODEL: string
       MAX_TOKENS: number
       TIMEOUT_MS: number
       TEMPERATURE: number
@@ -123,7 +122,6 @@ declare global {
     readonly GH_TOKEN?: string
     readonly SPOTIFY_CLIENT_ID?: string
     readonly SPOTIFY_CLIENT_SECRET?: string
-    readonly OPENAI?: string
     readonly HONEYBADGER_API_KEY?: string
     readonly WEBHOOK_SECRET?: string
 
@@ -185,6 +183,11 @@ declare global {
   }
 
   type AiConfig = ApiKeyAiConfig | VertexAiConfig
+
+  /** Auth config subset used at runtime to initialize AI clients (constructed from AiConfig) */
+  type AiAuthConfig =
+    | { mode: 'api-key'; apiKey: string }
+    | { mode: 'vertex'; project: string; location: string; credentials?: import('google-auth-library').JWTInput }
 }
 
 export {}

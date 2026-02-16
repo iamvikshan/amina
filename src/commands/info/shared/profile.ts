@@ -169,10 +169,8 @@ export default async function profileView(
     }
 
     // Mina AI Stats
-    const showAiStats =
-      isOwnProfile ||
-      (profile.privacy as { showAiStats?: boolean })?.showAiStats !== false
-    const aiStats = (userDb.minaAi as any)?.stats
+    const showAiStats = isOwnProfile || profile.privacy?.showAiStats !== false
+    const aiStats = userDb.minaAi?.stats
     if (showAiStats && aiStats && aiStats.messages > 0) {
       hasVisibleContent = true
       embed.addFields({
