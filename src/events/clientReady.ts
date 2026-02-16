@@ -11,8 +11,9 @@ import { aiResponderService } from '@src/services/aiResponder'
 import { aiCommandRegistry } from '@src/services/aiCommandRegistry'
 import { memoryService } from '@src/services/memoryService'
 import { memoryManipulator } from '@src/services/memoryManipulator'
+import { aiMetrics } from '@src/services/aiMetrics'
 import { config } from '@src/config'
-import BotUtils from '../helpers/BotUtils'
+import BotUtils from '@helpers/BotUtils'
 
 /**
  * Client ready event handler
@@ -66,6 +67,9 @@ export default async (client: BotClient): Promise<void> => {
       `Memory Service disabled - configuration error: ${error.message || error}`
     )
   }
+
+  // Start AI Metrics buffered writer
+  aiMetrics.start()
 
   // Initialize Music Manager
   if (client.config.MUSIC.ENABLED) {

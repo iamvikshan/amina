@@ -32,6 +32,7 @@ const ProfileSchema = new mongoose.Schema({
     showRegion: { type: Boolean, default: true },
     showBirthdate: { type: Boolean, default: false },
     showPronouns: { type: Boolean, default: true },
+    showAiStats: { type: Boolean, default: true },
   },
   lastUpdated: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
@@ -63,6 +64,13 @@ const Schema = new mongoose.Schema(
       allowDMs: { type: Boolean, default: true },
       combineDmWithServer: { type: Boolean, default: false },
       globalServerMemories: { type: Boolean, default: true },
+      stats: {
+        messages: { type: Number, default: 0 },
+        tokensUsed: { type: Number, default: 0 },
+        toolCalls: { type: Number, default: 0 },
+        memoriesCreated: { type: Number, default: 0 },
+        lastInteraction: { type: Date, default: null },
+      },
     },
     todRating: { type: String, enum: ['PG', 'PG-16', 'R'], default: null },
   },
@@ -409,6 +417,7 @@ export async function updateUserMinaAiPreferences(
 
 // Default export for backwards compatibility
 export default {
+  Model,
   getUser,
   addFlag,
   removeFlag,

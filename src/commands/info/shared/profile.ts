@@ -168,6 +168,28 @@ export default async function profileView(
       }
     }
 
+    // Mina AI Stats
+    const showAiStats =
+      isOwnProfile ||
+      (profile.privacy as { showAiStats?: boolean })?.showAiStats !== false
+    const aiStats = (userDb.minaAi as any)?.stats
+    if (showAiStats && aiStats && aiStats.messages > 0) {
+      hasVisibleContent = true
+      embed.addFields({
+        name: '\ud83e\udd16 Mina AI',
+        value: [
+          `\u276f **messages:** ${aiStats.messages.toLocaleString()}`,
+          `\u276f **tokens used:** ${(aiStats.tokensUsed ?? 0).toLocaleString()}`,
+          aiStats.lastInteraction
+            ? `\u276f **last chat:** <t:${Math.floor(new Date(aiStats.lastInteraction).getTime() / 1000)}:R>`
+            : null,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+        inline: false,
+      })
+    }
+
     // Check if there's any visible content for other users
     if (!isOwnProfile && !hasVisibleContent) {
       const privateEmbed = MinaEmbed.error().setDescription(

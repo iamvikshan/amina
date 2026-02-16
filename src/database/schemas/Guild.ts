@@ -1,7 +1,7 @@
 // @root/src/database/schemas/Guild.ts
 
 import mongoose from 'mongoose'
-import config from '../../config'
+import config from '../../config/config'
 import { LRUCache } from 'lru-cache'
 import { getUser } from './User'
 
@@ -141,6 +141,12 @@ const Schema = new mongoose.Schema({
     allowDMs: { type: Boolean, default: true },
     updatedAt: { type: Date, default: Date.now },
     updatedBy: { type: String, default: null },
+    stats: {
+      totalMessages: { type: Number, default: 0 },
+      tokensUsed: { type: Number, default: 0 },
+      toolCalls: { type: Number, default: 0 },
+      activeUsers: { type: Number, default: 0 },
+    },
   },
 })
 

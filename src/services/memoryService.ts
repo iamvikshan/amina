@@ -1,7 +1,7 @@
 // @root/src/services/memoryService.ts
 
 import { GoogleGenAI, type GoogleGenAIOptions } from '@google/genai'
-import Logger from '../helpers/Logger'
+import Logger from '@helpers/Logger'
 import {
   saveMemory,
   getUserMemories,
@@ -13,11 +13,11 @@ import {
   vectorSearch,
   findSimilarMemory,
   Model,
-} from '../database/schemas/AiMemory'
+} from '@schemas/AiMemory'
 import {
   ConversationBuffer,
   type Message,
-} from '../structures/conversationBuffer'
+} from '@structures/conversationBuffer'
 
 const logger = Logger
 

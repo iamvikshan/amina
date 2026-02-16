@@ -1,6 +1,6 @@
 // @root/src/services/modelRouter.ts
 
-import Logger from '../helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /** Task types that can be dispatched to different models */
 export type TaskType = 'chat' | 'embedding' | 'extraction' | 'reasoning'

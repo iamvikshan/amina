@@ -1,25 +1,25 @@
 // @root/src/services/aiResponder.ts
 
 import type { GuildMember, Message } from 'discord.js'
-import { getSettings } from '../database/schemas/Guild'
-import { getUser } from '../database/schemas/User'
-import { configCache } from '../config/aiResponder'
-import { AiClient } from '../helpers/aiClient'
+import { getSettings } from '@schemas/Guild'
+import { getUser } from '@schemas/User'
+import { AiClient } from '@helpers/aiClient'
 // ConversationMessage is now globally available - see types/services.d.ts
 import {
   conversationBuffer,
   ConversationBuffer,
   type Message as BufferMessage,
-} from '../structures/conversationBuffer'
+} from '@structures/conversationBuffer'
 import { memoryService } from './memoryService'
-import Logger from '../helpers/Logger'
-import { config } from '../config'
-import { extractMediaFromMessage } from '../helpers/mediaExtractor'
+import Logger from '@helpers/Logger'
+import { config, configCache } from '../config'
+import { extractMediaFromMessage } from '@helpers/mediaExtractor'
 import { aiCommandRegistry } from './aiCommandRegistry'
-import { VirtualInteraction } from '../structures/VirtualInteraction'
-import aiPermissions from '../data/aiPermissions.json'
-import { mina } from '../helpers/mina'
-import { getToolStatusCategory } from '../helpers/toolStatus'
+import { VirtualInteraction } from '@structures/VirtualInteraction'
+import aiPermissions from '@data/aiPermissions.json'
+import { mina } from '@helpers/mina'
+import { getToolStatusCategory } from '@helpers/toolStatus'
+import { aiMetrics } from './aiMetrics'
 
 const logger = Logger
 
@@ -534,6 +534,10 @@ export class AiResponderService {
         tools
       )
 
+      // Accumulate metrics across all API calls in the ReAct loop
+      let totalTokensUsed = result.tokensUsed
+      let totalToolCalls = 0
+
       // ReAct Loop: Allow AI to call functions and see results
       const MAX_ITERATIONS = 5 // Safety limit to prevent infinite loops
       let iteration = 0
@@ -546,6 +550,9 @@ export class AiResponderService {
         iteration < MAX_ITERATIONS
       ) {
         iteration++
+
+        // Count actual tool calls in this iteration
+        totalToolCalls += result.functionCalls.length
 
         // Send a personality-flavored status message on first tool call
         if (iteration === 1 && !statusMessage && result.functionCalls) {
@@ -715,6 +722,9 @@ export class AiResponderService {
           tools
         )
 
+        // Accumulate tokens from follow-up API call
+        totalTokensUsed += result.tokensUsed
+
         // Add the feedback to history for next iteration (if any)
         currentHistory.push({ role: 'user', parts: [{ text: systemFeedback }] })
       }
@@ -759,6 +769,15 @@ export class AiResponderService {
       this.extractAndStoreMemories(message, history).catch(err =>
         logger.warn(`Failed to extract memories: ${err.message}`)
       )
+
+      // Record AI metrics (accumulated across all ReAct iterations)
+      aiMetrics.record({
+        userId: message.author.id,
+        guildId: message.guild?.id ?? null,
+        tokensUsed: totalTokensUsed,
+        toolCalls: totalToolCalls,
+        memoriesCreated: 0, // memory extraction is async, counted separately
+      })
 
       // Clear failure count on success
       if (message.guild) {

@@ -26,7 +26,8 @@
       "@src/*": ["./src/*"],
       "@structures/*": ["./src/structures/*"],
       "@commands/*": ["./src/commands/*"],
-      "@types/*": ["./types/*"]
+      "@types/*": ["./types/*"],
+      "@services/*": ["./src/services/*"]
     },
 
     // Strict type checking

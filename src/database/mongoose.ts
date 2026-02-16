@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { /*log,*/ success, error } from '../helpers/Logger'
+import { /*log,*/ success, error } from '@helpers/Logger'
 import { secret } from '@src/config'
 
 mongoose.set('strictQuery', true)

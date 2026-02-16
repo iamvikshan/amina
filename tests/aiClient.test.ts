@@ -270,4 +270,17 @@ describe('AiClient', () => {
     expect(callArgs.contents[0].parts).toEqual([{ text: 'Earlier message' }])
     expect(callArgs.contents[1].parts).toEqual([{ text: 'Earlier response' }])
   })
+
+  test('token extraction returns promptTokens and completionTokens', async () => {
+    const result = await client.generateResponse(
+      'System prompt',
+      [],
+      'Hello',
+      1000,
+      0.7
+    )
+
+    expect(result.promptTokens).toBe(10)
+    expect(result.completionTokens).toBe(32)
+  })
 })

@@ -114,7 +114,7 @@ const command: CommandData = {
 
     // Stats
     else if (sub === 'stats') {
-      const response = botstats(interaction.client as BotClient)
+      const response = await botstats(interaction.client as BotClient)
       return interaction.followUp(response)
     }
 

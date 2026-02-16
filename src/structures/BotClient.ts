@@ -10,16 +10,16 @@ import {
 import type { ClientOptions } from 'discord.js'
 import path from 'path'
 import { table } from 'table'
-import Logger from '../helpers/Logger'
-import Honeybadger from '../helpers/Honeybadger'
-import { validateCommand, validateContext } from '../helpers/Validator'
+import Logger from '@helpers/Logger'
+import Honeybadger from '@helpers/Honeybadger'
+import { validateCommand, validateContext } from '@helpers/Validator'
 import { schemas } from '@src/database/mongoose'
 import CommandCategory from './CommandCategory'
 import Manager from '../handlers/manager'
 import giveawaysHandler from '../handlers/giveaway'
 import { DiscordTogether } from 'discord-together'
 import { config, secret } from '@src/config'
-import Utils from '../helpers/Utils'
+import Utils from '@helpers/Utils'
 
 const MAX_SLASH_COMMANDS = 100
 const MAX_USER_CONTEXTS = 3

@@ -41,6 +41,8 @@ declare global {
   interface AiResponse {
     text: string
     tokensUsed: number
+    promptTokens?: number
+    completionTokens?: number
     latency: number
     functionCalls?: { name: string; args: Record<string, unknown> }[]
     modelContent?: ContentPart[] // Full model response parts for history preservation

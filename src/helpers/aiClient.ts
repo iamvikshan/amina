@@ -173,6 +173,8 @@ export class AiClient {
       const text = response.text ?? ''
       const functionCalls = response.functionCalls
       const tokensUsed = response.usageMetadata?.totalTokenCount ?? 0
+      const promptTokens = response.usageMetadata?.promptTokenCount ?? 0
+      const completionTokens = response.usageMetadata?.candidatesTokenCount ?? 0
       const latency = Date.now() - startTime
 
       // We always use the first candidate (single-candidate mode)
@@ -192,6 +194,8 @@ export class AiClient {
       return {
         text,
         tokensUsed,
+        promptTokens,
+        completionTokens,
         latency,
         functionCalls: functionCalls?.map(fc => {
           if (!fc.name) {

@@ -3,6 +3,7 @@
 import type { MemoryService } from './memoryService'
 import type { AiCommandRegistry, NativeToolContext } from './aiCommandRegistry'
 
+import Logger from '@helpers/Logger'
 // Tool declarations for memory manipulation
 const MEMORY_TOOLS = [
   {
@@ -132,17 +133,22 @@ export class MemoryManipulator {
     }
     const ctxStr = (factContext as string) || 'shared in conversation'
 
-    const stored = await this.memoryService.storeMemory(
-      { key: 'user_fact', value: fact, importance: 6 },
-      context.userId,
-      context.guildId,
-      ctxStr
-    )
+    try {
+      const stored = await this.memoryService.storeMemory(
+        { key: 'user_fact', value: fact, importance: 6 },
+        context.userId,
+        context.guildId,
+        ctxStr
+      )
 
-    if (stored) {
-      return `Remembered: "${fact}"`
+      if (stored) {
+        return `Remembered: "${fact}"`
+      }
+      return 'Failed to store the memory. Please try again later.'
+    } catch (err: any) {
+      Logger.error(`handleRememberFact failed: ${err.message}`)
+      return 'An error occurred while storing the memory.'
     }
-    return 'Failed to store the memory. Please try again later.'
   }
 
   private async handleUpdateMemory(
@@ -160,17 +166,22 @@ export class MemoryManipulator {
       return 'Error: "new_value" is required and must be a non-empty string.'
     }
 
-    const result = await this.memoryService.updateMemoryByMatch(
-      description,
-      newValue,
-      context.userId,
-      context.guildId
-    )
+    try {
+      const result = await this.memoryService.updateMemoryByMatch(
+        description,
+        newValue,
+        context.userId,
+        context.guildId
+      )
 
-    if (result.found) {
-      return `Updated memory: "${result.oldValue}" → "${result.newValue}"`
+      if (result.found) {
+        return `Updated memory: "${result.oldValue}" → "${result.newValue}"`
+      }
+      return `No matching memory found for "${description}". Nothing was updated.`
+    } catch (err: any) {
+      Logger.error(`handleUpdateMemory failed: ${err.message}`)
+      return 'An error occurred while updating the memory.'
     }
-    return `No matching memory found for "${description}". Nothing was updated.`
   }
 
   private async handleForgetMemory(
@@ -190,10 +201,15 @@ export class MemoryManipulator {
       context.guildId
     )
 
-    if (result.found) {
-      return `Forgot: "${result.deletedValue}"`
+    try {
+      if (result.found) {
+        return `Forgot: "${result.deletedValue}"`
+      }
+      return `No matching memory found for "${description}". Nothing was deleted.`
+    } catch (err: any) {
+      Logger.error(`handleForgetMemory failed: ${err.message}`)
+      return 'An error occurred while deleting the memory.'
     }
-    return `No matching memory found for "${description}". Nothing was deleted.`
   }
 
   private async handleRecallMemories(
@@ -209,25 +225,30 @@ export class MemoryManipulator {
     const rawLimit = typeof args.limit === 'number' ? args.limit : 5
     const limit = Math.max(1, Math.min(10, rawLimit))
 
-    const memories = await this.memoryService.recallMemories(
-      query,
-      context.userId,
-      context.guildId,
-      limit
-    )
-
-    if (memories.length === 0) {
-      return `No memories found matching "${query}".`
-    }
-
-    const formatted = memories
-      .map(
-        (m, i) =>
-          `${i + 1}. ${m.key}: ${m.value} (relevance: ${((m.score ?? 0) * 100).toFixed(0)}%)`
+    try {
+      const memories = await this.memoryService.recallMemories(
+        query,
+        context.userId,
+        context.guildId,
+        limit
       )
-      .join('\n')
 
-    return `Found ${memories.length} memories:\n${formatted}`
+      if (memories.length === 0) {
+        return `No memories found matching "${query}".`
+      }
+
+      const formatted = memories
+        .map(
+          (m, i) =>
+            `${i + 1}. ${m.key}: ${m.value} (relevance: ${((m.score ?? 0) * 100).toFixed(0)}%)`
+        )
+        .join('\n')
+
+      return `Found ${memories.length} memories:\n${formatted}`
+    } catch (err: any) {
+      Logger.error(`handleRecallMemories failed: ${err.message}`)
+      return 'An error occurred while recalling memories.'
+    }
   }
 }
 

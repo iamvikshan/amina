@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { loadDefaultPrompt } from '../../helpers/promptLoader'
+import { loadDefaultPrompt } from '@helpers/promptLoader'
 import config from '../../config/config'
 
 // Load default system prompt from prompt.md (used as seed value)
@@ -128,6 +128,20 @@ const Schema = new mongoose.Schema(
         type: Date,
         default: Date.now,
       },
+      ai: {
+        totalMessages: {
+          type: Number,
+          default: 0,
+        },
+        totalTokens: {
+          type: Number,
+          default: 0,
+        },
+        totalToolCalls: {
+          type: Number,
+          default: 0,
+        },
+      },
     },
   },
   {
@@ -175,7 +189,7 @@ export async function setDevCommands(enabled: boolean): Promise<any> {
   return document.DEV_COMMANDS
 }
 
-// NEW: Update bot statistics
+// NEW: Update bot statistics (preserves BOT_STATS.ai sub-fields)
 export async function updateBotStats(stats: {
   guilds: number
   users: number
@@ -183,20 +197,21 @@ export async function updateBotStats(stats: {
   ping: number
   uptime: number
 }): Promise<any> {
-  const document = await Model.findOne()
-  if (!document) {
-    return await Model.create({
-      BOT_STATS: { ...stats, lastUpdated: new Date() },
-    })
-  }
-
-  document.BOT_STATS = {
-    ...stats,
-    lastUpdated: new Date(),
-  }
-
-  await document.save()
-  return document.BOT_STATS
+  const result = await Model.findOneAndUpdate(
+    {},
+    {
+      $set: {
+        'BOT_STATS.guilds': stats.guilds,
+        'BOT_STATS.users': stats.users,
+        'BOT_STATS.channels': stats.channels,
+        'BOT_STATS.ping': stats.ping,
+        'BOT_STATS.uptime': stats.uptime,
+        'BOT_STATS.lastUpdated': new Date(),
+      },
+    },
+    { upsert: true, returnDocument: 'after' }
+  )
+  return result?.BOT_STATS
 }
 
 // NEW: Get bot statistics
@@ -230,4 +245,19 @@ export async function updateAiConfig(update: any): Promise<any> {
   }
   await document.save()
   return document.AI_CONFIG
+}
+
+// NEW: Increment AI stats atomically
+export async function incrementAiStats(stats: {
+  messages?: number
+  tokens?: number
+  toolCalls?: number
+}): Promise<void> {
+  const inc: Record<string, number> = {}
+  if (stats.messages) inc['BOT_STATS.ai.totalMessages'] = stats.messages
+  if (stats.tokens) inc['BOT_STATS.ai.totalTokens'] = stats.tokens
+  if (stats.toolCalls) inc['BOT_STATS.ai.totalToolCalls'] = stats.toolCalls
+  if (Object.keys(inc).length > 0) {
+    await Model.updateOne({}, { $inc: inc }, { upsert: true })
+  }
 }

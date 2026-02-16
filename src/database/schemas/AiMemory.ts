@@ -193,23 +193,75 @@ export async function findSimilarMemory(
   score: number
 } | null> {
   const filter: Record<string, unknown> = { userId, memoryType }
-  // Atlas $vectorSearch doesn't support null in filters, so only add guildId when non-null
+
   if (guildId !== null) {
+    // Guild-scoped: filter directly by guildId
     filter.guildId = guildId
+
+    const results = await Model.aggregate([
+      {
+        $vectorSearch: {
+          index: 'vector_index',
+          path: 'embedding',
+          queryVector,
+          numCandidates: 20,
+          limit: 1,
+          filter,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          key: 1,
+          value: 1,
+          context: 1,
+          importance: 1,
+          score: { $meta: 'vectorSearchScore' },
+        },
+      },
+    ])
+
+    return results.length > 0 ? results[0] : null
   }
 
-  // When guildId is null (DM context), overfetch to ensure we find DM-scoped memories
-  // after post-filtering out guild-scoped results
-  const searchLimit = guildId === null ? 10 : 1
-
-  const results = await Model.aggregate([
+  // DM context (guildId === null): two-stage search
+  // Stage 1: Try with $match post-filter for null guildId (small limit)
+  const stage1 = await Model.aggregate([
     {
       $vectorSearch: {
         index: 'vector_index',
         path: 'embedding',
         queryVector,
         numCandidates: 20,
-        limit: searchLimit,
+        limit: 10,
+        filter, // userId + memoryType only (no guildId filter)
+      },
+    },
+    { $match: { guildId: { $in: [null] } } },
+    {
+      $project: {
+        _id: 1,
+        key: 1,
+        value: 1,
+        context: 1,
+        importance: 1,
+        score: { $meta: 'vectorSearchScore' },
+      },
+    },
+    { $limit: 1 },
+  ])
+
+  if (stage1.length > 0) return stage1[0]
+
+  // Stage 2: Broader search with post-filter (fallback)
+  const stage2 = await Model.aggregate([
+    {
+      $vectorSearch: {
+        index: 'vector_index',
+        path: 'embedding',
+        queryVector,
+        numCandidates: 50,
+        limit: 50,
         filter,
       },
     },
@@ -226,15 +278,8 @@ export async function findSimilarMemory(
     },
   ])
 
-  if (results.length === 0) return null
-
-  // For DM context, post-filter to only keep memories with null guildId
-  if (guildId === null) {
-    const dmResults = results.filter(r => r.guildId == null)
-    return dmResults.length > 0 ? dmResults[0] : null
-  }
-
-  return results[0]
+  const dmResults = stage2.filter(r => r.guildId == null)
+  return dmResults.length > 0 ? dmResults[0] : null
 }
 
 /** Maximum numCandidates for Atlas Vector Search (prevents unbounded scans) */

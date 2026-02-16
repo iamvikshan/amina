@@ -1,11 +1,11 @@
 // @root/src/structures/conversationBuffer.ts
 
-import Logger from '../helpers/Logger'
+import Logger from '@helpers/Logger'
 import {
   upsertConversation,
   loadConversation,
   deleteConversation,
-} from '../database/schemas/Conversation'
+} from '@schemas/Conversation'
 
 // ContentPart is globally declared in types/services.d.ts
 export interface Message {
@@ -26,6 +26,8 @@ interface ConversationEntry {
 
 export class ConversationBuffer {
   private cache: Map<string, ConversationEntry> = new Map()
+  /** Per-conversation loading lock to prevent duplicate DB restores */
+  private loadingPromises: Map<string, Promise<Message[]>> = new Map()
   private readonly MAX_MESSAGES = 20
   private readonly TTL_MS = 30 * 60 * 1000 // 30 minutes
   private cleanupInterval: Timer | null = null
@@ -187,14 +189,33 @@ export class ConversationBuffer {
     if (clearedAt !== undefined && Date.now() - clearedAt < this.TTL_MS)
       return []
 
+    // Use per-conversation loading lock to prevent duplicate DB restores
+    let loadPromise = this.loadingPromises.get(conversationId)
+    if (!loadPromise) {
+      loadPromise = this.loadFromDb(conversationId)
+      this.loadingPromises.set(conversationId, loadPromise)
+    }
+
+    try {
+      const loaded = await loadPromise
+      const messages = maxMessages <= 0 ? [] : loaded.slice(-maxMessages)
+      return messages
+    } finally {
+      this.loadingPromises.delete(conversationId)
+    }
+  }
+
+  /**
+   * Load conversation from DB and restore to cache.
+   * Isolated method to serve as the deduplicated loading target.
+   */
+  private async loadFromDb(conversationId: string): Promise<Message[]> {
     try {
       const dbMessages = await loadConversation(conversationId, this.TTL_MS)
       if (dbMessages && dbMessages.length > 0) {
-        // Validate/normalize DB messages to expected Message shape
         const validatedMessages = this.validateDbMessages(dbMessages)
         if (validatedMessages.length === 0) return []
 
-        // Restore to cache — use current time as lastActivityAt since user is actively requesting
         const now = Date.now()
         const restoredEntry: ConversationEntry = {
           messages: validatedMessages,
@@ -202,17 +223,14 @@ export class ConversationBuffer {
           lastActivityAt: now,
         }
         this.cache.set(conversationId, restoredEntry)
-        const messages =
-          maxMessages <= 0 ? [] : restoredEntry.messages.slice(-maxMessages)
         Logger.debug(
-          `Restored conversation from DB - ConvID: ${conversationId}, Count: ${messages.length}`
+          `Restored conversation from DB - ConvID: ${conversationId}, Count: ${validatedMessages.length}`
         )
-        return messages
+        return validatedMessages
       }
     } catch (error: any) {
       Logger.warn(`Failed to load conversation from DB: ${error.message}`)
     }
-
     return []
   }
 

@@ -1,6 +1,6 @@
 import { config } from '@src/config'
 import { timeformat } from '@helpers/Utils'
-import { updateBotStats } from '@schemas/Dev'
+import { updateBotStats, getBotStats } from '@schemas/Dev'
 import os from 'os'
 import { stripIndent } from 'common-tags'
 import type { BotClient } from '@structures/BotClient'
@@ -8,7 +8,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
 
-export default function botstats(client: BotClient) {
+export default async function botstats(client: BotClient) {
   // STATS
   const guilds = client.guilds.cache.size
   const channels = client.channels.cache.size
@@ -81,6 +81,25 @@ export default function botstats(client: BotClient) {
         inline: false,
       }
     )
+
+  // Fetch AI stats for display
+  try {
+    const botStats = await getBotStats()
+    const aiStats = botStats?.ai
+    if (aiStats && aiStats.totalMessages > 0) {
+      embed.addFields({
+        name: '🤖 Mina AI',
+        value: stripIndent`
+        ❯ **messages:** ${aiStats.totalMessages.toLocaleString()}
+        ❯ **tokens used:** ${aiStats.totalTokens.toLocaleString()}
+        ❯ **tool calls:** ${aiStats.totalToolCalls.toLocaleString()}
+        `,
+        inline: true,
+      })
+    }
+  } catch {
+    // AI stats fetch failed, skip section
+  }
 
   // Update bot statistics in DB (non-blocking). This helps keep dashboard data fresh
   try {
