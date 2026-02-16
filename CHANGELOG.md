@@ -1,3 +1,29 @@
+# [v3.2.0](https://github.com/iamvikshan/amina/compare/v3.1.5...v3.2.0) (2026-02-16)
+
+
+
+## [3.2.0](https://github.com/iamvikshan/amina/compare/v3.1.5...v3.2.0) (2026-02-16)
+
+### Features
+
+* add API resilience with retry, circuit breaker, and abort ([8fdc28a](https://github.com/iamvikshan/amina/commit/8fdc28af93bc6ae7eb2fc44c6c5115f90d242855))
+* add buffered AI metrics service with dashboard integration ([83e706a](https://github.com/iamvikshan/amina/commit/83e706a6f2e24200e601ff543d366c6e5cf49825))
+* add conversational memory CRUD tools ([c2e3ccf](https://github.com/iamvikshan/amina/commit/c2e3ccfd871d178b42f213075bf7a4b056403f6b))
+* add LRU caches, injection detection, importance decay ([c28447e](https://github.com/iamvikshan/amina/commit/c28447e6dfb2148817cf31ec8427387fc5099a3a))
+* add semantic memory deduplication ([85c837e](https://github.com/iamvikshan/amina/commit/85c837e7fa9d0b1e977e9883f7d059ce4d189e66))
+* add tool-call status messages with personality ([cb845f9](https://github.com/iamvikshan/amina/commit/cb845f9c1e60eb19d2a97affb3dd85ffcf699cec))
+* add Vertex AI integration + multi-model router ([faf871f](https://github.com/iamvikshan/amina/commit/faf871f47b5c636d2595e5946f2d4aa2cf3a6c4f))
+* add vertex validation, fix bugs, align types ([81a03ff](https://github.com/iamvikshan/amina/commit/81a03ffc9d5d6b857d7d4a4329e883c5174b1e41))
+* migrate embedding model to gemini-embedding-001 (3072-dim) ([f2afc5e](https://github.com/iamvikshan/amina/commit/f2afc5e5ba1fa61fa620ac9149e68d86ca6dfa45))
+* migrate to @google/genai SDK from legacy @google/generative-ai ([b8a0e1a](https://github.com/iamvikshan/amina/commit/b8a0e1a3cdb009b9665cdb6a073b686b6fae534b))
+* migrate to MongoDB Atlas Vector Search (drop Upstash) ([43e49ce](https://github.com/iamvikshan/amina/commit/43e49ce99cb6a2ebceecb3225edb97b80036b4f2))
+* persist conversation history to MongoDB ([f8c3ac5](https://github.com/iamvikshan/amina/commit/f8c3ac5ddbe2d223216d86b5a48710ee326e7fbe))
+
+### Bug Fixes
+
+* replace deprecated embedding-001 with configurable models ([98b856a](https://github.com/iamvikshan/amina/commit/98b856a67099a1c4c95c9908ba7ce5eb5250d04b))
+* resolve 8 critical bugs ([7e7077d](https://github.com/iamvikshan/amina/commit/7e7077d7082828e7346ab3229d230fcef66dc99c))
+
 # [v3.1.5](https://github.com/iamvikshan/amina/compare/v3.1.4...v3.1.5) (2026-02-10)
 
 
