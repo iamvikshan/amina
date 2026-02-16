@@ -47,8 +47,24 @@ describe('AiClient', () => {
   let client: AiClient
 
   beforeEach(() => {
-    mockGenerateContent.mockClear()
+    mockGenerateContent.mockReset()
+    mockGenerateContent.mockImplementation(() =>
+      Promise.resolve({
+        text: 'Hello!',
+        functionCalls: undefined as any,
+        usageMetadata: {
+          totalTokenCount: 42,
+          promptTokenCount: 10,
+          candidatesTokenCount: 32,
+        },
+        candidates: [
+          { content: { role: 'model', parts: [{ text: 'Hello!' }] } },
+        ],
+      })
+    )
     mockEmbedContent.mockClear()
+    AiClient.resetCircuit()
+    AiClient.setRetryDelay(1)
     client = new AiClient(
       { mode: 'api-key', apiKey: 'test-api-key' },
       'gemini-3-flash-preview',
@@ -186,7 +202,7 @@ describe('AiClient', () => {
       10
     )
 
-    mockGenerateContent.mockImplementationOnce(
+    mockGenerateContent.mockImplementation(
       () => new Promise(resolve => setTimeout(resolve, 5000))
     )
 
@@ -282,5 +298,76 @@ describe('AiClient', () => {
 
     expect(result.promptTokens).toBe(10)
     expect(result.completionTokens).toBe(32)
+  })
+
+  test('retries on 429 and succeeds', async () => {
+    let callCount = 0
+    mockGenerateContent.mockImplementation(() => {
+      callCount++
+      if (callCount <= 2) {
+        const error: any = new Error('Rate limited')
+        error.status = 429
+        return Promise.reject(error)
+      }
+      return Promise.resolve({
+        text: 'Success after retry',
+        functionCalls: undefined,
+        usageMetadata: {
+          totalTokenCount: 10,
+          promptTokenCount: 5,
+          candidatesTokenCount: 5,
+        },
+        candidates: [
+          {
+            content: {
+              role: 'model',
+              parts: [{ text: 'Success after retry' }],
+            },
+          },
+        ],
+      })
+    })
+
+    const result = await client.generateResponse(
+      'System',
+      [],
+      'Hello',
+      1000,
+      0.7
+    )
+    expect(result.text).toBe('Success after retry')
+    expect(callCount).toBe(3)
+  })
+
+  test('circuit breaker opens after repeated failures', async () => {
+    AiClient.resetCircuit()
+
+    mockGenerateContent.mockImplementation(() => {
+      const error: any = new Error('Server error')
+      error.status = 500
+      return Promise.reject(error)
+    })
+
+    // 5 failures to open the circuit
+    for (let i = 0; i < 5; i++) {
+      try {
+        await client.generateResponse('System', [], 'Hello', 1000, 0.7)
+      } catch {
+        // Expected
+      }
+    }
+
+    // Reset mock to verify no new calls
+    mockGenerateContent.mockClear()
+
+    // Circuit should be open
+    await expect(
+      client.generateResponse('System', [], 'Hello', 1000, 0.7)
+    ).rejects.toThrow('circuit breaker open')
+
+    // No API call should have been made
+    expect(mockGenerateContent).not.toHaveBeenCalled()
+
+    AiClient.resetCircuit()
   })
 })

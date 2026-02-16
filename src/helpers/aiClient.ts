@@ -18,6 +18,31 @@ export class AiClient {
   private timeout: number
   private authMode: 'api-key' | 'vertex'
 
+  /** Retryable HTTP status codes */
+  private static readonly RETRYABLE_STATUSES = new Set([429, 500, 502, 503])
+  private static readonly MAX_RETRIES = 3
+  private static BASE_DELAY_MS = 1000
+
+  // Circuit breaker state
+  private static circuitFailures = 0
+  private static circuitOpenUntil = 0
+  private static readonly CIRCUIT_THRESHOLD = 5 // failures before opening
+  private static readonly CIRCUIT_RESET_MS = 30_000 // 30s open period
+
+  /** Allowed media MIME types for Gemini */
+  private static readonly ALLOWED_MEDIA_TYPES = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'video/webm',
+    'audio/mp3',
+    'audio/mpeg',
+    'audio/wav',
+    'audio/ogg',
+  ])
+
   constructor(authConfig: AiAuthConfig, model: string, timeout: number) {
     if (authConfig.mode === 'vertex') {
       const options: GoogleGenAIOptions = {
@@ -115,6 +140,11 @@ export class AiClient {
           }
         }
 
+        if (!AiClient.ALLOWED_MEDIA_TYPES.has(mimeType)) {
+          Logger.warn(`Unsupported media type: ${mimeType}, skipping`)
+          return null
+        }
+
         return { inlineData: { data: base64Data, mimeType } }
       } catch (_error: any) {
         // Error already logged by fetchImageAsBase64
@@ -138,6 +168,8 @@ export class AiClient {
     const startTime = Date.now()
 
     try {
+      this.checkCircuit()
+
       // Build contents array from history + current message
       const contents: ConversationMessage[] = [...conversationHistory]
 
@@ -156,19 +188,23 @@ export class AiClient {
       }
 
       // Call generateContent
-      const response = await this.withTimeout(
-        this.ai.models.generateContent({
-          model: this.model,
-          contents,
-          config: {
-            systemInstruction: systemPrompt,
-            maxOutputTokens: maxTokens,
-            temperature,
-            tools: tools ? [{ functionDeclarations: tools }] : undefined,
-          },
-        }),
-        this.timeout
+      const response = await this.withRetry(() =>
+        this.withTimeout(
+          this.ai.models.generateContent({
+            model: this.model,
+            contents,
+            config: {
+              systemInstruction: systemPrompt,
+              maxOutputTokens: maxTokens,
+              temperature,
+              tools: tools ? [{ functionDeclarations: tools }] : undefined,
+            },
+          }),
+          this.timeout
+        )
       )
+
+      this.recordSuccess()
 
       const text = response.text ?? ''
       const functionCalls = response.functionCalls
@@ -208,10 +244,90 @@ export class AiClient {
         modelContent: modelContent ?? (text ? [{ text }] : undefined),
       }
     } catch (error: any) {
+      // Don't count circuit breaker errors as new failures
+      if (
+        error?.message !==
+        'AI circuit breaker open \u2014 service temporarily unavailable'
+      ) {
+        this.recordFailure()
+      }
       const latency = Date.now() - startTime
       this.handleError(error || new Error('Unknown error'), latency)
       throw error
     }
+  }
+
+  private async withRetry<T>(fn: () => Promise<T>): Promise<T> {
+    let lastError: any
+    for (let attempt = 0; attempt <= AiClient.MAX_RETRIES; attempt++) {
+      try {
+        return await fn()
+      } catch (error: any) {
+        lastError = error
+        const status = error?.status ?? error?.httpStatusCode
+        if (
+          attempt < AiClient.MAX_RETRIES &&
+          (AiClient.RETRYABLE_STATUSES.has(status) ||
+            error?.message === 'API timeout')
+        ) {
+          const delay =
+            AiClient.BASE_DELAY_MS *
+            Math.pow(2, attempt) *
+            (0.5 + Math.random() * 0.5)
+          Logger.warn(
+            `AI API retry ${attempt + 1}/${AiClient.MAX_RETRIES} after ${Math.round(delay)}ms (status: ${status ?? 'timeout'})`
+          )
+          await new Promise(r => setTimeout(r, delay))
+          continue
+        }
+        throw error
+      }
+    }
+    throw lastError
+  }
+
+  private checkCircuit(): void {
+    if (
+      AiClient.circuitFailures >= AiClient.CIRCUIT_THRESHOLD &&
+      Date.now() < AiClient.circuitOpenUntil
+    ) {
+      throw new Error(
+        'AI circuit breaker open — service temporarily unavailable'
+      )
+    }
+    // Reset if we're past the open window
+    if (
+      Date.now() >= AiClient.circuitOpenUntil &&
+      AiClient.circuitFailures >= AiClient.CIRCUIT_THRESHOLD
+    ) {
+      AiClient.circuitFailures = 0
+    }
+  }
+
+  private recordSuccess(): void {
+    AiClient.circuitFailures = 0
+  }
+
+  private recordFailure(): void {
+    AiClient.circuitFailures++
+    // Only set the open window on the exact transition to OPEN
+    if (AiClient.circuitFailures === AiClient.CIRCUIT_THRESHOLD) {
+      AiClient.circuitOpenUntil = Date.now() + AiClient.CIRCUIT_RESET_MS
+      Logger.warn(
+        `AI circuit breaker OPEN after ${AiClient.circuitFailures} failures (reset in ${AiClient.CIRCUIT_RESET_MS / 1000}s)`
+      )
+    }
+  }
+
+  /** @internal For testing only */
+  static resetCircuit(): void {
+    AiClient.circuitFailures = 0
+    AiClient.circuitOpenUntil = 0
+  }
+
+  /** @internal For testing only */
+  static setRetryDelay(ms: number): void {
+    AiClient.BASE_DELAY_MS = ms
   }
 
   private async withTimeout<T>(

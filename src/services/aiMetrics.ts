@@ -131,10 +131,19 @@ export class AiMetricsService {
 
       try {
         const deps = await this.resolveDeps()
+
+        // Track which operation index belongs to which source
+        // so we can selectively re-buffer only failed operations
+        const opSources: Array<
+          | { type: 'user'; userId: string; entry: MetricEntry }
+          | { type: 'guild'; guildId: string; entry: MetricEntry }
+          | { type: 'global'; entry: MetricEntry }
+        > = []
         const ops: Promise<any>[] = []
 
         // Batch user updates
         for (const [userId, entry] of users) {
+          opSources.push({ type: 'user', userId, entry })
           ops.push(
             deps.userModel.updateOne(
               { _id: userId },
@@ -154,6 +163,7 @@ export class AiMetricsService {
 
         // Batch guild updates
         for (const [guildId, entry] of guilds) {
+          opSources.push({ type: 'guild', guildId, entry })
           ops.push(
             deps.guildModel.updateOne(
               { _id: guildId },
@@ -171,6 +181,7 @@ export class AiMetricsService {
 
         // Global stats
         if (global.messages > 0) {
+          opSources.push({ type: 'global', entry: global })
           ops.push(
             deps.incrementAiStats({
               messages: global.messages,
@@ -180,13 +191,59 @@ export class AiMetricsService {
           )
         }
 
-        await Promise.all(ops)
-        logger.debug(
-          `AI metrics flushed: ${users.size} users, ${guilds.size} guilds, ${global.messages} global messages`
-        )
+        const results = await Promise.allSettled(ops)
+
+        // Selectively re-buffer only failed operations
+        let failedCount = 0
+        for (let i = 0; i < results.length; i++) {
+          if (results[i].status === 'rejected') {
+            failedCount++
+            const source = opSources[i]
+
+            if (source.type === 'user') {
+              const existing = this.userBuffer.get(source.userId) ?? {
+                messages: 0,
+                tokens: 0,
+                toolCalls: 0,
+                memoriesCreated: 0,
+              }
+              existing.messages += source.entry.messages
+              existing.tokens += source.entry.tokens
+              existing.toolCalls += source.entry.toolCalls
+              existing.memoriesCreated += source.entry.memoriesCreated
+              this.userBuffer.set(source.userId, existing)
+            } else if (source.type === 'guild') {
+              const existing = this.guildBuffer.get(source.guildId) ?? {
+                messages: 0,
+                tokens: 0,
+                toolCalls: 0,
+                memoriesCreated: 0,
+              }
+              existing.messages += source.entry.messages
+              existing.tokens += source.entry.tokens
+              existing.toolCalls += source.entry.toolCalls
+              existing.memoriesCreated += source.entry.memoriesCreated
+              this.guildBuffer.set(source.guildId, existing)
+            } else if (source.type === 'global') {
+              this.globalBuffer.messages += source.entry.messages
+              this.globalBuffer.tokens += source.entry.tokens
+              this.globalBuffer.toolCalls += source.entry.toolCalls
+            }
+          }
+        }
+
+        if (failedCount > 0) {
+          logger.error(
+            `AI metrics flush partially failed: ${failedCount}/${ops.length} ops rejected`
+          )
+        } else {
+          logger.debug(
+            `AI metrics flushed: ${users.size} users, ${guilds.size} guilds, ${global.messages} global messages`
+          )
+        }
       } catch (err: any) {
-        logger.error(`AI metrics flush failed: ${err.message}`)
-        // Re-buffer failed data (merges with any concurrent records)
+        // resolveDeps() itself failed — re-buffer everything
+        logger.error(`AI metrics flush failed (deps): ${err.message}`)
         for (const [userId, entry] of users) {
           const existing = this.userBuffer.get(userId) ?? {
             messages: 0,

@@ -159,6 +159,48 @@ describe('AiMetricsService', () => {
     expect(service.pendingGlobalMessages).toBe(0)
   })
 
+  test('flush requeues only failed ops on partial failure', async () => {
+    // Record for two users in two guilds
+    service.record({
+      userId: 'user1',
+      guildId: 'guild1',
+      tokensUsed: 100,
+      toolCalls: 1,
+      memoriesCreated: 0,
+    })
+
+    service.record({
+      userId: 'user2',
+      guildId: 'guild2',
+      tokensUsed: 50,
+      toolCalls: 0,
+      memoriesCreated: 0,
+    })
+
+    // Make only user1's updateOne fail (first call), user2 succeeds
+    let userCallCount = 0
+    mockUserUpdateOne.mockImplementation(async () => {
+      userCallCount++
+      if (userCallCount === 1) throw new Error('DB error for user1')
+      // user2 succeeds
+    })
+    // guild1 fails, guild2 succeeds
+    let guildCallCount = 0
+    mockGuildUpdateOne.mockImplementation(async () => {
+      guildCallCount++
+      if (guildCallCount === 1) throw new Error('DB error for guild1')
+    })
+    // global succeeds
+    mockIncrementAiStats.mockImplementation(() => Promise.resolve())
+
+    await service.flush()
+
+    // Only failed ops should be re-buffered
+    expect(service.pendingUserCount).toBe(1) // user1 re-buffered, user2 succeeded
+    expect(service.pendingGuildCount).toBe(1) // guild1 re-buffered, guild2 succeeded
+    expect(service.pendingGlobalMessages).toBe(0) // global succeeded
+  })
+
   test('flush requeues on failure', async () => {
     service.record({
       userId: 'user1',
@@ -217,12 +259,21 @@ describe('AiMetricsService', () => {
       })
       throw new Error('DB error')
     })
+    // Guild and global also fail so everything gets re-buffered
+    mockGuildUpdateOne.mockImplementation(() =>
+      Promise.reject(new Error('DB error'))
+    )
+    mockIncrementAiStats.mockImplementation(() =>
+      Promise.reject(new Error('DB error'))
+    )
 
     await service.flush()
 
-    // Original data should be re-buffered, plus concurrent data merged
-    expect(service.pendingUserCount).toBe(2) // user1 (re-buffered) + user2 (concurrent)
-    expect(service.pendingGuildCount).toBe(2) // guild1 (re-buffered) + guild2 (concurrent)
-    expect(service.pendingGlobalMessages).toBe(2) // 1 (re-buffered) + 1 (concurrent)
+    // user1 re-buffered (failed) + user2 concurrent = 2
+    expect(service.pendingUserCount).toBe(2)
+    // guild1 re-buffered (failed) + guild2 concurrent = 2
+    expect(service.pendingGuildCount).toBe(2)
+    // 1 re-buffered (failed) + 1 concurrent = 2
+    expect(service.pendingGlobalMessages).toBe(2)
   })
 })

@@ -52,6 +52,13 @@ Schema.index({ lastAccessedAt: 1 }) // For pruning
 
 export const Model = mongoose.model('ai-memory', Schema)
 
+// Drop orphan vectorId_1 index left from pre-Phase 4 schema
+// This is a one-time cleanup; once the index is gone, the catch branch runs harmlessly
+// TODO: Remove after first production run
+void Model.collection.dropIndex('vectorId_1').catch(() => {
+  // Index doesn't exist (already cleaned up) — safe to ignore
+})
+
 // Get memories for a user in a specific context
 export async function getUserMemories(
   userId: string,

@@ -53,17 +53,22 @@ export class ClaudeClient {
     temperature: number = 0.7
   ): Promise<ClaudeResponse> {
     const startTime = Date.now()
+    const controller = new AbortController()
 
     try {
       const response = await this.withTimeout(
-        this.client.messages.create({
-          model: this.model,
-          max_tokens: maxTokens,
-          system: systemPrompt,
-          messages: [{ role: 'user', content: userMessage }],
-          temperature,
-        }),
-        this.timeout
+        this.client.messages.create(
+          {
+            model: this.model,
+            max_tokens: maxTokens,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userMessage }],
+            temperature,
+          },
+          { signal: controller.signal }
+        ),
+        this.timeout,
+        controller
       )
 
       const text = response.content
@@ -101,16 +106,19 @@ export class ClaudeClient {
 
   private async withTimeout<T>(
     promise: Promise<T>,
-    timeoutMs: number
+    timeoutMs: number,
+    controller?: AbortController
   ): Promise<T> {
-    let timerId!: ReturnType<typeof setTimeout>
+    let timerId: ReturnType<typeof setTimeout> | undefined
     return Promise.race([
-      promise.finally(() => clearTimeout(timerId)),
+      promise.finally(() => {
+        if (timerId) clearTimeout(timerId)
+      }),
       new Promise<T>((_, reject) => {
-        timerId = setTimeout(
-          () => reject(new Error('Claude API timeout')),
-          timeoutMs
-        )
+        timerId = setTimeout(() => {
+          controller?.abort()
+          reject(new Error('Claude API timeout'))
+        }, timeoutMs)
       }),
     ])
   }
