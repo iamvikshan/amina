@@ -20,6 +20,8 @@ import aiPermissions from '@data/aiPermissions.json'
 import { mina } from '@helpers/mina'
 import { getToolStatusCategory } from '@helpers/toolStatus'
 import { aiMetrics } from './aiMetrics'
+import { LRUCache } from 'lru-cache'
+import { checkInjection } from '@helpers/injectionDetector'
 
 const logger = Logger
 
@@ -27,8 +29,11 @@ const logger = Logger
 
 export class AiResponderService {
   private client: AiClient | null = null
-  private rateLimits: Map<string, RateLimitEntry> = new Map()
-  private failureCount: Map<string, number[]> = new Map() // guildId -> timestamps
+  private rateLimits = new LRUCache<string, RateLimitEntry>({
+    max: 10_000,
+    ttl: 60_000,
+  })
+  private failureCount = new LRUCache<string, number[]>({ max: 5_000 })
   private readonly USER_COOLDOWN_MS = 3000 // 3 seconds per user
   private readonly CHANNEL_COOLDOWN_MS = 1000 // 1 second per channel in free-will
   private readonly FAILURE_THRESHOLD = 5
@@ -39,7 +44,6 @@ export class AiResponderService {
     timeoutMs: number
     authConfig: string // serialized for comparison
   } | null = null
-  // private readonly MAX_FREEWILL_CHANNELS = 2 // Max channels for regular guilds (unlimited for test guild)
 
   /**
    * Check if a guild is the test guild
@@ -522,6 +526,16 @@ export class AiResponderService {
       // Get tools from registry
       const tools = aiCommandRegistry.getTools()
 
+      // Check for injection attempts
+      const injectionCheck = checkInjection(message.content || '')
+      if (injectionCheck.detected) {
+        logger.warn(
+          `Injection attempt detected from ${message.author.id}: ${injectionCheck.patterns.join(', ')}`
+        )
+        // Don't block — just log for now. The system prompt should be robust enough.
+        // Could add rate limiting or blocking for repeat offenders in the future.
+      }
+
       // Generate response with media if present (gemini-flash-latest supports multimodal)
       let result = await this.client.generateResponse(
         enhancedPrompt,
@@ -551,12 +565,15 @@ export class AiResponderService {
       ) {
         iteration++
 
+        // Narrow once for TypeScript safety
+        const functionCalls = result.functionCalls
+
         // Count actual tool calls in this iteration
-        totalToolCalls += result.functionCalls?.length ?? 0
+        totalToolCalls += functionCalls.length
 
         // Send a personality-flavored status message on first tool call
-        if (iteration === 1 && !statusMessage && result.functionCalls) {
-          const toolNames = result.functionCalls.map(fc => fc.name)
+        if (iteration === 1 && !statusMessage) {
+          const toolNames = functionCalls.map(fc => fc.name)
           const category = getToolStatusCategory(toolNames)
           const statusText = mina.say(category)
           try {
@@ -580,7 +597,7 @@ export class AiResponderService {
         // Process all function calls in this response
         const functionResults: string[] = []
 
-        for (const call of result.functionCalls) {
+        for (const call of functionCalls) {
           const commandName = call.name
           let args = call.args
 
@@ -765,10 +782,20 @@ export class AiResponderService {
         )
       }
 
+      // Re-fetch fresh history including the model's final response
       // Extract and store memories (async, don't block)
-      this.extractAndStoreMemories(message, history).catch(err =>
-        logger.warn(`Failed to extract memories: ${err.message}`)
-      )
+      conversationBuffer
+        .getHistory(conversationId)
+        .then(freshHistory =>
+          this.extractAndStoreMemories(message, freshHistory).catch(err =>
+            logger.warn(`Failed to extract memories: ${err.message}`)
+          )
+        )
+        .catch(err =>
+          logger.warn(
+            `Failed to fetch fresh history for memory extraction: ${err.message}`
+          )
+        )
 
       // Record AI metrics (accumulated across all ReAct iterations)
       aiMetrics.record({

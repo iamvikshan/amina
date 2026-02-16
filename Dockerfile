@@ -17,7 +17,7 @@ RUN bun install --frozen-lockfile --production --ignore-scripts
 # ============================================
 FROM oven/bun:1.3.9-alpine AS runtime
 
-# Install only dumb-init (no curl needed)
+# Install only dumb-init
 RUN apk add --no-cache dumb-init
 
 # Create non-root user
@@ -40,7 +40,7 @@ USER amina
 
 EXPOSE 3000
 
-# Use wget for healthcheck (already in alpine, no additional dependency)
+# Use wget for healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 

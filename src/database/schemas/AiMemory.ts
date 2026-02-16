@@ -175,6 +175,61 @@ export async function pruneMemories(options: {
 }
 
 /**
+ * Apply importance decay to memories not accessed within the decay period.
+ * Memories lose 1 importance per decay period (default: 30 days).
+ * Importance floors at 1 (never auto-deleted by decay alone).
+ *
+ * @param decayPeriodDays - Number of days of inactivity before decay (default: 30)
+ * @returns Number of memories that had their importance reduced
+ */
+export async function applyImportanceDecay(
+  decayPeriodDays = 30
+): Promise<number> {
+  if (decayPeriodDays <= 0) return 0
+
+  const now = new Date()
+  const decayPeriodMs = decayPeriodDays * 24 * 60 * 60 * 1000
+
+  // Find memories not accessed within the decay period and with importance > 1
+  const cutoff = new Date(now.getTime() - decayPeriodMs)
+  const candidates = await Model.find({
+    lastAccessedAt: { $lt: cutoff },
+    importance: { $gt: 1 },
+  }).lean()
+
+  if (candidates.length === 0) return 0
+
+  // Build bulk operations to avoid N+1 writes
+  const bulkOps: Array<{
+    updateOne: {
+      filter: { _id: unknown }
+      update: { $set: { importance: number } }
+    }
+  }> = []
+
+  for (const memory of candidates) {
+    const elapsed = now.getTime() - new Date(memory.lastAccessedAt).getTime()
+    const periods = Math.floor(elapsed / decayPeriodMs)
+    if (periods < 1) continue
+
+    const newImportance = Math.max(1, memory.importance - periods)
+    if (newImportance < memory.importance) {
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: memory._id },
+          update: { $set: { importance: newImportance } },
+        },
+      })
+    }
+  }
+
+  if (bulkOps.length === 0) return 0
+
+  const result = await Model.bulkWrite(bulkOps)
+  return result.modifiedCount
+}
+
+/**
  * Find the most similar existing memory for a user in a given context.
  * Used for semantic deduplication before storing new memories.
  * Scoped to the same userId + guildId + memoryType to prevent cross-category merges.
@@ -261,8 +316,8 @@ export async function findSimilarMemory(
         index: 'vector_index',
         path: 'embedding',
         queryVector,
-        numCandidates: 50,
-        limit: 50,
+        numCandidates: 200,
+        limit: 200,
         filter,
       },
     },
