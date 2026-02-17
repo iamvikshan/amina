@@ -2,7 +2,7 @@
  * API Key Management
  *
  * API keys are:
- * - Generated with crypto.randomUUID() + random bytes
+ * - Generated with crypto.getRandomValues() + base64url encoding
  * - Prefixed with `amina_` for easy identification
  * - Stored as SHA-256 hashes (never store raw keys)
  * - Have a visible prefix for user reference

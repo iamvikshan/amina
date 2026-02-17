@@ -32,11 +32,10 @@ export class ClaudeClient {
       region: config.location,
     }
     if (config.credentials) {
-      const googleAuth = new GoogleAuth({
+      clientOptions.googleAuth = new GoogleAuth({
         credentials: config.credentials,
         scopes: 'https://www.googleapis.com/auth/cloud-platform',
       })
-      clientOptions.googleAuth = googleAuth
     }
     this.client = new AnthropicVertex(clientOptions)
     this.model = config.model

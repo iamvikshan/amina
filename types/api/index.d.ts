@@ -10,5 +10,3 @@
 /// <reference path="./discord.d.ts" />
 export * from './cards'
 export * from './database'
-
-export {}

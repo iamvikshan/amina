@@ -43,7 +43,7 @@ export function error(
   const errorObj: Extract<ApiResponse, { success: false }>['error'] = {
     message,
   }
-  if (options?.code) errorObj.code = options.code
+  if (options?.code !== undefined) errorObj.code = options.code
   if (options?.details !== undefined) errorObj.details = options.details
 
   const response: ApiResponse = {

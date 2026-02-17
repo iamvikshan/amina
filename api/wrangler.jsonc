@@ -15,7 +15,7 @@
       "invocation_logs": true
     },
     "traces": {
-      "enabled": false,
+      "enabled": true,
       "head_sampling_rate": 0.1,
       "persist": true
     }
@@ -26,11 +26,13 @@
       "kv_namespaces": [
         {
           "binding": "RATE_LIMIT",
-          "id": "aadfc750bf594242bf1dde5f3cc8118d"
+          "id": "aadfc750bf594242bf1dde5f3cc8118d",
+          "remote": true
         },
         {
           "binding": "CACHE",
-          "id": "dafc1b7b5e07470f8b9ba0f3af75d852"
+          "id": "dafc1b7b5e07470f8b9ba0f3af75d852",
+          "remote": true
         },
         {
           "binding": "BOTS",

@@ -265,7 +265,7 @@ export function webhookTransformerPage(): string {
       <p>
         Powered by <a href="https://api.4mina.app">Amina API</a> • 
         <a href="https://4mina.app/dash">Dashboard</a> • 
-        <a href="https://api.apidocs.4mina.app">Documentation</a>
+        <a href="https://docs.4mina.app">Documentation</a>
       </p>
     </div>
   </div>

@@ -88,7 +88,7 @@ Knowledge is power. Stay informed:
 
 ## Project Structure
 
-```
+```text
 src/           → Discord bot source code (discord.js)
 api/           → REST API server (Cloudflare Workers, Hono + MongoDB)
 tests/         → Test suite

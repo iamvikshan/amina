@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { cors, logger, cacheControl, errorHandler } from './middleware'
-import { success } from './lib/response'
+import { success, errors } from './lib/response'
 
 // Import routes
 import botRoutes from './routes/bot'
@@ -25,7 +25,7 @@ app.get('/', c => {
     name: 'Amina API',
     version: '1.0.0',
     description: 'Image generation & utilities API for Amina Discord Bot',
-    documentation: 'https://api.apidocs.4mina.app',
+    documentation: 'https://docs.4mina.app',
     dashboard: 'https://4mina.app/dash/user',
     endpoints: {
       v1: '/v1/* (authenticated)',
@@ -43,7 +43,6 @@ app.get('/health', c => {
   return success(c, {
     status: 'healthy',
     service: 'amina-api',
-    environment: c.env.DOPPLER_ENVIRONMENT || 'prd',
     timestamp: new Date().toISOString(),
   })
 })
@@ -58,19 +57,7 @@ app.route('/webhooks', webhookRoutes)
 
 // 404 handler
 app.notFound(c => {
-  return c.json(
-    {
-      success: false,
-      error: {
-        message: 'Endpoint not found',
-        code: 'NOT_FOUND',
-      },
-      meta: {
-        generatedAt: new Date().toISOString(),
-      },
-    },
-    404
-  )
+  return errors.notFound(c, 'Endpoint not found')
 })
 
 // Export for Cloudflare Workers
