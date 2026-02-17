@@ -6,10 +6,10 @@
  */
 
 import type { Context, Next } from 'hono'
-import { errors } from '../lib/response'
-import { checkRateLimit, rateLimitHeaders } from '../lib/rate-limit'
+import { errors } from '@lib/response'
+import { checkRateLimit, rateLimitHeaders } from '@lib/rate-limit'
 import { HTTPException } from 'hono/http-exception'
-import { createLogger } from '../lib/logger'
+import { createLogger } from '@lib/logger'
 
 // Per-instance cryptographically random salt for secure hashing when no secret is configured.
 // WARNING: This provides weaker security than a configured secret. works for now.
@@ -95,12 +95,13 @@ async function defaultKeyGenerator(
   // If IP is unknown, use a more specific fallback to prevent abuse
   if (ip === 'unknown') {
     // Gather additional request identifiers
+    // NOTE: X-Request-Id is intentionally excluded — it's attacker-controlled
+    // and would allow bypassing rate limits by sending a unique value each request
     const identifiers = [
       c.req.header('User-Agent'),
       c.req.header('Accept-Language'),
       c.req.header('Referer'),
       c.req.header('X-Forwarded-For'),
-      c.req.header('X-Request-Id'),
     ]
       .filter(Boolean)
       .join('|')
@@ -133,14 +134,9 @@ export async function apiKeyKeyGenerator(c: Context): Promise<string> {
   // This prevents multiple anonymous clients from sharing the same rate limit
   if (apiKey === 'anonymous') {
     // Try CF-Connecting-IP
-    let id =
+    const id =
       c.req.header('CF-Connecting-IP') ||
       c.req.header('X-Forwarded-For')?.split(',')[0]
-
-    // Try X-Request-Id (client supplied or upstream LB)
-    if (!id) {
-      id = c.req.header('X-Request-Id')
-    }
 
     // Strict fail-closed: reject requests without any identifiers
     // This prevents DoS attacks via shared anonymous buckets

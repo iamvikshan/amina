@@ -75,7 +75,7 @@ export function generateWelcomeCard(options: WelcomeCardOptions): string {
       options.avatar
         ? `
     <!-- Avatar image -->
-    <image xlink:href="${sanitizeUrl(options.avatar)}" x="432" y="80" width="160" height="160" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${escapeXml(sanitizeUrl(options.avatar))}" x="432" y="80" width="160" height="160" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
     `
         : `
     <!-- Default avatar -->

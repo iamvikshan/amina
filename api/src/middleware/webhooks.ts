@@ -1,5 +1,5 @@
 import type { Context, Next } from 'hono'
-import { error } from '../lib/response'
+import { error } from '@lib/response'
 
 export const ALLOWED_PROVIDERS = ['doppler']
 

@@ -541,7 +541,7 @@ export async function deregisterBot(
       }
       return {
         success: false,
-        error: `Partial deregistration: failed to delete ${stillFailed.length} key(s). Keys: ${stillFailed.join(', ')}. Please retry or contact support.`,
+        error: `Partial deregistration: ${stillFailed.length} key(s) failed to delete. Please retry or contact support.`,
       }
     }
   }

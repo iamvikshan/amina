@@ -5,9 +5,9 @@
  */
 
 import type { Context, Next } from 'hono'
-import { validateBotRequest } from '../lib/botAuth'
-import { errors } from '../lib/response'
-import { createLogger } from '../lib/logger'
+import { validateBotRequest } from '@lib/botAuth'
+import { errors } from '@lib/response'
+import { createLogger } from '@lib/logger'
 
 // ============================================================================
 // Secure Bot Secret Accessor
@@ -59,12 +59,25 @@ export async function botAuthMiddleware(
   }
 
   const logger = createLogger(c)
-  const validation = await validateBotRequest(
-    kv,
-    clientId,
-    clientSecret,
-    logger
-  )
+  let validation: {
+    valid: boolean
+    error?: string
+    needsReVerification?: boolean
+  }
+  try {
+    validation = await validateBotRequest(kv, clientId, clientSecret, logger)
+  } catch (err) {
+    logger.error(
+      'Bot authentication validation failed unexpectedly',
+      err instanceof Error ? err : undefined,
+      {
+        path: c.req.path,
+        method: c.req.method,
+        clientId,
+      }
+    )
+    return errors.internal(c, 'Bot authentication failed')
+  }
 
   if (!validation.valid) {
     if (validation.needsReVerification) {
@@ -97,12 +110,32 @@ export async function optionalBotAuthMiddleware(
 
   if (clientId && clientSecret && c.env.BOTS) {
     const logger = createLogger(c)
-    const validation = await validateBotRequest(
-      c.env.BOTS,
-      clientId,
-      clientSecret,
-      logger
-    )
+    let validation: {
+      valid: boolean
+      error?: string
+      needsReVerification?: boolean
+    }
+    try {
+      validation = await validateBotRequest(
+        c.env.BOTS,
+        clientId,
+        clientSecret,
+        logger
+      )
+    } catch (err) {
+      logger.error(
+        'Optional bot auth validation failed unexpectedly',
+        err instanceof Error ? err : undefined,
+        {
+          path: c.req.path,
+          method: c.req.method,
+          clientId,
+        }
+      )
+      // Don't fail the request for optional auth
+      await next()
+      return
+    }
 
     if (validation.valid) {
       c.set('botClientId', clientId)

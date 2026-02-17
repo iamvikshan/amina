@@ -26,7 +26,7 @@ export function sanitizeUrl(url: string): string {
   try {
     const parsed = new URL(url)
     if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-      return escapeXml(url)
+      return url
     }
     return ''
   } catch {
@@ -37,7 +37,10 @@ export function sanitizeUrl(url: string): string {
 /**
  * Validate and get an image URL from query params.
  * Only allows http: and https: schemes.
- * Returns null if missing or invalid.
+ * Returns XML-escaped URL for safe SVG embedding, or null if missing/invalid.
+ *
+ * The returned URL is escaped with escapeXml() so it can be safely
+ * interpolated into SVG attributes without additional escaping.
  */
 export function getImageUrl(c: {
   req: { query: (key: string) => string | undefined }

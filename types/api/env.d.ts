@@ -29,6 +29,9 @@ declare interface Env {
   // If not provided, a per-instance random salt is auto-generated
   CLIENT_SECRET?: string
 
+  // URL of the bot's stats API endpoint (prevents SSRF by avoiding user-supplied URLs)
+  BOT_STATS_URL?: string
+
   // Discord webhook for logging (Shoutrrr format: discord://TOKEN@WEBHOOK_ID)
   LOGS_WEBHOOK?: string
 

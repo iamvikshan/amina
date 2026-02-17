@@ -6,8 +6,8 @@
 
 import { Hono } from 'hono'
 import { requireApiKey, requirePermission } from '../../middleware/auth'
-import { errors } from '../../lib/response'
-import { escapeXml, getImageUrl } from '../../lib/svg-utils'
+import { errors } from '@lib/response'
+import { escapeXml, getImageUrl } from '@lib/svg-utils'
 
 const generators = new Hono<{ Bindings: Env }>()
 

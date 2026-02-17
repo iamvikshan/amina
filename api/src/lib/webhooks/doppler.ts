@@ -44,10 +44,13 @@ export function transformDopplerPayload(
   const diff = payload.diff
   const project = payload.project
 
-  // Arrays of changes
-  const added = diff.added || []
-  const updated = diff.updated || []
-  const removed = diff.removed || []
+  // Sanitize backticks to prevent breaking Discord code block formatting
+  const sanitizeBackticks = (s: string) => s.replace(/`/g, "'")
+
+  // Arrays of changes (sanitized for Discord formatting)
+  const added = (diff.added || []).map(sanitizeBackticks)
+  const updated = (diff.updated || []).map(sanitizeBackticks)
+  const removed = (diff.removed || []).map(sanitizeBackticks)
   const totalChanges = added.length + updated.length + removed.length
 
   // --- STYLING LOGIC ---
@@ -129,6 +132,10 @@ export function transformDopplerPayload(
   const workspace = project.workspace || project.workplace
   const ts = new Date()
 
+  // Sanitize backticks in values to prevent breaking Discord's inline code formatting
+  const safeEnvironment = config.environment.replace(/`/g, "'")
+  const safeConfigName = config.name.replace(/`/g, "'")
+
   const embed: DiscordEmbed = {
     // "Author" slot used for Project Name to visually group it at the top
     author: {
@@ -145,7 +152,7 @@ export function transformDopplerPayload(
     },
     title: titleAction,
     // Description holds the Environment context clearly
-    description: `**Environment:** \`${config.environment}\`\n**Config:** \`${config.name}\``,
+    description: `**Environment:** \`${safeEnvironment}\`\n**Config:** \`${safeConfigName}\``,
     color: embedColor,
     fields: fields,
     footer: {

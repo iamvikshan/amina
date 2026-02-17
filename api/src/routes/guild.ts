@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
-import { errors, error } from '../lib/response'
-import { createLogger } from '../lib/logger'
+import { errors, error } from '@lib/response'
+import { createLogger } from '@lib/logger'
+import { requireApiKey } from '../middleware/auth'
 import type { GuildSettings } from '@api-types/database'
 
 const guild = new Hono<{ Bindings: Env }>()
@@ -70,7 +71,7 @@ guild.get('/:id', async c => {
  * PATCH /guild/:id
  * Update guild settings
  */
-guild.patch('/:id', async c => {
+guild.patch('/:id', requireApiKey, async c => {
   const guildId = c.req.param('id')
 
   if (!guildId) {
@@ -118,7 +119,7 @@ guild.patch('/:id', async c => {
  * POST /guild/:id/refresh
  * Trigger a guild data refresh
  */
-guild.post('/:id/refresh', async c => {
+guild.post('/:id/refresh', requireApiKey, async c => {
   const guildId = c.req.param('id')
 
   if (!guildId) {
@@ -134,7 +135,7 @@ guild.post('/:id/refresh', async c => {
     // This would invalidate caches and potentially sync with Discord API
 
     return error(c, 'Refresh not implemented', {
-      status: 501 as any,
+      status: 501,
       code: 'NOT_IMPLEMENTED',
     })
   } catch (error) {

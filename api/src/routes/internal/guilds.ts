@@ -5,9 +5,9 @@
  */
 
 import { Hono } from 'hono'
-import { createMongoClient } from '../../lib/mongodb'
-import { success, errors } from '../../lib/response'
-import { createLogger } from '../../lib/logger'
+import { createMongoClient } from '@lib/mongodb'
+import { success, errors } from '@lib/response'
+import { createLogger } from '@lib/logger'
 import type { GuildSettings } from '@api-types/database'
 
 // Maximum allowed payload size for guild settings sync (100 KB)

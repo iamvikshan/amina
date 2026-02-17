@@ -1,6 +1,6 @@
 import type { Context, Next } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import { createLogger } from '../lib/logger'
+import { createLogger } from '@lib/logger'
 
 // Re-export auth middleware
 export * from './auth'
@@ -32,24 +32,30 @@ export async function cors(c: Context<{ Bindings: Env }>, next: Next) {
 
   // Handle preflight requests
   if (c.req.method === 'OPTIONS') {
+    const headers: Record<string, string> = {
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers':
+        'Content-Type, Authorization, X-API-Key, X-Client-Id, X-Client-Secret',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Max-Age': '86400',
+    }
+
+    // Only reflect allowed origins — omit header entirely for disallowed origins
+    if (isAllowed && origin) {
+      headers['Access-Control-Allow-Origin'] = origin
+    }
+
     return new Response(null, {
       status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': isAllowed ? origin || '*' : '',
-        'Access-Control-Allow-Methods':
-          'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers':
-          'Content-Type, Authorization, X-API-Key',
-        'Access-Control-Max-Age': '86400',
-      },
+      headers,
     })
   }
 
   await next()
 
   // Add CORS headers to response
-  if (isAllowed) {
-    c.res.headers.set('Access-Control-Allow-Origin', origin || '*')
+  if (isAllowed && origin) {
+    c.res.headers.set('Access-Control-Allow-Origin', origin)
     c.res.headers.set('Access-Control-Allow-Credentials', 'true')
   }
 }

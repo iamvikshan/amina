@@ -123,7 +123,7 @@ export function generateRankCard(options: RankCardOptions): string {
       options.avatar
         ? `
     <!-- Avatar image -->
-    <image xlink:href="${sanitizeUrl(options.avatar)}" x="71" y="71" width="140" height="140" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${escapeXml(sanitizeUrl(options.avatar))}" x="71" y="71" width="140" height="140" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
     `
         : `
     <!-- Default avatar placeholder -->

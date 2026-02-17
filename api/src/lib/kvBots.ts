@@ -49,6 +49,8 @@ export async function updateBotMeta(
     ...existing,
     ...updates,
     clientId, // Ensure clientId can't be changed
+    ownerId: existing.ownerId, // Immutable after registration
+    registeredAt: existing.registeredAt, // Immutable after registration
   }
 
   await kv.put(`bot:${clientId}:meta`, JSON.stringify(updated))
@@ -170,7 +172,7 @@ export async function listBots(
 /**
  * Get bot statistics
  */
-export async function getBotStats(
+async function getBotStats(
   kv: KVNamespace,
   clientId: string
 ): Promise<BotStatsData | null> {

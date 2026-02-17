@@ -50,7 +50,7 @@ export function generateSpotifyCard(options: SpotifyCardOptions): string {
     ${
       options.albumArt
         ? `
-    <image xlink:href="${sanitizeUrl(options.albumArt)}" x="20" y="20" width="160" height="160" clip-path="url(#art-clip)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${escapeXml(sanitizeUrl(options.albumArt))}" x="20" y="20" width="160" height="160" clip-path="url(#art-clip)" preserveAspectRatio="xMidYMid slice"/>
     `
         : `
     <!-- Music note placeholder -->

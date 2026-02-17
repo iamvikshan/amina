@@ -10,10 +10,10 @@
 
 import { Hono } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import { error, success } from '../lib/response'
-import { createLogger } from '../lib/logger'
-import { transformDopplerPayload, dopplerSchema } from '../lib/webhooks/doppler'
-import { webhookTransformerPage } from '../lib/webhooks/templates'
+import { error, success } from '@lib/response'
+import { createLogger } from '@lib/logger'
+import { transformDopplerPayload, dopplerSchema } from '@lib/webhooks/doppler'
+import { webhookTransformerPage } from '@lib/webhooks/templates'
 import { validateWebhookParams } from '../middleware/webhooks'
 
 export const SUPPORTED_PROVIDERS = [
@@ -62,7 +62,7 @@ app.post('/:id/:token/:provider', validateWebhookParams, async c => {
         if (!result.success) {
           return error(c, 'Invalid Doppler payload', {
             status: 400,
-            details: result.error.format(),
+            details: result.error.issues,
           })
         }
 
@@ -179,7 +179,13 @@ app.post('/:id/:token/:provider', validateWebhookParams, async c => {
     return error(c, 'Failed to process webhook', {
       status: 500,
       code: 'WEBHOOK_PROCESSING_ERROR',
-      details: err instanceof Error ? err.message : 'Unknown error',
+      details:
+        c.env.DOPPLER_ENVIRONMENT === 'prd' ||
+        c.env.DOPPLER_ENVIRONMENT === 'production'
+          ? 'Internal error'
+          : err instanceof Error
+            ? err.message
+            : 'Unknown error',
     })
   }
 })

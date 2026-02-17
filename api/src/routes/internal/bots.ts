@@ -6,16 +6,16 @@
 
 import { Hono } from 'hono'
 import { botAuthMiddleware, getBotClientSecret } from '../../middleware/botAuth'
-import { registerBot, deregisterBot } from '../../lib/botAuth'
-import { createLogger } from '../../lib/logger'
+import { registerBot, deregisterBot } from '@lib/botAuth'
+import { createLogger } from '@lib/logger'
 import {
   getBotMeta,
   updateBotMeta,
   updateBotHeartbeat,
   pushBotStats,
   updateBotCommands,
-} from '../../lib/kvBots'
-import { success, errors } from '../../lib/response'
+} from '@lib/kvBots'
+import { success, errors } from '@lib/response'
 
 const bots = new Hono<{ Bindings: Env; Variables: BotAuthContext }>()
 

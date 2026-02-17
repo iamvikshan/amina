@@ -6,9 +6,9 @@
 
 import { Hono } from 'hono'
 import { requireApiKey } from '../../middleware/auth'
-import { success, errors } from '../../lib/response'
-import { createMongoClient } from '../../lib/mongodb'
-import { createLogger } from '../../lib/logger'
+import { success, errors } from '@lib/response'
+import { createMongoClient } from '@lib/mongodb'
+import { createLogger } from '@lib/logger'
 
 const user = new Hono<{ Bindings: Env }>()
 

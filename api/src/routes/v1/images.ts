@@ -6,12 +6,12 @@
 
 import { Hono } from 'hono'
 import { requireApiKey, requirePermission } from '../../middleware/auth'
-import { errors } from '../../lib/response'
-import { createLogger } from '../../lib/logger'
-import { generateRankCard } from '../../lib/cards/rank-card'
-import { generateWelcomeCard } from '../../lib/cards/welcome-card'
-import { generateSpotifyCard } from '../../lib/cards/spotify-card'
-import { clampDimension, sanitizeUrl } from '../../lib/svg-utils'
+import { errors } from '@lib/response'
+import { createLogger } from '@lib/logger'
+import { generateRankCard } from '@lib/cards/rank-card'
+import { generateWelcomeCard } from '@lib/cards/welcome-card'
+import { generateSpotifyCard } from '@lib/cards/spotify-card'
+import { clampDimension, escapeXml, sanitizeUrl } from '@lib/svg-utils'
 
 const images = new Hono<{ Bindings: Env }>()
 
@@ -288,7 +288,7 @@ images.get('/circle', async c => {
         <circle cx="${r}" cy="${r}" r="${r}"/>
       </clipPath>
     </defs>
-    <image xlink:href="${sanitizeUrl(imageUrl)}" width="${s}" height="${s}" clip-path="url(#circle)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${s}" height="${s}" clip-path="url(#circle)" preserveAspectRatio="xMidYMid slice"/>
   </svg>`
 
   return new Response(svg, {

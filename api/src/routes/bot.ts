@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
-import { getBotStats } from '../lib/bot-stats'
-import { success, errors } from '../lib/response'
-import { createLogger } from '../lib/logger'
+import { getBotStats } from '@lib/bot-stats'
+import { success, errors } from '@lib/response'
+import { createLogger } from '@lib/logger'
 
 const bot = new Hono<{ Bindings: Env }>()
 
@@ -9,13 +9,11 @@ const bot = new Hono<{ Bindings: Env }>()
  * GET /bot/stats
  * Raw bot statistics only
  *
- * Query params (optional):
- * - url: Bot API URL
+ * Bot stats URL should come from bot's KV metadata, not from query params.
  */
 bot.get('/stats', async c => {
   try {
-    const url = c.req.query('url')
-    const stats = await getBotStats(c.env, { url })
+    const stats = await getBotStats(c.env)
 
     return success(c, stats, {
       cached: stats.cached,

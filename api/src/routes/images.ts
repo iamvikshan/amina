@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
-import { errors } from '../lib/response'
-import { createLogger } from '../lib/logger'
-import { escapeXml } from '../lib/svg-utils'
+import { errors } from '@lib/response'
+import { createLogger } from '@lib/logger'
+import { escapeXml } from '@lib/svg-utils'
 
 const images = new Hono<{ Bindings: Env }>()
 

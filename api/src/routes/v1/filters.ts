@@ -8,8 +8,13 @@
 
 import { Hono } from 'hono'
 import { requireApiKey, requirePermission } from '../../middleware/auth'
-import { errors } from '../../lib/response'
-import { sanitizeUrl, getImageUrl, clampDimension } from '../../lib/svg-utils'
+import { errors } from '@lib/response'
+import {
+  sanitizeUrl,
+  getImageUrl,
+  clampDimension,
+  escapeXml,
+} from '@lib/svg-utils'
 
 const filters = new Hono<{ Bindings: Env }>()
 
@@ -29,7 +34,7 @@ function createFilteredImage(
   <defs>
     ${filterDef}
   </defs>
-  <image xlink:href="${sanitizeUrl(imageUrl)}" width="${width}" height="${height}" filter="url(#${filterId})" preserveAspectRatio="xMidYMid slice"/>
+  <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${width}" height="${height}" filter="url(#${filterId})" preserveAspectRatio="xMidYMid slice"/>
 </svg>`
 }
 
@@ -305,7 +310,7 @@ filters.get('/pixelate', async c => {
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="image-rendering: pixelated;">
   <defs>
     <pattern id="pixelate-pattern" width="${w * scale}" height="${h * scale}" patternUnits="userSpaceOnUse">
-      <image xlink:href="${sanitizeUrl(imageUrl)}" width="${w * scale}" height="${h * scale}" preserveAspectRatio="xMidYMid slice"/>
+      <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${w * scale}" height="${h * scale}" preserveAspectRatio="xMidYMid slice"/>
     </pattern>
   </defs>
   <rect width="${w}" height="${h}" fill="url(#pixelate-pattern)" style="image-rendering: pixelated;"/>

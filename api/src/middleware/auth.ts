@@ -5,12 +5,12 @@
  */
 
 import type { Context, Next } from 'hono'
-import { createMongoClient } from '../lib/mongodb'
-import { findUserByApiKey, updateApiKeyUsage } from '../lib/api-keys'
-import { checkRateLimit, rateLimitHeaders } from '../lib/rate-limit'
-import { errors } from '../lib/response'
+import { createMongoClient } from '@lib/mongodb'
+import { findUserByApiKey, updateApiKeyUsage } from '@lib/api-keys'
+import { checkRateLimit, rateLimitHeaders } from '@lib/rate-limit'
+import { errors } from '@lib/response'
 import type { ApiKey, UserWithApiKeys } from '@api-types/database'
-import { createLogger } from '../lib/logger'
+import { createLogger } from '@lib/logger'
 
 // Extend Hono context with auth info
 declare module 'hono' {
@@ -105,7 +105,11 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
     await next()
 
     // Update usage stats after successful request (non-blocking)
-    c.executionCtx.waitUntil(updateApiKeyUsage(db, user._id, key.id))
+    c.executionCtx.waitUntil(
+      updateApiKeyUsage(db, user._id, key.id).catch(err =>
+        console.error('Failed to update API key usage:', err)
+      )
+    )
   } catch (error) {
     const logger = createLogger(c)
     logger.error(

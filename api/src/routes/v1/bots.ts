@@ -5,8 +5,8 @@
  */
 
 import { Hono } from 'hono'
-import { createLogger } from '../../lib/logger'
 import {
+  createLogger,
   getBotInfo,
   getBotMeta,
   getBotStats,
@@ -14,8 +14,9 @@ import {
   listBots,
   isBotOnline,
   getBotAvatarUrl,
-} from '../../lib/kvBots'
-import { success, errors } from '../../lib/response'
+  success,
+  errors,
+} from '@lib/index'
 
 /**
  * Batch size for concurrent KV operations

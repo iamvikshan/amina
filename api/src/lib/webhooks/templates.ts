@@ -7,6 +7,10 @@
 
 import { aminaDesignSystem } from '../styles'
 
+// Base URL for webhook transformer endpoints.
+// TODO: Could be made into an env var for different deployment environments.
+const WEBHOOK_BASE_URL = 'https://api.4mina.app/webhooks/'
+
 const styles = `
 ${aminaDesignSystem}
 
@@ -312,7 +316,7 @@ export function webhookTransformerPage(): string {
       }
 
       const [, id, token] = match;
-      const transformedUrl = \`https://api.4mina.app/webhooks/\${id}/\${token}/\${provider}\`;
+      const transformedUrl = \`${WEBHOOK_BASE_URL}\${id}/\${token}/\${provider}\`;
 
       resultUrl.textContent = transformedUrl;
       resultSection.style.display = 'block';

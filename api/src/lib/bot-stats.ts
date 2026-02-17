@@ -1,32 +1,32 @@
 // In-memory cache for edge (per isolate)
-let botStatsCache: { data: BotStats; timestamp: number; key: string } | null =
-  null
+// Map allows caching stats for multiple bots simultaneously
+const botStatsCache = new Map<string, { data: BotStats; timestamp: number }>()
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 
 /**
- * Fetch bot statistics from external bot API or database
- * The bot updates stats every 10 minutes via presence handler
+ * Fetch bot statistics from external bot API or database.
+ * The bot updates stats every 10 minutes via presence handler.
  *
- * @param env - Environment bindings
- * @param options - Optional URL (can be passed via query params)
+ * The stats URL is read from `env.BOT_STATS_URL` (a server-side
+ * environment binding) to prevent SSRF via user-supplied URLs.
+ *
+ * @param env - Environment bindings (including BOT_STATS_URL)
+ * @param options - Optional overrides (e.g. url for internal use)
  */
 export async function getBotStats(
   env: Env,
   options?: BotStatsOptions
 ): Promise<BotStats & { cached: boolean; cacheAge?: number }> {
-  const botApiUrl = options?.url
+  const botApiUrl = options?.url || env.BOT_STATS_URL
   const cacheKey = botApiUrl || 'default'
 
   // Check in-memory cache first
-  if (
-    botStatsCache &&
-    botStatsCache.key === cacheKey &&
-    Date.now() - botStatsCache.timestamp < CACHE_DURATION
-  ) {
+  const cachedEntry = botStatsCache.get(cacheKey)
+  if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_DURATION) {
     return {
-      ...botStatsCache.data,
+      ...cachedEntry.data,
       cached: true,
-      cacheAge: Math.floor((Date.now() - botStatsCache.timestamp) / 1000),
+      cacheAge: Math.floor((Date.now() - cachedEntry.timestamp) / 1000),
     }
   }
 
@@ -37,7 +37,7 @@ export async function getBotStats(
       const data = cached as BotStats & { timestamp: number }
       const age = Date.now() - data.timestamp
       if (age < CACHE_DURATION) {
-        botStatsCache = { data, timestamp: data.timestamp, key: cacheKey }
+        botStatsCache.set(cacheKey, { data, timestamp: data.timestamp })
         return {
           ...data,
           cached: true,
@@ -67,7 +67,19 @@ export async function getBotStats(
   try {
     parsedUrl = new URL(`${botApiUrl}/stats`)
     if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-      throw new Error('Invalid bot API URL scheme: only http and https allowed')
+      console.warn(
+        `[bot-stats] SSRF blocked: invalid scheme in URL: ${botApiUrl}`
+      )
+      return {
+        guilds: 0,
+        members: 0,
+        channels: 0,
+        ping: 0,
+        uptime: 0,
+        status: 'offline' as const,
+        lastUpdated: new Date().toISOString(),
+        cached: false,
+      }
     }
     // Block private/internal IPs (basic check)
     const hostname = parsedUrl.hostname
@@ -76,6 +88,7 @@ export async function getBotStats(
       hostname === '127.0.0.1' ||
       hostname === '0.0.0.0' ||
       hostname === '::1' ||
+      hostname === '[::1]' ||
       hostname.startsWith('fe80:') ||
       hostname.startsWith('fc00:') ||
       hostname.startsWith('fd00:') ||
@@ -84,9 +97,22 @@ export async function getBotStats(
       /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
       hostname.endsWith('.internal')
     ) {
-      throw new Error('Bot API URL points to a private/internal address')
+      console.warn(
+        `[bot-stats] SSRF blocked: private/internal address in URL: ${botApiUrl}`
+      )
+      return {
+        guilds: 0,
+        members: 0,
+        channels: 0,
+        ping: 0,
+        uptime: 0,
+        status: 'offline' as const,
+        lastUpdated: new Date().toISOString(),
+        cached: false,
+      }
     }
   } catch (_urlError) {
+    console.warn(`[bot-stats] SSRF blocked: malformed URL: ${botApiUrl}`)
     return {
       guilds: 0,
       members: 0,
@@ -104,6 +130,7 @@ export async function getBotStats(
       headers: {
         'User-Agent': 'Amina-API/1.0',
       },
+      signal: AbortSignal.timeout(5000),
     })
 
     if (!response.ok) {
@@ -148,7 +175,7 @@ export async function getBotStats(
     }
 
     // Update caches
-    botStatsCache = { data: stats, timestamp: Date.now(), key: cacheKey }
+    botStatsCache.set(cacheKey, { data: stats, timestamp: Date.now() })
 
     if (env.CACHE) {
       await env.CACHE.put(
@@ -165,11 +192,12 @@ export async function getBotStats(
     console.error('Failed to fetch bot stats:', error)
 
     // Return cached data if available, even if stale
-    if (botStatsCache && botStatsCache.key === cacheKey) {
+    const staleEntry = botStatsCache.get(cacheKey)
+    if (staleEntry) {
       return {
-        ...botStatsCache.data,
+        ...staleEntry.data,
         cached: true,
-        cacheAge: Math.floor((Date.now() - botStatsCache.timestamp) / 1000),
+        cacheAge: Math.floor((Date.now() - staleEntry.timestamp) / 1000),
       }
     }
 
