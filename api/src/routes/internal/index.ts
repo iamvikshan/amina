@@ -5,8 +5,8 @@
  */
 
 import { Hono } from 'hono'
-import { botAuthMiddleware } from '../../middleware/botAuth'
-import { botRateLimit } from '../../middleware/rateLimit'
+import { botAuthMiddleware } from '@middleware/botAuth'
+import { botRateLimit } from '@middleware/rateLimit'
 
 import botsRoutes from './bots'
 import guildsRoutes from './guilds'

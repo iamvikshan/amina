@@ -5,7 +5,7 @@
  */
 
 import type { WelcomeCardOptions } from '@api-types/cards'
-import { escapeXml, sanitizeUrl } from '../svg-utils'
+import { escapeXml, sanitizeUrl, validateHexColor } from '../svg-utils'
 
 /**
  * Generate a welcome/farewell card SVG
@@ -14,8 +14,15 @@ export function generateWelcomeCard(options: WelcomeCardOptions): string {
   const type = options.type || 'welcome'
   const isWelcome = type === 'welcome'
 
-  const accentColor = options.accentColor || (isWelcome ? '#57f287' : '#ed4245')
-  const textColor = options.textColor || '#ffffff'
+  const defaultAccent = isWelcome ? '#57f287' : '#ed4245'
+  const accentColor =
+    options.accentColor && validateHexColor(options.accentColor)
+      ? options.accentColor
+      : defaultAccent
+  const textColor =
+    options.textColor && validateHexColor(options.textColor)
+      ? options.textColor
+      : '#ffffff'
 
   const title = isWelcome ? 'WELCOME' : 'GOODBYE'
   const message =

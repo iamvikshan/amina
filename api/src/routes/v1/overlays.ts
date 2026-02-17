@@ -5,13 +5,14 @@
  */
 
 import { Hono } from 'hono'
-import { requireApiKey, requirePermission } from '../../middleware/auth'
+import { requireApiKey, requirePermission } from '@middleware/auth'
 import { errors } from '@lib/response'
 import {
   sanitizeUrl,
   getImageUrl,
   clampDimension,
   escapeXml,
+  parseNumberOrDefault,
 } from '@lib/svg-utils'
 
 const overlays = new Hono<{ Bindings: Env }>()
@@ -30,8 +31,12 @@ overlays.get('/approved', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice"/>
@@ -59,8 +64,12 @@ overlays.get('/rejected', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice"/>
@@ -88,8 +97,12 @@ overlays.get('/wasted', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -125,8 +138,12 @@ overlays.get('/triggered', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -162,12 +179,13 @@ overlays.get('/gay', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
-  const opacity = Math.min(
-    1,
-    Math.max(0, parseFloat(c.req.query('opacity') || '0.5'))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
+  const opacity = parseNumberOrDefault(c.req.query('opacity'), 0.5, 0, 1)
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -202,8 +220,12 @@ overlays.get('/jail', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   // Generate jail bars
   const barWidth = 12
@@ -242,8 +264,12 @@ overlays.get('/rip', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>

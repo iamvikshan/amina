@@ -5,13 +5,19 @@
  */
 
 import { Hono } from 'hono'
-import { requireApiKey, requirePermission } from '../../middleware/auth'
+import { requireApiKey, requirePermission } from '@middleware/auth'
 import { errors } from '@lib/response'
 import { createLogger } from '@lib/logger'
 import { generateRankCard } from '@lib/cards/rank-card'
 import { generateWelcomeCard } from '@lib/cards/welcome-card'
 import { generateSpotifyCard } from '@lib/cards/spotify-card'
-import { clampDimension, escapeXml, sanitizeUrl } from '@lib/svg-utils'
+import {
+  clampDimension,
+  escapeXml,
+  sanitizeUrl,
+  parseNumberOrDefault,
+  validateHexColor,
+} from '@lib/svg-utils'
 
 const images = new Hono<{ Bindings: Env }>()
 
@@ -28,13 +34,14 @@ images.get('/rank-card', async c => {
 
   // Validate required params
   const username = query.username
-  const level = parseInt(query.level || '0', 10)
-  const xp = parseInt(query.xp || '0', 10)
-  const requiredXp = parseInt(
-    query.requiredXp || query.required_xp || '100',
-    10
+  const level = parseNumberOrDefault(query.level, 0, 0)
+  const xp = parseNumberOrDefault(query.xp, 0, 0)
+  const requiredXp = parseNumberOrDefault(
+    query.requiredXp || query.required_xp,
+    100,
+    1
   )
-  const rank = parseInt(query.rank || '1', 10)
+  const rank = parseNumberOrDefault(query.rank, 1, 1)
 
   if (!username) {
     return errors.badRequest(c, 'Missing required parameter: username')
@@ -55,8 +62,16 @@ images.get('/rank-card', async c => {
         ? (query.status as 'online' | 'idle' | 'dnd' | 'offline')
         : undefined,
       background: query.background,
-      progressColor: query.progressColor || query.progress_color,
-      textColor: query.textColor || query.text_color,
+      progressColor:
+        (query.progressColor || query.progress_color) &&
+        validateHexColor(query.progressColor || query.progress_color || '')
+          ? query.progressColor || query.progress_color
+          : undefined,
+      textColor:
+        (query.textColor || query.text_color) &&
+        validateHexColor(query.textColor || query.text_color || '')
+          ? query.textColor || query.text_color
+          : undefined,
       theme: ['dark', 'light', 'amina'].includes(query.theme as string)
         ? (query.theme as 'dark' | 'light' | 'amina')
         : undefined,
@@ -89,9 +104,10 @@ images.get('/welcome-card', async c => {
   const query = c.req.query()
 
   const username = query.username
-  const memberCount = parseInt(
-    query.memberCount || query.member_count || '0',
-    10
+  const memberCount = parseNumberOrDefault(
+    query.memberCount || query.member_count,
+    0,
+    0
   )
   const guildName = query.guildName || query.guild_name || 'Server'
 
@@ -139,9 +155,10 @@ images.get('/farewell-card', async c => {
   const query = c.req.query()
 
   const username = query.username
-  const memberCount = parseInt(
-    query.memberCount || query.member_count || '0',
-    10
+  const memberCount = parseNumberOrDefault(
+    query.memberCount || query.member_count,
+    0,
+    0
   )
   const guildName = query.guildName || query.guild_name || 'Server'
 
@@ -201,7 +218,9 @@ images.get('/spotify-card', async c => {
       artist,
       album: query.album,
       albumArt: query.albumArt || query.album_art,
-      progress: query.progress ? parseFloat(query.progress) : undefined,
+      progress: query.progress
+        ? parseNumberOrDefault(query.progress, 0, 0, 1)
+        : undefined,
       duration: query.duration,
       currentTime: query.currentTime || query.current_time,
       isPlaying: query.isPlaying === 'true' || query.is_playing === 'true',
@@ -233,13 +252,13 @@ images.get('/spotify-card', async c => {
 images.get('/color', async c => {
   const hex = c.req.query('hex') || c.req.query('color') || 'DC143C'
   const width = clampDimension(
-    parseInt(c.req.query('width') || '256', 10),
+    parseNumberOrDefault(c.req.query('width'), 256, 1, 1024),
     1,
     1024,
     256
   )
   const height = clampDimension(
-    parseInt(c.req.query('height') || '256', 10),
+    parseNumberOrDefault(c.req.query('height'), 256, 1, 1024),
     1,
     1024,
     256
@@ -270,7 +289,7 @@ images.get('/color', async c => {
 images.get('/circle', async c => {
   const imageUrl = c.req.query('image') || c.req.query('url')
   const s = clampDimension(
-    parseInt(c.req.query('size') || '256', 10),
+    parseNumberOrDefault(c.req.query('size'), 256, 16, 1024),
     16,
     1024,
     256

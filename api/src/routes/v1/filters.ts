@@ -7,13 +7,14 @@
  */
 
 import { Hono } from 'hono'
-import { requireApiKey, requirePermission } from '../../middleware/auth'
+import { requireApiKey, requirePermission } from '@middleware/auth'
 import { errors } from '@lib/response'
 import {
   sanitizeUrl,
   getImageUrl,
   clampDimension,
   escapeXml,
+  parseNumberOrDefault,
 } from '@lib/svg-utils'
 
 const filters = new Hono<{ Bindings: Env }>()
@@ -48,9 +49,13 @@ filters.get('/greyscale', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const intensity = parseFloat(c.req.query('intensity') || '1')
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const intensity = parseNumberOrDefault(c.req.query('intensity'), 1, 0, 1)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const filter = `
     <filter id="greyscale">
@@ -78,12 +83,13 @@ filters.get('/blur', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const radius = Math.min(
-    50,
-    Math.max(0, parseFloat(c.req.query('radius') || '5'))
+  const radius = parseNumberOrDefault(c.req.query('radius'), 5, 0, 50)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const filter = `
     <filter id="blur">
@@ -111,12 +117,13 @@ filters.get('/sepia', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const intensity = Math.min(
-    1,
-    Math.max(0, parseFloat(c.req.query('intensity') || '1'))
+  const intensity = parseNumberOrDefault(c.req.query('intensity'), 1, 0, 1)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   // Sepia color matrix
   const filter = `
@@ -150,8 +157,12 @@ filters.get('/invert', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const filter = `
     <filter id="invert">
@@ -184,12 +195,13 @@ filters.get('/brighten', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const amount = Math.min(
-    2,
-    Math.max(0, parseFloat(c.req.query('amount') || '1.3'))
+  const amount = parseNumberOrDefault(c.req.query('amount'), 1.3, 0, 2)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const filter = `
     <filter id="brighten">
@@ -221,12 +233,13 @@ filters.get('/darken', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const amount = Math.min(
-    1,
-    Math.max(0, parseFloat(c.req.query('amount') || '0.7'))
+  const amount = parseNumberOrDefault(c.req.query('amount'), 0.7, 0, 1)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const filter = `
     <filter id="darken">
@@ -258,12 +271,13 @@ filters.get('/contrast', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const amount = Math.min(
-    3,
-    Math.max(0, parseFloat(c.req.query('amount') || '1.5'))
+  const amount = parseNumberOrDefault(c.req.query('amount'), 1.5, 0, 3)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const intercept = 0.5 * (1 - amount)
 
@@ -297,12 +311,13 @@ filters.get('/pixelate', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const pixels = Math.min(
-    50,
-    Math.max(2, parseInt(c.req.query('pixels') || '10', 10))
+  const pixels = parseNumberOrDefault(c.req.query('pixels'), 10, 2, 50)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   // Use a small image and scale up with no smoothing
   const scale = 1 / pixels
@@ -334,12 +349,13 @@ filters.get('/saturate', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const amount = Math.min(
-    3,
-    Math.max(0, parseFloat(c.req.query('amount') || '1.5'))
+  const amount = parseNumberOrDefault(c.req.query('amount'), 1.5, 0, 3)
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const filter = `
     <filter id="saturate">
@@ -367,11 +383,16 @@ filters.get('/hue-rotate', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const degrees = parseFloat(
-    c.req.query('degrees') || c.req.query('angle') || '90'
+  const degrees = parseNumberOrDefault(
+    c.req.query('degrees') || c.req.query('angle'),
+    90
   )
-  const w = clampDimension(parseInt(c.req.query('width') || '512', 10))
-  const h = clampDimension(parseInt(c.req.query('height') || '512', 10))
+  const w = clampDimension(
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+  )
+  const h = clampDimension(
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+  )
 
   const filter = `
     <filter id="hue-rotate">

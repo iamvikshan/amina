@@ -71,3 +71,33 @@ export function clampDimension(
   if (!Number.isFinite(value)) return fallback
   return Math.min(max, Math.max(min, value))
 }
+
+/**
+ * Safely parse a numeric query parameter with default, min, and max.
+ * Returns defaultValue if the string is undefined, empty, or not a finite number.
+ * Clamps between min/max if provided.
+ */
+export function parseNumberOrDefault(
+  value: string | undefined,
+  defaultValue: number,
+  min?: number,
+  max?: number
+): number {
+  if (value === undefined || value.trim() === '') return defaultValue
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return defaultValue
+  let result = parsed
+  if (min !== undefined) result = Math.max(min, result)
+  if (max !== undefined) result = Math.min(max, result)
+  return result
+}
+
+/**
+ * Validate a hex color string.
+ * Accepts #RGB, #RGBA, #RRGGBB, and #RRGGBBAA formats.
+ */
+export function validateHexColor(color: string): boolean {
+  return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(
+    color
+  )
+}

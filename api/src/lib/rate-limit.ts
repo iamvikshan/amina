@@ -43,9 +43,10 @@ async function checkRateLimitKV(
   config: RateLimitConfig,
   resetAt: number
 ): Promise<RateLimitResult> {
-  // Get current count
+  // Get current count (guard against NaN from corrupted KV data)
   const current = await kv.get(key)
-  const count = current ? parseInt(current, 10) : 0
+  const parsed = current ? parseInt(current, 10) : 0
+  const count = Number.isNaN(parsed) ? 0 : parsed
 
   if (count >= config.requests) {
     return {

@@ -5,7 +5,7 @@
  */
 
 import { Hono } from 'hono'
-import { requireApiKey, requirePermission } from '../../middleware/auth'
+import { requireApiKey, requirePermission } from '@middleware/auth'
 import { errors } from '@lib/response'
 import { escapeXml, getImageUrl } from '@lib/svg-utils'
 
@@ -93,7 +93,7 @@ generators.get('/beautiful', async c => {
  * "Change My Mind" meme
  */
 generators.get('/changemymind', async c => {
-  const text = c.req.query('text') || 'Change my mind'
+  const text = (c.req.query('text') || 'Change my mind').slice(0, 500)
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
   <!-- Background (outdoor scene) -->
@@ -203,9 +203,16 @@ generators.get('/trash', async c => {
  * Drake approve/disapprove meme
  */
 generators.get('/drake', async c => {
-  const topText = c.req.query('top') || c.req.query('reject') || 'Bad thing'
-  const bottomText =
-    c.req.query('bottom') || c.req.query('approve') || 'Good thing'
+  const topText = (
+    c.req.query('top') ||
+    c.req.query('reject') ||
+    'Bad thing'
+  ).slice(0, 500)
+  const bottomText = (
+    c.req.query('bottom') ||
+    c.req.query('approve') ||
+    'Good thing'
+  ).slice(0, 500)
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
@@ -241,9 +248,15 @@ generators.get('/drake', async c => {
  * Distracted boyfriend meme labels
  */
 generators.get('/distracted', async c => {
-  const boyfriend = c.req.query('boyfriend') || 'Me'
-  const girlfriend = c.req.query('girlfriend') || 'My responsibilities'
-  const other = c.req.query('other') || 'Literally anything else'
+  const boyfriend = (c.req.query('boyfriend') || 'Me').slice(0, 500)
+  const girlfriend = (c.req.query('girlfriend') || 'My responsibilities').slice(
+    0,
+    500
+  )
+  const other = (c.req.query('other') || 'Literally anything else').slice(
+    0,
+    500
+  )
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
@@ -274,7 +287,7 @@ generators.get('/distracted', async c => {
  * "Facts" book meme
  */
 generators.get('/facts', async c => {
-  const text = c.req.query('text') || 'This is a fact'
+  const text = (c.req.query('text') || 'This is a fact').slice(0, 500)
 
   // Word wrap helper
   const words = text.split(' ')
@@ -291,7 +304,10 @@ generators.get('/facts', async c => {
   }
   if (currentLine) lines.push(currentLine)
 
-  const lineElements = lines
+  // Cap lines to max 10
+  const cappedLines = lines.slice(0, 10)
+
+  const lineElements = cappedLines
     .map(
       (line, i) =>
         `<text x="300" y="${160 + i * 30}" text-anchor="middle" fill="#333" font-size="20" font-weight="bold" font-family="Arial, sans-serif">${escapeXml(line)}</text>`

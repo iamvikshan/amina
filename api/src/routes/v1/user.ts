@@ -5,7 +5,7 @@
  */
 
 import { Hono } from 'hono'
-import { requireApiKey } from '../../middleware/auth'
+import { requireApiKey } from '@middleware/auth'
 import { success, errors } from '@lib/response'
 import { createMongoClient } from '@lib/mongodb'
 import { createLogger } from '@lib/logger'
@@ -92,7 +92,19 @@ user.get('/header-data', async c => {
         avatar: userData.avatar,
         avatarUrl: userData.avatar
           ? `https://cdn.discordapp.com/avatars/${userData.discordId}/${userData.avatar}.${userData.avatar.startsWith('a_') ? 'gif' : 'png'}?size=128`
-          : `https://cdn.discordapp.com/embed/avatars/${(parseInt(userData.discriminator || '0', 10) || 0) % 5}.png`,
+          : (() => {
+              // New-style usernames (no discriminator or discriminator "0") use (userId >> 22) % 6
+              const disc = userData.discriminator
+              if (!disc || disc === '0') {
+                try {
+                  return `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(userData.discordId || '0') >> 22n) % 6n)}.png`
+                } catch {
+                  return `https://cdn.discordapp.com/embed/avatars/0.png`
+                }
+              }
+              const discNum = parseInt(disc, 10)
+              return `https://cdn.discordapp.com/embed/avatars/${Number.isNaN(discNum) ? 0 : discNum % 5}.png`
+            })(),
       },
       stats: {
         xp: userData.xp || 0,
@@ -150,14 +162,20 @@ user.get('/profile', async c => {
   }
 
   try {
-    const userData = await db.findOne('users', { _id: userId })
+    const userData = await db.findOne(
+      'users',
+      { _id: userId },
+      {
+        projection: { apiKeys: 0, apiKey: 0 },
+      }
+    )
 
     if (!userData) {
       return errors.notFound(c, 'User not found')
     }
 
-    // Remove sensitive fields
-    const { apiKeys: _, ...safeUserData } = userData
+    // Remove sensitive fields (defense in depth — also excluded via projection)
+    const { apiKeys: _keys, apiKey: _key, ...safeUserData } = userData as any
 
     logger.info('User profile retrieved', {
       userId,

@@ -37,6 +37,73 @@ function toDiscordWebhookUrl(
 }
 
 /**
+ * Simple rate limiter for Discord webhook sends.
+ * Enforces a minimum interval between sends and queues messages during cooldown.
+ */
+const webhookRateLimiter = {
+  lastSendTime: 0,
+  minIntervalMs: 1000, // 1 second between sends
+  queue: [] as Array<{
+    url: string
+    payload: string
+    resolve: () => void
+    reject: (err: unknown) => void
+  }>,
+  processing: false,
+
+  canSend(): boolean {
+    return Date.now() - this.lastSendTime >= this.minIntervalMs
+  },
+
+  enqueue(url: string, payload: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.queue.push({ url, payload, resolve, reject })
+      if (!this.processing) {
+        this.processQueue()
+      }
+    })
+  },
+
+  async processQueue(): Promise<void> {
+    if (this.processing) return
+    this.processing = true
+
+    while (this.queue.length > 0) {
+      const now = Date.now()
+      const elapsed = now - this.lastSendTime
+      if (elapsed < this.minIntervalMs) {
+        await new Promise(r => setTimeout(r, this.minIntervalMs - elapsed))
+      }
+
+      const item = this.queue.shift()
+      if (!item) break
+
+      try {
+        const res = await fetch(item.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: item.payload,
+        })
+        if (!res.ok) {
+          console.error(
+            'Failed to send Discord webhook:',
+            res.status,
+            res.statusText
+          )
+        }
+        item.resolve()
+      } catch (err) {
+        console.error('Error sending Discord webhook:', err)
+        item.reject(err)
+      }
+      this.lastSendTime = Date.now()
+    }
+
+    this.processing = false
+  },
+}
+
+/**
  * Logger class for structured logging with Discord webhook integration
  */
 export class Logger {
@@ -191,26 +258,12 @@ export class Logger {
       embeds: [embed],
     }
 
-    // Use waitUntil to send webhook in background without blocking response
-    const webhookPromise = fetch(this.webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
-      .then(res => {
-        if (!res.ok) {
-          console.error(
-            'Failed to send Discord webhook:',
-            res.status,
-            res.statusText
-          )
-        }
-      })
-      .catch(err => {
-        console.error('Error sending Discord webhook:', err)
-      })
+    // Use rate-limited webhook sending to avoid Discord rate limits
+    const payloadStr = JSON.stringify(payload)
+    const webhookPromise = webhookRateLimiter.enqueue(
+      this.webhookUrl,
+      payloadStr
+    )
 
     // Schedule background execution (doesn't block response)
     this.c.executionCtx.waitUntil(webhookPromise)

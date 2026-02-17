@@ -15,23 +15,30 @@ import type { MongoDBConfig } from '@api-types/database'
 
 let cachedClient: MongoClient | null = null
 let cachedDb: Db | null = null
+let lastHealthCheck = 0
+const HEALTH_CHECK_INTERVAL_MS = 30_000 // 30 seconds
 
 /**
  * Get a MongoDB client instance (cached for connection reuse)
+ * Uses periodic health checks (every 30s) instead of per-call pings to reduce latency.
  */
 export async function getMongoClient(
   config: MongoDBConfig
 ): Promise<MongoClient> {
   if (cachedClient) {
-    try {
-      // Verify cached connection is still alive
-      await cachedClient.db('admin').command({ ping: 1 })
-      return cachedClient
-    } catch {
-      // Stale connection — reconnect
-      cachedClient = null
-      cachedDb = null
+    const now = Date.now()
+    // Only ping if more than 30 seconds since last successful health check
+    if (now - lastHealthCheck > HEALTH_CHECK_INTERVAL_MS) {
+      try {
+        await cachedClient.db('admin').command({ ping: 1 })
+        lastHealthCheck = now
+      } catch {
+        // Stale connection — reconnect
+        cachedClient = null
+        cachedDb = null
+      }
     }
+    if (cachedClient) return cachedClient
   }
 
   const client = new MongoClient(config.connectionString, {
@@ -44,6 +51,7 @@ export async function getMongoClient(
 
   await client.connect()
   cachedClient = client
+  lastHealthCheck = Date.now()
   return client
 }
 

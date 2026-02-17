@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { success } from '@lib/response'
-import { publicRateLimit } from '../../middleware/rateLimit'
+import { publicRateLimit } from '@middleware/rateLimit'
 
 // Import route modules
 import images from './images'

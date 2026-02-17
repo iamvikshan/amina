@@ -5,9 +5,10 @@
  */
 
 import { Hono } from 'hono'
-import { botAuthMiddleware, getBotClientSecret } from '../../middleware/botAuth'
+import { botAuthMiddleware, getBotClientSecret } from '@middleware/botAuth'
 import { registerBot, deregisterBot } from '@lib/botAuth'
 import { createLogger } from '@lib/logger'
+import { validateBotStats } from '@lib/validation'
 import {
   getBotMeta,
   updateBotMeta,
@@ -177,24 +178,11 @@ bots.post('/:clientId/stats', async c => {
   try {
     const stats = await c.req.json<BotStatsPushPayload>()
 
-    const requiredFields = [
-      'guilds',
-      'members',
-      'channels',
-      'commands',
-      'ping',
-      'uptime',
-    ]
-    const invalidFields = requiredFields.filter(field => {
-      const value = (stats as any)[field]
-      return typeof value !== 'number' || !Number.isFinite(value)
-    })
-
-    if (invalidFields.length > 0) {
-      return errors.badRequest(
-        c,
-        `${invalidFields.join(', ')} must be a finite number`
-      )
+    const validation = validateBotStats(
+      stats as unknown as Record<string, unknown>
+    )
+    if (!validation.valid) {
+      return errors.badRequest(c, validation.errors.join('; '))
     }
 
     await pushBotStats(kv, clientId, stats)
@@ -295,6 +283,19 @@ bots.post('/:clientId/commands', async c => {
 
     if (!Array.isArray(commands)) {
       return errors.badRequest(c, 'commands must be an array')
+    }
+
+    // Validate each command has a non-empty name
+    const invalidCommands = commands.filter(
+      (cmd: any) =>
+        !cmd || typeof cmd.name !== 'string' || cmd.name.trim() === ''
+    )
+
+    if (invalidCommands.length > 0) {
+      return errors.badRequest(
+        c,
+        `Each command must have a non-empty 'name' field. Found ${invalidCommands.length} invalid entries.`
+      )
     }
 
     await updateBotCommands(kv, clientId, commands)

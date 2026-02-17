@@ -1,7 +1,5 @@
 import { Hono } from 'hono'
-import { getBotStats } from '@lib/bot-stats'
-import { success, errors } from '@lib/response'
-import { createLogger } from '@lib/logger'
+import { getBotStats, success, errors, createLogger } from '@lib/index'
 
 const bot = new Hono<{ Bindings: Env }>()
 
