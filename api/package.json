@@ -1,0 +1,27 @@
+{
+  "name": "amina-api",
+  "version": "1.0.0",
+  "description": "Amina REST API - Cloudflare Workers (Hono + MongoDB)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:local": "bun run --hot src/server.ts",
+    "deploy": "wrangler deploy",
+    "deploy:prd": "wrangler deploy --env production",
+    "check": "tsc --noEmit",
+    "f": "prettier --write ."
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "hono": "^4.11.9",
+    "mongodb": "^7.1.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260217.0",
+    "@types/bun": "^1.3.9",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.65.0"
+  }
+}

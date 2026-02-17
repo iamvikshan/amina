@@ -11,9 +11,11 @@ aws/
 *.pem
 
 .cursor/
-docs/
 .codesandbox/
 .idea/
 plans/
+
+# Wrangler
+.wrangler/
 
 gen-lang-client-*.json
