@@ -24,7 +24,7 @@
     "api:dev": "bun --filter 'amina-api' dev",
     "api:check": "bun --filter 'amina-api' check",
     "api:deploy": "bun --filter 'amina-api' deploy",
-    "check:all": "bun run check && bun run api:check"
+    "check:all": "bun check && bun api:check"
   },
   "homepage": "https://github.com/iamvikshan/amina#readme",
   "repository": {

@@ -93,6 +93,26 @@ export function parseNumberOrDefault(
 }
 
 /**
+ * Create a Response with SVG content-type and cache headers.
+ * Replaces repeated `new Response(svg, { headers: { ... } })` patterns.
+ */
+export function svgResponse(
+  svg: string,
+  maxAge = 3600,
+  staleWhileRevalidate?: number
+): Response {
+  const cacheControl = staleWhileRevalidate
+    ? `public, max-age=${maxAge}, stale-while-revalidate=${staleWhileRevalidate}`
+    : `public, max-age=${maxAge}`
+  return new Response(svg, {
+    headers: {
+      'Content-Type': 'image/svg+xml',
+      'Cache-Control': cacheControl,
+    },
+  })
+}
+
+/**
  * Validate a hex color string.
  * Accepts #RGB, #RGBA, #RRGGBB, and #RRGGBBAA formats.
  */

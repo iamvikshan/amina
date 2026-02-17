@@ -78,4 +78,7 @@ export const errors = {
 
   internal: (c: Context, message = 'Internal server error') =>
     error(c, message, { status: 500, code: 'INTERNAL_ERROR' }),
+
+  notImplemented: (c: Context, message = 'Not implemented') =>
+    error(c, message, { status: 501, code: 'NOT_IMPLEMENTED' }),
 }

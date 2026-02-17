@@ -17,6 +17,12 @@ export interface AutomodSettings {
   enabled: boolean
   filters?: string[]
   actions?: Record<string, unknown>
+  anti_ghostping?: boolean
+  anti_spam?: boolean
+  anti_massmention?: boolean
+  anti_links?: boolean
+  anti_invites?: boolean
+  anti_attachments?: boolean
   [key: string]: unknown
 }
 

@@ -15,6 +15,7 @@ import {
   clampDimension,
   escapeXml,
   parseNumberOrDefault,
+  svgResponse,
 } from '@lib/svg-utils'
 
 const filters = new Hono<{ Bindings: Env }>()
@@ -65,12 +66,7 @@ filters.get('/greyscale', async c => {
 
   const svg = createFilteredImage(imageUrl, 'greyscale', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -99,12 +95,7 @@ filters.get('/blur', async c => {
 
   const svg = createFilteredImage(imageUrl, 'blur', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -139,12 +130,7 @@ filters.get('/sepia', async c => {
 
   const svg = createFilteredImage(imageUrl, 'sepia', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -177,12 +163,7 @@ filters.get('/invert', async c => {
 
   const svg = createFilteredImage(imageUrl, 'invert', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -215,12 +196,7 @@ filters.get('/brighten', async c => {
 
   const svg = createFilteredImage(imageUrl, 'brighten', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -253,12 +229,7 @@ filters.get('/darken', async c => {
 
   const svg = createFilteredImage(imageUrl, 'darken', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -293,12 +264,7 @@ filters.get('/contrast', async c => {
 
   const svg = createFilteredImage(imageUrl, 'contrast', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -331,12 +297,7 @@ filters.get('/pixelate', async c => {
   <rect width="${w}" height="${h}" fill="url(#pixelate-pattern)" style="image-rendering: pixelated;"/>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -365,12 +326,7 @@ filters.get('/saturate', async c => {
 
   const svg = createFilteredImage(imageUrl, 'saturate', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -402,12 +358,7 @@ filters.get('/hue-rotate', async c => {
 
   const svg = createFilteredImage(imageUrl, 'hue-rotate', filter, w, h)
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 export default filters

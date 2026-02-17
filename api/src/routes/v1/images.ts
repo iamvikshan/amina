@@ -17,6 +17,7 @@ import {
   sanitizeUrl,
   parseNumberOrDefault,
   validateHexColor,
+  svgResponse,
 } from '@lib/svg-utils'
 
 const images = new Hono<{ Bindings: Env }>()
@@ -77,12 +78,7 @@ images.get('/rank-card', async c => {
         : undefined,
     })
 
-    return new Response(svg, {
-      headers: {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
-      },
-    })
+    return svgResponse(svg, 60, 300)
   } catch (error) {
     const logger = createLogger(c)
     logger.error(
@@ -97,106 +93,73 @@ images.get('/rank-card', async c => {
 })
 
 /**
+ * Shared handler for welcome/farewell card generation
+ */
+function handleGreetingCard(
+  type: 'welcome' | 'farewell',
+  defaultAccentColor?: string
+) {
+  return async (c: { req: { query: () => Record<string, string> } }) => {
+    const query = c.req.query()
+
+    const username = query.username
+    const memberCount = parseNumberOrDefault(
+      query.memberCount || query.member_count,
+      0,
+      0
+    )
+    const guildName = query.guildName || query.guild_name || 'Server'
+
+    if (!username) {
+      return errors.badRequest(
+        c as Parameters<typeof errors.badRequest>[0],
+        'Missing required parameter: username'
+      )
+    }
+
+    try {
+      const svg = generateWelcomeCard({
+        username,
+        memberCount,
+        guildName,
+        avatar: query.avatar,
+        type,
+        message: query.message,
+        background: query.background,
+        accentColor:
+          query.accentColor || query.accent_color || defaultAccentColor,
+        textColor: query.textColor || query.text_color,
+      })
+
+      return svgResponse(svg, 60, 300)
+    } catch (error) {
+      const logger = createLogger(c as Parameters<typeof createLogger>[0])
+      logger.error(
+        `Failed to generate ${type} card`,
+        error instanceof Error ? error : undefined,
+        {
+          endpoint: `/v1/images/${type}-card`,
+        }
+      )
+      return errors.internal(
+        c as Parameters<typeof errors.internal>[0],
+        `Failed to generate ${type} card`
+      )
+    }
+  }
+}
+
+/**
  * GET /v1/images/welcome-card
  * Generate a welcome card image
  */
-images.get('/welcome-card', async c => {
-  const query = c.req.query()
-
-  const username = query.username
-  const memberCount = parseNumberOrDefault(
-    query.memberCount || query.member_count,
-    0,
-    0
-  )
-  const guildName = query.guildName || query.guild_name || 'Server'
-
-  if (!username) {
-    return errors.badRequest(c, 'Missing required parameter: username')
-  }
-
-  try {
-    const svg = generateWelcomeCard({
-      username,
-      memberCount,
-      guildName,
-      avatar: query.avatar,
-      type: 'welcome',
-      message: query.message,
-      background: query.background,
-      accentColor: query.accentColor || query.accent_color,
-      textColor: query.textColor || query.text_color,
-    })
-
-    return new Response(svg, {
-      headers: {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
-      },
-    })
-  } catch (error) {
-    const logger = createLogger(c)
-    logger.error(
-      'Failed to generate welcome card',
-      error instanceof Error ? error : undefined,
-      {
-        endpoint: '/v1/images/welcome-card',
-      }
-    )
-    return errors.internal(c, 'Failed to generate welcome card')
-  }
-})
+images.get('/welcome-card', handleGreetingCard('welcome'))
 
 /**
  * GET /v1/images/farewell-card
  * Generate a farewell card image
  */
-images.get('/farewell-card', async c => {
-  const query = c.req.query()
-
-  const username = query.username
-  const memberCount = parseNumberOrDefault(
-    query.memberCount || query.member_count,
-    0,
-    0
-  )
-  const guildName = query.guildName || query.guild_name || 'Server'
-
-  if (!username) {
-    return errors.badRequest(c, 'Missing required parameter: username')
-  }
-
-  try {
-    const svg = generateWelcomeCard({
-      username,
-      memberCount,
-      guildName,
-      avatar: query.avatar,
-      type: 'farewell',
-      message: query.message,
-      background: query.background,
-      accentColor: query.accentColor || query.accent_color || '#ed4245',
-      textColor: query.textColor || query.text_color,
-    })
-
-    return new Response(svg, {
-      headers: {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
-      },
-    })
-  } catch (error) {
-    const logger = createLogger(c)
-    logger.error(
-      'Failed to generate farewell card',
-      error instanceof Error ? error : undefined,
-      {
-        endpoint: '/v1/images/farewell-card',
-      }
-    )
-    return errors.internal(c, 'Failed to generate farewell card')
-  }
-})
+images.get('/farewell-card', handleGreetingCard('farewell', '#ed4245'))
 
 /**
  * GET /v1/images/spotify-card
@@ -226,12 +189,7 @@ images.get('/spotify-card', async c => {
       isPlaying: query.isPlaying === 'true' || query.is_playing === 'true',
     })
 
-    return new Response(svg, {
-      headers: {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
-      },
-    })
+    return svgResponse(svg, 60, 300)
   } catch (error) {
     const logger = createLogger(c)
     logger.error(
@@ -274,12 +232,7 @@ images.get('/color', async c => {
     <rect width="${width}" height="${height}" fill="#${cleanHex}"/>
   </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=86400',
-    },
-  })
+  return svgResponse(svg, 86400)
 })
 
 /**
@@ -310,12 +263,7 @@ images.get('/circle', async c => {
     <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${s}" height="${s}" clip-path="url(#circle)" preserveAspectRatio="xMidYMid slice"/>
   </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 export default images

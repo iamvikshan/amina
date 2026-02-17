@@ -9,20 +9,12 @@ import {
   createLogger,
   getBotInfo,
   getBotMeta,
-  getBotStats,
   getBotCommands,
   listBots,
-  isBotOnline,
   getBotAvatarUrl,
   success,
   errors,
 } from '@lib/index'
-
-/**
- * Batch size for concurrent KV operations
- * Balances concurrent requests vs memory overhead and KV namespace load
- */
-const KV_BATCH_SIZE = 10
 
 // Interface for the bot response in the list endpoint
 interface BotWithStatus {
@@ -88,46 +80,26 @@ bots.get('/', async c => {
     // Slice the bot list for the current page
     const paginatedBots = botList.slice(startIndex, endIndex)
 
-    // Process bots in batches to avoid overwhelming the KV namespace
-    const botsWithStatus: BotWithStatus[] = []
+    // Compute online status locally from lastSeen (no KV reads needed)
+    const botsWithStatus: BotWithStatus[] = paginatedBots.map(bot => {
+      const isOnline = (() => {
+        if (!bot.lastSeen) return false
+        const lastSeenTime = new Date(bot.lastSeen).getTime()
+        if (isNaN(lastSeenTime)) return false
+        return Date.now() - lastSeenTime < 120000 // 2 minutes
+      })()
 
-    for (let i = 0; i < paginatedBots.length; i += KV_BATCH_SIZE) {
-      const batch = paginatedBots.slice(i, i + KV_BATCH_SIZE)
-      const batchResults = await Promise.all(
-        batch.map(async bot => {
-          try {
-            return {
-              clientId: bot.clientId,
-              name: bot.name,
-              avatar: getBotAvatarUrl(bot.clientId, bot.avatar),
-              isOnline: await isBotOnline(kv, bot.clientId),
-              features: bot.features,
-              inviteUrl: bot.inviteUrl,
-              supportServer: bot.supportServer,
-              website: bot.website,
-            }
-          } catch (err) {
-            const logger = createLogger(c)
-            logger.warn('Failed to check bot online status', {
-              endpoint: '/v1/bots',
-              botClientId: bot.clientId,
-              error: err instanceof Error ? err.message : String(err),
-            })
-            return {
-              clientId: bot.clientId,
-              name: bot.name,
-              avatar: getBotAvatarUrl(bot.clientId, bot.avatar),
-              isOnline: false, // Default to offline on error
-              features: bot.features,
-              inviteUrl: bot.inviteUrl,
-              supportServer: bot.supportServer,
-              website: bot.website,
-            }
-          }
-        })
-      )
-      botsWithStatus.push(...batchResults)
-    }
+      return {
+        clientId: bot.clientId,
+        name: bot.name,
+        avatar: getBotAvatarUrl(bot.clientId, bot.avatar),
+        isOnline,
+        features: bot.features,
+        inviteUrl: bot.inviteUrl,
+        supportServer: bot.supportServer,
+        website: bot.website,
+      }
+    })
 
     return success(c, {
       bots: botsWithStatus,
@@ -176,7 +148,12 @@ bots.get('/:clientId', async c => {
       return errors.notFound(c, 'Bot not found')
     }
 
-    const isOnline = await isBotOnline(kv, clientId)
+    const isOnline = (() => {
+      if (!info.meta.lastSeen) return false
+      const lastSeenTime = new Date(info.meta.lastSeen).getTime()
+      if (isNaN(lastSeenTime)) return false
+      return Date.now() - lastSeenTime < 120000 // 2 minutes
+    })()
 
     return success(c, {
       bot: {
@@ -229,15 +206,13 @@ bots.get('/:clientId/stats', async c => {
   }
 
   try {
-    const meta = await getBotMeta(kv, clientId)
+    const info = await getBotInfo(kv, clientId)
 
-    if (!meta || !meta.isPublic) {
+    if (!info || !info.meta.isPublic) {
       return errors.notFound(c, 'Bot not found')
     }
 
-    const stats = await getBotStats(kv, clientId)
-
-    if (!stats) {
+    if (!info.stats) {
       return success(c, {
         stats: {
           guilds: 0,
@@ -255,7 +230,7 @@ bots.get('/:clientId/stats', async c => {
     }
 
     return success(c, {
-      stats,
+      stats: info.stats,
     })
   } catch (err) {
     const logger = createLogger(c)

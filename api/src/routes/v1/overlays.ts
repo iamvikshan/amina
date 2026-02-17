@@ -13,6 +13,7 @@ import {
   clampDimension,
   escapeXml,
   parseNumberOrDefault,
+  svgResponse,
 } from '@lib/svg-utils'
 
 const overlays = new Hono<{ Bindings: Env }>()
@@ -46,12 +47,7 @@ overlays.get('/approved', async c => {
   </g>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -79,12 +75,7 @@ overlays.get('/rejected', async c => {
   </g>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -120,12 +111,7 @@ overlays.get('/wasted', async c => {
   <text x="${w / 2}" y="${h / 2 + 20}" text-anchor="middle" fill="#c41e3a" font-size="72" font-weight="bold" font-family="Pricedown, Impact, Arial Black, sans-serif" letter-spacing="0.1em" stroke="#000" stroke-width="3">WASTED</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -161,12 +147,7 @@ overlays.get('/triggered', async c => {
   <text x="${w / 2}" y="${h - 15}" text-anchor="middle" fill="#ffffff" font-size="36" font-weight="bold" font-family="Impact, Arial Black, sans-serif">TRIGGERED</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -202,12 +183,7 @@ overlays.get('/gay', async c => {
   <rect width="${w}" height="${h}" fill="url(#rainbow)" opacity="${opacity}"/>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -246,12 +222,7 @@ overlays.get('/jail', async c => {
   ${bars.join('\n  ')}
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -302,12 +273,7 @@ overlays.get('/rip', async c => {
   <rect y="${h * 0.8}" width="${w}" height="${h * 0.2}" fill="#2d2d1a"/>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 export default overlays

@@ -5,6 +5,20 @@
  */
 
 /**
+ * Shared bot status union
+ */
+type BotStatus = 'online' | 'idle' | 'dnd' | 'invisible' | 'offline'
+
+/**
+ * Shared bot presence shape
+ */
+declare interface BotPresence {
+  type: string
+  name: string
+  url?: string
+}
+
+/**
  * Bot authentication data stored in KV
  * Key pattern: `bot:{clientId}:auth`
  */
@@ -49,12 +63,8 @@ declare interface BotStatsData {
   uptime: number
   memoryUsage?: number
   shards?: ShardInfo[]
-  status: 'online' | 'idle' | 'dnd' | 'invisible' | 'offline'
-  presence?: {
-    type: string
-    name: string
-    url?: string
-  }
+  status: BotStatus
+  presence?: BotPresence
   lastUpdated: string | null
   hasStats?: boolean
 }
@@ -125,12 +135,8 @@ declare interface BotStatsPushPayload {
   uptime: number
   memoryUsage?: number
   shards?: ShardInfo[]
-  status: 'online' | 'idle' | 'dnd' | 'invisible' | 'offline'
-  presence?: {
-    type: string
-    name: string
-    url?: string
-  }
+  status: BotStatus
+  presence?: BotPresence
 }
 
 /**
@@ -150,12 +156,8 @@ declare interface BotStats {
   channels: number
   ping: number
   uptime: number
-  status: 'online' | 'idle' | 'dnd' | 'invisible' | 'offline'
-  presence?: {
-    type: string
-    name: string
-    url?: string
-  }
+  status: BotStatus
+  presence?: BotPresence
   lastUpdated: string
 }
 

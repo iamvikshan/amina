@@ -7,7 +7,7 @@
 import { Hono } from 'hono'
 import { requireApiKey, requirePermission } from '@middleware/auth'
 import { errors } from '@lib/response'
-import { escapeXml, getImageUrl } from '@lib/svg-utils'
+import { escapeXml, getImageUrl, svgResponse } from '@lib/svg-utils'
 
 const generators = new Hono<{ Bindings: Env }>()
 
@@ -46,12 +46,7 @@ generators.get('/affect', async c => {
   <text x="250" y="330" text-anchor="middle" fill="#c41e3a" font-size="72" font-weight="bold" font-family="Impact, Arial Black, sans-serif">NO.</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -80,12 +75,7 @@ generators.get('/beautiful', async c => {
   <text x="200" y="375" text-anchor="middle" fill="#888" font-size="18" font-family="Comic Sans MS, cursive">I've looked at this for 5 hours now</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -121,12 +111,7 @@ generators.get('/changemymind', async c => {
   <text x="350" y="260" text-anchor="middle" fill="#666" font-size="14" font-family="Arial, sans-serif">CHANGE MY MIND</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -151,12 +136,7 @@ generators.get('/delete', async c => {
   <text x="200" y="355" text-anchor="middle" fill="#fff" font-size="28" font-weight="bold" font-family="Arial, sans-serif">DELET THIS</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -190,12 +170,7 @@ generators.get('/trash', async c => {
   <image xlink:href="${imageUrl}" x="160" y="320" width="80" height="80" opacity="0.7" preserveAspectRatio="xMidYMid slice"/>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -235,12 +210,7 @@ generators.get('/drake', async c => {
   <text x="450" y="310" text-anchor="middle" fill="#333" font-size="20" font-weight="bold" font-family="Arial, sans-serif">${escapeXml(bottomText)}</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -274,12 +244,7 @@ generators.get('/distracted', async c => {
   </g>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 /**
@@ -335,12 +300,7 @@ generators.get('/facts', async c => {
   <text x="300" y="340" text-anchor="middle" fill="#666" font-size="14" font-family="Times New Roman, serif">- Page 1 -</text>
 </svg>`
 
-  return new Response(svg, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  })
+  return svgResponse(svg)
 })
 
 export default generators

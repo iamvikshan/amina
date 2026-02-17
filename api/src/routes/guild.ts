@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { errors, error } from '@lib/response'
+import { errors } from '@lib/response'
 import { createLogger } from '@lib/logger'
 import { requireApiKey } from '../middleware/auth'
 import type { GuildSettings } from '@api-types/database'
@@ -134,10 +134,7 @@ guild.post('/:id/refresh', requireApiKey, async c => {
     // TODO: Implement refresh logic
     // This would invalidate caches and potentially sync with Discord API
 
-    return error(c, 'Refresh not implemented', {
-      status: 501,
-      code: 'NOT_IMPLEMENTED',
-    })
+    return errors.notImplemented(c, 'Refresh not implemented')
   } catch (error) {
     const logger = createLogger(c)
     logger.error(
