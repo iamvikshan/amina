@@ -1,9 +1,9 @@
-import { Hono } from 'hono';
-import { success, errors } from '../lib/response';
-import { createLogger } from '../lib/logger';
-import { GuildSettings } from '../../types/database';
+import { Hono } from 'hono'
+import { errors, error } from '../lib/response'
+import { createLogger } from '../lib/logger'
+import type { GuildSettings } from '@api-types/database'
 
-const guild = new Hono<{ Bindings: Env }>();
+const guild = new Hono<{ Bindings: Env }>()
 
 /**
  * GET /guild/:id
@@ -17,16 +17,16 @@ const guild = new Hono<{ Bindings: Env }>();
  *
  * For now, this is a placeholder that you can implement based on your needs.
  */
-guild.get('/:id', async (c) => {
-  const guildId = c.req.param('id');
+guild.get('/:id', async c => {
+  const guildId = c.req.param('id')
 
   if (!guildId) {
-    return errors.badRequest(c, 'Guild ID is required');
+    return errors.badRequest(c, 'Guild ID is required')
   }
 
   // Validate Discord snowflake format (17-19 digit number)
   if (!/^\d{17,19}$/.test(guildId)) {
-    return errors.badRequest(c, 'Invalid guild ID format');
+    return errors.badRequest(c, 'Invalid guild ID format')
   }
 
   try {
@@ -51,9 +51,9 @@ guild.get('/:id', async (c) => {
     // });
 
     // Placeholder response
-    return errors.notFound(c, 'Guild not found or database not configured');
+    return errors.notFound(c, 'Guild not found or database not configured')
   } catch (error) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Failed to fetch guild data',
       error instanceof Error ? error : undefined,
@@ -61,33 +61,36 @@ guild.get('/:id', async (c) => {
         endpoint: '/guild/:id',
         guildId,
       }
-    );
-    return errors.internal(c, 'Failed to fetch guild data');
+    )
+    return errors.internal(c, 'Failed to fetch guild data')
   }
-});
+})
 
 /**
  * PATCH /guild/:id
  * Update guild settings
  */
-guild.patch('/:id', async (c) => {
-  const guildId = c.req.param('id');
+guild.patch('/:id', async c => {
+  const guildId = c.req.param('id')
 
   if (!guildId) {
-    return errors.badRequest(c, 'Guild ID is required');
+    return errors.badRequest(c, 'Guild ID is required')
   }
 
   if (!/^\d{17,19}$/.test(guildId)) {
-    return errors.badRequest(c, 'Invalid guild ID format');
+    return errors.badRequest(c, 'Invalid guild ID format')
   }
 
   try {
-    const body = await c.req.json<
-      Partial<GuildSettings> & { type?: string; settings?: unknown }
-    >();
+    let body: Partial<GuildSettings> & { type?: string; settings?: unknown }
+    try {
+      body = await c.req.json()
+    } catch {
+      return errors.badRequest(c, 'Invalid JSON body')
+    }
 
     if (!body || Object.keys(body).length === 0) {
-      return errors.badRequest(c, 'Update data is required');
+      return errors.badRequest(c, 'Update data is required')
     }
 
     // TODO: Implement database update
@@ -96,9 +99,9 @@ guild.patch('/:id', async (c) => {
     return errors.notFound(
       c,
       'Guild update not implemented - database not configured'
-    );
+    )
   } catch (error) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Failed to update guild data',
       error instanceof Error ? error : undefined,
@@ -106,36 +109,36 @@ guild.patch('/:id', async (c) => {
         endpoint: 'PATCH /guild/:id',
         guildId,
       }
-    );
-    return errors.internal(c, 'Failed to update guild data');
+    )
+    return errors.internal(c, 'Failed to update guild data')
   }
-});
+})
 
 /**
  * POST /guild/:id/refresh
  * Trigger a guild data refresh
  */
-guild.post('/:id/refresh', async (c) => {
-  const guildId = c.req.param('id');
+guild.post('/:id/refresh', async c => {
+  const guildId = c.req.param('id')
 
   if (!guildId) {
-    return errors.badRequest(c, 'Guild ID is required');
+    return errors.badRequest(c, 'Guild ID is required')
   }
 
   if (!/^\d{17,19}$/.test(guildId)) {
-    return errors.badRequest(c, 'Invalid guild ID format');
+    return errors.badRequest(c, 'Invalid guild ID format')
   }
 
   try {
     // TODO: Implement refresh logic
     // This would invalidate caches and potentially sync with Discord API
 
-    return success(c, {
-      message: 'Refresh triggered',
-      guildId,
-    });
+    return error(c, 'Refresh not implemented', {
+      status: 501 as any,
+      code: 'NOT_IMPLEMENTED',
+    })
   } catch (error) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Failed to refresh guild data',
       error instanceof Error ? error : undefined,
@@ -143,9 +146,9 @@ guild.post('/:id/refresh', async (c) => {
         endpoint: 'POST /guild/:id/refresh',
         guildId,
       }
-    );
-    return errors.internal(c, 'Failed to refresh guild data');
+    )
+    return errors.internal(c, 'Failed to refresh guild data')
   }
-});
+})
 
-export default guild;
+export default guild

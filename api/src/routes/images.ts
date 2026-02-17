@@ -1,8 +1,9 @@
-import { Hono } from 'hono';
-import { errors } from '../lib/response';
-import { createLogger } from '../lib/logger';
+import { Hono } from 'hono'
+import { errors } from '../lib/response'
+import { createLogger } from '../lib/logger'
+import { escapeXml } from '../lib/svg-utils'
 
-const images = new Hono<{ Bindings: Env }>();
+const images = new Hono<{ Bindings: Env }>()
 
 /**
  * GET /images/rank-card
@@ -21,18 +22,18 @@ const images = new Hono<{ Bindings: Env }>();
  * - background?: Custom background URL or color
  * - theme?: Card theme (dark, light, custom)
  */
-images.get('/rank-card', async (c) => {
-  const query = c.req.query();
+images.get('/rank-card', async c => {
+  const query = c.req.query()
 
   // Validate required params
-  const required = ['userId', 'username', 'level', 'xp', 'requiredXp', 'rank'];
-  const missing = required.filter((key) => !query[key]);
+  const required = ['userId', 'username', 'level', 'xp', 'requiredXp', 'rank']
+  const missing = required.filter(key => !query[key])
 
   if (missing.length > 0) {
     return errors.badRequest(
       c,
       `Missing required parameters: ${missing.join(', ')}`
-    );
+    )
   }
 
   try {
@@ -44,8 +45,10 @@ images.get('/rank-card', async (c) => {
     // 4. Generate SVG directly and return as image
 
     // For now, return a placeholder SVG
-    const { username, level, xp, requiredXp, rank } = query;
-    const progress = Math.min(100, (Number(xp) / Number(requiredXp)) * 100);
+    const { username, level, xp, requiredXp, rank } = query
+    const numXp = Number(xp) || 0
+    const numRequiredXp = Number(requiredXp) || 1
+    const progress = Math.min(100, Math.max(0, (numXp / numRequiredXp) * 100))
 
     const svg = `
       <svg width="934" height="282" xmlns="http://www.w3.org/2000/svg">
@@ -68,13 +71,13 @@ images.get('/rank-card', async (c) => {
         <text x="141" y="155" text-anchor="middle" fill="#888" font-size="40" font-family="Arial">?</text>
         
         <!-- Username -->
-        <text x="260" y="80" fill="#ffffff" font-size="36" font-weight="bold" font-family="Arial">${username}</text>
+        <text x="260" y="80" fill="#ffffff" font-size="36" font-weight="bold" font-family="Arial">${escapeXml(String(username))}</text>
         
         <!-- Rank -->
-        <text x="260" y="120" fill="#888888" font-size="20" font-family="Arial">Rank #${rank}</text>
+        <text x="260" y="120" fill="#888888" font-size="20" font-family="Arial">Rank #${escapeXml(String(rank))}</text>
         
         <!-- Level -->
-        <text x="860" y="80" text-anchor="end" fill="#DC143C" font-size="36" font-weight="bold" font-family="Arial">LVL ${level}</text>
+        <text x="860" y="80" text-anchor="end" fill="#DC143C" font-size="36" font-weight="bold" font-family="Arial">LVL ${escapeXml(String(level))}</text>
         
         <!-- XP Progress bar background -->
         <rect x="260" y="160" width="600" height="30" rx="15" fill="#2d2d44"/>
@@ -83,39 +86,39 @@ images.get('/rank-card', async (c) => {
         <rect x="260" y="160" width="${progress * 6}" height="30" rx="15" fill="url(#progress)"/>
         
         <!-- XP Text -->
-        <text x="560" y="220" text-anchor="middle" fill="#888888" font-size="18" font-family="Arial">${xp} / ${requiredXp} XP</text>
+        <text x="560" y="220" text-anchor="middle" fill="#888888" font-size="18" font-family="Arial">${escapeXml(String(xp))} / ${escapeXml(String(requiredXp))} XP</text>
       </svg>
-    `.trim();
+    `.trim()
 
     return new Response(svg, {
       headers: {
         'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=60',
       },
-    });
+    })
   } catch (error) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Failed to generate rank card',
       error instanceof Error ? error : undefined,
       {
         endpoint: '/images/rank-card',
       }
-    );
-    return errors.internal(c, 'Failed to generate rank card');
+    )
+    return errors.internal(c, 'Failed to generate rank card')
   }
-});
+})
 
 /**
  * GET /images/welcome
  * Generate a welcome image for new members
  */
-images.get('/welcome', async (c) => {
-  const query = c.req.query();
+images.get('/welcome', async c => {
+  const query = c.req.query()
 
-  const username = query.username || 'Member';
-  const memberCount = query.memberCount || '???';
-  const guildName = query.guildName || 'Server';
+  const username = query.username || 'Member'
+  const memberCount = query.memberCount || '???'
+  const guildName = query.guildName || 'Server'
 
   try {
     const svg = `
@@ -133,39 +136,39 @@ images.get('/welcome', async (c) => {
         <text x="512" y="150" text-anchor="middle" fill="#DC143C" font-size="48" font-weight="bold" font-family="Arial">WELCOME</text>
         
         <!-- Username -->
-        <text x="512" y="250" text-anchor="middle" fill="#ffffff" font-size="64" font-weight="bold" font-family="Arial">${username}</text>
+        <text x="512" y="250" text-anchor="middle" fill="#ffffff" font-size="64" font-weight="bold" font-family="Arial">${escapeXml(String(username))}</text>
         
         <!-- Member count -->
-        <text x="512" y="350" text-anchor="middle" fill="#888888" font-size="28" font-family="Arial">Member #${memberCount} of ${guildName}</text>
+        <text x="512" y="350" text-anchor="middle" fill="#888888" font-size="28" font-family="Arial">Member #${escapeXml(String(memberCount))} of ${escapeXml(String(guildName))}</text>
       </svg>
-    `.trim();
+    `.trim()
 
     return new Response(svg, {
       headers: {
         'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=60',
       },
-    });
+    })
   } catch (error) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Failed to generate welcome card',
       error instanceof Error ? error : undefined,
       {
         endpoint: '/images/welcome',
       }
-    );
-    return errors.internal(c, 'Failed to generate welcome card');
+    )
+    return errors.internal(c, 'Failed to generate welcome card')
   }
-});
+})
 
 /**
  * GET /images/leaderboard
  * Generate a leaderboard image
  */
-images.get('/leaderboard', async (c) => {
+images.get('/leaderboard', async c => {
   // TODO: Implement leaderboard image generation
-  return errors.notFound(c, 'Leaderboard image generation not yet implemented');
-});
+  return errors.notFound(c, 'Leaderboard image generation not yet implemented')
+})
 
-export default images;
+export default images

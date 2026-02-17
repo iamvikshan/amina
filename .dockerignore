@@ -23,5 +23,5 @@ Dockerfile
 lavalink/
 scripts/
 *.pem
-docs/
+api/
 tests/

@@ -8,7 +8,7 @@
 /// <reference path="./api.d.ts" />
 /// <reference path="./bot.d.ts" />
 /// <reference path="./discord.d.ts" />
-export * from './cards';
-export * from './database';
+export * from './cards'
+export * from './database'
 
-export {};
+export {}

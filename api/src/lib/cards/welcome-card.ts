@@ -4,25 +4,25 @@
  * Generates SVG welcome/farewell cards with Amina's design system.
  */
 
-import { WelcomeCardOptions } from '../../../types/cards';
+import type { WelcomeCardOptions } from '@api-types/cards'
+import { escapeXml, sanitizeUrl } from '../svg-utils'
 
 /**
  * Generate a welcome/farewell card SVG
  */
 export function generateWelcomeCard(options: WelcomeCardOptions): string {
-  const type = options.type || 'welcome';
-  const isWelcome = type === 'welcome';
+  const type = options.type || 'welcome'
+  const isWelcome = type === 'welcome'
 
-  const accentColor =
-    options.accentColor || (isWelcome ? '#57f287' : '#ed4245');
-  const textColor = options.textColor || '#ffffff';
+  const accentColor = options.accentColor || (isWelcome ? '#57f287' : '#ed4245')
+  const textColor = options.textColor || '#ffffff'
 
-  const title = isWelcome ? 'WELCOME' : 'GOODBYE';
+  const title = isWelcome ? 'WELCOME' : 'GOODBYE'
   const message =
     options.message ||
     (isWelcome
       ? `You are member #${options.memberCount.toLocaleString()}`
-      : `We'll miss you!`);
+      : `We'll miss you!`)
 
   return `<svg width="1024" height="450" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -75,7 +75,7 @@ export function generateWelcomeCard(options: WelcomeCardOptions): string {
       options.avatar
         ? `
     <!-- Avatar image -->
-    <image xlink:href="${options.avatar}" x="432" y="80" width="160" height="160" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${sanitizeUrl(options.avatar)}" x="432" y="80" width="160" height="160" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
     `
         : `
     <!-- Default avatar -->
@@ -99,17 +99,5 @@ export function generateWelcomeCard(options: WelcomeCardOptions): string {
   
   <!-- Bottom accent bar -->
   <rect x="0" y="446" width="1024" height="4" fill="${accentColor}"/>
-</svg>`;
-}
-
-/**
- * Escape XML special characters
- */
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+</svg>`
 }

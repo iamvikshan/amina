@@ -21,7 +21,7 @@
 
 [⚡ Quick Deploy](#-mission-briefing-quick-deploy) • [🗡️ Arsenal](#-guardian-arsenal-features) •
 [📦 Installation](#-battle-preparation-installation) • [💬 Support](#-join-the-alliance) •
-[🤝 Contributing](#-become-a-guardian) • [📚 Wiki](https://docs.4mina.app)
+[🤝 Contributing](#contributing) • [📚 Wiki](https://docs.4mina.app)
 
 </div>
 

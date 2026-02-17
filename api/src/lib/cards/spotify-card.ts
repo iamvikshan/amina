@@ -4,18 +4,19 @@
  * Generates a Spotify "Now Playing" style card.
  */
 
-import { SpotifyCardOptions } from '../../../types/cards';
+import type { SpotifyCardOptions } from '@api-types/cards'
+import { escapeXml, sanitizeUrl } from '../svg-utils'
 
 /**
  * Generate a Spotify card SVG
  */
 export function generateSpotifyCard(options: SpotifyCardOptions): string {
   // Normalize and clamp progress to [0, 100]
-  let progress = 50; // default
+  let progress = 50 // default
   if (options.progress !== undefined && Number.isFinite(options.progress)) {
-    progress = Math.max(0, Math.min(100, Number(options.progress)));
+    progress = Math.max(0, Math.min(100, Number(options.progress)))
   }
-  const progressWidth = Math.floor(progress * 4.5); // 450px max
+  const progressWidth = Math.min(370, Math.floor(progress * 3.7)) // 370px bar width
 
   return `<svg width="600" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -49,7 +50,7 @@ export function generateSpotifyCard(options: SpotifyCardOptions): string {
     ${
       options.albumArt
         ? `
-    <image xlink:href="${options.albumArt}" x="20" y="20" width="160" height="160" clip-path="url(#art-clip)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${sanitizeUrl(options.albumArt)}" x="20" y="20" width="160" height="160" clip-path="url(#art-clip)" preserveAspectRatio="xMidYMid slice"/>
     `
         : `
     <!-- Music note placeholder -->
@@ -84,8 +85,8 @@ export function generateSpotifyCard(options: SpotifyCardOptions): string {
     <rect x="0" y="0" width="${progressWidth}" height="4" rx="2" fill="url(#progress)"/>
     
     <!-- Time labels -->
-    <text x="0" y="20" fill="#b3b3b3" font-size="11" font-family="Inter, Arial, sans-serif">${options.currentTime || '0:00'}</text>
-    <text x="370" y="20" text-anchor="end" fill="#b3b3b3" font-size="11" font-family="Inter, Arial, sans-serif">${options.duration || '0:00'}</text>
+    <text x="0" y="20" fill="#b3b3b3" font-size="11" font-family="Inter, Arial, sans-serif">${escapeXml(options.currentTime || '0:00')}</text>
+    <text x="370" y="20" text-anchor="end" fill="#b3b3b3" font-size="11" font-family="Inter, Arial, sans-serif">${escapeXml(options.duration || '0:00')}</text>
   </g>
   
   <!-- Play/Pause indicator -->
@@ -114,25 +115,13 @@ export function generateSpotifyCard(options: SpotifyCardOptions): string {
     `
     }
   </g>
-</svg>`;
-}
-
-/**
- * Escape XML special characters
- */
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+</svg>`
 }
 
 /**
  * Truncate text with ellipsis
  */
 function truncate(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 1) + '…';
+  if (text.length <= maxLength) return text
+  return text.slice(0, maxLength - 1) + '…'
 }

@@ -18,24 +18,24 @@
 
 declare interface Env {
   // Doppler environment (dev/prd)
-  DOPPLER_ENVIRONMENT?: string;
+  DOPPLER_ENVIRONMENT?: string
 
   // MongoDB - REQUIRED for database operations
   // Database name is extracted from URI path
-  MONGO_CONNECTION: string;
+  MONGO_CONNECTION: string
 
   // Optional salt for HMAC hashing in rate limiting (BYOK)
   // Can be any secret value (e.g., your bot's CLIENT_SECRET)
   // If not provided, a per-instance random salt is auto-generated
-  CLIENT_SECRET?: string;
+  CLIENT_SECRET?: string
 
   // Discord webhook for logging (Shoutrrr format: discord://TOKEN@WEBHOOK_ID)
-  LOGS_WEBHOOK?: string;
+  LOGS_WEBHOOK?: string
 
   // KV Namespaces - REQUIRED for core functionality
-  RATE_LIMIT: KVNamespace;
-  CACHE: KVNamespace; // Alias for backward compatibility
-  BOTS: KVNamespace; // Bot registration and stats
+  RATE_LIMIT: KVNamespace
+  CACHE: KVNamespace // Alias for backward compatibility
+  BOTS: KVNamespace // Bot registration and stats
 
   // D1 Database (optional future use)
   // DB?: D1Database;

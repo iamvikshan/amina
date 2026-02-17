@@ -1,19 +1,19 @@
-import { Hono } from 'hono';
-import { success } from '../../lib/response';
-import { publicRateLimit } from '../../middleware/rateLimit';
+import { Hono } from 'hono'
+import { success } from '../../lib/response'
+import { publicRateLimit } from '../../middleware/rateLimit'
 
 // Import route modules
-import images from './images';
-import filters from './filters';
-import overlays from './overlays';
-import generators from './generators';
-import bots from './bots';
-import user from './user';
+import images from './images'
+import filters from './filters'
+import overlays from './overlays'
+import generators from './generators'
+import bots from './bots'
+import user from './user'
 
-const v1 = new Hono<{ Bindings: Env }>();
+const v1 = new Hono<{ Bindings: Env }>()
 
 // API info endpoint (no auth required)
-v1.get('/', (c) => {
+v1.get('/', c => {
   return success(c, {
     version: 'v1',
     documentation: 'https://api.apidocs.4mina.app',
@@ -85,20 +85,20 @@ v1.get('/', (c) => {
         'X-RateLimit-Reset',
       ],
     },
-  });
-});
+  })
+})
 
 // Bot routes - public, rate-limited
-v1.use('/bots/*', publicRateLimit);
-v1.route('/bots', bots);
+v1.use('/bots/*', publicRateLimit)
+v1.route('/bots', bots)
 
 // User routes - requires authentication
-v1.route('/user', user);
+v1.route('/user', user)
 
 // Mount route modules
-v1.route('/images', images);
-v1.route('/images/filters', filters);
-v1.route('/images/overlays', overlays);
-v1.route('/images/generators', generators);
+v1.route('/images', images)
+v1.route('/images/filters', filters)
+v1.route('/images/overlays', overlays)
+v1.route('/images/generators', generators)
 
-export default v1;
+export default v1

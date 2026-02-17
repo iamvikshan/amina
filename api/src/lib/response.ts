@@ -1,5 +1,5 @@
-import type { Context } from 'hono';
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import type { Context } from 'hono'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 /**
  * Create a successful API response
@@ -8,24 +8,24 @@ export function success<T>(
   c: Context,
   data: T,
   options?: {
-    status?: ContentfulStatusCode;
-    cached?: boolean;
-    cacheAge?: number;
+    status?: ContentfulStatusCode
+    cached?: boolean
+    cacheAge?: number
   }
 ): Response {
   const meta: Extract<ApiResponse<T>, { success: true }>['meta'] = {
     generatedAt: new Date().toISOString(),
-  };
-  if (options?.cached !== undefined) meta.cached = options.cached;
-  if (options?.cacheAge !== undefined) meta.cacheAge = options.cacheAge;
+  }
+  if (options?.cached !== undefined) meta.cached = options.cached
+  if (options?.cacheAge !== undefined) meta.cacheAge = options.cacheAge
 
   const response: ApiResponse<T> = {
     success: true,
     data,
     meta,
-  };
+  }
 
-  return c.json(response, (options?.status || 200) as ContentfulStatusCode);
+  return c.json(response, (options?.status || 200) as ContentfulStatusCode)
 }
 
 /**
@@ -35,16 +35,16 @@ export function error(
   c: Context,
   message: string,
   options?: {
-    status?: ContentfulStatusCode;
-    code?: string;
-    details?: unknown;
+    status?: ContentfulStatusCode
+    code?: string
+    details?: unknown
   }
 ): Response {
   const errorObj: Extract<ApiResponse, { success: false }>['error'] = {
     message,
-  };
-  if (options?.code) errorObj.code = options.code;
-  if (options?.details) errorObj.details = options.details;
+  }
+  if (options?.code) errorObj.code = options.code
+  if (options?.details !== undefined) errorObj.details = options.details
 
   const response: ApiResponse = {
     success: false,
@@ -52,9 +52,9 @@ export function error(
     meta: {
       generatedAt: new Date().toISOString(),
     },
-  };
+  }
 
-  return c.json(response, (options?.status || 500) as ContentfulStatusCode);
+  return c.json(response, (options?.status || 500) as ContentfulStatusCode)
 }
 
 /**
@@ -78,4 +78,4 @@ export const errors = {
 
   internal: (c: Context, message = 'Internal server error') =>
     error(c, message, { status: 500, code: 'INTERNAL_ERROR' }),
-};
+}

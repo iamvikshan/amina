@@ -5,7 +5,8 @@
  * Can be converted to PNG via downstream processing or browser.
  */
 
-import { RankCardOptions } from '../../../types/cards';
+import type { RankCardOptions } from '@api-types/cards'
+import { escapeXml, sanitizeUrl } from '../svg-utils'
 
 // Amina theme colors
 const themes = {
@@ -33,24 +34,35 @@ const themes = {
     textSecondary: '#888888',
     accent: '#DC143C',
   },
-};
+}
 
 /**
  * Generate a rank card SVG
  */
 export function generateRankCard(options: RankCardOptions): string {
-  const theme = themes[options.theme || 'amina'];
-  const progress = Math.min(100, (options.xp / options.requiredXp) * 100);
-  const progressWidth = Math.floor(progress * 6); // 600px max width
+  const theme = themes[options.theme || 'amina']
+  const safeRequiredXp = options.requiredXp > 0 ? options.requiredXp : 1
+  const progress = Math.min(100, (options.xp / safeRequiredXp) * 100)
+  const progressWidth = Math.floor(progress * 6) // 600px max width
 
-  const progressColor = options.progressColor || theme.progress[0];
-  const textColor = options.textColor || theme.text;
+  const isValidColor = (color: string) =>
+    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color) ||
+    /^(rgb|hsl)a?\([^)]+\)$/.test(color) ||
+    /^[a-zA-Z]+$/.test(color)
+  const progressColor =
+    options.progressColor && isValidColor(options.progressColor)
+      ? options.progressColor
+      : theme.progress[0]
+  const textColor =
+    options.textColor && isValidColor(options.textColor)
+      ? options.textColor
+      : theme.text
 
   // Format numbers with commas
-  const formatNumber = (n: number) => n.toLocaleString('en-US');
+  const formatNumber = (n: number) => n.toLocaleString('en-US')
 
   // Calculate level badge position
-  const levelText = `LVL ${options.level}`;
+  const levelText = `LVL ${options.level}`
 
   // Status indicator color
   const statusColors: Record<string, string> = {
@@ -58,8 +70,8 @@ export function generateRankCard(options: RankCardOptions): string {
     idle: '#faa61a',
     dnd: '#ed4245',
     offline: '#747f8d',
-  };
-  const statusColor = statusColors[options.status || 'offline'];
+  }
+  const statusColor = statusColors[options.status || 'offline']
 
   return `<svg width="934" height="282" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -111,7 +123,7 @@ export function generateRankCard(options: RankCardOptions): string {
       options.avatar
         ? `
     <!-- Avatar image -->
-    <image xlink:href="${options.avatar}" x="71" y="71" width="140" height="140" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${sanitizeUrl(options.avatar)}" x="71" y="71" width="140" height="140" clip-path="url(#avatar-clip)" preserveAspectRatio="xMidYMid slice"/>
     `
         : `
     <!-- Default avatar placeholder -->
@@ -132,7 +144,7 @@ export function generateRankCard(options: RankCardOptions): string {
   ${
     options.discriminator && options.discriminator !== '0'
       ? `
-  <text x="260" y="100" fill="${theme.textSecondary}" font-size="18" font-family="Inter, Arial, sans-serif">#${options.discriminator}</text>
+  <text x="260" y="100" fill="${theme.textSecondary}" font-size="18" font-family="Inter, Arial, sans-serif">#${escapeXml(options.discriminator)}</text>
   `
       : ''
   }
@@ -168,17 +180,5 @@ export function generateRankCard(options: RankCardOptions): string {
       <tspan fill="${textColor}" font-weight="bold">${formatNumber(options.xp)}</tspan> / ${formatNumber(options.requiredXp)} XP
     </text>
   </g>
-</svg>`;
-}
-
-/**
- * Escape XML special characters
- */
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+</svg>`
 }

@@ -4,77 +4,74 @@
  * Endpoints for bot registration, heartbeat, and stats push
  */
 
-import { Hono } from 'hono';
-import {
-  botAuthMiddleware,
-  getBotClientSecret,
-} from '../../middleware/botAuth';
-import { registerBot, deregisterBot } from '../../lib/botAuth';
-import { createLogger } from '../../lib/logger';
+import { Hono } from 'hono'
+import { botAuthMiddleware, getBotClientSecret } from '../../middleware/botAuth'
+import { registerBot, deregisterBot } from '../../lib/botAuth'
+import { createLogger } from '../../lib/logger'
 import {
   getBotMeta,
   updateBotMeta,
   updateBotHeartbeat,
   pushBotStats,
   updateBotCommands,
-} from '../../lib/kvBots';
-import { success, errors } from '../../lib/response';
+} from '../../lib/kvBots'
+import { success, errors } from '../../lib/response'
 
-const bots = new Hono<{ Bindings: Env; Variables: BotAuthContext }>();
+const bots = new Hono<{ Bindings: Env; Variables: BotAuthContext }>()
 
 /**
  * POST /internal/bots/register
  * Register a new bot or update existing registration
  * No auth required - credentials are verified against Discord
  */
-bots.post('/register', async (c) => {
-  const kv = c.env.BOTS;
+bots.post('/register', async c => {
+  const kv = c.env.BOTS
 
   if (!kv) {
-    return errors.internal(c, 'Bot registration unavailable');
+    return errors.internal(c, 'Bot registration unavailable')
   }
 
   try {
-    const payload = await c.req.json<BotRegisterPayload>();
+    const payload = await c.req.json<BotRegisterPayload>()
 
     // Validate required fields
     if (!payload.clientId || !payload.clientSecret) {
-      return errors.badRequest(c, 'clientId and clientSecret are required');
+      return errors.badRequest(c, 'clientId and clientSecret are required')
     }
 
     if (!payload.ownerId) {
-      return errors.badRequest(c, 'ownerId is required');
+      return errors.badRequest(c, 'ownerId is required')
     }
 
     if (!payload.version) {
-      return errors.badRequest(c, 'version is required');
+      return errors.badRequest(c, 'version is required')
     }
 
-    const result = await registerBot(kv, payload);
+    const result = await registerBot(kv, payload)
 
     if (!result.success) {
-      return errors.unauthorized(c, result.error || 'Registration failed');
+      return errors.unauthorized(c, result.error || 'Registration failed')
     }
 
     // Return bot metadata (without auth info)
-    const meta = await getBotMeta(kv, payload.clientId);
+    const meta = await getBotMeta(kv, payload.clientId)
 
     return success(c, {
       message: 'Bot registered successfully',
       bot: meta,
-    });
+    })
   } catch (err) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Bot registration failed',
       err instanceof Error ? err : undefined,
       {
         endpoint: '/internal/bots/register',
       }
-    );
-    return errors.internal(c, 'Registration failed');
+    )
+    return errors.internal(c, 'Registration failed')
   }
-});
+})
 
 /**
  * Bot Authentication Middleware
@@ -84,67 +81,70 @@ bots.post('/register', async (c) => {
  * unauthenticated to allow new bots to register. All routes under
  * '/:clientId/*' require valid bot authentication via botAuthMiddleware.
  */
-bots.use('/:clientId/*', botAuthMiddleware);
+bots.use('/:clientId/*', botAuthMiddleware)
+// Also match the exact /:clientId path (Hono strict mode doesn't match /* for base path)
+bots.use('/:clientId', botAuthMiddleware)
 
 /**
  * DELETE /internal/bots/:clientId
  * Deregister a bot
  */
-bots.delete('/:clientId', async (c) => {
-  const kv = c.env.BOTS;
-  const clientId = c.req.param('clientId');
-  const authenticatedClientId = c.get('botClientId');
+
+bots.delete('/:clientId', async c => {
+  const kv = c.env.BOTS
+  const clientId = c.req.param('clientId')
+  const authenticatedClientId = c.get('botClientId')
 
   // Ensure bot can only deregister itself
   if (clientId !== authenticatedClientId) {
-    return errors.forbidden(c, 'Cannot deregister other bots');
+    return errors.forbidden(c, 'Cannot deregister other bots')
   }
 
   if (!kv) {
-    return errors.internal(c, 'Bot storage unavailable');
+    return errors.internal(c, 'Bot storage unavailable')
   }
 
-  const clientSecret = getBotClientSecret(c);
-  const logger = createLogger(c);
+  const clientSecret = getBotClientSecret(c)
+  const logger = createLogger(c)
 
   if (!clientSecret) {
-    return errors.unauthorized(c, 'Bot authentication required');
+    return errors.unauthorized(c, 'Bot authentication required')
   }
 
-  const result = await deregisterBot(kv, clientId, clientSecret, logger);
+  const result = await deregisterBot(kv, clientId, clientSecret, logger)
 
   if (!result.success) {
-    return errors.badRequest(c, result.error || 'Deregistration failed');
+    return errors.badRequest(c, result.error || 'Deregistration failed')
   }
 
-  return success(c, { message: 'Bot deregistered successfully' });
-});
+  return success(c, { message: 'Bot deregistered successfully' })
+})
 
 /**
  * POST /internal/bots/:clientId/heartbeat
  * Update bot's lastSeen timestamp
  */
-bots.post('/:clientId/heartbeat', async (c) => {
-  const kv = c.env.BOTS;
-  const clientId = c.req.param('clientId');
-  const authenticatedClientId = c.get('botClientId');
+bots.post('/:clientId/heartbeat', async c => {
+  const kv = c.env.BOTS
+  const clientId = c.req.param('clientId')
+  const authenticatedClientId = c.get('botClientId')
 
   if (clientId !== authenticatedClientId) {
-    return errors.forbidden(c, 'Cannot send heartbeat for other bots');
+    return errors.forbidden(c, 'Cannot send heartbeat for other bots')
   }
 
   if (!kv) {
-    return errors.internal(c, 'Bot storage unavailable');
+    return errors.internal(c, 'Bot storage unavailable')
   }
 
   try {
-    await updateBotHeartbeat(kv, clientId);
+    await updateBotHeartbeat(kv, clientId)
     return success(c, {
       message: 'Heartbeat received',
       timestamp: new Date().toISOString(),
-    });
+    })
   } catch (err) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Bot heartbeat failed',
       err instanceof Error ? err : undefined,
@@ -152,30 +152,30 @@ bots.post('/:clientId/heartbeat', async (c) => {
         endpoint: '/internal/bots/:clientId/heartbeat',
         clientId,
       }
-    );
-    return errors.internal(c, 'Heartbeat failed');
+    )
+    return errors.internal(c, 'Heartbeat failed')
   }
-});
+})
 
 /**
  * POST /internal/bots/:clientId/stats
  * Push current bot statistics
  */
-bots.post('/:clientId/stats', async (c) => {
-  const kv = c.env.BOTS;
-  const clientId = c.req.param('clientId');
-  const authenticatedClientId = c.get('botClientId');
+bots.post('/:clientId/stats', async c => {
+  const kv = c.env.BOTS
+  const clientId = c.req.param('clientId')
+  const authenticatedClientId = c.get('botClientId')
 
   if (clientId !== authenticatedClientId) {
-    return errors.forbidden(c, 'Cannot push stats for other bots');
+    return errors.forbidden(c, 'Cannot push stats for other bots')
   }
 
   if (!kv) {
-    return errors.internal(c, 'Bot storage unavailable');
+    return errors.internal(c, 'Bot storage unavailable')
   }
 
   try {
-    const stats = await c.req.json<BotStatsPushPayload>();
+    const stats = await c.req.json<BotStatsPushPayload>()
 
     const requiredFields = [
       'guilds',
@@ -184,27 +184,27 @@ bots.post('/:clientId/stats', async (c) => {
       'commands',
       'ping',
       'uptime',
-    ];
-    const invalidFields = requiredFields.filter((field) => {
-      const value = (stats as any)[field];
-      return typeof value !== 'number' || !Number.isFinite(value);
-    });
+    ]
+    const invalidFields = requiredFields.filter(field => {
+      const value = (stats as any)[field]
+      return typeof value !== 'number' || !Number.isFinite(value)
+    })
 
     if (invalidFields.length > 0) {
       return errors.badRequest(
         c,
         `${invalidFields.join(', ')} must be a finite number`
-      );
+      )
     }
 
-    await pushBotStats(kv, clientId, stats);
+    await pushBotStats(kv, clientId, stats)
 
     return success(c, {
       message: 'Stats updated',
       timestamp: new Date().toISOString(),
-    });
+    })
   } catch (err) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Bot stats push failed',
       err instanceof Error ? err : undefined,
@@ -212,52 +212,55 @@ bots.post('/:clientId/stats', async (c) => {
         endpoint: '/internal/bots/:clientId/stats',
         clientId,
       }
-    );
-    return errors.internal(c, 'Stats push failed');
+    )
+    return errors.internal(c, 'Stats push failed')
   }
-});
+})
 
 /**
  * PUT /internal/bots/:clientId
  * Update bot metadata
  */
-bots.put('/:clientId', async (c) => {
-  const kv = c.env.BOTS;
-  const clientId = c.req.param('clientId');
-  const authenticatedClientId = c.get('botClientId');
+bots.put('/:clientId', async c => {
+  const kv = c.env.BOTS
+  const clientId = c.req.param('clientId')
+  const authenticatedClientId = c.get('botClientId')
 
   if (clientId !== authenticatedClientId) {
-    return errors.forbidden(c, 'Cannot update other bots');
+    return errors.forbidden(c, 'Cannot update other bots')
   }
 
   if (!kv) {
-    return errors.internal(c, 'Bot storage unavailable');
+    return errors.internal(c, 'Bot storage unavailable')
   }
 
   try {
-    const updates = await c.req.json<
-      Partial<{
-        name: string;
-        version: string;
-        inviteUrl: string;
-        supportServer: string;
-        website: string;
-        isPublic: boolean;
-        features: string[];
-      }>
-    >();
+    const body = await c.req.json<Record<string, unknown>>()
 
-    // Prevent updating protected fields
-    delete (updates as Record<string, unknown>).clientId;
-    delete (updates as Record<string, unknown>).ownerId;
-    delete (updates as Record<string, unknown>).registeredAt;
+    // Allowlist pattern: only extract known-safe fields
+    // This prevents any new sensitive fields from being overwritten
+    const allowedFields = [
+      'name',
+      'version',
+      'inviteUrl',
+      'supportServer',
+      'website',
+      'isPublic',
+      'features',
+    ] as const
+    const updates: Record<string, unknown> = {}
+    for (const field of allowedFields) {
+      if (field in body && body[field] !== undefined) {
+        updates[field] = body[field]
+      }
+    }
 
-    await updateBotMeta(kv, clientId, updates);
+    await updateBotMeta(kv, clientId, updates)
 
-    const updated = await getBotMeta(kv, clientId);
-    return success(c, { bot: updated });
+    const updated = await getBotMeta(kv, clientId)
+    return success(c, { bot: updated })
   } catch (err) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Bot metadata update failed',
       err instanceof Error ? err : undefined,
@@ -265,43 +268,43 @@ bots.put('/:clientId', async (c) => {
         endpoint: 'PUT /internal/bots/:clientId',
         clientId,
       }
-    );
-    return errors.internal(c, 'Update failed');
+    )
+    return errors.internal(c, 'Update failed')
   }
-});
+})
 
 /**
  * POST /internal/bots/:clientId/commands
  * Update bot command list
  */
-bots.post('/:clientId/commands', async (c) => {
-  const kv = c.env.BOTS;
-  const clientId = c.req.param('clientId');
-  const authenticatedClientId = c.get('botClientId');
+bots.post('/:clientId/commands', async c => {
+  const kv = c.env.BOTS
+  const clientId = c.req.param('clientId')
+  const authenticatedClientId = c.get('botClientId')
 
   if (clientId !== authenticatedClientId) {
-    return errors.forbidden(c, 'Cannot update commands for other bots');
+    return errors.forbidden(c, 'Cannot update commands for other bots')
   }
 
   if (!kv) {
-    return errors.internal(c, 'Bot storage unavailable');
+    return errors.internal(c, 'Bot storage unavailable')
   }
 
   try {
-    const { commands } = await c.req.json<{ commands: BotCommand[] }>();
+    const { commands } = await c.req.json<{ commands: BotCommand[] }>()
 
     if (!Array.isArray(commands)) {
-      return errors.badRequest(c, 'commands must be an array');
+      return errors.badRequest(c, 'commands must be an array')
     }
 
-    await updateBotCommands(kv, clientId, commands);
+    await updateBotCommands(kv, clientId, commands)
 
     return success(c, {
       message: 'Commands updated',
       count: commands.length,
-    });
+    })
   } catch (err) {
-    const logger = createLogger(c);
+    const logger = createLogger(c)
     logger.error(
       'Bot commands update failed',
       err instanceof Error ? err : undefined,
@@ -309,9 +312,9 @@ bots.post('/:clientId/commands', async (c) => {
         endpoint: '/internal/bots/:clientId/commands',
         clientId,
       }
-    );
-    return errors.internal(c, 'Commands update failed');
+    )
+    return errors.internal(c, 'Commands update failed')
   }
-});
+})
 
-export default bots;
+export default bots

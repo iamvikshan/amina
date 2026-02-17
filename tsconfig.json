@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    // Bun-optimized settings
     "target": "esnext",
     "module": "esnext",
     "lib": ["esnext"],
     "moduleResolution": "bundler",
-    "types": ["bun-types"],
+    "types": ["@types/bun"],
 
     // Allow JavaScript files to be compiled (for config files)
     "allowJs": true,
@@ -63,5 +62,12 @@
     "emitDecoratorMetadata": true
   },
   "include": ["src/**/*", "types/**/*"],
-  "exclude": ["node_modules", "**/node_modules/*", "dist", "build", "logs"]
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*",
+    "dist",
+    "build",
+    "logs",
+    "types/api/**/*"
+  ]
 }

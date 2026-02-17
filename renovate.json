@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":semanticCommits"],
-  "baseBranchPatterns": ["api", "main"],
+  "baseBranchPatterns": ["main"],
   "automerge": false,
   "prConcurrentLimit": 10,
   "prHourlyLimit": 5,
@@ -17,6 +17,13 @@
   "separateMajorMinor": true,
   "minimumReleaseAge": "3 days",
   "packageRules": [
+    {
+      "description": "Scope API dependency updates so they don't trigger bot releases",
+      "matchFileNames": ["api/**"],
+      "additionalBranchPrefix": "api-",
+      "semanticCommitScope": "api",
+      "groupName": "api dependencies"
+    },
     {
       "description": "Automerge patch updates and digests (safe bug fixes)",
       "matchUpdateTypes": ["patch", "digest"],
@@ -86,6 +93,11 @@
       "matchManagers": ["dockerfile"],
       "automerge": true,
       "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Limit google-auth-library to v9.x (v10 breaks @anthropic-ai/vertex-sdk types)",
+      "matchPackageNames": ["google-auth-library"],
+      "allowedVersions": "<10.0.0"
     }
   ],
   "lockFileMaintenance": {

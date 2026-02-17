@@ -6,7 +6,7 @@
  */
 
 // In-memory fallback store (per-isolate, not distributed)
-const memoryStore = new Map<string, { count: number; resetAt: number }>();
+const memoryStore = new Map<string, { count: number; resetAt: number }>()
 
 /**
  * Check and update rate limit for a key
@@ -16,20 +16,26 @@ export async function checkRateLimit(
   key: string,
   config: RateLimitConfig
 ): Promise<RateLimitResult> {
-  const now = Math.floor(Date.now() / 1000);
-  const windowStart = now - (now % config.window);
-  const resetAt = windowStart + config.window;
-  const kvKey = `ratelimit:${key}:${windowStart}`;
+  const now = Math.floor(Date.now() / 1000)
+  const windowStart = now - (now % config.window)
+  const resetAt = windowStart + config.window
+  const kvKey = `ratelimit:${key}:${windowStart}`
 
   if (kv) {
-    return checkRateLimitKV(kv, kvKey, config, resetAt);
+    return checkRateLimitKV(kv, kvKey, config, resetAt)
   }
 
-  return checkRateLimitMemory(kvKey, config, now, resetAt);
+  return checkRateLimitMemory(kvKey, config, now, resetAt)
 }
 
 /**
  * KV-based rate limiting (distributed)
+ *
+ * NOTE: Workers KV is eventually consistent. The get-then-put pattern here
+ * can allow concurrent requests to exceed the limit under high concurrency.
+ * For strict rate limiting, consider Cloudflare Durable Objects or the
+ * built-in Rate Limiting API. This implementation is sufficient for
+ * best-effort rate limiting in typical API usage patterns.
  */
 async function checkRateLimitKV(
   kv: KVNamespace,
@@ -38,8 +44,8 @@ async function checkRateLimitKV(
   resetAt: number
 ): Promise<RateLimitResult> {
   // Get current count
-  const current = await kv.get(key);
-  const count = current ? parseInt(current, 10) : 0;
+  const current = await kv.get(key)
+  const count = current ? parseInt(current, 10) : 0
 
   if (count >= config.requests) {
     return {
@@ -47,20 +53,20 @@ async function checkRateLimitKV(
       remaining: 0,
       reset: resetAt,
       limit: config.requests,
-    };
+    }
   }
 
   // Increment count with TTL
   await kv.put(key, String(count + 1), {
     expirationTtl: config.window + 60, // Add buffer for clock skew
-  });
+  })
 
   return {
     allowed: true,
     remaining: config.requests - count - 1,
     reset: resetAt,
     limit: config.requests,
-  };
+  }
 }
 
 /**
@@ -72,14 +78,14 @@ function checkRateLimitMemory(
   now: number,
   resetAt: number
 ): RateLimitResult {
-  const entry = memoryStore.get(key);
+  const entry = memoryStore.get(key)
 
   // Clean expired entries
   if (entry && entry.resetAt <= now) {
-    memoryStore.delete(key);
+    memoryStore.delete(key)
   }
 
-  const current = memoryStore.get(key);
+  const current = memoryStore.get(key)
 
   if (current) {
     if (current.count >= config.requests) {
@@ -88,27 +94,27 @@ function checkRateLimitMemory(
         remaining: 0,
         reset: current.resetAt,
         limit: config.requests,
-      };
+      }
     }
 
-    current.count++;
+    current.count++
     return {
       allowed: true,
       remaining: config.requests - current.count,
       reset: current.resetAt,
       limit: config.requests,
-    };
+    }
   }
 
   // Create new entry
-  memoryStore.set(key, { count: 1, resetAt });
+  memoryStore.set(key, { count: 1, resetAt })
 
   // Cleanup old entries periodically
   if (memoryStore.size > 10000) {
-    const cutoff = now;
+    const cutoff = now
     for (const [k, v] of memoryStore.entries()) {
       if (v.resetAt <= cutoff) {
-        memoryStore.delete(k);
+        memoryStore.delete(k)
       }
     }
   }
@@ -118,7 +124,7 @@ function checkRateLimitMemory(
     remaining: config.requests - 1,
     reset: resetAt,
     limit: config.requests,
-  };
+  }
 }
 
 /**
@@ -127,12 +133,19 @@ function checkRateLimitMemory(
 export function rateLimitHeaders(
   result: RateLimitResult
 ): Record<string, string> {
-  return {
+  const headers: Record<string, string> = {
     'X-RateLimit-Limit': String(result.limit),
     'X-RateLimit-Remaining': String(result.remaining),
     'X-RateLimit-Reset': String(result.reset),
-    'Retry-After': result.allowed
-      ? ''
-      : String(result.reset - Math.floor(Date.now() / 1000)),
-  };
+  }
+
+  if (!result.allowed) {
+    const retrySeconds = Math.max(
+      0,
+      result.reset - Math.floor(Date.now() / 1000)
+    )
+    headers['Retry-After'] = String(retrySeconds)
+  }
+
+  return headers
 }

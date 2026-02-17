@@ -5,18 +5,18 @@
  * using Discord's CLIENT_SECRET with hybrid verification (Discord API + KV cache).
  */
 
-import { randomBytes, pbkdf2Sync, timingSafeEqual } from 'node:crypto';
-import { Buffer } from 'node:buffer';
-import type { Logger } from './logger';
+import { randomBytes, pbkdf2Sync, timingSafeEqual } from 'node:crypto'
+import { Buffer } from 'node:buffer'
+import type { Logger } from './logger'
 
 // Verification cache duration (1 hour)
-const VERIFICATION_TTL_MS = 60 * 60 * 1000;
+const VERIFICATION_TTL_MS = 60 * 60 * 1000
 
 // PBKDF2 configuration following OWASP recommendations
-const PBKDF2_ITERATIONS = 600000; // OWASP recommended minimum for PBKDF2-SHA256
-const PBKDF2_KEYLEN = 32; // 256 bits
-const PBKDF2_DIGEST = 'sha256';
-const SALT_LENGTH = 16; // 128 bits
+const PBKDF2_ITERATIONS = 600000 // OWASP recommended minimum for PBKDF2-SHA256
+const PBKDF2_KEYLEN = 32 // 256 bits
+const PBKDF2_DIGEST = 'sha256'
+const SALT_LENGTH = 16 // 128 bits
 
 // ============================================================================
 // Hashing Utilities
@@ -29,7 +29,7 @@ const SALT_LENGTH = 16; // 128 bits
  */
 export function hashSecret(secret: string): string {
   // Generate cryptographically secure random salt
-  const salt = randomBytes(SALT_LENGTH);
+  const salt = randomBytes(SALT_LENGTH)
 
   // Derive key using PBKDF2
   const hash = pbkdf2Sync(
@@ -38,10 +38,10 @@ export function hashSecret(secret: string): string {
     PBKDF2_ITERATIONS,
     PBKDF2_KEYLEN,
     PBKDF2_DIGEST
-  );
+  )
 
   // Return salt.hash format (both hex-encoded)
-  return `${salt.toString('hex')}.${hash.toString('hex')}`;
+  return `${salt.toString('hex')}.${hash.toString('hex')}`
 }
 
 /**
@@ -51,22 +51,22 @@ export function hashSecret(secret: string): string {
 export function verifySecretHash(secret: string, storedValue: string): boolean {
   try {
     // Parse stored value to extract salt and hash
-    const parts = storedValue.split('.');
+    const parts = storedValue.split('.')
     if (parts.length !== 2) {
-      return false;
+      return false
     }
 
-    const [saltHex, hashHex] = parts;
+    const [saltHex, hashHex] = parts
     if (!saltHex || !hashHex) {
-      return false;
+      return false
     }
 
-    const salt = Buffer.from(saltHex, 'hex');
-    const storedHash = Buffer.from(hashHex, 'hex');
+    const salt = Buffer.from(saltHex, 'hex')
+    const storedHash = Buffer.from(hashHex, 'hex')
 
     // Validate salt and hash lengths
     if (salt.length !== SALT_LENGTH || storedHash.length !== PBKDF2_KEYLEN) {
-      return false;
+      return false
     }
 
     // Derive key from provided secret using stored salt
@@ -76,13 +76,13 @@ export function verifySecretHash(secret: string, storedValue: string): boolean {
       PBKDF2_ITERATIONS,
       PBKDF2_KEYLEN,
       PBKDF2_DIGEST
-    );
+    )
 
     // Timing-safe comparison to prevent timing attacks
-    return timingSafeEqual(derivedHash, storedHash);
+    return timingSafeEqual(derivedHash, storedHash)
   } catch {
     // Return false on any error (invalid hex, etc.)
-    return false;
+    return false
   }
 }
 
@@ -99,8 +99,8 @@ export async function verifyWithDiscord(
   clientSecret: string,
   logger?: Logger
 ): Promise<{ valid: boolean; error?: string }> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
 
   try {
     const response = await fetch('https://discord.com/api/v10/oauth2/token', {
@@ -115,37 +115,37 @@ export async function verifyWithDiscord(
         scope: 'identify',
       }),
       signal: controller.signal,
-    });
+    })
 
     // Clear the timeout since fetch completed
-    clearTimeout(timeoutId);
+    clearTimeout(timeoutId)
 
     if (response.ok) {
-      return { valid: true };
+      return { valid: true }
     }
 
-    const error = await response.json().catch(() => ({}));
+    const error = await response.json().catch(() => ({}))
     return {
       valid: false,
       error:
         (error as { error_description?: string }).error_description ||
         'Invalid credentials',
-    };
+    }
   } catch (err) {
     // Clear the timeout in case of error
-    clearTimeout(timeoutId);
+    clearTimeout(timeoutId)
 
     // Handle abort case specifically
     if (err instanceof Error && err.name === 'AbortError') {
       if (logger) {
-        logger.warn('Discord API timeout during verification', { clientId });
+        logger.warn('Discord API timeout during verification', { clientId })
       } else {
         console.warn(
           '[botAuth] Discord API timeout during verification for client:',
           clientId
-        );
+        )
       }
-      return { valid: false, error: 'Discord API timeout' };
+      return { valid: false, error: 'Discord API timeout' }
     }
 
     // Handle other errors
@@ -156,11 +156,11 @@ export async function verifyWithDiscord(
         {
           clientId,
         }
-      );
+      )
     } else {
-      console.error('[botAuth] Discord verification failed:', err);
+      console.error('[botAuth] Discord verification failed:', err)
     }
-    return { valid: false, error: 'Discord API unavailable' };
+    return { valid: false, error: 'Discord API unavailable' }
   }
 }
 
@@ -172,12 +172,13 @@ export async function fetchBotInfo(
   clientSecret: string,
   logger?: Logger
 ): Promise<{
-  success: boolean;
-  data?: { name: string; icon: string | null };
-  error?: string;
+  success: boolean
+  data?: { name: string; icon: string | null }
+  error?: string
 }> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+  // Use separate AbortControllers for each fetch to avoid timeout sharing
+  const tokenController = new AbortController()
+  const tokenTimeoutId = setTimeout(() => tokenController.abort(), 8000)
 
   try {
     // First get a token
@@ -194,37 +195,41 @@ export async function fetchBotInfo(
           client_secret: clientSecret,
           scope: 'identify applications.commands.update',
         }),
-        signal: controller.signal,
+        signal: tokenController.signal,
       }
-    );
+    )
+
+    clearTimeout(tokenTimeoutId)
 
     if (!tokenResponse.ok) {
-      clearTimeout(timeoutId);
-      return { success: false, error: 'Failed to authenticate with Discord' };
+      return { success: false, error: 'Failed to authenticate with Discord' }
     }
 
     const { access_token } = (await tokenResponse.json()) as {
-      access_token: string;
-    };
+      access_token: string
+    }
+
+    // Separate timeout for the second fetch
+    const appController = new AbortController()
+    const appTimeoutId = setTimeout(() => appController.abort(), 8000)
 
     // Fetch application info
     const appResponse = await fetch('https://discord.com/api/v10/oauth2/@me', {
       headers: {
         Authorization: `Bearer ${access_token}`,
       },
-      signal: controller.signal,
-    });
+      signal: appController.signal,
+    })
 
-    // Clear the timeout since both fetches completed
-    clearTimeout(timeoutId);
+    clearTimeout(appTimeoutId)
 
     if (!appResponse.ok) {
-      return { success: false, error: 'Failed to fetch application info' };
+      return { success: false, error: 'Failed to fetch application info' }
     }
 
     const appData = (await appResponse.json()) as {
-      application: { name: string; icon: string | null };
-    };
+      application: { name: string; icon: string | null }
+    }
 
     return {
       success: true,
@@ -232,22 +237,22 @@ export async function fetchBotInfo(
         name: appData.application.name,
         icon: appData.application.icon,
       },
-    };
+    }
   } catch (err) {
-    // Clear the timeout in case of error
-    clearTimeout(timeoutId);
+    // Clear timeouts in case of error
+    clearTimeout(tokenTimeoutId)
 
     // Handle abort case specifically
     if (err instanceof Error && err.name === 'AbortError') {
       if (logger) {
-        logger.warn('Discord API timeout during bot info fetch', { clientId });
+        logger.warn('Discord API timeout during bot info fetch', { clientId })
       } else {
         console.warn(
           '[botAuth] Discord API timeout during bot info fetch for client:',
           clientId
-        );
+        )
       }
-      return { success: false, error: 'Discord API timeout' };
+      return { success: false, error: 'Discord API timeout' }
     }
 
     // Handle other errors
@@ -258,11 +263,11 @@ export async function fetchBotInfo(
         {
           clientId,
         }
-      );
+      )
     } else {
-      console.error('[botAuth] Failed to fetch bot info:', err);
+      console.error('[botAuth] Failed to fetch bot info:', err)
     }
-    return { success: false, error: 'Discord API unavailable' };
+    return { success: false, error: 'Discord API unavailable' }
   }
 }
 
@@ -277,25 +282,25 @@ export async function registerBot(
   kv: KVNamespace,
   payload: BotRegisterPayload
 ): Promise<{ success: boolean; error?: string }> {
-  const { clientId, clientSecret, ownerId, ...metadata } = payload;
+  const { clientId, clientSecret, ownerId, ...metadata } = payload
 
   // Step 1: Verify credentials with Discord
-  const verification = await verifyWithDiscord(clientId, clientSecret);
+  const verification = await verifyWithDiscord(clientId, clientSecret)
   if (!verification.valid) {
     return {
       success: false,
       error: verification.error || 'Invalid Discord credentials',
-    };
+    }
   }
 
   // Step 2: Fetch bot info from Discord for avatar
-  const botInfo = await fetchBotInfo(clientId, clientSecret);
+  const botInfo = await fetchBotInfo(clientId, clientSecret)
 
   // Step 3: Store auth data (hashed secret)
-  const now = new Date().toISOString();
+  const now = new Date().toISOString()
   const verificationExpires = new Date(
     Date.now() + VERIFICATION_TTL_MS
-  ).toISOString();
+  ).toISOString()
 
   const authData: BotAuthData = {
     secretHash: hashSecret(clientSecret),
@@ -303,9 +308,9 @@ export async function registerBot(
     lastVerified: now,
     verificationExpires,
     ownerId,
-  };
+  }
 
-  await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData));
+  await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData))
 
   // Step 4: Store public metadata
   const metaData: BotMeta = {
@@ -321,13 +326,13 @@ export async function registerBot(
     website: metadata.website,
     isPublic: metadata.isPublic ?? false,
     features: metadata.features,
-  };
+  }
 
-  await kv.put(`bot:${clientId}:meta`, JSON.stringify(metaData));
+  await kv.put(`bot:${clientId}:meta`, JSON.stringify(metaData))
 
-  console.log(`[botAuth] Bot registered: ${clientId} (${metaData.name})`);
+  console.log(`[botAuth] Bot registered: ${clientId} (${metaData.name})`)
 
-  return { success: true };
+  return { success: true }
 }
 
 // ============================================================================
@@ -345,56 +350,56 @@ export async function validateBotRequest(
   logger?: Logger
 ): Promise<{ valid: boolean; error?: string; needsReVerification?: boolean }> {
   // Step 1: Get auth data from KV
-  const authDataRaw = await kv.get(`bot:${clientId}:auth`);
+  const authDataRaw = await kv.get(`bot:${clientId}:auth`)
 
   if (!authDataRaw) {
-    return { valid: false, error: 'Bot not registered' };
+    return { valid: false, error: 'Bot not registered' }
   }
 
-  let authData: BotAuthData;
+  let authData: BotAuthData
   try {
-    authData = JSON.parse(authDataRaw);
+    authData = JSON.parse(authDataRaw)
   } catch (err) {
     if (logger) {
       logger.error(`Corrupted auth data for bot ${clientId}`, err, {
         clientId,
-      });
+      })
     } else {
-      console.error(`[botAuth] Corrupted auth data for bot ${clientId}:`, err);
+      console.error(`[botAuth] Corrupted auth data for bot ${clientId}:`, err)
     }
     // Delete the corrupted entry
-    await kv.delete(`bot:${clientId}:auth`);
-    return { valid: false, error: 'Corrupted auth data' };
+    await kv.delete(`bot:${clientId}:auth`)
+    return { valid: false, error: 'Corrupted auth data' }
   }
 
   // Step 2: Quick hash comparison
   if (!verifySecretHash(clientSecret, authData.secretHash)) {
     // Secret doesn't match - could be rotated, try Discord verification
-    const verification = await verifyWithDiscord(clientId, clientSecret);
+    const verification = await verifyWithDiscord(clientId, clientSecret)
 
     if (verification.valid) {
       // New secret is valid! Update stored hash
-      authData.secretHash = hashSecret(clientSecret);
-      authData.lastVerified = new Date().toISOString();
+      authData.secretHash = hashSecret(clientSecret)
+      authData.lastVerified = new Date().toISOString()
       authData.verificationExpires = new Date(
         Date.now() + VERIFICATION_TTL_MS
-      ).toISOString();
-      await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData));
+      ).toISOString()
+      await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData))
 
-      console.log(`[botAuth] Secret rotated for bot: ${clientId}`);
-      return { valid: true };
+      console.log(`[botAuth] Secret rotated for bot: ${clientId}`)
+      return { valid: true }
     }
 
-    return { valid: false, error: 'Invalid secret' };
+    return { valid: false, error: 'Invalid secret' }
   }
 
   // Step 3: Check if verification cache expired
-  const now = new Date();
-  const expires = new Date(authData.verificationExpires);
+  const now = new Date()
+  const expires = new Date(authData.verificationExpires)
 
   if (now > expires) {
     // Cache expired, re-verify with Discord
-    const verification = await verifyWithDiscord(clientId, clientSecret);
+    const verification = await verifyWithDiscord(clientId, clientSecret)
 
     if (!verification.valid) {
       // Secret no longer valid with Discord
@@ -402,20 +407,20 @@ export async function validateBotRequest(
         valid: false,
         error: 'Credentials expired or revoked',
         needsReVerification: true,
-      };
+      }
     }
 
     // Update verification timestamp
-    authData.lastVerified = now.toISOString();
+    authData.lastVerified = now.toISOString()
     authData.verificationExpires = new Date(
       Date.now() + VERIFICATION_TTL_MS
-    ).toISOString();
-    await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData));
+    ).toISOString()
+    await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData))
 
-    console.log(`[botAuth] Re-verified bot: ${clientId}`);
+    console.log(`[botAuth] Re-verified bot: ${clientId}`)
   }
 
-  return { valid: true };
+  return { valid: true }
 }
 
 // ============================================================================
@@ -437,10 +442,10 @@ export async function deregisterBot(
     clientId,
     clientSecret,
     logger
-  );
+  )
 
   if (!validation.valid) {
-    return { success: false, error: validation.error };
+    return { success: false, error: validation.error }
   }
 
   // Delete all bot data from KV with robust error handling
@@ -449,35 +454,35 @@ export async function deregisterBot(
     `bot:${clientId}:meta`,
     `bot:${clientId}:stats`,
     `bot:${clientId}:commands`,
-  ];
+  ]
 
   // Use Promise.allSettled to ensure all deletions are attempted
   const deletionResults = await Promise.allSettled(
-    keysToDelete.map((key) => kv.delete(key))
-  );
+    keysToDelete.map(key => kv.delete(key))
+  )
 
   // Collect failed deletions for retry and monitoring
-  const failedDeletions: { key: string; error: string }[] = [];
+  const failedDeletions: { key: string; error: string }[] = []
   deletionResults.forEach((result, index) => {
     if (result.status === 'rejected') {
-      const key = keysToDelete[index];
-      if (!key) return; // Safety check
+      const key = keysToDelete[index]
+      if (!key) return // Safety check
       const error =
         result.reason instanceof Error
           ? result.reason.message
-          : String(result.reason);
-      failedDeletions.push({ key, error });
+          : String(result.reason)
+      failedDeletions.push({ key, error })
       if (logger) {
         logger.error(`Failed to delete KV key: ${key}`, undefined, {
           key,
           error,
           clientId,
-        });
+        })
       } else {
-        console.error(`[botAuth] Failed to delete ${key}:`, error);
+        console.error(`[botAuth] Failed to delete ${key}:`, error)
       }
     }
-  });
+  })
 
   // Retry failed deletions once (idempotent operation)
   if (failedDeletions.length > 0) {
@@ -485,40 +490,40 @@ export async function deregisterBot(
       logger.warn('Retrying failed KV deletions', {
         count: failedDeletions.length,
         clientId,
-        keys: failedDeletions.map((f) => f.key),
-      });
+        keys: failedDeletions.map(f => f.key),
+      })
     } else {
       console.warn(
         `[botAuth] Retrying ${failedDeletions.length} failed deletions for bot ${clientId}`
-      );
+      )
     }
 
     const retryResults = await Promise.allSettled(
       failedDeletions.map(({ key }) => kv.delete(key))
-    );
+    )
 
-    const stillFailed: string[] = [];
+    const stillFailed: string[] = []
     retryResults.forEach((result, index) => {
       if (result.status === 'rejected') {
-        const failedItem = failedDeletions[index];
-        if (!failedItem) return; // Safety check
-        const key = failedItem.key;
+        const failedItem = failedDeletions[index]
+        if (!failedItem) return // Safety check
+        const key = failedItem.key
         const error =
           result.reason instanceof Error
             ? result.reason.message
-            : String(result.reason);
-        stillFailed.push(key);
+            : String(result.reason)
+        stillFailed.push(key)
         if (logger) {
           logger.error(`Retry failed for KV key: ${key}`, undefined, {
             key,
             error,
             clientId,
-          });
+          })
         } else {
-          console.error(`[botAuth] Retry failed for ${key}:`, error);
+          console.error(`[botAuth] Retry failed for ${key}:`, error)
         }
       }
-    });
+    })
 
     // If any deletions still failed after retry, return partial success with details
     if (stillFailed.length > 0) {
@@ -527,23 +532,23 @@ export async function deregisterBot(
           clientId,
           failedKeys: stillFailed,
           failedCount: stillFailed.length,
-        });
+        })
       } else {
         console.error(
           `[botAuth] Bot deregistration incomplete for ${clientId}. Failed keys:`,
           stillFailed
-        );
+        )
       }
       return {
         success: false,
         error: `Partial deregistration: failed to delete ${stillFailed.length} key(s). Keys: ${stillFailed.join(', ')}. Please retry or contact support.`,
-      };
+      }
     }
   }
 
-  console.log(`[botAuth] Bot deregistered successfully: ${clientId}`);
+  console.log(`[botAuth] Bot deregistered successfully: ${clientId}`)
 
-  return { success: true };
+  return { success: true }
 }
 
 // ============================================================================
@@ -559,26 +564,26 @@ export async function verifyBotOwnership(
   userId: string,
   logger?: Logger
 ): Promise<boolean> {
-  const authDataRaw = await kv.get(`bot:${clientId}:auth`);
+  const authDataRaw = await kv.get(`bot:${clientId}:auth`)
 
   if (!authDataRaw) {
-    return false;
+    return false
   }
 
-  let authData: BotAuthData;
+  let authData: BotAuthData
   try {
-    authData = JSON.parse(authDataRaw);
+    authData = JSON.parse(authDataRaw)
   } catch (err) {
     if (logger) {
       logger.error(`Corrupted auth data for bot ${clientId}`, err, {
         clientId,
-      });
+      })
     } else {
-      console.error(`[botAuth] Corrupted auth data for bot ${clientId}:`, err);
+      console.error(`[botAuth] Corrupted auth data for bot ${clientId}:`, err)
     }
     // Delete the corrupted entry
-    await kv.delete(`bot:${clientId}:auth`);
-    return false;
+    await kv.delete(`bot:${clientId}:auth`)
+    return false
   }
-  return authData.ownerId === userId;
+  return authData.ownerId === userId
 }

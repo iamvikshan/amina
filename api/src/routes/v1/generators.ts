@@ -4,49 +4,25 @@
  * Classic meme templates with text overlay support.
  */
 
-import { Hono } from 'hono';
-import { requireApiKey, requirePermission } from '../../middleware/auth';
-import { errors } from '../../lib/response';
+import { Hono } from 'hono'
+import { requireApiKey, requirePermission } from '../../middleware/auth'
+import { errors } from '../../lib/response'
+import { escapeXml, getImageUrl } from '../../lib/svg-utils'
 
-const generators = new Hono<{ Bindings: Env }>();
+const generators = new Hono<{ Bindings: Env }>()
 
 // Apply API key authentication
-generators.use('*', requireApiKey);
-generators.use('*', requirePermission('images'));
-
-// Helper to escape XML
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
-
-// Helper to get image URL
-function getImageUrl(
-  c: { req: { query: (key: string) => string | undefined } },
-  param = 'image'
-): string | null {
-  const url = c.req.query(param) || c.req.query('url');
-  if (!url) return null;
-  try {
-    new URL(url);
-    return url;
-  } catch {
-    return null;
-  }
-}
+generators.use('*', requireApiKey)
+generators.use('*', requirePermission('images'))
 
 /**
  * GET /v1/images/generators/affect
  * "Does this affect my baby?" meme
  */
-generators.get('/affect', async (c) => {
-  const imageUrl = getImageUrl(c);
+generators.get('/affect', async c => {
+  const imageUrl = getImageUrl(c)
   if (!imageUrl) {
-    return errors.badRequest(c, 'Missing or invalid image URL');
+    return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
   const svg = `<svg width="500" height="418" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -68,24 +44,24 @@ generators.get('/affect', async (c) => {
   
   <!-- "NO" text -->
   <text x="250" y="330" text-anchor="middle" fill="#c41e3a" font-size="72" font-weight="bold" font-family="Impact, Arial Black, sans-serif">NO.</text>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
 /**
  * GET /v1/images/generators/beautiful
  * "It's beautiful" meme
  */
-generators.get('/beautiful', async (c) => {
-  const imageUrl = getImageUrl(c);
+generators.get('/beautiful', async c => {
+  const imageUrl = getImageUrl(c)
   if (!imageUrl) {
-    return errors.badRequest(c, 'Missing or invalid image URL');
+    return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
   const svg = `<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -102,22 +78,22 @@ generators.get('/beautiful', async (c) => {
   <!-- Text -->
   <text x="200" y="340" text-anchor="middle" fill="#fff" font-size="28" font-family="Comic Sans MS, cursive">It's beautiful...</text>
   <text x="200" y="375" text-anchor="middle" fill="#888" font-size="18" font-family="Comic Sans MS, cursive">I've looked at this for 5 hours now</text>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
 /**
  * GET /v1/images/generators/changemymind
  * "Change My Mind" meme
  */
-generators.get('/changemymind', async (c) => {
-  const text = c.req.query('text') || 'Change my mind';
+generators.get('/changemymind', async c => {
+  const text = c.req.query('text') || 'Change my mind'
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
   <!-- Background (outdoor scene) -->
@@ -143,24 +119,24 @@ generators.get('/changemymind', async (c) => {
   
   <!-- "Change my mind" subtitle -->
   <text x="350" y="260" text-anchor="middle" fill="#666" font-size="14" font-family="Arial, sans-serif">CHANGE MY MIND</text>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
 /**
  * GET /v1/images/generators/delete
  * "Delet this" meme
  */
-generators.get('/delete', async (c) => {
-  const imageUrl = getImageUrl(c);
+generators.get('/delete', async c => {
+  const imageUrl = getImageUrl(c)
   if (!imageUrl) {
-    return errors.badRequest(c, 'Missing or invalid image URL');
+    return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
   const svg = `<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -173,24 +149,24 @@ generators.get('/delete', async (c) => {
   <!-- DELETE button style -->
   <rect x="100" y="320" width="200" height="50" fill="#dc143c" rx="5"/>
   <text x="200" y="355" text-anchor="middle" fill="#fff" font-size="28" font-weight="bold" font-family="Arial, sans-serif">DELET THIS</text>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
 /**
  * GET /v1/images/generators/trash
  * "I Love This" / "It's Trash" meme
  */
-generators.get('/trash', async (c) => {
-  const imageUrl = getImageUrl(c);
+generators.get('/trash', async c => {
+  const imageUrl = getImageUrl(c)
   if (!imageUrl) {
-    return errors.badRequest(c, 'Missing or invalid image URL');
+    return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
   const svg = `<svg width="400" height="500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -212,24 +188,24 @@ generators.get('/trash', async (c) => {
   
   <!-- Small image in trash -->
   <image xlink:href="${imageUrl}" x="160" y="320" width="80" height="80" opacity="0.7" preserveAspectRatio="xMidYMid slice"/>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
 /**
  * GET /v1/images/generators/drake
  * Drake approve/disapprove meme
  */
-generators.get('/drake', async (c) => {
-  const topText = c.req.query('top') || c.req.query('reject') || 'Bad thing';
+generators.get('/drake', async c => {
+  const topText = c.req.query('top') || c.req.query('reject') || 'Bad thing'
   const bottomText =
-    c.req.query('bottom') || c.req.query('approve') || 'Good thing';
+    c.req.query('bottom') || c.req.query('approve') || 'Good thing'
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
@@ -250,24 +226,24 @@ generators.get('/drake', async (c) => {
   
   <rect x="300" y="200" width="300" height="200" fill="#fff" stroke="#333" stroke-width="2"/>
   <text x="450" y="310" text-anchor="middle" fill="#333" font-size="20" font-weight="bold" font-family="Arial, sans-serif">${escapeXml(bottomText)}</text>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
 /**
  * GET /v1/images/generators/distracted
  * Distracted boyfriend meme labels
  */
-generators.get('/distracted', async (c) => {
-  const boyfriend = c.req.query('boyfriend') || 'Me';
-  const girlfriend = c.req.query('girlfriend') || 'My responsibilities';
-  const other = c.req.query('other') || 'Literally anything else';
+generators.get('/distracted', async c => {
+  const boyfriend = c.req.query('boyfriend') || 'Me'
+  const girlfriend = c.req.query('girlfriend') || 'My responsibilities'
+  const other = c.req.query('other') || 'Literally anything else'
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
@@ -283,44 +259,44 @@ generators.get('/distracted', async (c) => {
     <text x="280" y="200">${escapeXml(boyfriend)}</text>
     <text x="100" y="250">${escapeXml(girlfriend)}</text>
   </g>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
 /**
  * GET /v1/images/generators/facts
  * "Facts" book meme
  */
-generators.get('/facts', async (c) => {
-  const text = c.req.query('text') || 'This is a fact';
+generators.get('/facts', async c => {
+  const text = c.req.query('text') || 'This is a fact'
 
   // Word wrap helper
-  const words = text.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
+  const words = text.split(' ')
+  const lines: string[] = []
+  let currentLine = ''
 
   for (const word of words) {
     if ((currentLine + ' ' + word).length > 25) {
-      if (currentLine) lines.push(currentLine);
-      currentLine = word;
+      if (currentLine) lines.push(currentLine)
+      currentLine = word
     } else {
-      currentLine = currentLine ? currentLine + ' ' + word : word;
+      currentLine = currentLine ? currentLine + ' ' + word : word
     }
   }
-  if (currentLine) lines.push(currentLine);
+  if (currentLine) lines.push(currentLine)
 
   const lineElements = lines
     .map(
       (line, i) =>
         `<text x="300" y="${160 + i * 30}" text-anchor="middle" fill="#333" font-size="20" font-weight="bold" font-family="Arial, sans-serif">${escapeXml(line)}</text>`
     )
-    .join('\n');
+    .join('\n')
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
   <!-- Background -->
@@ -341,14 +317,14 @@ generators.get('/facts', async (c) => {
   
   <!-- Page number -->
   <text x="300" y="340" text-anchor="middle" fill="#666" font-size="14" font-family="Times New Roman, serif">- Page 1 -</text>
-</svg>`;
+</svg>`
 
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=3600',
     },
-  });
-});
+  })
+})
 
-export default generators;
+export default generators

@@ -5,7 +5,7 @@
  * Similar to https://commit451.com/skyhook-web/
  */
 
-import { aminaDesignSystem } from '../styles';
+import { aminaDesignSystem } from '../styles'
 
 const styles = `
 ${aminaDesignSystem}
@@ -191,7 +191,7 @@ input:focus, select:focus {
     padding: var(--space-6);
   }
 }
-`;
+`
 
 export function webhookTransformerPage(): string {
   return `<!DOCTYPE html>
@@ -363,5 +363,5 @@ export function webhookTransformerPage(): string {
     });
   </script>
 </body>
-</html>`;
+</html>`
 }

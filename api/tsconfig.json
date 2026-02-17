@@ -20,9 +20,10 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@api-types/*": ["../types/api/*"]
     }
   },
-  "include": ["src/**/*", "types/**/*"],
+  "include": ["src/**/*", "../types/api/**/*"],
   "exclude": ["node_modules", "dist"]
 }
