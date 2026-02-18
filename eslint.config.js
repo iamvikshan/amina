@@ -118,6 +118,7 @@ export default [
       '.git/**',
       'coverage/**',
       '*.min.js',
+      '**/.wrangler/**',
     ],
   },
 ]

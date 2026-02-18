@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "build:prd": "bun install --frozen-lockfile",
     "dev:local": "bun run --hot src/server.ts",
     "deploy": "wrangler deploy",
-    "deploy:prd": "wrangler deploy --env production",
+    "deploy:prd": "bunx wrangler deploy --env production",
     "check": "tsc --noEmit",
     "f": "prettier --write ."
   },

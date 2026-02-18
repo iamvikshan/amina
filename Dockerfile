@@ -5,12 +5,13 @@ FROM oven/bun:1.3.9-alpine AS dependencies
 
 WORKDIR /app
 
-# Copy lockfile first for better caching
+# Copy lockfile and package files (api/package.json needed for workspace resolution)
 COPY bun.lock ./
 COPY package.json ./
+COPY api/package.json ./api/
 
-# Install production dependencies only
-RUN bun install --frozen-lockfile --production --ignore-scripts
+# Install production dependencies only (skip api workspace)
+RUN bun install --frozen-lockfile --production --ignore-scripts --filter 'amina'
 
 # ============================================
 # Stage 2: Final Runtime Image

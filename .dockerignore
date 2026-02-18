@@ -24,4 +24,5 @@ lavalink/
 scripts/
 *.pem
 api/
+!api/package.json
 tests/
