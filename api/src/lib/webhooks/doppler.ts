@@ -133,8 +133,8 @@ export function transformDopplerPayload(
   const ts = new Date()
 
   // Sanitize backticks in values to prevent breaking Discord's inline code formatting
-  const safeEnvironment = config.environment.replace(/`/g, "'")
-  const safeConfigName = config.name.replace(/`/g, "'")
+  const safeEnvironment = sanitizeBackticks(config.environment)
+  const safeConfigName = sanitizeBackticks(config.name)
 
   const embed: DiscordEmbed = {
     // "Author" slot used for Project Name to visually group it at the top

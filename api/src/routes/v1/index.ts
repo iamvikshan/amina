@@ -89,6 +89,7 @@ v1.get('/', c => {
 })
 
 // Bot routes - public, rate-limited
+v1.use('/bots', publicRateLimit)
 v1.use('/bots/*', publicRateLimit)
 v1.route('/bots', bots)
 

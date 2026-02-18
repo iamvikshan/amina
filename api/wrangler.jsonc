@@ -45,18 +45,15 @@
   "kv_namespaces": [
     {
       "binding": "RATE_LIMIT",
-      "id": "fe69971e70af4d2fb0fb5f3205ffdb1a",
-      "remote": true
+      "id": "fe69971e70af4d2fb0fb5f3205ffdb1a"
     },
     {
       "binding": "CACHE",
-      "id": "d6cfd41bcd6e40688e603212460e358e",
-      "remote": true
+      "id": "d6cfd41bcd6e40688e603212460e358e"
     },
     {
       "binding": "BOTS",
-      "id": "53a87e261e2846d0b69be3b31a3f9201",
-      "remote": true
+      "id": "53a87e261e2846d0b69be3b31a3f9201"
     }
   ]
 }

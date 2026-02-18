@@ -5,18 +5,55 @@
  * using Discord's CLIENT_SECRET with hybrid verification (Discord API + KV cache).
  */
 
-import { randomBytes, pbkdf2Sync, timingSafeEqual } from 'node:crypto'
+import { timingSafeEqual } from 'node:crypto'
 import { Buffer } from 'node:buffer'
 import type { Logger } from './logger'
 
 // Verification cache duration (1 hour)
 const VERIFICATION_TTL_MS = 60 * 60 * 1000
 
-// PBKDF2 configuration following OWASP recommendations
-const PBKDF2_ITERATIONS = 600000 // OWASP recommended minimum for PBKDF2-SHA256
+// PBKDF2 configuration
+// 100K iterations balances security with Cloudflare Workers free tier CPU limits.
+// WebCrypto's SubtleCrypto runs natively but still consumes CPU budget.
+// Increase to 600K+ (OWASP recommended) on paid Workers plans with higher CPU limits.
+const PBKDF2_ITERATIONS = 100_000
 const PBKDF2_KEYLEN = 32 // 256 bits
-const PBKDF2_DIGEST = 'sha256'
 const SALT_LENGTH = 16 // 128 bits
+
+// ============================================================================
+// WebCrypto PBKDF2 Helper
+// ============================================================================
+
+/**
+ * Derive a key using PBKDF2 via WebCrypto (async, non-blocking).
+ * Replaces synchronous pbkdf2Sync which exhausts Worker CPU budgets.
+ */
+async function pbkdf2Derive(
+  password: string,
+  salt: Uint8Array,
+  iterations: number,
+  keyLength: number
+): Promise<ArrayBuffer> {
+  const encoder = new TextEncoder()
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  )
+
+  return crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    keyLength * 8 // bits
+  )
+}
 
 // ============================================================================
 // Hashing Utilities
@@ -27,28 +64,30 @@ const SALT_LENGTH = 16 // 128 bits
  * Format: salt.hash (hex-encoded, separated by dot)
  * Never store raw secrets!
  */
-export function hashSecret(secret: string): string {
+export async function hashSecret(secret: string): Promise<string> {
   // Generate cryptographically secure random salt
-  const salt = randomBytes(SALT_LENGTH)
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH))
 
-  // Derive key using PBKDF2
-  const hash = pbkdf2Sync(
+  // Derive key using async WebCrypto PBKDF2
+  const hashBuffer = await pbkdf2Derive(
     secret,
     salt,
     PBKDF2_ITERATIONS,
-    PBKDF2_KEYLEN,
-    PBKDF2_DIGEST
+    PBKDF2_KEYLEN
   )
 
   // Return salt.hash format (both hex-encoded)
-  return `${salt.toString('hex')}.${hash.toString('hex')}`
+  return `${Buffer.from(salt).toString('hex')}.${Buffer.from(hashBuffer).toString('hex')}`
 }
 
 /**
  * Compare a secret against a stored hash using timing-safe comparison
  * Expected format: salt.hash (hex-encoded, separated by dot)
  */
-export function verifySecretHash(secret: string, storedValue: string): boolean {
+export async function verifySecretHash(
+  secret: string,
+  storedValue: string
+): Promise<boolean> {
   try {
     // Parse stored value to extract salt and hash
     const parts = storedValue.split('.')
@@ -69,14 +108,14 @@ export function verifySecretHash(secret: string, storedValue: string): boolean {
       return false
     }
 
-    // Derive key from provided secret using stored salt
-    const derivedHash = pbkdf2Sync(
+    // Derive key from provided secret using stored salt (async WebCrypto)
+    const derivedBuffer = await pbkdf2Derive(
       secret,
-      salt,
+      new Uint8Array(salt),
       PBKDF2_ITERATIONS,
-      PBKDF2_KEYLEN,
-      PBKDF2_DIGEST
+      PBKDF2_KEYLEN
     )
+    const derivedHash = Buffer.from(derivedBuffer)
 
     // Timing-safe comparison to prevent timing attacks
     return timingSafeEqual(derivedHash, storedHash)
@@ -180,6 +219,9 @@ export async function fetchBotInfo(
   const tokenController = new AbortController()
   const tokenTimeoutId = setTimeout(() => tokenController.abort(), 8000)
 
+  // Declare appTimeoutId at function scope so it can be cleared in catch
+  let appTimeoutId: ReturnType<typeof setTimeout> | undefined
+
   try {
     // First get a token
     const tokenResponse = await fetch(
@@ -209,9 +251,13 @@ export async function fetchBotInfo(
       access_token: string
     }
 
+    if (!access_token || typeof access_token !== 'string') {
+      return { success: false, error: 'Invalid token response from Discord' }
+    }
+
     // Separate timeout for the second fetch
     const appController = new AbortController()
-    const appTimeoutId = setTimeout(() => appController.abort(), 8000)
+    appTimeoutId = setTimeout(() => appController.abort(), 8000)
 
     // Fetch application info
     const appResponse = await fetch('https://discord.com/api/v10/oauth2/@me', {
@@ -239,8 +285,9 @@ export async function fetchBotInfo(
       },
     }
   } catch (err) {
-    // Clear timeouts in case of error
+    // Clear both timeouts in case of error
     clearTimeout(tokenTimeoutId)
+    if (appTimeoutId) clearTimeout(appTimeoutId)
 
     // Handle abort case specifically
     if (err instanceof Error && err.name === 'AbortError') {
@@ -303,7 +350,7 @@ export async function registerBot(
   ).toISOString()
 
   const authData: BotAuthData = {
-    secretHash: hashSecret(clientSecret),
+    secretHash: await hashSecret(clientSecret),
     registeredAt: now,
     lastVerified: now,
     verificationExpires,
@@ -373,20 +420,24 @@ export async function validateBotRequest(
   }
 
   // Step 2: Quick hash comparison
-  if (!verifySecretHash(clientSecret, authData.secretHash)) {
+  if (!(await verifySecretHash(clientSecret, authData.secretHash))) {
     // Secret doesn't match - could be rotated, try Discord verification
     const verification = await verifyWithDiscord(clientId, clientSecret)
 
     if (verification.valid) {
       // New secret is valid! Update stored hash
-      authData.secretHash = hashSecret(clientSecret)
+      authData.secretHash = await hashSecret(clientSecret)
       authData.lastVerified = new Date().toISOString()
       authData.verificationExpires = new Date(
         Date.now() + VERIFICATION_TTL_MS
       ).toISOString()
       await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData))
 
-      console.log(`[botAuth] Secret rotated for bot: ${clientId}`)
+      if (logger) {
+        logger.info(`Secret rotated for bot: ${clientId}`)
+      } else {
+        console.log(`[botAuth] Secret rotated for bot: ${clientId}`)
+      }
       return { valid: true }
     }
 
@@ -417,7 +468,11 @@ export async function validateBotRequest(
     ).toISOString()
     await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData))
 
-    console.log(`[botAuth] Re-verified bot: ${clientId}`)
+    if (logger) {
+      logger.info(`Re-verified bot: ${clientId}`)
+    } else {
+      console.log(`[botAuth] Re-verified bot: ${clientId}`)
+    }
   }
 
   return { valid: true }

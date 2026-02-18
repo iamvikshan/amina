@@ -10,10 +10,8 @@ import { Hono } from 'hono'
 import { requireApiKey, requirePermission } from '@middleware/auth'
 import { errors } from '@lib/response'
 import {
-  sanitizeUrl,
   getImageUrl,
   clampDimension,
-  escapeXml,
   parseNumberOrDefault,
   svgResponse,
 } from '@lib/svg-utils'
@@ -36,7 +34,7 @@ function createFilteredImage(
   <defs>
     ${filterDef}
   </defs>
-  <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${width}" height="${height}" filter="url(#${filterId})" preserveAspectRatio="xMidYMid slice"/>
+  <image xlink:href="${imageUrl}" width="${width}" height="${height}" filter="url(#${filterId})" preserveAspectRatio="xMidYMid slice"/>
 </svg>`
 }
 
@@ -291,7 +289,7 @@ filters.get('/pixelate', async c => {
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="image-rendering: pixelated;">
   <defs>
     <pattern id="pixelate-pattern" width="${w * scale}" height="${h * scale}" patternUnits="userSpaceOnUse">
-      <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${w * scale}" height="${h * scale}" preserveAspectRatio="xMidYMid slice"/>
+      <image xlink:href="${imageUrl}" width="${w * scale}" height="${h * scale}" preserveAspectRatio="xMidYMid slice"/>
     </pattern>
   </defs>
   <rect width="${w}" height="${h}" fill="url(#pixelate-pattern)" style="image-rendering: pixelated;"/>
@@ -339,10 +337,11 @@ filters.get('/hue-rotate', async c => {
     return errors.badRequest(c, 'Missing or invalid image URL')
   }
 
-  const degrees = parseNumberOrDefault(
-    c.req.query('degrees') || c.req.query('angle'),
-    90
-  )
+  const degrees =
+    ((parseNumberOrDefault(c.req.query('degrees') || c.req.query('angle'), 90) %
+      360) +
+      360) %
+    360
   const w = clampDimension(
     parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
   )

@@ -30,16 +30,4 @@ bot.get('/stats', async c => {
   }
 })
 
-/**
- * GET /bot/health
- * Simple health check endpoint
- */
-bot.get('/health', c => {
-  return success(c, {
-    status: 'healthy',
-    service: 'amina-api',
-    timestamp: new Date().toISOString(),
-  })
-})
-
 export default bot

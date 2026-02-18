@@ -26,7 +26,7 @@ export function sanitizeUrl(url: string): string {
   try {
     const parsed = new URL(url)
     if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-      return url
+      return escapeXml(url)
     }
     return ''
   } catch {
@@ -101,9 +101,10 @@ export function svgResponse(
   maxAge = 3600,
   staleWhileRevalidate?: number
 ): Response {
-  const cacheControl = staleWhileRevalidate
-    ? `public, max-age=${maxAge}, stale-while-revalidate=${staleWhileRevalidate}`
-    : `public, max-age=${maxAge}`
+  const cacheControl =
+    staleWhileRevalidate !== undefined
+      ? `public, max-age=${maxAge}, stale-while-revalidate=${staleWhileRevalidate}`
+      : `public, max-age=${maxAge}`
   return new Response(svg, {
     headers: {
       'Content-Type': 'image/svg+xml',

@@ -13,12 +13,13 @@ import { generateWelcomeCard } from '@lib/cards/welcome-card'
 import { generateSpotifyCard } from '@lib/cards/spotify-card'
 import {
   clampDimension,
-  escapeXml,
   sanitizeUrl,
   parseNumberOrDefault,
   validateHexColor,
   svgResponse,
 } from '@lib/svg-utils'
+
+import type { Context } from 'hono'
 
 const images = new Hono<{ Bindings: Env }>()
 
@@ -99,7 +100,7 @@ function handleGreetingCard(
   type: 'welcome' | 'farewell',
   defaultAccentColor?: string
 ) {
-  return async (c: { req: { query: () => Record<string, string> } }) => {
+  return async (c: Context<{ Bindings: Env }>) => {
     const query = c.req.query()
 
     const username = query.username
@@ -111,10 +112,7 @@ function handleGreetingCard(
     const guildName = query.guildName || query.guild_name || 'Server'
 
     if (!username) {
-      return errors.badRequest(
-        c as Parameters<typeof errors.badRequest>[0],
-        'Missing required parameter: username'
-      )
+      return errors.badRequest(c, 'Missing required parameter: username')
     }
 
     try {
@@ -133,7 +131,7 @@ function handleGreetingCard(
 
       return svgResponse(svg, 60, 300)
     } catch (error) {
-      const logger = createLogger(c as Parameters<typeof createLogger>[0])
+      const logger = createLogger(c)
       logger.error(
         `Failed to generate ${type} card`,
         error instanceof Error ? error : undefined,
@@ -141,10 +139,7 @@ function handleGreetingCard(
           endpoint: `/v1/images/${type}-card`,
         }
       )
-      return errors.internal(
-        c as Parameters<typeof errors.internal>[0],
-        `Failed to generate ${type} card`
-      )
+      return errors.internal(c, `Failed to generate ${type} card`)
     }
   }
 }
@@ -209,18 +204,8 @@ images.get('/spotify-card', async c => {
  */
 images.get('/color', async c => {
   const hex = c.req.query('hex') || c.req.query('color') || 'DC143C'
-  const width = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 256, 1, 1024),
-    1,
-    1024,
-    256
-  )
-  const height = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 256, 1, 1024),
-    1,
-    1024,
-    256
-  )
+  const width = parseNumberOrDefault(c.req.query('width'), 256, 1, 1024)
+  const height = parseNumberOrDefault(c.req.query('height'), 256, 1, 1024)
 
   // Validate hex color
   const cleanHex = hex.replace('#', '')
@@ -260,7 +245,7 @@ images.get('/circle', async c => {
         <circle cx="${r}" cy="${r}" r="${r}"/>
       </clipPath>
     </defs>
-    <image xlink:href="${escapeXml(sanitizeUrl(imageUrl))}" width="${s}" height="${s}" clip-path="url(#circle)" preserveAspectRatio="xMidYMid slice"/>
+    <image xlink:href="${sanitizeUrl(imageUrl)}" width="${s}" height="${s}" clip-path="url(#circle)" preserveAspectRatio="xMidYMid slice"/>
   </svg>`
 
   return svgResponse(svg)

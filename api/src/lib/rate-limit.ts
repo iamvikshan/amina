@@ -1,7 +1,9 @@
 /**
  * Rate Limiter using Cloudflare KV
  *
- * Uses a sliding window algorithm with KV storage.
+ * Uses a fixed window (time bucket) algorithm with KV storage.
+ * Requests are counted per fixed time bucket defined by config.window,
+ * where windowStart = now - (now % config.window).
  * Falls back to in-memory if KV is not available.
  */
 

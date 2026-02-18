@@ -14,8 +14,9 @@ import webhookRoutes from './routes/webhooks'
 const app = new Hono<{ Bindings: Env }>()
 
 // Global middleware
-app.use('*', errorHandler)
+// cors must run before errorHandler so CORS headers appear on error responses
 app.use('*', cors)
+app.use('*', errorHandler)
 app.use('*', logger)
 app.use('*', cacheControl)
 

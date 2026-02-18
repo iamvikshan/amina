@@ -124,10 +124,15 @@ async function defaultKeyGenerator(
  * API keys are hashed before use as KV keys to prevent credential leakage.
  */
 export async function apiKeyKeyGenerator(c: Context): Promise<string> {
-  const apiKey =
-    c.req.header('Authorization')?.replace('Bearer ', '') ||
-    c.req.query('api_key') ||
-    'anonymous'
+  const authHeader = c.req.header('Authorization')
+  let apiKey = 'anonymous'
+  if (authHeader) {
+    const match = authHeader.match(/^bearer\s+(.+)$/i)
+    apiKey = match?.[1] || 'anonymous'
+  }
+  if (apiKey === 'anonymous') {
+    apiKey = c.req.query('api_key') || 'anonymous'
+  }
   const path = new URL(c.req.url).pathname
 
   // Defense-in-depth: If no API key, fall back to IP-based limiting

@@ -79,7 +79,7 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
     // Check rate limit
     const rateLimitKey = `api:${user._id}:${key.id}`
     const rateLimit = await checkRateLimit(
-      c.env.CACHE,
+      c.env.RATE_LIMIT,
       rateLimitKey,
       key.rateLimit
     )

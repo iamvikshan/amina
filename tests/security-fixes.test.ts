@@ -112,7 +112,7 @@ describe('KV key redaction in deregisterBot', () => {
           // We need to use a real hash format
           const { hashSecret } = await import('../api/src/lib/botAuth')
           return JSON.stringify({
-            secretHash: hashSecret('test-secret'),
+            secretHash: await hashSecret('test-secret'),
             registeredAt: new Date().toISOString(),
             lastVerified: new Date().toISOString(),
             verificationExpires: new Date(Date.now() + 3600000).toISOString(),
@@ -133,17 +133,16 @@ describe('KV key redaction in deregisterBot', () => {
 
     // The result should indicate failure
     expect(result.success).toBe(false)
+    expect(result.error).toBeDefined()
 
-    if (result.error) {
-      // Error message should NOT contain actual KV key patterns
-      expect(result.error).not.toContain('bot:test-client-id:auth')
-      expect(result.error).not.toContain('bot:test-client-id:meta')
-      expect(result.error).not.toContain('bot:test-client-id:stats')
-      expect(result.error).not.toContain('bot:test-client-id:commands')
+    // Error message should NOT contain actual KV key patterns
+    expect(result.error).not.toContain('bot:test-client-id:auth')
+    expect(result.error).not.toContain('bot:test-client-id:meta')
+    expect(result.error).not.toContain('bot:test-client-id:stats')
+    expect(result.error).not.toContain('bot:test-client-id:commands')
 
-      // Should contain a count instead
-      expect(result.error).toMatch(/\d+ key\(s\)/)
-    }
+    // Should contain a count instead
+    expect(result.error).toMatch(/\d+ key\(s\)/)
   })
 })
 

@@ -39,10 +39,13 @@ function toDiscordWebhookUrl(
 /**
  * Simple rate limiter for Discord webhook sends.
  * Enforces a minimum interval between sends and queues messages during cooldown.
+ * Queue is bounded to prevent unbounded memory growth under burst logging.
  */
+const MAX_WEBHOOK_QUEUE_SIZE = 100
+
 const webhookRateLimiter = {
   lastSendTime: 0,
-  minIntervalMs: 1000, // 1 second between sends
+  minIntervalMs: 2000, // 2 seconds between sends (stays under Discord's ~30/min webhook limit)
   queue: [] as Array<{
     url: string
     payload: string
@@ -56,6 +59,17 @@ const webhookRateLimiter = {
   },
 
   enqueue(url: string, payload: string): Promise<void> {
+    // Drop oldest messages when queue is full to prevent unbounded memory growth
+    if (this.queue.length >= MAX_WEBHOOK_QUEUE_SIZE) {
+      const dropped = this.queue.shift()
+      if (dropped) {
+        dropped.reject(new Error('Webhook queue full, message dropped'))
+      }
+      console.warn(
+        `[logger] Webhook queue full (${MAX_WEBHOOK_QUEUE_SIZE}), dropping oldest message`
+      )
+    }
+
     return new Promise<void>((resolve, reject) => {
       this.queue.push({ url, payload, resolve, reject })
       if (!this.processing) {

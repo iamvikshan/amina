@@ -230,7 +230,7 @@ bots.get('/:clientId/stats', async c => {
     }
 
     return success(c, {
-      stats: info.stats,
+      stats: { ...info.stats, hasStats: true },
     })
   } catch (err) {
     const logger = createLogger(c)

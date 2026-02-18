@@ -53,7 +53,7 @@ app.post('/:id/:token/:provider', validateWebhookParams, async c => {
     }
 
     // Transform payload based on provider
-    let discordPayload
+    let discordPayload: DiscordWebhookPayload
 
     switch (provider.toLowerCase()) {
       case 'doppler': {

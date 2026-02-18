@@ -45,6 +45,20 @@ describe('svgResponse', () => {
     const response = svgResponse('<svg></svg>', 0)
     expect(response.headers.get('Cache-Control')).toBe('public, max-age=0')
   })
+
+  test('includes stale-while-revalidate when provided', () => {
+    const response = svgResponse('<svg></svg>', 3600, 300)
+    expect(response.headers.get('Cache-Control')).toBe(
+      'public, max-age=3600, stale-while-revalidate=300'
+    )
+  })
+
+  test('includes stale-while-revalidate=0 without dropping it', () => {
+    const response = svgResponse('<svg></svg>', 3600, 0)
+    expect(response.headers.get('Cache-Control')).toBe(
+      'public, max-age=3600, stale-while-revalidate=0'
+    )
+  })
 })
 
 describe('errors.notImplemented', () => {

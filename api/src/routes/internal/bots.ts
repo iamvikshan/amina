@@ -112,13 +112,25 @@ bots.delete('/:clientId', async c => {
     return errors.unauthorized(c, 'Bot authentication required')
   }
 
-  const result = await deregisterBot(kv, clientId, clientSecret, logger)
+  try {
+    const result = await deregisterBot(kv, clientId, clientSecret, logger)
 
-  if (!result.success) {
-    return errors.badRequest(c, result.error || 'Deregistration failed')
+    if (!result.success) {
+      return errors.badRequest(c, result.error || 'Deregistration failed')
+    }
+
+    return success(c, { message: 'Bot deregistered successfully' })
+  } catch (err) {
+    logger.error(
+      'Bot deregistration failed',
+      err instanceof Error ? err : undefined,
+      {
+        endpoint: 'DELETE /internal/bots/:clientId',
+        clientId,
+      }
+    )
+    return errors.internal(c, 'Deregistration failed')
   }
-
-  return success(c, { message: 'Bot deregistered successfully' })
 })
 
 /**
@@ -238,7 +250,7 @@ bots.put('/:clientId', async c => {
     ] as const
     const updates: Record<string, unknown> = {}
     for (const field of allowedFields) {
-      if (field in body && body[field] !== undefined) {
+      if (field in body && body[field] !== undefined && body[field] !== null) {
         updates[field] = body[field]
       }
     }
@@ -285,16 +297,20 @@ bots.post('/:clientId/commands', async c => {
       return errors.badRequest(c, 'commands must be an array')
     }
 
-    // Validate each command has a non-empty name
+    // Validate each command has a non-empty name and category
     const invalidCommands = commands.filter(
       (cmd: any) =>
-        !cmd || typeof cmd.name !== 'string' || cmd.name.trim() === ''
+        !cmd ||
+        typeof cmd.name !== 'string' ||
+        cmd.name.trim() === '' ||
+        typeof cmd.category !== 'string' ||
+        cmd.category.trim() === ''
     )
 
     if (invalidCommands.length > 0) {
       return errors.badRequest(
         c,
-        `Each command must have a non-empty 'name' field. Found ${invalidCommands.length} invalid entries.`
+        `Each command must have non-empty 'name' and 'category' fields. Found ${invalidCommands.length} invalid entries.`
       )
     }
 

@@ -23,6 +23,11 @@ guilds.post('/:guildId/settings', async c => {
   const guildId = c.req.param('guildId')
   const botClientId = c.get('botClientId')
 
+  // Validate Discord snowflake format (17-19 digit number)
+  if (!/^\d{17,19}$/.test(guildId)) {
+    return errors.badRequest(c, 'Invalid guild ID format')
+  }
+
   const db = createMongoClient(c.env)
 
   if (!db) {
@@ -115,6 +120,11 @@ guilds.post('/:guildId/settings', async c => {
 guilds.get('/:guildId/settings', async c => {
   const guildId = c.req.param('guildId')
   const botClientId = c.get('botClientId')
+
+  // Validate Discord snowflake format (17-19 digit number)
+  if (!/^\d{17,19}$/.test(guildId)) {
+    return errors.badRequest(c, 'Invalid guild ID format')
+  }
 
   const db = createMongoClient(c.env)
 

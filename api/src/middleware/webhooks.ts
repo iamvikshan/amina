@@ -15,7 +15,7 @@ export const validateWebhookParams = async (
   }
 
   // Validate Discord Webhook Token (alphanumeric, dashes, underscores, min length 60)
-  if (!token || token.length < 60 || !/^[A-Za-z0-9-_]+$/.test(token)) {
+  if (!token || token.length < 60 || !/^[A-Za-z0-9_-]+$/.test(token)) {
     return error(c, 'Invalid Discord webhook token format', { status: 400 })
   }
 

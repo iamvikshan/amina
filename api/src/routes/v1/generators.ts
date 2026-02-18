@@ -269,8 +269,9 @@ generators.get('/facts', async c => {
   }
   if (currentLine) lines.push(currentLine)
 
-  // Cap lines to max 10
-  const cappedLines = lines.slice(0, 10)
+  // Cap lines to prevent text overflowing the 400px viewBox
+  // (y starts at 160 and increments by 30px per line)
+  const cappedLines = lines.slice(0, 6)
 
   const lineElements = cappedLines
     .map(

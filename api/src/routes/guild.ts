@@ -18,7 +18,7 @@ const guild = new Hono<{ Bindings: Env }>()
  *
  * For now, this is a placeholder that you can implement based on your needs.
  */
-guild.get('/:id', async c => {
+guild.get('/:id', requireApiKey, async c => {
   const guildId = c.req.param('id')
 
   if (!guildId) {
@@ -97,7 +97,7 @@ guild.patch('/:id', requireApiKey, async c => {
     // TODO: Implement database update
     // This would need authentication/authorization middleware
 
-    return errors.notFound(
+    return errors.notImplemented(
       c,
       'Guild update not implemented - database not configured'
     )

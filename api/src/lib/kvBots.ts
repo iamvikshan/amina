@@ -227,13 +227,14 @@ export async function getBotInfo(
   kv: KVNamespace,
   clientId: string
 ): Promise<{ meta: BotMeta; stats: BotStatsData | null } | null> {
-  const meta = await getBotMeta(kv, clientId)
+  const [meta, stats] = await Promise.all([
+    getBotMeta(kv, clientId),
+    getBotStats(kv, clientId),
+  ])
 
   if (!meta) {
     return null
   }
-
-  const stats = await getBotStats(kv, clientId)
 
   return { meta, stats }
 }

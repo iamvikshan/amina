@@ -30,7 +30,7 @@ export async function getMongoClient(
     // Only ping if more than 30 seconds since last successful health check
     if (now - lastHealthCheck > HEALTH_CHECK_INTERVAL_MS) {
       try {
-        await cachedClient.db('admin').command({ ping: 1 })
+        await cachedClient.db(config.database).command({ ping: 1 })
         lastHealthCheck = now
       } catch {
         // Stale connection — reconnect
@@ -203,7 +203,7 @@ export function createMongoClient(env: {
   const dbMatch = env.MONGO_CONNECTION.match(
     /mongodb(?:\+srv)?:\/\/[^/]+\/([^?]+)/
   )
-  const database = dbMatch?.[1] || 'amina'
+  const database = dbMatch?.[1] ? decodeURIComponent(dbMatch[1]) : 'amina'
 
   return new MongoDB(env.MONGO_CONNECTION, database)
 }

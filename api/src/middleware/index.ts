@@ -147,6 +147,8 @@ export async function errorHandler(c: Context<{ Bindings: Env }>, next: Next) {
       errorCode = 'FORBIDDEN'
     } else if (status === 404) {
       errorCode = 'NOT_FOUND'
+    } else if (status === 429) {
+      errorCode = 'RATE_LIMIT_EXCEEDED'
     } else {
       errorCode = 'CLIENT_ERROR'
     }

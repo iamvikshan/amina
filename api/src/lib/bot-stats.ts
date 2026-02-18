@@ -4,6 +4,23 @@ const botStatsCache = new Map<string, { data: BotStats; timestamp: number }>()
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 
 /**
+ * Create a default/offline bot stats object.
+ * Extracted to avoid duplicating the same literal in multiple fallback paths.
+ */
+function makeOfflineStats(): BotStats & { cached: boolean } {
+  return {
+    guilds: 0,
+    members: 0,
+    channels: 0,
+    ping: 0,
+    uptime: 0,
+    status: 'offline' as const,
+    lastUpdated: new Date().toISOString(),
+    cached: false,
+  }
+}
+
+/**
  * Fetch bot statistics from external bot API or database.
  * The bot updates stats every 10 minutes via presence handler.
  *
@@ -34,10 +51,10 @@ export async function getBotStats(
   if (env.CACHE) {
     const cached = await env.CACHE.get(`bot-stats:${cacheKey}`, 'json')
     if (cached) {
-      const data = cached as BotStats & { timestamp: number }
-      const age = Date.now() - data.timestamp
+      const { timestamp, ...data } = cached as BotStats & { timestamp: number }
+      const age = Date.now() - timestamp
       if (age < CACHE_DURATION) {
-        botStatsCache.set(cacheKey, { data, timestamp: data.timestamp })
+        botStatsCache.set(cacheKey, { data, timestamp })
         return {
           ...data,
           cached: true,
@@ -50,16 +67,7 @@ export async function getBotStats(
   if (!botApiUrl) {
     // Return default/fallback stats if no bot API configured
     // This allows the API to work even if bot isn't running
-    return {
-      guilds: 0,
-      members: 0,
-      channels: 0,
-      ping: 0,
-      uptime: 0,
-      status: 'offline' as const,
-      lastUpdated: new Date().toISOString(),
-      cached: false,
-    }
+    return makeOfflineStats()
   }
 
   // Validate the bot API URL to prevent SSRF
@@ -70,25 +78,16 @@ export async function getBotStats(
       console.warn(
         `[bot-stats] SSRF blocked: invalid scheme in URL: ${botApiUrl}`
       )
-      return {
-        guilds: 0,
-        members: 0,
-        channels: 0,
-        ping: 0,
-        uptime: 0,
-        status: 'offline' as const,
-        lastUpdated: new Date().toISOString(),
-        cached: false,
-      }
+      return makeOfflineStats()
     }
     // Block private/internal IPs (basic check)
+    // Note: URL.hostname returns IPv6 addresses WITHOUT brackets
     const hostname = parsedUrl.hostname
     if (
       hostname === 'localhost' ||
       hostname === '127.0.0.1' ||
       hostname === '0.0.0.0' ||
       hostname === '::1' ||
-      hostname === '[::1]' ||
       hostname.startsWith('fe80:') ||
       hostname.startsWith('fc00:') ||
       hostname.startsWith('fd00:') ||
@@ -100,29 +99,11 @@ export async function getBotStats(
       console.warn(
         `[bot-stats] SSRF blocked: private/internal address in URL: ${botApiUrl}`
       )
-      return {
-        guilds: 0,
-        members: 0,
-        channels: 0,
-        ping: 0,
-        uptime: 0,
-        status: 'offline' as const,
-        lastUpdated: new Date().toISOString(),
-        cached: false,
-      }
+      return makeOfflineStats()
     }
   } catch (_urlError) {
     console.warn(`[bot-stats] SSRF blocked: malformed URL: ${botApiUrl}`)
-    return {
-      guilds: 0,
-      members: 0,
-      channels: 0,
-      ping: 0,
-      uptime: 0,
-      status: 'offline' as const,
-      lastUpdated: new Date().toISOString(),
-      cached: false,
-    }
+    return makeOfflineStats()
   }
 
   try {
@@ -202,15 +183,6 @@ export async function getBotStats(
     }
 
     // Return fallback
-    return {
-      guilds: 0,
-      members: 0,
-      channels: 0,
-      ping: 0,
-      uptime: 0,
-      status: 'offline' as const,
-      lastUpdated: new Date().toISOString(),
-      cached: false,
-    }
+    return makeOfflineStats()
   }
 }

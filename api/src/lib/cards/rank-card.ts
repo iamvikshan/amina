@@ -47,7 +47,7 @@ export function generateRankCard(options: RankCardOptions): string {
 
   const isValidColor = (color: string) =>
     /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color) ||
-    /^(rgb|hsl)a?\([^)]+\)$/.test(color) ||
+    /^(rgb|hsl)a?\([\d\s.,/%]+\)$/.test(color) ||
     /^[a-zA-Z]+$/.test(color)
   const progressColor =
     options.progressColor && isValidColor(options.progressColor)

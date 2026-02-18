@@ -20,6 +20,8 @@ internal.use('*', botRateLimit)
 internal.route('/bots', botsRoutes)
 
 // Guild sync requires bot auth
+// Cover both base path and sub-paths (Hono strict mode requires both)
+internal.use('/guilds', botAuthMiddleware)
 internal.use('/guilds/*', botAuthMiddleware)
 internal.route('/guilds', guildsRoutes)
 
