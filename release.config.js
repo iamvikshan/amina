@@ -2,29 +2,12 @@ module.exports = {
   branches: ['main'],
   plugins: [
     [
-      'semantic-release-gitmoji',
+      '@semantic-release/commit-analyzer',
       {
-        releaseRules: {
-          patch: {
-            include: [':bug:', ':ambulance:', ':lock:', ':adhesive_bandage:'],
-          },
-          minor: {
-            include: [
-              ':sparkles:',
-              ':rocket:',
-              ':boom:',
-              ':lipstick:',
-              ':zap:',
-            ],
-          },
-          major: {
-            include: [':boom:', ':warning:'],
-          },
-        },
+        preset: 'conventionalcommits',
+        releaseRules: [{ scope: 'api', release: false }],
       },
     ],
-
-    '@semantic-release/commit-analyzer',
 
     [
       '@semantic-release/release-notes-generator',

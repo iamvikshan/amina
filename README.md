@@ -21,7 +21,7 @@
 
 [⚡ Quick Deploy](#-mission-briefing-quick-deploy) • [🗡️ Arsenal](#-guardian-arsenal-features) •
 [📦 Installation](#-battle-preparation-installation) • [💬 Support](#-join-the-alliance) •
-[🤝 Contributing](#-become-a-guardian) • [📚 Wiki](https://github.com/iamvikshan/amina/wiki)
+[🤝 Contributing](#contributing) • [📚 Wiki](https://docs.4mina.app)
 
 </div>
 
@@ -47,7 +47,7 @@ I'm dedicated to defending communities from spam, toxicity, and chaos. But the t
 Ready to add me to your squad? Here's everything you need:
 
 - **[Recruit Amina](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** — Add me to your server (Battle Preparation)
-- **[Command Center Docs](https://docs.vikshan.me)** — Full tactical manual
+- **[Documentation](https://docs.4mina.app)** — Full tactical manual
 - **[Support Server](https://discord.gg/uMgS9evnmv)** — Join the Alliance HQ
 - **[Buy Me a Coffee](https://ko-fi.com/vikshan)** — Support the Amina Project
 
@@ -84,7 +84,20 @@ Knowledge is power. Stay informed:
 - **Weather Intel** — Real-time weather information
 - **Translation Services** — Break language barriers
 
-📖 **[Full Command Arsenal](https://docs.vikshan.me/commands/commands/)** — Every tool at your disposal
+📖 **[Full Command Arsenal](https://docs.4mina.app)** — Every tool at your disposal
+
+## Project Structure
+
+```text
+src/           → Discord bot source code (discord.js)
+api/           → REST API server (Cloudflare Workers, Hono + MongoDB)
+tests/         → Test suite
+types/         → Bot TypeScript type definitions
+lavalink/      → Lavalink music server config
+```
+
+- **API docs & developer wiki** → [docs.4mina.app](https://docs.4mina.app)
+- **Dashboard** → [4mina.app/dash](https://4mina.app/dash)
 
 ## Guardian Ranks
 
@@ -99,7 +112,7 @@ As you work with me, you'll advance through the Guardian Ranks:
 | 💎 **Commander** | 14-19   | Leading multiple fronts     |
 | 👑 **Legend**    | 20+     | Transcended the ranks       |
 
-_Track your rank (and secret achievements) in the [Command Center Dashboard](https://mina.vikshan.me/dash)_
+_Track your rank (and secret achievements) in the [Command Center Dashboard](https://4mina.app/dash)_
 
 > pst : Higher ranks unlock exclusive features and perks!
 
@@ -107,7 +120,7 @@ _Track your rank (and secret achievements) in the [Command Center Dashboard](htt
 
 Want to deploy me on your own infra? Respect. Here's how:
 
-👉 **[Self-Hosting Guide](https://github.com/iamvikshan/amina/wiki/Quick-Start-Self-Hosting)** — Complete deployment instructions
+👉 **[Self-Hosting Guide](https://docs.4mina.app/wiki/quick-start-self-hosting)** — Complete deployment instructions
 
 > **Note:** Self-hosting requires technical knowledge. For most users, I recommend using the [official hosted version](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950) — it's easier and always up-to-date!
 
@@ -129,7 +142,7 @@ We're a community of server owners, developers, and guardians helping each other
 
 Want to join the Night Guard development team? Hell yeah! Here's how:
 
-> 📚 **Developer Guide:** Check out the [Wiki](https://github.com/iamvikshan/amina/wiki) for architecture overviews and coding guides.
+> 📚 **Developer Guide:** Check out the [Wiki](https://docs.4mina.app) for architecture overviews and coding guides.
 
 1. **[Fork the Repository](https://github.com/iamvikshan/amina/fork)** — Make it yours
 2. **Create Your Feature Branch** — `git checkout -b feature/EpicNewFeature`
@@ -177,7 +190,7 @@ Special thanks to our infrastructure partners who keep the Night Guard operation
 
 ### Built with Purpose, To Protect w/out Passion, for some reason.
 
-**[Recruit Amina Now](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** • **[Documentation](https://docs.vikshan.me)** • **[Support Server](https://discord.gg/uMgS9evnmv)**
+**[Recruit Amina Now](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950)** • **[Documentation](https://docs.4mina.app)** • **[Support Server](https://discord.gg/uMgS9evnmv)**
 
 <sub>Forged by [vikshan](https://vikshan.me) with 🎶 and ☕ | Licensed under [ADL](./LICENSE)</sub>
 

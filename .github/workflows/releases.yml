@@ -10,10 +10,15 @@ on:
       - "Dockerfile"
       - "package.json"
       - "tsconfig.json"
-      - "eslint.config.mjs"
   pull_request:
     branches:
       - main
+    paths:
+      - "src/**"
+      - "types/**"
+      - "Dockerfile"
+      - "package.json"
+      - "tsconfig.json"
 
 # Cancel in-progress runs for the same branch
 concurrency:
@@ -44,7 +49,10 @@ jobs:
     name: Semantic Release
     runs-on: ubuntu-latest
     needs: lint
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: >-
+      always() &&
+      (needs.lint.result == 'success' || needs.lint.result == 'skipped') &&
+      github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
       issues: write

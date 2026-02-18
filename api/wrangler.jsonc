@@ -1,0 +1,59 @@
+{
+  "name": "amina-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "dev": {
+    "port": 8787,
+    "local_protocol": "http"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 0.1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.1,
+      "persist": true
+    }
+  },
+  "env": {
+    "production": {
+      "name": "amina-api",
+      "kv_namespaces": [
+        {
+          "binding": "RATE_LIMIT",
+          "id": "aadfc750bf594242bf1dde5f3cc8118d",
+          "remote": true
+        },
+        {
+          "binding": "CACHE",
+          "id": "dafc1b7b5e07470f8b9ba0f3af75d852",
+          "remote": true
+        },
+        {
+          "binding": "BOTS",
+          "id": "ca59b3551e4442a2a50f092f699ddaaa",
+          "remote": true
+        }
+      ]
+    }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT",
+      "id": "fe69971e70af4d2fb0fb5f3205ffdb1a"
+    },
+    {
+      "binding": "CACHE",
+      "id": "d6cfd41bcd6e40688e603212460e358e"
+    },
+    {
+      "binding": "BOTS",
+      "id": "53a87e261e2846d0b69be3b31a3f9201"
+    }
+  ]
+}
