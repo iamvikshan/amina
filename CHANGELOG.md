@@ -1,3 +1,14 @@
+## [3.2.1](https://github.com/iamvikshan/amina/compare/v3.2.0...v3.2.1) (2026-02-26)
+
+### Features
+
+* **api:** add API server to api/ directory ([#245](https://github.com/iamvikshan/amina/issues/245)) ([e87e544](https://github.com/iamvikshan/amina/commit/e87e5445990adc26c61649bf15329a250c7e939a))
+
+### Bug Fixes
+
+* **api:** update api dependencies ([#257](https://github.com/iamvikshan/amina/issues/257)) ([9ab63d2](https://github.com/iamvikshan/amina/commit/9ab63d2b58aa84b2392a21fbaee684b01f9e3266))
+* **deps:** update dependency mongoose to ^9.2.2 ([#261](https://github.com/iamvikshan/amina/issues/261)) ([ec25c59](https://github.com/iamvikshan/amina/commit/ec25c5989225622560a947c55d990bd0bd225947))
+
 # [v3.2.0](https://github.com/iamvikshan/amina/compare/v3.1.5...v3.2.0) (2026-02-16)
 
 
