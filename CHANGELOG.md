@@ -1,3 +1,9 @@
+## [3.2.2](https://github.com/iamvikshan/amina/compare/v3.2.1...v3.2.2) (2026-02-28)
+
+### Bug Fixes
+
+* **deps:** update dependency @google/genai to ^1.42.0 ([#254](https://github.com/iamvikshan/amina/issues/254)) ([064d6af](https://github.com/iamvikshan/amina/commit/064d6af852c2a7dc87174ff5db28a792548dd22f))
+
 ## [3.2.1](https://github.com/iamvikshan/amina/compare/v3.2.0...v3.2.1) (2026-02-26)
 
 ### Features

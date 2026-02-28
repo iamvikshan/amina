@@ -1,6 +1,6 @@
 {
   "name": "amina",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "An open-source, multipurpose discord bot built using discord-js",
   "main": "src/index.ts",
   "author": "vikshan",
