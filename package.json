@@ -40,7 +40,7 @@
     "@honeybadger-io/js": "^6.12.3",
     "@octokit/rest": "^22.0.1",
     "@vitalets/google-translate-api": "^9.2.1",
-    "axios": "^1.13.5",
+    "axios": "^1.13.6",
     "common-tags": "^1.8.2",
     "dayjs": "^1.11.19",
     "discord-gamecord": "^4.4.4",
