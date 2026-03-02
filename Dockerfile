@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Dependencies
 # ============================================
-FROM oven/bun:1.3.9-alpine AS dependencies
+FROM oven/bun:1.3.10-alpine AS dependencies
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN bun install --frozen-lockfile --production --ignore-scripts --filter 'amina'
 # ============================================
 # Stage 2: Final Runtime Image
 # ============================================
-FROM oven/bun:1.3.9-alpine AS runtime
+FROM oven/bun:1.3.10-alpine AS runtime
 
 # Install only dumb-init
 RUN apk add --no-cache dumb-init
