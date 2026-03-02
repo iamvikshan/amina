@@ -1,3 +1,11 @@
+## [3.2.3](https://github.com/iamvikshan/amina/compare/v3.2.2...v3.2.3) (2026-03-02)
+
+### Bug Fixes
+
+* **api:** update dependency hono to ^4.12.3 ([#263](https://github.com/iamvikshan/amina/issues/263)) ([5a8e19e](https://github.com/iamvikshan/amina/commit/5a8e19eebae113fe61cd03d674f50ef0ad0b3300))
+* **deps:** update dependency axios to ^1.13.6 ([#264](https://github.com/iamvikshan/amina/issues/264)) ([353403e](https://github.com/iamvikshan/amina/commit/353403e8423a7b518287866c2cf4962729df0e40))
+* **deps:** update dependency lavalink-client to ^2.9.6 ([#265](https://github.com/iamvikshan/amina/issues/265)) ([1cc9478](https://github.com/iamvikshan/amina/commit/1cc9478f994675df009f19b609aa09550dbfcdb1))
+
 ## [3.2.2](https://github.com/iamvikshan/amina/compare/v3.2.1...v3.2.2) (2026-02-28)
 
 ### Bug Fixes
