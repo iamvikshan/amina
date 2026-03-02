@@ -1,3 +1,9 @@
+## [3.2.4](https://github.com/iamvikshan/amina/compare/v3.2.3...v3.2.4) (2026-03-02)
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to ^9.2.3 ([#266](https://github.com/iamvikshan/amina/issues/266)) ([a8afdf5](https://github.com/iamvikshan/amina/commit/a8afdf5b3bafd1c162047f6ac2efa80273efa476))
+
 ## [3.2.3](https://github.com/iamvikshan/amina/compare/v3.2.2...v3.2.3) (2026-03-02)
 
 ### Bug Fixes
