@@ -48,7 +48,7 @@ jobs:
 
       script:
         # 1. Run linting and type checks
-        - bun run check
+        - bun check
 
         # 2. Create .env file from Doppler for native runtime test
         - |

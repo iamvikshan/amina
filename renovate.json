@@ -1,6 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":semanticCommits"],
+  "semanticCommitType": "chore",
   "baseBranchPatterns": ["main"],
   "automerge": false,
   "prConcurrentLimit": 10,
