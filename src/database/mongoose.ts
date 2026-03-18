@@ -12,7 +12,7 @@ export async function initializeMongoose(): Promise<
   try {
     await mongoose.connect(secret.MONGO_CONNECTION)
 
-    success('Mongoose: Database connection established')
+    success('Database connection established')
 
     return mongoose.connection
   } catch (err) {

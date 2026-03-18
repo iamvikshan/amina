@@ -22,17 +22,37 @@ declare global {
     context: string
   }
 
-  /**
-   * Represents a single part of a Content message.
-   * Matches the Google GenAI SDK Part shape.
-   * Narrow via key-presence checks: 'text' in part, 'inlineData' in part, etc.
-   * There is no conventional discriminant field; use type guards at runtime.
-   */
-  type ContentPart =
-    | { text: string }
-    | { inlineData: { data: string; mimeType: string } }
-    | { functionCall: { name: string; args: Record<string, unknown> } }
-    | { functionResponse: { name: string; response: Record<string, unknown> } }
+  interface ToolCall {
+    id: string
+    type: 'function'
+    function: {
+      name: string
+      arguments: string
+    }
+  }
+
+  interface FunctionDeclaration {
+    name: string
+    description: string
+    parameters?: {
+      type: string
+      properties: Record<string, any>
+      required?: string[]
+    }
+  }
+
+  interface OpenAITool {
+    type: 'function'
+    function: FunctionDeclaration
+  }
+
+  interface ChatMessage {
+    role: 'system' | 'user' | 'assistant' | 'tool'
+    content: string
+    name?: string
+    tool_calls?: ToolCall[]
+    tool_call_id?: string
+  }
 
   interface AiResponse {
     text: string
@@ -40,15 +60,9 @@ declare global {
     promptTokens?: number
     completionTokens?: number
     latency: number
-    functionCalls?: { name: string; args: Record<string, unknown> }[]
-    modelContent?: ContentPart[] // Full model response parts for history preservation
-  }
-
-  interface ConversationMessage {
-    role: 'user' | 'model'
-    parts: ContentPart[]
+    toolCalls?: ToolCall[]
   }
 }
 
-export type { ContentPart }
+export type { ChatMessage, ToolCall, FunctionDeclaration, OpenAITool }
 

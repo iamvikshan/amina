@@ -17,17 +17,6 @@ interface AiToolMetadata {
   freeWillAllowed: boolean
 }
 
-// Type definitions for Google AI Tools
-interface FunctionDeclaration {
-  name: string
-  description: string
-  parameters?: {
-    type: string // 'OBJECT'
-    properties: Record<string, any>
-    required?: string[]
-  }
-}
-
 // Native tool types (for tools not backed by slash commands)
 export type NativeToolHandler = (
   args: Record<string, unknown>,
@@ -69,7 +58,7 @@ export class AiCommandRegistry {
       // Filter commands
       if (!this.isCommandAllowed(cmd)) return
 
-      // Map to Google AI Tool
+      // Map to AI tool declaration
       const tool = this.mapCommandToTool(cmd)
       if (tool) {
         this.toolDefinitions.push(tool)
@@ -82,8 +71,11 @@ export class AiCommandRegistry {
     })
   }
 
-  getTools(): FunctionDeclaration[] {
-    return this.toolDefinitions
+  getTools(): OpenAITool[] {
+    return this.toolDefinitions.map(decl => ({
+      type: 'function' as const,
+      function: decl,
+    }))
   }
 
   getCommand(name: string): CommandData | undefined {
@@ -160,31 +152,25 @@ export class AiCommandRegistry {
    * Get permission model for a command
    */
   private getPermissionModel(cmd: CommandData): PermissionModel {
-    const { commands } = aiPermissions
+    const { overrides } = aiPermissions
 
-    // Check if command is in restricted list (should have been filtered already)
-    if (commands.restricted.includes(cmd.name)) {
-      return 'privileged' // Shouldn't reach here, but treat as most restrictive
-    }
-
-    // Check if command is in privileged list
-    if (commands.privileged.includes(cmd.name)) {
+    // Auto-derive: commands with userPermissions are privileged
+    if (cmd.userPermissions && cmd.userPermissions.length > 0) {
       return 'privileged'
     }
 
-    // Check if command is user-request only (e.g., gambling, music, economy)
-    if (commands.userRequestOnly.includes(cmd.name)) {
+    // Explicit override: commands that should be privileged despite no userPermissions
+    if (overrides.privileged.includes(cmd.name)) {
+      return 'privileged'
+    }
+
+    // Explicit override: commands requiring user intent (financial risk, destructive)
+    if (overrides.userRequestOnly.includes(cmd.name)) {
       return 'userRequest'
     }
 
-    // Check if command is explicitly open
-    if (commands.open.includes(cmd.name)) {
-      return 'open'
-    }
-
-    // Default: userRequest for safety (requires user to ask)
-    // This ensures any command not explicitly classified defaults to safer behavior
-    return 'userRequest'
+    // Default: open (safe because devOnly/DEV/ADMIN already filtered by isCommandAllowed)
+    return 'open'
   }
 
   /**
@@ -192,13 +178,12 @@ export class AiCommandRegistry {
    */
   private buildMetadata(cmd: CommandData): AiToolMetadata {
     const permissionModel = this.getPermissionModel(cmd)
-    const { commands } = aiPermissions
+    const { freeWill } = aiPermissions
 
-    // Check if this privileged command has free will exception (e.g., timeout)
     const freeWillAllowed =
       permissionModel === 'open' ||
       (permissionModel === 'privileged' &&
-        commands.freeWillExceptions.includes(cmd.name))
+        freeWill.exceptions.includes(cmd.name))
 
     return {
       name: cmd.name,
@@ -209,10 +194,10 @@ export class AiCommandRegistry {
   }
 
   private isCommandAllowed(cmd: CommandData): boolean {
-    const { categories, commands } = aiPermissions
+    const { categories } = aiPermissions
 
-    // Never register restricted commands (dev commands)
-    if (commands.restricted.includes(cmd.name)) return false
+    // Never register dev-only commands
+    if (cmd.devOnly) return false
 
     // Never register commands from forbidden categories
     if (categories.neverRegister.includes(cmd.category)) return false
@@ -240,13 +225,13 @@ export class AiCommandRegistry {
             // Simple strategy: Add a 'subcommand' argument that is an enum of available subcommands
             // But the structure of options changes based on subcommand.
             // For now, let's skip complex subcommand structures or flatten them if possible.
-            // A better approach for Google AI is to register "command_subcommand" as the function name
+            // A better approach is to register "command_subcommand" as the function name
             // OR just register the top level and let the AI figure out the 'subcommand' string argument.
 
             // We will add a 'subcommand' property if it doesn't exist
             if (!properties['subcommand']) {
               properties['subcommand'] = {
-                type: 'STRING',
+                type: 'string',
                 description: 'The specific operation to perform',
                 enum: [],
               }
@@ -254,12 +239,12 @@ export class AiCommandRegistry {
             }
             properties['subcommand'].enum.push(option.name)
 
-            // We also need to map the subcommand's options.
-            // This gets tricky with naming collisions.
-            // For simplicity in V1, we'll merge all unique option names across subcommands.
+            // Merge subcommand options as optional (different subcommands
+            // have different required params -- flat schemas can't express that)
             if (option.options) {
+              const ignored: string[] = []
               for (const subOpt of option.options) {
-                this.mapOption(subOpt, properties, required)
+                this.mapOption(subOpt, properties, ignored)
               }
             }
           } else {
@@ -272,7 +257,7 @@ export class AiCommandRegistry {
         name: cmd.name,
         description: cmd.description.substring(0, 1024), // Limit description length
         parameters: {
-          type: 'OBJECT',
+          type: 'object',
           properties,
           required: required.length > 0 ? required : undefined,
         },
@@ -289,24 +274,24 @@ export class AiCommandRegistry {
     required: string[]
   ) {
     const typeMap: Record<number, string> = {
-      [ApplicationCommandOptionType.String]: 'STRING',
-      [ApplicationCommandOptionType.Integer]: 'INTEGER',
-      [ApplicationCommandOptionType.Boolean]: 'BOOLEAN',
-      [ApplicationCommandOptionType.User]: 'STRING', // We want the ID
-      [ApplicationCommandOptionType.Channel]: 'STRING', // We want the ID
-      [ApplicationCommandOptionType.Role]: 'STRING', // We want the ID
-      [ApplicationCommandOptionType.Mentionable]: 'STRING', // We want the ID
-      [ApplicationCommandOptionType.Number]: 'NUMBER',
+      [ApplicationCommandOptionType.String]: 'string',
+      [ApplicationCommandOptionType.Integer]: 'integer',
+      [ApplicationCommandOptionType.Boolean]: 'boolean',
+      [ApplicationCommandOptionType.User]: 'string',
+      [ApplicationCommandOptionType.Channel]: 'string',
+      [ApplicationCommandOptionType.Role]: 'string',
+      [ApplicationCommandOptionType.Mentionable]: 'string',
+      [ApplicationCommandOptionType.Number]: 'number',
     }
 
-    const aiType = typeMap[option.type] || 'STRING'
+    const aiType = typeMap[option.type] || 'string'
 
     properties[option.name] = {
       type: aiType,
       description: option.description,
     }
 
-    if (option.required) {
+    if (option.required && !required.includes(option.name)) {
       required.push(option.name)
     }
   }

@@ -1,61 +1,79 @@
 import { describe, test, expect, mock } from 'bun:test'
 
 // Mock Logger BEFORE importing ModelRouter to properly intercept
+const mockLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  log: () => {},
+  success: () => {},
+}
+
 mock.module('../src/helpers/Logger', () => ({
-  default: {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    log: () => {},
-    success: () => {},
-  },
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
+}))
+
+mock.module('@helpers/Logger', () => ({
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
 }))
 
 const { ModelRouter } = await import('../src/services/modelRouter')
 
 describe('ModelRouter', () => {
   const router = new ModelRouter({
-    model: 'gemini-3-flash-preview',
-    embeddingModel: 'gemini-embedding-001',
-    extractionModel: 'gemini-2.5-flash-lite',
+    model: 'mistral-small-latest',
+    embeddingModel: 'mistral-embed',
+    extractionModel: 'mistral-small-latest',
   })
 
   test('returns chat model for chat task', () => {
     const config = router.getModel('chat')
-    expect(config.model).toBe('gemini-3-flash-preview')
+    expect(config.model).toBe('mistral-small-latest')
     expect(config.taskType).toBe('chat')
   })
 
   test('returns embedding model for embedding task', () => {
     const config = router.getModel('embedding')
-    expect(config.model).toBe('gemini-embedding-001')
+    expect(config.model).toBe('mistral-embed')
     expect(config.taskType).toBe('embedding')
   })
 
   test('returns extraction model for extraction task', () => {
     const config = router.getModel('extraction')
-    expect(config.model).toBe('gemini-2.5-flash-lite')
+    expect(config.model).toBe('mistral-small-latest')
     expect(config.taskType).toBe('extraction')
   })
 
   describe('reasoning', () => {
-    const routerWithClaude = new ModelRouter({
-      model: 'gemini-3-flash-preview',
-      embeddingModel: 'gemini-embedding-001',
-      extractionModel: 'gemini-2.5-flash-lite',
-      reasoningModel: 'claude-sonnet-4-5',
+    const routerWithReasoning = new ModelRouter({
+      model: 'mistral-small-latest',
+      embeddingModel: 'mistral-embed',
+      extractionModel: 'mistral-small-latest',
+      reasoningModel: 'mistral-large-latest',
     })
 
     test('falls back to chat model when not configured', () => {
       const config = router.getModel('reasoning')
-      expect(config.model).toBe('gemini-3-flash-preview')
+      expect(config.model).toBe('mistral-small-latest')
       expect(config.taskType).toBe('reasoning')
     })
 
     test('uses dedicated model when configured', () => {
-      const config = routerWithClaude.getModel('reasoning')
-      expect(config.model).toBe('claude-sonnet-4-5')
+      const config = routerWithReasoning.getModel('reasoning')
+      expect(config.model).toBe('mistral-large-latest')
       expect(config.taskType).toBe('reasoning')
     })
 
@@ -64,21 +82,21 @@ describe('ModelRouter', () => {
     })
 
     test('hasReasoningModel returns true when configured', () => {
-      expect(routerWithClaude.hasReasoningModel()).toBe(true)
+      expect(routerWithReasoning.hasReasoningModel()).toBe(true)
     })
 
     test('getRoutingSummary shows reasoning model when configured', () => {
-      const summary = routerWithClaude.getRoutingSummary()
-      expect(summary.reasoning).toBe('claude-sonnet-4-5')
+      const summary = routerWithReasoning.getRoutingSummary()
+      expect(summary.reasoning).toBe('mistral-large-latest')
     })
   })
 
   test('getRoutingSummary shows all models', () => {
     const summary = router.getRoutingSummary()
-    expect(summary.chat).toBe('gemini-3-flash-preview')
-    expect(summary.embedding).toBe('gemini-embedding-001')
-    expect(summary.extraction).toBe('gemini-2.5-flash-lite')
-    expect(summary.reasoning).toBe('gemini-3-flash-preview (fallback)')
+    expect(summary.chat).toBe('mistral-small-latest')
+    expect(summary.embedding).toBe('mistral-embed')
+    expect(summary.extraction).toBe('mistral-small-latest')
+    expect(summary.reasoning).toBe('mistral-small-latest (fallback)')
   })
 
   test('throws on empty model string', () => {
@@ -86,8 +104,8 @@ describe('ModelRouter', () => {
       () =>
         new ModelRouter({
           model: '',
-          embeddingModel: 'gemini-embedding-001',
-          extractionModel: 'gemini-2.5-flash-lite',
+          embeddingModel: 'mistral-embed',
+          extractionModel: 'mistral-small-latest',
         })
     ).toThrow(/model is required and cannot be empty/)
   })
@@ -96,17 +114,11 @@ describe('ModelRouter', () => {
     expect(
       () =>
         new ModelRouter({
-          model: 'gemini-3-flash-preview',
-          embeddingModel: 'gemini-embedding-001',
-          extractionModel: 'gemini-2.5-flash-lite',
+          model: 'mistral-small-latest',
+          embeddingModel: 'mistral-embed',
+          extractionModel: 'mistral-small-latest',
           reasoningModel: '',
         })
     ).toThrow(/reasoningModel cannot be an empty string/)
-  })
-
-  test('isClaudeModel is case-insensitive', () => {
-    expect(ModelRouter.isClaudeModel('Claude-3-opus')).toBe(true)
-    expect(ModelRouter.isClaudeModel('CLAUDE-SONNET-4-5')).toBe(true)
-    expect(ModelRouter.isClaudeModel('gemini-3-flash')).toBe(false)
   })
 })

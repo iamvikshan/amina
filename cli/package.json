@@ -1,0 +1,42 @@
+{
+  "name": "amina",
+  "version": "3.2.5",
+  "description": "Standalone CLI for checking the latest Amina release and showing upgrade instructions",
+  "type": "module",
+  "license": "CC-BY-4.0",
+  "homepage": "https://github.com/iamvikshan/amina#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamvikshan/amina.git",
+    "directory": "cli"
+  },
+  "bugs": {
+    "url": "https://github.com/iamvikshan/amina/issues/new/choose"
+  },
+  "bin": {
+    "amina": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.3.8"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node --entry-naming index.js",
+    "postbuild": "node -e \"const f=require('fs'),p='dist/index.js',c=f.readFileSync(p,'utf8');if(!c.startsWith('#!'))f.writeFileSync(p,'#!/usr/bin/env node\\n'+c);f.chmodSync(p,0o755)\"",
+    "prepublishOnly": "bun run build && bun run postbuild",
+    "check": "bunx tsc --project tsconfig.json --noEmit",
+    "test": "bun test tests/"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0"
+  }
+}

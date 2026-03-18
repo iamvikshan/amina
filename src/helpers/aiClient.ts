@@ -1,18 +1,14 @@
 // @root/src/helpers/aiClient.ts
 
-import { GoogleGenAI, type GoogleGenAIOptions } from '@google/genai'
-import type { JWTInput } from 'google-auth-library'
+import { Mistral } from '@mistralai/mistralai'
+import Groq from 'groq-sdk'
 import Logger from './Logger'
 import type { MediaItem } from './mediaExtractor'
-
-// AiResponse and ConversationMessage are now globally available - see types/services.d.ts
-// These are still exported for runtime use, but types are global
-export type { AiResponse, ConversationMessage }
 
 /** Custom error for circuit breaker open state */
 export class AiCircuitBreakerError extends Error {
   constructor() {
-    super('AI circuit breaker open — service temporarily unavailable')
+    super('AI circuit breaker open -- service temporarily unavailable')
     this.name = 'AiCircuitBreakerError'
   }
 }
@@ -21,10 +17,10 @@ export class AiCircuitBreakerError extends Error {
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024
 
 export class AiClient {
-  private ai: GoogleGenAI
+  private mistral: Mistral
+  private groq: Groq | null
   private model: string
   private timeout: number
-  private authMode: 'api-key' | 'vertex'
 
   /** Retryable HTTP status codes */
   private static readonly RETRYABLE_STATUSES = new Set([429, 500, 502, 503])
@@ -34,52 +30,32 @@ export class AiClient {
   // Circuit breaker state
   private static circuitFailures = 0
   private static circuitOpenUntil = 0
-  private static readonly CIRCUIT_THRESHOLD = 5 // failures before opening
-  private static readonly CIRCUIT_RESET_MS = 30_000 // 30s open period
+  private static readonly CIRCUIT_THRESHOLD = 5
+  private static readonly CIRCUIT_RESET_MS = 30_000
 
-  /** Allowed media MIME types for Gemini */
-  private static readonly ALLOWED_MEDIA_TYPES = new Set([
+  /** Image-only MIME types for Pixtral vision */
+  private static readonly ALLOWED_IMAGE_TYPES = new Set([
     'image/jpeg',
     'image/png',
     'image/gif',
     'image/webp',
-    'video/mp4',
-    'video/webm',
-    'audio/mpeg',
-    'audio/wav',
-    'audio/ogg',
   ])
 
-  constructor(authConfig: AiAuthConfig, model: string, timeout: number) {
-    if (authConfig.mode === 'vertex') {
-      const options: GoogleGenAIOptions = {
-        vertexai: true,
-        project: authConfig.project,
-        location: authConfig.location,
-      }
-      if (authConfig.credentials) {
-        options.googleAuthOptions = {
-          credentials: authConfig.credentials as JWTInput,
-        }
-      }
-      this.ai = new GoogleGenAI(options)
-      this.authMode = 'vertex'
-    } else {
-      this.ai = new GoogleGenAI({ apiKey: authConfig.apiKey })
-      this.authMode = 'api-key'
-    }
-    this.model = model
-    this.timeout = timeout
+  constructor(config: {
+    mistralApiKey: string
+    groqApiKey?: string
+    model: string
+    timeout: number
+  }) {
+    this.mistral = new Mistral({ apiKey: config.mistralApiKey })
+    this.groq = config.groqApiKey
+      ? new Groq({ apiKey: config.groqApiKey })
+      : null
+    this.model = config.model
+    this.timeout = config.timeout
   }
 
-  /** Get the current auth mode */
-  getAuthMode(): 'api-key' | 'vertex' {
-    return this.authMode
-  }
-
-  /**
-   * Fetch image data from URL and convert to base64
-   */
+  /** Fetch image data from URL and convert to base64 */
   private async fetchImageAsBase64(url: string): Promise<string> {
     const controller = new AbortController()
     const timerId = setTimeout(() => controller.abort(), this.timeout)
@@ -111,163 +87,245 @@ export class AiClient {
           return '<invalid-url>'
         }
       })()
-      Logger.warn(`Failed to fetch image from ${safeUrl}: ${error.message}`)
+      Logger.error(`Failed to fetch image from ${safeUrl}: ${error.message}`)
       throw error
     } finally {
       clearTimeout(timerId)
     }
   }
 
-  /**
-   * Convert media items to Gemini API format
-   */
-  private async convertMediaToParts(
-    mediaItems: MediaItem[]
-  ): Promise<ContentPart[]> {
-    const tasks = mediaItems.map(async (media): Promise<ContentPart | null> => {
-      try {
-        const base64Data = await this.fetchImageAsBase64(media.url)
-
-        let mimeType = media.mimeType
-        if (!mimeType) {
-          let ext = ''
-          try {
-            ext = new URL(media.url, 'http://localhost').pathname.toLowerCase()
-          } catch {
-            ext = media.url.toLowerCase()
-          }
-
-          // Comprehensive MIME inference for images, video, and audio
-          const MIME_MAP: Record<string, string> = {
-            '.png': 'image/png',
-            '.gif': 'image/gif',
-            '.webp': 'image/webp',
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.mp4': 'video/mp4',
-            '.webm': 'video/webm',
-            '.mp3': 'audio/mpeg',
-            '.wav': 'audio/wav',
-            '.ogg': 'audio/ogg',
-          }
-
-          const matchedExt = Object.keys(MIME_MAP).find(e => ext.endsWith(e))
-          mimeType = matchedExt
-            ? MIME_MAP[matchedExt]
-            : 'application/octet-stream'
-        }
-
-        if (!AiClient.ALLOWED_MEDIA_TYPES.has(mimeType)) {
-          Logger.warn(`Unsupported media type: ${mimeType}, skipping`)
-          return null
-        }
-
-        return { inlineData: { data: base64Data, mimeType } }
-      } catch (_error: any) {
-        // Error already logged by fetchImageAsBase64
-        return null
-      }
-    })
-
-    const results = await Promise.all(tasks)
-    return results.filter((part): part is ContentPart => part !== null)
-  }
-
   async generateResponse(
     systemPrompt: string,
-    conversationHistory: globalThis.ConversationMessage[],
+    conversationHistory: ChatMessage[],
     userMessage: string,
     maxTokens: number,
     temperature: number,
     mediaItems?: MediaItem[],
-    tools?: any[]
-  ): Promise<globalThis.AiResponse> {
+    tools?: OpenAITool[]
+  ): Promise<AiResponse> {
     const startTime = Date.now()
 
     try {
-      this.checkCircuit()
+      const messages: ChatMessage[] = [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory,
+      ]
 
-      // Build contents array from history + current message
-      const contents: ConversationMessage[] = [...conversationHistory]
-
-      // Build current user message parts
-      const userParts: ContentPart[] = []
-      if (userMessage.trim()) {
-        userParts.push({ text: userMessage })
-      }
+      // Build user message, optionally with image content for Pixtral vision
+      let hasImages = false
       if (mediaItems && mediaItems.length > 0) {
-        const mediaParts = await this.convertMediaToParts(mediaItems)
-        userParts.push(...mediaParts)
-      }
-      // Only add user message if there are actual parts to send (avoids 400 errors from empty parts[])
-      if (userParts.length > 0) {
-        contents.push({ role: 'user', parts: userParts })
-      }
-
-      // Call generateContent
-      const response = await this.withRetry(() =>
-        this.withTimeout(
-          this.ai.models.generateContent({
-            model: this.model,
-            contents,
-            config: {
-              systemInstruction: systemPrompt,
-              maxOutputTokens: maxTokens,
-              temperature,
-              tools: tools ? [{ functionDeclarations: tools }] : undefined,
-            },
-          }),
-          this.timeout
-        )
-      )
-
-      this.recordSuccess()
-
-      const text = response.text ?? ''
-      const functionCalls = response.functionCalls
-      const tokensUsed = response.usageMetadata?.totalTokenCount ?? 0
-      const promptTokens = response.usageMetadata?.promptTokenCount ?? 0
-      const completionTokens = response.usageMetadata?.candidatesTokenCount ?? 0
-      const latency = Date.now() - startTime
-
-      // We always use the first candidate (single-candidate mode)
-      const rawParts = response.candidates?.[0]?.content?.parts
-      const modelContent: ContentPart[] | undefined = rawParts
-        ? rawParts.filter(
-            (p): p is ContentPart =>
-              typeof p === 'object' &&
-              p !== null &&
-              ('text' in p ||
-                'inlineData' in p ||
-                'functionCall' in p ||
-                'functionResponse' in p)
-          )
-        : undefined
-
-      return {
-        text,
-        tokensUsed,
-        promptTokens,
-        completionTokens,
-        latency,
-        functionCalls: functionCalls?.map(fc => {
-          if (!fc.name) {
+        const imageContents: any[] = []
+        if (userMessage.trim()) {
+          imageContents.push({ type: 'text', text: userMessage })
+        }
+        for (const media of mediaItems) {
+          if (!AiClient.ALLOWED_IMAGE_TYPES.has(media.mimeType)) {
             Logger.warn(
-              `Function call received without name, using 'unknown'. Full call: ${JSON.stringify(fc)}`
+              `Unsupported media type for AI vision: ${media.mimeType}, skipping`
             )
+            continue
           }
-          return { name: fc.name ?? 'unknown', args: fc.args ?? {} }
-        }),
-        modelContent: modelContent ?? (text ? [{ text }] : undefined),
+          try {
+            const base64 = await this.fetchImageAsBase64(media.url)
+            imageContents.push({
+              type: 'image_url',
+              image_url: {
+                url: `data:${media.mimeType};base64,${base64}`,
+              },
+            })
+            hasImages = true
+          } catch {
+            // Already logged by fetchImageAsBase64
+          }
+        }
+        if (imageContents.length > 0) {
+          messages.push({ role: 'user', content: imageContents } as any)
+        }
+      } else if (userMessage.trim()) {
+        messages.push({ role: 'user', content: userMessage })
+      }
+
+      // Use pixtral-large-latest for vision requests
+      const model = hasImages ? 'pixtral-large-latest' : this.model
+
+      const circuitOpen = this.isCircuitOpen()
+
+      if (!circuitOpen) {
+        try {
+          const response = await this.callMistral(
+            messages,
+            model,
+            maxTokens,
+            temperature,
+            tools
+          )
+          this.recordSuccess()
+          return { ...response, latency: Date.now() - startTime }
+        } catch (mistralError: any) {
+          this.recordFailure()
+          if (!this.groq || hasImages) throw mistralError
+          Logger.warn(
+            `Mistral API failed (${mistralError.message}), falling back to Groq`
+          )
+        }
+      } else if (!this.groq || hasImages) {
+        throw new AiCircuitBreakerError()
+      } else {
+        Logger.warn('Mistral circuit breaker open, using Groq directly')
+      }
+
+      // Groq fallback (either circuit was open or Mistral failed)
+      try {
+        const response = await this.callGroq(
+          messages,
+          maxTokens,
+          temperature,
+          tools
+        )
+        return { ...response, latency: Date.now() - startTime }
+      } catch (groqError: any) {
+        // If Groq fails because the model hallucinated a bad tool call,
+        // retry without tools so the user still gets a text response.
+        if (
+          groqError?.status === 400 &&
+          tools?.length &&
+          String(groqError.message).includes('tool_use_failed')
+        ) {
+          Logger.warn(
+            'Groq tool_use_failed, retrying without tools for text-only response'
+          )
+          const cleaned = this.stripToolMessages(messages)
+          const response = await this.callGroq(cleaned, maxTokens, temperature)
+          return { ...response, latency: Date.now() - startTime }
+        }
+        throw groqError
       }
     } catch (error: any) {
-      // Don't count circuit breaker errors as new failures
-      if (!(error instanceof AiCircuitBreakerError)) {
-        this.recordFailure()
-      }
       const latency = Date.now() - startTime
       this.handleError(error || new Error('Unknown error'), latency)
       throw error
+    }
+  }
+
+  /** Remove tool-related messages so a retry without tools won't be rejected. */
+  private stripToolMessages(messages: ChatMessage[]): ChatMessage[] {
+    return messages
+      .filter(m => m.role !== 'tool')
+      .map(m => {
+        if (m.role === 'assistant' && m.tool_calls) {
+          const { tool_calls: _tc, tool_call_id: _id, ...rest } = m
+          return rest as ChatMessage
+        }
+        return m
+      })
+  }
+
+  /** Map our snake_case ChatMessage[] to the camelCase the Mistral SDK expects */
+  private toMistralMessages(
+    messages: ChatMessage[]
+  ): Record<string, unknown>[] {
+    return messages.map(msg => {
+      if (msg.role === 'assistant' && msg.tool_calls) {
+        const { tool_calls, ...rest } = msg
+        return { ...rest, toolCalls: tool_calls }
+      }
+      if (msg.role === 'tool' && msg.tool_call_id) {
+        const { tool_call_id, ...rest } = msg
+        return { ...rest, toolCallId: tool_call_id }
+      }
+      return { ...msg }
+    })
+  }
+
+  private async callMistral(
+    messages: ChatMessage[],
+    model: string,
+    maxTokens: number,
+    temperature: number,
+    tools?: OpenAITool[]
+  ): Promise<Omit<AiResponse, 'latency'>> {
+    const response = await this.withRetry(() =>
+      this.withTimeout(
+        this.mistral.chat.complete({
+          model,
+          messages: this.toMistralMessages(messages) as any,
+          maxTokens,
+          temperature,
+          tools: tools as any,
+        }),
+        this.timeout
+      )
+    )
+
+    const choice = response.choices?.[0]
+    const text = (choice?.message?.content as string) ?? ''
+
+    // Mistral uses camelCase: toolCalls
+    const rawToolCalls = choice?.message?.toolCalls
+    const toolCalls: ToolCall[] | undefined = rawToolCalls?.map(tc => ({
+      id: tc.id ?? '',
+      type: 'function' as const,
+      function: {
+        name: tc.function?.name ?? '',
+        arguments:
+          typeof tc.function?.arguments === 'string'
+            ? tc.function.arguments
+            : JSON.stringify(tc.function?.arguments ?? {}),
+      },
+    }))
+
+    return {
+      text,
+      tokensUsed: response.usage?.totalTokens ?? 0,
+      promptTokens: response.usage?.promptTokens ?? 0,
+      completionTokens: response.usage?.completionTokens ?? 0,
+      toolCalls: toolCalls?.length ? toolCalls : undefined,
+    }
+  }
+
+  private async callGroq(
+    messages: ChatMessage[],
+    maxTokens: number,
+    temperature: number,
+    tools?: OpenAITool[]
+  ): Promise<Omit<AiResponse, 'latency'>> {
+    const response = await this.withRetry(() =>
+      this.withTimeout(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- groq is checked by caller
+        this.groq!.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: messages as any,
+          max_tokens: maxTokens,
+          temperature,
+          tools: tools as any,
+        }),
+        this.timeout
+      )
+    )
+
+    const choice = response.choices?.[0]
+    const text = choice?.message?.content ?? ''
+
+    // Groq uses snake_case: tool_calls
+    const rawToolCalls = choice?.message?.tool_calls
+    const toolCalls: ToolCall[] | undefined = rawToolCalls?.map(tc => ({
+      id: tc.id ?? '',
+      type: 'function' as const,
+      function: {
+        name: tc.function?.name ?? '',
+        arguments:
+          typeof tc.function?.arguments === 'string'
+            ? tc.function.arguments
+            : JSON.stringify(tc.function?.arguments ?? {}),
+      },
+    }))
+
+    return {
+      text,
+      tokensUsed: response.usage?.total_tokens ?? 0,
+      promptTokens: response.usage?.prompt_tokens ?? 0,
+      completionTokens: response.usage?.completion_tokens ?? 0,
+      toolCalls: toolCalls?.length ? toolCalls : undefined,
     }
   }
 
@@ -300,20 +358,12 @@ export class AiClient {
     throw lastError
   }
 
-  private checkCircuit(): void {
-    if (
-      AiClient.circuitFailures >= AiClient.CIRCUIT_THRESHOLD &&
-      Date.now() < AiClient.circuitOpenUntil
-    ) {
-      throw new AiCircuitBreakerError()
-    }
-    // Reset if we're past the open window
-    if (
-      Date.now() >= AiClient.circuitOpenUntil &&
-      AiClient.circuitFailures >= AiClient.CIRCUIT_THRESHOLD
-    ) {
+  private isCircuitOpen(): boolean {
+    if (AiClient.circuitFailures >= AiClient.CIRCUIT_THRESHOLD) {
+      if (Date.now() < AiClient.circuitOpenUntil) return true
       AiClient.circuitFailures = 0
     }
+    return false
   }
 
   private recordSuccess(): void {
@@ -322,10 +372,9 @@ export class AiClient {
 
   private recordFailure(): void {
     AiClient.circuitFailures++
-    // Only set the open window on the exact transition to OPEN
     if (AiClient.circuitFailures === AiClient.CIRCUIT_THRESHOLD) {
       AiClient.circuitOpenUntil = Date.now() + AiClient.CIRCUIT_RESET_MS
-      Logger.warn(
+      Logger.error(
         `AI circuit breaker OPEN after ${AiClient.circuitFailures} failures (reset in ${AiClient.CIRCUIT_RESET_MS / 1000}s)`
       )
     }
@@ -367,17 +416,17 @@ export class AiClient {
     const errorStatus = error.status
 
     if (errorMessage === 'API timeout') {
-      Logger.warn(`AI API timeout after ${latency}ms`)
+      Logger.error(`AI API timeout after ${latency}ms`)
       return
     }
 
     if (errorStatus === 429 || errorMessage.includes('quota')) {
-      Logger.warn(`AI API quota exceeded: ${errorMessage}`)
+      Logger.error(`AI API quota exceeded: ${errorMessage}`)
       return
     }
 
     if (errorStatus === 400) {
-      Logger.warn(`AI API invalid request: ${errorMessage}`)
+      Logger.error(`AI API invalid request: ${errorMessage}`)
       return
     }
 

@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { timeformat } from '@helpers/Utils'
-import { config, secret } from '@src/config'
+import { config } from '@src/config'
 import botstats from './sub/botstats'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
@@ -11,7 +11,6 @@ import { mina } from '@helpers/mina'
 import { Logger } from '@helpers/Logger'
 
 import type { BotClient } from '@structures/BotClient'
-import packageJson from '@root/package.json'
 
 const command: CommandData = {
   name: 'mina',
@@ -157,30 +156,11 @@ const command: CommandData = {
     // Changelog
     else if (sub === 'changelog') {
       try {
-        const githubToken = secret.GH_TOKEN
-        const octokitModule = await import('@octokit/rest')
-        const Octokit = octokitModule.Octokit
-        const octokitOptions = githubToken ? { auth: githubToken } : {}
-
-        const octokit = new Octokit(octokitOptions)
-
-        // Parse owner and repo from package.json repository url
-        // Format: git+https://github.com/owner/repo.git
-        const repoUrl = packageJson.repository.url
-        const repoMatch = repoUrl.match(/github\.com\/([^/]+)\/([^/.]+)/)
-        const owner = repoMatch ? repoMatch[1] : 'iamvikshan'
-        const repo = repoMatch ? repoMatch[2] : 'amina'
-
-        const response = await octokit.repos.getContent({
-          owner,
-          repo,
-          path: 'CHANGELOG.md',
-        })
-
-        const changelogContent = Buffer.from(
-          (response.data as any).content,
-          'base64'
-        ).toString('utf-8')
+        const response = await fetch(
+          'https://raw.githubusercontent.com/iamvikshan/amina/main/CHANGELOG.md'
+        )
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        const changelogContent = await response.text()
 
         // Split the changelog into version blocks and get only the first two versions
         const versions = changelogContent

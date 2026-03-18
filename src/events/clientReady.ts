@@ -13,7 +13,6 @@ import { memoryService } from '@src/services/memoryService'
 import { memoryManipulator } from '@src/services/memoryManipulator'
 import { aiMetrics } from '@src/services/aiMetrics'
 import { config } from '@src/config'
-import { logCredentialPrecedence } from '@src/config/secrets'
 import BotUtils from '@helpers/BotUtils'
 
 /**
@@ -22,13 +21,10 @@ import BotUtils from '@helpers/BotUtils'
  */
 export default async (client: BotClient): Promise<void> => {
   client.logger.success(
-    `Logged in as ${client.user?.tag}! (${client.user?.id})`
+    `Logged in as ${client.user?.tag}!` /* (${client.user?.id}) */
   )
 
   // Initialize AI Responder Service
-  // Log Vertex AI credential precedence
-  logCredentialPrecedence()
-
   await aiResponderService.initialize()
   // client.logger.success('AI Responder Service initialized')
 
@@ -40,24 +36,9 @@ export default async (client: BotClient): Promise<void> => {
   const { configCache } = await import('@src/config/aiResponder')
   try {
     const aiConfig = await configCache.getConfig()
-    // Build auth config from discriminated AiConfig — credentials are pre-parsed by configCache
-    const authConfig: AiAuthConfig =
-      aiConfig.authMode === 'vertex'
-        ? {
-            mode: 'vertex',
-            project: aiConfig.vertexProjectId,
-            location: aiConfig.vertexRegion,
-            credentials: aiConfig.parsedCredentials,
-          }
-        : (() => {
-            if (!aiConfig.geminiKey) {
-              throw new Error('API key mode requires a non-empty GEMINI_KEY')
-            }
-            return { mode: 'api-key' as const, apiKey: aiConfig.geminiKey }
-          })()
 
     await memoryService.initialize({
-      authConfig,
+      mistralApiKey: aiConfig.mistralApiKey,
       embeddingModel: aiConfig.embeddingModel,
       extractionModel: aiConfig.extractionModel,
       dedupThreshold: aiConfig.dedupThreshold,
@@ -66,6 +47,49 @@ export default async (client: BotClient): Promise<void> => {
     // Initialize Memory Manipulator tools
     memoryManipulator.initialize(memoryService)
     memoryManipulator.registerTools(aiCommandRegistry)
+
+    // One-time migration: re-embed memories with old 3072-dim embeddings to new 1024-dim
+    try {
+      const { Model } = await import('@schemas/AiMemory')
+      const oldDimMemories = await Model.collection
+        .find({ $expr: { $eq: [{ $size: '$embedding' }, 3072] } })
+        .toArray()
+
+      if (oldDimMemories.length > 0) {
+        client.logger.log(
+          `Re-embedding ${oldDimMemories.length} memories from 3072-dim to 1024-dim...`
+        )
+        let updated = 0
+        let failed = 0
+
+        for (const memory of oldDimMemories) {
+          try {
+            const text = `${memory.key}: ${memory.value}`
+            const embeddingResult = await memoryService.generateEmbedding(text)
+            if (embeddingResult) {
+              await Model.collection.updateOne(
+                { _id: memory._id },
+                { $set: { embedding: embeddingResult } }
+              )
+              updated++
+            } else {
+              failed++
+            }
+          } catch (err: any) {
+            failed++
+            client.logger.debug(
+              `Failed to re-embed memory ${memory._id}: ${err.message}`
+            )
+          }
+        }
+
+        client.logger.success(
+          `Re-embedding complete: ${updated} updated, ${failed} failed`
+        )
+      }
+    } catch (err: any) {
+      client.logger.debug(`Re-embedding check skipped: ${err.message}`)
+    }
   } catch (error: any) {
     client.logger.warn(
       `Memory Service disabled - configuration error: ${error.message || error}`
@@ -92,7 +116,7 @@ export default async (client: BotClient): Promise<void> => {
     //   client.logger.log('Initializing the giveaways manager...')
     client.giveawaysManager
       ._init()
-      .then(() => client.logger.success('Giveaway Manager is up and running!'))
+      .then(() => client.logger.success('Giveaway Manager initialized'))
   }
 
   // Initialize Presence Handler
@@ -328,9 +352,9 @@ export default async (client: BotClient): Promise<void> => {
             )
             await new Promise(resolve => setTimeout(resolve, 2000))
           } else {
-            client.logger.success(
-              'Test guild commands are up to date. Skipping registration.'
-            )
+            // client.logger.success(
+            //   'Test guild commands are up to date. Skipping registration.'
+            // )
           }
         } catch (error: any) {
           client.logger.error(
@@ -387,9 +411,9 @@ export default async (client: BotClient): Promise<void> => {
               `Synced ${globalCommands.length} global commands (${changedCommands.length} changed: ${changedCommands.join(', ')}) (took ${duration}ms)`
             )
           } else {
-            client.logger.success(
-              'Global commands are up to date. Skipping registration.'
-            )
+            // client.logger.success(
+            //   'Global commands are up to date. Skipping registration.'
+            // )
           }
         } catch (error: any) {
           // Log the error but don't fallback to per-guild registration

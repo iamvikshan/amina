@@ -83,11 +83,6 @@
       "required": false,
       "value": ""
     },
-    "GH_TOKEN": {
-      "description": "GitHub token for changelog command (https://github.com/settings/tokens)",
-      "required": false,
-      "value": ""
-    },
     "HONEYBADGER_API_KEY": {
       "description": "Honeybadger error tracking (https://www.honeybadger.io)",
       "required": false,

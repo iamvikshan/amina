@@ -74,14 +74,6 @@ export class ModelRouter {
   }
 
   /**
-   * Check if a model ID is a Claude model (for routing to ClaudeClient)
-   */
-  static isClaudeModel(modelId: string | null | undefined): boolean {
-    if (!modelId || typeof modelId !== 'string') return false
-    return modelId.toLowerCase().startsWith('claude-')
-  }
-
-  /**
    * Check if a dedicated reasoning model is configured
    */
   hasReasoningModel(): boolean {

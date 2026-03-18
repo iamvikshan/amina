@@ -147,7 +147,7 @@ export default class BotClient extends Client {
 
   // Load and register events from a directory
   loadEvents(directory: string): void {
-    this.logger.log('Loading events...')
+    // this.logger.log('Loading events...')
     const clientEvents: any[] = []
     let success = 0
     let failed = 0
@@ -227,7 +227,7 @@ export default class BotClient extends Client {
 
   // Load and register all commands from a directory
   loadCommands(directory: string): void {
-    this.logger.log('Loading commands...')
+    // this.logger.log('Loading commands...')
     const files = Utils.recursiveReadDirSync(directory, ['.js', '.ts'])
     for (const file of files) {
       try {
@@ -253,7 +253,7 @@ export default class BotClient extends Client {
 
   // Load and register all context menus from a directory
   loadContexts(directory: string): void {
-    this.logger.log('Loading contexts...')
+    // this.logger.log('Loading contexts...')
     const files = Utils.recursiveReadDirSync(directory, ['.js', '.ts'])
     for (const file of files) {
       try {

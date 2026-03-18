@@ -2,29 +2,34 @@
 
 import mongoose from 'mongoose'
 
-const MessagePartSchema = new mongoose.Schema(
+const ToolCallFunctionSchema = new mongoose.Schema(
   {
-    text: { type: String },
-    inlineData: {
-      data: { type: String },
-      mimeType: { type: String },
-    },
-    functionCall: {
-      name: { type: String },
-      args: { type: mongoose.Schema.Types.Mixed },
-    },
-    functionResponse: {
-      name: { type: String },
-      response: { type: mongoose.Schema.Types.Mixed },
-    },
+    name: { type: String },
+    arguments: { type: String },
   },
-  { _id: false, strict: false }
+  { _id: false }
+)
+
+const ToolCallSchema = new mongoose.Schema(
+  {
+    id: { type: String },
+    type: { type: String, default: 'function' },
+    function: { type: ToolCallFunctionSchema },
+  },
+  { _id: false }
 )
 
 const MessageSchema = new mongoose.Schema(
   {
-    role: { type: String, enum: ['user', 'model'], required: true },
-    parts: { type: [MessagePartSchema], required: true },
+    role: {
+      type: String,
+      enum: ['user', 'assistant', 'tool', 'system'],
+      required: true,
+    },
+    content: { type: String, default: '' },
+    tool_calls: { type: [ToolCallSchema] },
+    tool_call_id: { type: String },
+    name: { type: String },
     timestamp: { type: Number, required: true },
     userId: { type: String },
     username: { type: String },

@@ -113,13 +113,10 @@ declare global {
     readonly LOGS_WEBHOOK?: string
 
     // API Keys & Tokens
-    readonly GEMINI_KEY?: string
-    readonly GOOGLE_SERVICE_ACCOUNT_JSON?: string
-    readonly VERTEX_PROJECT_ID?: string
-    readonly VERTEX_REGION?: string
+    readonly MISTRAL?: string
+    readonly GROQ?: string
     readonly WEATHERSTACK_KEY?: string
     readonly STRANGE_API_KEY?: string
-    readonly GH_TOKEN?: string
     readonly SPOTIFY_CLIENT_ID?: string
     readonly SPOTIFY_CLIENT_SECRET?: string
     readonly HONEYBADGER_API_KEY?: string
@@ -135,7 +132,7 @@ declare global {
     }>
   }
 
-  interface AiConfigBase {
+  interface AiConfig {
     globallyEnabled: boolean
     model: string
     embeddingModel: string
@@ -146,48 +143,14 @@ declare global {
     temperature: number
     dmEnabledGlobally: boolean
     dedupThreshold: number
+    mistralApiKey: string
+    groqApiKey?: string
   }
 
-  interface ApiKeyAiConfig extends AiConfigBase {
-    authMode: 'api-key'
-    geminiKey?: string
-    // Optional — may have vertex fields even in api-key mode (for display/future fallback)
-    vertexProjectId?: string
-    vertexRegion?: string
-    googleServiceAccountJson?: string
+  interface AiAuthConfig {
+    mistralApiKey: string
+    groqApiKey?: string
   }
-
-  /**
-   * Parsed Google service account JSON credentials.
-   * Index signature allows extra vendor-specific fields.
-   */
-  interface GoogleServiceAccountCredentials {
-    project_id: string
-    private_key: string
-    client_email: string
-    private_key_id?: string
-    client_id?: string
-    type?: string
-    auth_uri?: string
-    token_uri?: string
-    [key: string]: unknown
-  }
-
-  interface VertexAiConfig extends AiConfigBase {
-    authMode: 'vertex'
-    vertexProjectId: string
-    vertexRegion: string
-    googleServiceAccountJson: string
-    parsedCredentials: GoogleServiceAccountCredentials
-    geminiKey?: string // optional fallback key
-  }
-
-  type AiConfig = ApiKeyAiConfig | VertexAiConfig
-
-  /** Auth config subset used at runtime to initialize AI clients (constructed from AiConfig) */
-  type AiAuthConfig =
-    | { mode: 'api-key'; apiKey: string }
-    | { mode: 'vertex'; project: string; location: string; credentials?: import('google-auth-library').JWTInput }
 }
 
 export {}

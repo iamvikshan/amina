@@ -94,11 +94,6 @@
       "matchManagers": ["dockerfile"],
       "automerge": true,
       "minimumReleaseAge": "3 days"
-    },
-    {
-      "description": "Limit google-auth-library to v9.x (v10 breaks @anthropic-ai/vertex-sdk types)",
-      "matchPackageNames": ["google-auth-library"],
-      "allowedVersions": "<10.0.0"
     }
   ],
   "lockFileMaintenance": {

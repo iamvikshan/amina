@@ -11,12 +11,12 @@ import Logger from '@helpers/Logger'
 export async function aiStatus(interaction: ChatInputCommandInteraction) {
   const config = await getAiConfig()
 
-  // Get auth mode info - gracefully handle config cache errors
+  // Get provider info - gracefully handle config cache errors
   let authModeDisplay: string
   let routingDisplay: Record<string, string>
   try {
     const fullConfig = await configCache.getConfig()
-    authModeDisplay = `\`${fullConfig.authMode}\`${fullConfig.authMode === 'vertex' ? ` (${fullConfig.vertexRegion})` : ''}`
+    authModeDisplay = `Mistral${fullConfig.groqApiKey ? ' + Groq' : ''}`
     const router = new ModelRouter({
       model: fullConfig.model,
       embeddingModel: fullConfig.embeddingModel,
@@ -70,7 +70,7 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
         inline: true,
       },
       {
-        name: 'auth mode',
+        name: 'providers',
         value: authModeDisplay,
         inline: true,
       },

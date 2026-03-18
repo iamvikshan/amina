@@ -11,15 +11,15 @@ const MEMORY_TOOLS = [
     description:
       'Store a new fact or piece of information about the user. Use when the user shares something worth remembering (preferences, facts about themselves, important details).',
     parameters: {
-      type: 'OBJECT',
+      type: 'object',
       properties: {
         fact: {
-          type: 'STRING',
+          type: 'string',
           description:
             'The fact or information to remember (e.g., "likes dogs", "is a software engineer")',
         },
         context: {
-          type: 'STRING',
+          type: 'string',
           description: 'Brief context about when/why this was shared',
         },
       },
@@ -31,15 +31,15 @@ const MEMORY_TOOLS = [
     description:
       'Update an existing memory when the user corrects or changes a previously stored fact. Use when the user says things like "actually I prefer X now" or "I changed my mind about Y".',
     parameters: {
-      type: 'OBJECT',
+      type: 'object',
       properties: {
         description: {
-          type: 'STRING',
+          type: 'string',
           description:
             'Description of the memory to find and update (what was previously remembered)',
         },
         new_value: {
-          type: 'STRING',
+          type: 'string',
           description:
             'The new/updated information to replace the old memory with',
         },
@@ -52,10 +52,10 @@ const MEMORY_TOOLS = [
     description:
       'Delete a specific memory when the user asks to forget something. Use when the user says "forget that I like X" or "don\'t remember that anymore".',
     parameters: {
-      type: 'OBJECT',
+      type: 'object',
       properties: {
         description: {
-          type: 'STRING',
+          type: 'string',
           description: 'Description of the memory to find and delete',
         },
       },
@@ -67,14 +67,14 @@ const MEMORY_TOOLS = [
     description:
       'Search and retrieve stored memories about a topic or the user. Use when you need to check what you remember about something specific.',
     parameters: {
-      type: 'OBJECT',
+      type: 'object',
       properties: {
         query: {
-          type: 'STRING',
+          type: 'string',
           description: 'What to search for in stored memories',
         },
         limit: {
-          type: 'INTEGER',
+          type: 'integer',
           description: 'Maximum number of memories to return (default: 5)',
         },
       },

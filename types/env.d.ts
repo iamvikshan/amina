@@ -9,12 +9,10 @@ declare global {
       MONGO_CONNECTION: string
       // Secrets - Optional
       LOGS_WEBHOOK?: string
-      GEMINI_KEY?: string
-      GOOGLE_SERVICE_ACCOUNT_JSON?: string
-      VERTEX_PROJECT_ID?: string
+      MISTRAL?: string
+      GROQ?: string
       WEATHERSTACK_KEY?: string
       STRANGE_API_KEY?: string
-      GH_TOKEN?: string
       SPOTIFY_CLIENT_ID?: string
       SPOTIFY_CLIENT_SECRET?: string
       HONEYBADGER_API_KEY?: string

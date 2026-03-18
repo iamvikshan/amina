@@ -136,13 +136,10 @@ declare module '@src/config' {
     readonly LOGS_WEBHOOK?: string
 
     // API Keys & Tokens
-    readonly GEMINI_KEY?: string
-    readonly GOOGLE_SERVICE_ACCOUNT_JSON?: string
-    readonly VERTEX_PROJECT_ID?: string
-    readonly VERTEX_REGION?: string
+    readonly MISTRAL?: string
+    readonly GROQ?: string
     readonly WEATHERSTACK_KEY?: string
     readonly STRANGE_API_KEY?: string
-    readonly GH_TOKEN?: string
     readonly SPOTIFY_CLIENT_ID?: string
     readonly SPOTIFY_CLIENT_SECRET?: string
     readonly HONEYBADGER_API_KEY?: string

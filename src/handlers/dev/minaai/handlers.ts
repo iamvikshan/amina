@@ -35,13 +35,13 @@ export async function showMinaAiMenu(
 ): Promise<void> {
   const config = await getAiConfig()
 
-  // Get full config with auth mode for display
-  let authModeDisplay = 'api-key'
+  // Get full config with provider info for display
+  let authModeDisplay = 'Mistral'
   let embeddingModelDisplay = 'default'
   let extractionModelDisplay = 'default'
   try {
     const fullConfig = await configCache.getConfig()
-    authModeDisplay = `${fullConfig.authMode}${fullConfig.authMode === 'vertex' ? ` (${fullConfig.vertexRegion})` : ''}`
+    authModeDisplay = `Mistral${fullConfig.groqApiKey ? ' + Groq' : ''}`
     const router = new ModelRouter({
       model: fullConfig.model,
       embeddingModel: fullConfig.embeddingModel,
@@ -113,7 +113,7 @@ export async function showMinaAiMenu(
         inline: true,
       },
       {
-        name: 'auth mode',
+        name: 'providers',
         value: `\`${authModeDisplay}\``,
         inline: true,
       },
@@ -158,7 +158,7 @@ export async function showMinaAiMenu(
           .setValue('toggle-global'),
         new StringSelectMenuOptionBuilder()
           .setLabel('set model')
-          .setDescription('change the gemini model')
+          .setDescription('change the AI model')
           .setValue('set-model'),
         new StringSelectMenuOptionBuilder()
           .setLabel('set tokens')
@@ -437,7 +437,7 @@ async function showModelModal(
     customId: 'model',
     label: 'Model Name',
     style: TextInputStyle.Short,
-    placeholder: 'e.g., gemini-flash-latest',
+    placeholder: 'e.g., mistral-small-latest',
     required: true,
     maxLength: 100,
   })
@@ -448,7 +448,7 @@ async function showModelModal(
 
   const modal = new ModalBuilder({
     customId: 'dev:modal:minaai_model',
-    title: 'Set Gemini Model',
+    title: 'Set AI Model',
     components: [firstRow],
   })
 

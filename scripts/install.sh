@@ -10,7 +10,7 @@
 #   Handles prerequisites, environment configuration, and Docker deployment.
 #
 # Usage:
-#   ./local.sh [options] [deployment_path]
+#   ./install.sh [options] [deployment_path]
 #
 # Options:
 #   --dry-run           Run through all steps without making changes
@@ -438,14 +438,14 @@ handle_docker_permissions() {
     # Check if user is already in docker group
     if id -nG "$USER" 2>/dev/null | grep -qw docker; then
         log_warning "User is in docker group but session not updated"
-        log_error "Please log out and log back in to apply docker group permissions, then run this script again"
-        exit 1
+        log_info "Please log out and log back in to apply docker group permissions, then run this script again"
+        exit 0
     else
         log_info "Adding user '$USER' to docker group..."
         if sudo usermod -aG docker "$USER"; then
             log_success "User added to docker group"
-            log_error "Please log out and log back in to apply docker group permissions, then run this script again"
-            exit 1
+            log_info "Please log out and log back in to apply docker group permissions, then run this script again"
+            exit 0
         else
             log_error "Failed to add user to docker group"
             exit 1
@@ -1182,7 +1182,7 @@ show_health_and_dashboard() {
     echo -e "    Clean orphans:   ${DIM}cd ${DEPLOY_PATH} && docker compose down --remove-orphans${NC}"
     echo -e "    Prune images:    ${DIM}cd ${DEPLOY_PATH} && docker image prune -f${NC}"
     echo -e "    Full cleanup:    ${DIM}docker system prune -f${NC}"
-    echo -e "    Uninstall:       ${DIM}./local.sh --uninstall ${DEPLOY_PATH}${NC}"
+    echo -e "    Uninstall:       ${DIM}./install.sh --uninstall ${DEPLOY_PATH}${NC}"
     echo ""
     echo -e "${BOLD}${CYAN}══════════════════════════════════════════════════${NC}"
 

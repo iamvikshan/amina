@@ -1,6 +1,6 @@
 // src/helpers/BotUtils.ts
 import HttpUtils from '@helpers/HttpUtils'
-import { success, warn, error } from '@helpers/Logger'
+import { /*success,*/ warn, error } from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import type { Message } from 'discord.js'
 // Validation is now globally available - see types/commands.d.ts
@@ -13,41 +13,52 @@ export default class BotUtils {
    * Check if the bot is up to date
    */
   static async checkForUpdates(): Promise<void> {
+    let latestVersion: string
+
     const response = await HttpUtils.getJson(
       'https://api.github.com/repos/iamvikshan/amina/releases/latest'
     )
 
-    if (!response.success) {
-      return error('VersionCheck: Failed to check for bot updates')
+    if (response.success && response.data?.tag_name) {
+      latestVersion = (response.data.tag_name as string).replace(/^v/, '')
+    } else {
+      // Try npm registry as fallback
+      const npmResponse = await HttpUtils.getJson(
+        'https://registry.npmjs.org/amina/latest'
+      )
+      if (!npmResponse.success || !npmResponse.data?.version) {
+        return error(
+          'VersionCheck: Failed to check for bot updates (GitHub and npm both failed)'
+        )
+      }
+      latestVersion = npmResponse.data.version
     }
 
-    if (response.data) {
-      const packageJson = await import('@root/package.json')
-      const currentVersion = packageJson.default.version
-      const latestVersion = (response.data.tag_name as string).replace(/^v/, '')
+    const packageJson = await import('@root/package.json')
+    const currentVersion = packageJson.default.version
 
-      // Simple semver compare
-      const v1 = currentVersion.split('.').map(Number)
-      const v2 = latestVersion.split('.').map(Number)
+    const v1 = currentVersion.split('.').map(Number)
+    const v2 = latestVersion.split('.').map(Number)
 
-      let isUpdateAvailable = false
-      for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
-        const num1 = v1[i] || 0
-        const num2 = v2[i] || 0
-        if (num1 < num2) {
-          isUpdateAvailable = true
-          break
-        } else if (num1 > num2) {
-          break
-        }
+    let isUpdateAvailable = false
+    for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
+      const num1 = v1[i] || 0
+      const num2 = v2[i] || 0
+      if (num1 < num2) {
+        isUpdateAvailable = true
+        break
+      } else if (num1 > num2) {
+        break
       }
+    }
 
-      if (!isUpdateAvailable) {
-        success('VersionCheck: Your discord bot is up to date')
-      } else {
-        warn(`VersionCheck: ${response.data.tag_name} update is available`)
-        warn('download: https://github.com/iamvikshan/amina/releases/latest')
-      }
+    if (isUpdateAvailable) {
+      warn(`VersionCheck: v${latestVersion} update is available`)
+      warn(
+        'Run `bunx amina update` to update, or visit: https://github.com/iamvikshan/amina/releases/latest'
+      )
+    } else {
+      // success('VersionCheck: Your discord bot is up to date')
     }
   }
 

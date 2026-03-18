@@ -1,15 +1,33 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
 // Mock Logger to avoid side effects
+const mockLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  log: () => {},
+  success: () => {},
+}
+
 mock.module('../src/helpers/Logger', () => ({
-  default: {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    log: () => {},
-    success: () => {},
-  },
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
+}))
+
+mock.module('@helpers/Logger', () => ({
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
 }))
 
 import { AiMetricsService, type AiMetricsDeps } from '../src/services/aiMetrics'

@@ -7,15 +7,16 @@ import {
   deleteConversation,
 } from '@schemas/Conversation'
 
-// ContentPart is globally declared in types/services.d.ts
 export interface Message {
-  role: 'user' | 'model'
-  parts: ContentPart[]
+  role: 'user' | 'assistant' | 'tool' | 'system'
+  content: string
   timestamp: number
-  // User attribution fields (optional for backward compatibility)
-  userId?: string // Discord user ID
-  username?: string // Display name for context
-  displayName?: string // Guild nickname or username
+  tool_calls?: ToolCall[]
+  tool_call_id?: string
+  name?: string
+  userId?: string
+  username?: string
+  displayName?: string
 }
 
 interface ConversationEntry {
@@ -45,83 +46,164 @@ export class ConversationBuffer {
     this.startCleanupDaemon()
   }
 
-  /**
-   * Extract text content from a parts-based message.
-   * Parts are joined with a space so adjacent texts don't merge;
-   * empty text parts are skipped and surrounding whitespace is trimmed.
-   */
   static getTextContent(message: Message): string {
-    return message.parts
-      .map(part => ('text' in part ? part.text.trim() : null))
-      .filter((text): text is string => text !== null && text !== '')
-      .join(' ')
+    return message.content ?? ''
   }
 
-  /**
-   * Format a message with speaker attribution for AI context.
-   * Preserves non-text parts (images, function calls, etc.)
-   */
-  static formatWithAttribution(msg: Message): ConversationMessage {
-    if (msg.role === 'model') {
-      return { role: 'model', parts: msg.parts }
+  static formatWithAttribution(msg: Message): ChatMessage {
+    if (msg.role === 'assistant') {
+      const m: ChatMessage = { role: 'assistant', content: msg.content }
+      if (msg.tool_calls?.length) m.tool_calls = msg.tool_calls
+      return m
+    }
+    if (msg.role === 'tool') {
+      return {
+        role: 'tool',
+        content: msg.content,
+        tool_call_id: msg.tool_call_id,
+        name: msg.name,
+      }
+    }
+    if (msg.role === 'system') {
+      return { role: 'system', content: msg.content }
     }
     if (msg.userId && msg.displayName) {
-      const textContent = ConversationBuffer.getTextContent(msg).trim()
-      const nonTextParts = msg.parts.filter(p => !('text' in p))
-      if (textContent) {
-        return {
-          role: 'user',
-          parts: [
-            { text: `${msg.displayName}: ${textContent}` },
-            ...nonTextParts,
-          ],
-        }
-      }
-      // No text content — return only non-text parts
+      const text = msg.content?.trim() ?? ''
       return {
         role: 'user',
-        parts: nonTextParts.length > 0 ? nonTextParts : msg.parts,
+        content: text ? `${msg.displayName}: ${text}` : text,
       }
     }
-    return { role: 'user', parts: msg.parts }
+    return { role: 'user', content: msg.content }
   }
 
   /**
-   * Append a text message (auto-converts to parts format)
+   * Ensure tool call/response pairs are complete after slicing history.
+   * Strips orphaned tool messages and removes tool_calls from assistant
+   * messages whose matching tool responses were sliced off.
    */
+  static sanitizeToolPairs(messages: Message[]): Message[] {
+    if (messages.length === 0) return messages
+
+    // Drop leading orphan tool messages AND convert leading assistant+tool
+    // groups whose triggering user message was sliced off (preserve text).
+    let start = 0
+    const preserved: Message[] = []
+    while (start < messages.length) {
+      const m = messages[start]
+      if (m.role === 'tool') {
+        start++
+      } else if (
+        m.role === 'assistant' &&
+        m.tool_calls &&
+        m.tool_calls.length > 0
+      ) {
+        // Skip trailing tool responses, but keep assistant text (stripped)
+        let j = start + 1
+        while (j < messages.length && messages[j].role === 'tool') j++
+        if (m.content && m.content.trim()) {
+          preserved.push({ ...m, tool_calls: undefined })
+        }
+        start = j
+      } else {
+        break
+      }
+    }
+    const trimmed = start > 0 ? messages.slice(start) : messages
+
+    const result: Message[] = [...preserved]
+    let i = 0
+    while (i < trimmed.length) {
+      const msg = trimmed[i]
+
+      if (
+        msg.role === 'assistant' &&
+        msg.tool_calls &&
+        msg.tool_calls.length > 0
+      ) {
+        // Collect expected tool_call IDs
+        const expectedIds = new Set(msg.tool_calls.map(tc => tc.id))
+        const matchedIds = new Set<string>()
+        const toolResponses: Message[] = []
+        let j = i + 1
+        while (j < trimmed.length && trimmed[j].role === 'tool') {
+          const tcId = trimmed[j].tool_call_id
+          if (tcId && expectedIds.has(tcId) && !matchedIds.has(tcId)) {
+            matchedIds.add(tcId)
+            toolResponses.push(trimmed[j])
+          }
+          j++
+        }
+
+        if (matchedIds.size === expectedIds.size) {
+          // Complete pair -- keep assistant + all tool responses
+          result.push(msg)
+          result.push(...toolResponses)
+        } else {
+          // Incomplete -- keep assistant text only, strip tool_calls
+          result.push({
+            ...msg,
+            tool_calls: undefined,
+          })
+        }
+        i = j // Skip past the tool messages
+      } else {
+        // Drop orphan tool messages not paired with a preceding assistant tool_call
+        if (msg.role !== 'tool') {
+          result.push(msg)
+        }
+        i++
+      }
+    }
+    return result
+  }
+
   append(
     conversationId: string,
-    role: 'user' | 'model',
+    role: 'user' | 'assistant',
     content: string,
     userId?: string,
     username?: string,
     displayName?: string
   ) {
-    if (!content || !content.trim()) return // Skip empty/whitespace-only content
-    this.appendParts(
-      conversationId,
+    if (!content || !content.trim()) return
+    this.appendMessage(conversationId, {
       role,
-      [{ text: content }],
-      userId,
-      username,
-      displayName
-    )
+      content,
+      timestamp: Date.now(),
+      ...(role === 'user' && userId ? { userId, username, displayName } : {}),
+    })
   }
 
-  /**
-   * Append a message with full parts (preserves function calls, media, etc.)
-   */
-  appendParts(
+  appendAssistantMessage(
     conversationId: string,
-    role: 'user' | 'model',
-    parts: ContentPart[],
-    userId?: string,
-    username?: string,
-    displayName?: string
+    content: string,
+    toolCalls?: ToolCall[]
   ) {
-    if (parts.length === 0) return // No-op for empty parts
+    this.appendMessage(conversationId, {
+      role: 'assistant',
+      content,
+      timestamp: Date.now(),
+      tool_calls: toolCalls,
+    })
+  }
 
-    // Clear tombstone if conversation is being recreated after a clear()
+  appendToolResult(
+    conversationId: string,
+    toolCallId: string,
+    name: string,
+    content: string
+  ) {
+    this.appendMessage(conversationId, {
+      role: 'tool',
+      content,
+      timestamp: Date.now(),
+      tool_call_id: toolCallId,
+      name,
+    })
+  }
+
+  private appendMessage(conversationId: string, message: Message) {
     this.clearedTimestamps.delete(conversationId)
 
     const entry = this.cache.get(conversationId) || {
@@ -130,22 +212,8 @@ export class ConversationBuffer {
       lastActivityAt: Date.now(),
     }
 
-    const message: Message = {
-      role,
-      parts: structuredClone(parts), // Defensive copy to prevent external mutations
-      timestamp: Date.now(),
-    }
+    entry.messages.push(structuredClone(message))
 
-    // Add user attribution for user messages
-    if (role === 'user' && userId) {
-      message.userId = userId
-      if (username) message.username = username
-      if (displayName) message.displayName = displayName
-    }
-
-    entry.messages.push(message)
-
-    // Trim to max messages (ring buffer behavior)
     if (entry.messages.length > this.MAX_MESSAGES) {
       entry.messages.shift()
     }
@@ -154,10 +222,9 @@ export class ConversationBuffer {
     this.cache.set(conversationId, entry)
 
     Logger.debug(
-      `Message appended - ConvID: ${conversationId}, Role: ${role}, Count: ${entry.messages.length}`
+      `Message appended - ConvID: ${conversationId}, Role: ${message.role}, Count: ${entry.messages.length}`
     )
 
-    // Fire-and-forget persistence to MongoDB
     this.persistToDb(conversationId, entry.messages).catch((err: any) =>
       Logger.warn(
         `Failed to persist conversation ${conversationId}: ${err.message}`
@@ -247,18 +314,24 @@ export class ConversationBuffer {
   private validateDbMessages(dbMessages: any[]): Message[] {
     const validated: Message[] = []
     for (const doc of dbMessages) {
-      // role must be 'user' or 'model'
       const role = doc?.role
-      if (role !== 'user' && role !== 'model') continue
+      if (
+        role !== 'user' &&
+        role !== 'assistant' &&
+        role !== 'tool' &&
+        role !== 'system'
+      )
+        continue
 
-      // parts must be an array; default to empty array if missing/invalid
-      const parts: ContentPart[] = Array.isArray(doc.parts) ? doc.parts : []
-
-      // timestamp must be a number; default to current time if missing
+      const content = typeof doc.content === 'string' ? doc.content : ''
       const timestamp =
         typeof doc.timestamp === 'number' ? doc.timestamp : Date.now()
 
-      const msg: Message = { role, parts, timestamp }
+      const msg: Message = { role, content, timestamp }
+      if (Array.isArray(doc.tool_calls)) msg.tool_calls = doc.tool_calls
+      if (typeof doc.tool_call_id === 'string')
+        msg.tool_call_id = doc.tool_call_id
+      if (typeof doc.name === 'string') msg.name = doc.name
       if (doc.userId) msg.userId = String(doc.userId)
       if (doc.username) msg.username = String(doc.username)
       if (doc.displayName) msg.displayName = String(doc.displayName)

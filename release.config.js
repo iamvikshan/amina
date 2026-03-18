@@ -42,7 +42,14 @@ module.exports = {
       '@semantic-release/exec',
       {
         prepareCmd:
-          "node -e \"const fs=require('fs');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));pkg.version='${nextRelease.version}';fs.writeFileSync('package.json',JSON.stringify(pkg,null,2)+'\\n')\"",
+          "node -e \"const fs=require('node:fs');for (const file of ['package.json','cli/package.json']) {const pkg=JSON.parse(fs.readFileSync(file,'utf8'));pkg.version='${nextRelease.version}';fs.writeFileSync(file,JSON.stringify(pkg,null,2)+'\\n');}\"",
+      },
+    ],
+
+    [
+      '@semantic-release/npm',
+      {
+        pkgRoot: 'cli',
       },
     ],
 
@@ -61,7 +68,7 @@ module.exports = {
     [
       '@semantic-release/git',
       {
-        assets: ['package.json', 'CHANGELOG.md'],
+        assets: ['package.json', 'cli/package.json', 'CHANGELOG.md'],
         message:
           'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },

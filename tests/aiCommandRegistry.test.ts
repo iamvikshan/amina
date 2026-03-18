@@ -42,7 +42,10 @@ class IdempotentTestRegistry {
   }
 
   getTools() {
-    return this.nativeToolDefinitions
+    return this.nativeToolDefinitions.map(decl => ({
+      type: 'function' as const,
+      function: decl,
+    }))
   }
 
   isNativeTool(name: string): boolean {
@@ -97,8 +100,8 @@ describe('AiCommandRegistry idempotent native tool registration', () => {
     registry.registerNativeTools(tools)
 
     const allTools = registry.getTools()
-    const namesA = allTools.filter((t: any) => t.name === 'test_tool_a')
-    const namesB = allTools.filter((t: any) => t.name === 'test_tool_b')
+    const namesA = allTools.filter((t: any) => t.function.name === 'test_tool_a')
+    const namesB = allTools.filter((t: any) => t.function.name === 'test_tool_b')
 
     expect(namesA.length).toBe(1)
     expect(namesB.length).toBe(1)
@@ -135,7 +138,31 @@ describe('AiCommandRegistry idempotent native tool registration', () => {
     )
     expect(result).toBe('v2')
     expect(
-      registry.getTools().filter((t: any) => t.name === 'my_tool').length
+      registry.getTools().filter((t: any) => t.function.name === 'my_tool').length
     ).toBe(1)
+  })
+})
+
+describe('AiCommandRegistry OpenAITool format', () => {
+  test('getTools returns OpenAITool wrapper format', () => {
+    const registry = new IdempotentTestRegistry()
+    const dummyHandler = async () => 'result'
+    registry.registerNativeTools([
+      {
+        declaration: {
+          name: 'fmt_tool',
+          description: 'Test tool',
+          parameters: { type: 'object', properties: {}, required: [] as string[] },
+        },
+        handler: dummyHandler,
+      },
+    ])
+
+    const tools = registry.getTools()
+    for (const tool of tools) {
+      expect(tool.type).toBe('function')
+      expect(tool.function).toBeDefined()
+      expect(typeof tool.function.name).toBe('string')
+    }
   })
 })

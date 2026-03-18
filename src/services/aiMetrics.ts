@@ -63,7 +63,7 @@ export class AiMetricsService {
   start() {
     if (this.flushInterval) return
     this.flushInterval = setInterval(() => this.flush(), this.FLUSH_INTERVAL_MS)
-    logger.success('AI Metrics service started (flush interval: 30s)')
+    logger.success('AI Metrics service started' /* (flush interval: 30s)'*/)
   }
 
   stop() {

@@ -250,7 +250,7 @@
 * Update deployment and configuration:
   - Add lavalink-entrypoint.sh script
   - Update docker-compose configurations
-  - Update deployment scripts (deploy-amina-local.sh, deploy-vps.sh)
+  - Update deployment scripts (deploy-amina-install.sh, deploy-vps.sh)
   - Update .gitignore to exclude .cursor and docs directories
 
 This migration improves type safety, code maintainability, and sets the foundation for future enhancements.

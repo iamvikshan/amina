@@ -11,9 +11,9 @@ const config: Config = {
   AI: {
     // These values seed the database on first run
     // After initialization, all changes must be made via dev commands or directly in MongoDB
-    MODEL: 'gemini-3-flash-preview',
-    EMBEDDING_MODEL: 'gemini-embedding-001', // 3072-dim SOTA embedding model
-    EXTRACTION_MODEL: 'gemini-2.5-flash-lite',
+    MODEL: 'mistral-small-latest',
+    EMBEDDING_MODEL: 'mistral-embed', // 1024-dim Mistral embedding model
+    EXTRACTION_MODEL: 'mistral-small-latest',
 
     MAX_TOKENS: 1024,
     TIMEOUT_MS: 20000,

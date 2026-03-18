@@ -1,57 +1,71 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
-// Mock the @google/genai module
-const mockGenerateContent = mock(() =>
+// Mock the @mistralai/mistralai module
+const mockMistralChat = mock((): Promise<any> =>
   Promise.resolve({
-    text: '[]',
-    usageMetadata: { totalTokenCount: 10 },
-    candidates: [{ content: { role: 'model', parts: [{ text: '[]' }] } }],
+    choices: [{ message: { content: '[]' } }],
   })
 )
 
-const mockEmbedContent = mock(() =>
+const mockMistralEmbeddings = mock((): Promise<any> =>
   Promise.resolve({
-    embeddings: [{ values: new Array(3072).fill(0.1) }],
+    data: [{ embedding: new Array(1024).fill(0.1) }],
   })
 )
 
-mock.module('@google/genai', () => ({
-  GoogleGenAI: class MockGoogleGenAI {
-    models = {
-      generateContent: mockGenerateContent,
-      embedContent: mockEmbedContent,
-    }
+mock.module('@mistralai/mistralai', () => ({
+  Mistral: class MockMistral {
+    embeddings = { create: mockMistralEmbeddings }
+    chat = { complete: mockMistralChat }
   },
 }))
 
 // Mock Logger
+const mockLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  log: () => {},
+  success: () => {},
+}
+
 mock.module('../src/helpers/Logger', () => ({
-  default: {
-    debug: () => {},
-    info: () => {},
-    warn: () => {},
-    error: () => {},
-    log: () => {},
-    success: () => {},
-  },
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
+}))
+
+mock.module('@helpers/Logger', () => ({
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
 }))
 
 // Mock database schemas
-const mockSaveMemory = mock(() => Promise.resolve())
-const mockGetUserMemories = mock(() => Promise.resolve([]))
-const mockDeleteUserMemories = mock(() => Promise.resolve(0))
-const mockGetMemoryStats = mock(() =>
-  Promise.resolve({ total: 0, byType: [], topUsers: [] })
+const mockSaveMemory = mock((): Promise<any> => Promise.resolve())
+const mockGetUserMemories = mock((): Promise<any> => Promise.resolve([]))
+const mockDeleteUserMemories = mock((): Promise<any> => Promise.resolve(0))
+const mockGetMemoryStats = mock(
+  (): Promise<any> => Promise.resolve({ total: 0, byType: [], topUsers: [] })
 )
-const mockPruneMemories = mock(() => Promise.resolve(0))
-const mockGetUserMemoryCount = mock(() => Promise.resolve(0))
-const mockPruneLeastImportantMemories = mock(() =>
-  Promise.resolve({ deletedCount: 0 })
+const mockPruneMemories = mock((): Promise<any> => Promise.resolve(0))
+const mockGetUserMemoryCount = mock((): Promise<any> => Promise.resolve(0))
+const mockPruneLeastImportantMemories = mock(
+  (): Promise<any> => Promise.resolve({ deletedCount: 0 })
 )
-const mockVectorSearch = mock(() => Promise.resolve([]))
-const mockUpdateMany = mock(() => Promise.resolve({ modifiedCount: 0 }))
-const mockFindSimilarMemory = mock(() => Promise.resolve(null))
-const mockFindByIdAndUpdate = mock(() => Promise.resolve())
+const mockVectorSearch = mock((): Promise<any> => Promise.resolve([]))
+const mockUpdateMany = mock((): Promise<any> => Promise.resolve({ modifiedCount: 0 }))
+const mockFindSimilarMemory = mock((): Promise<any> => Promise.resolve(null))
+const mockFindByIdAndUpdate = mock((): Promise<any> => Promise.resolve())
 
 mock.module('../src/database/schemas/AiMemory', () => ({
   saveMemory: mockSaveMemory,
@@ -77,8 +91,8 @@ describe('MemoryService (new SDK)', () => {
   let service: MemoryService
 
   beforeEach(async () => {
-    mockEmbedContent.mockClear()
-    mockGenerateContent.mockClear()
+    mockMistralEmbeddings.mockClear()
+    mockMistralChat.mockClear()
     mockSaveMemory.mockClear()
     mockGetUserMemoryCount.mockClear()
     mockPruneLeastImportantMemories.mockClear()
@@ -92,54 +106,45 @@ describe('MemoryService (new SDK)', () => {
     mockPruneMemories.mockClear()
     service = new MemoryService()
     await service.initialize({
-      authConfig: { mode: 'api-key', apiKey: 'test-api-key' },
-      embeddingModel: 'gemini-embedding-001',
-      extractionModel: 'gemini-2.5-flash-lite',
+      mistralApiKey: 'test-mistral-key',
+      embeddingModel: 'mistral-embed',
+      extractionModel: 'mistral-small-latest',
     })
   })
 
-  test('embedding via new SDK uses ai.models.embedContent', async () => {
-    // Store a memory to trigger embedding
+  test('embedding via Mistral SDK uses mistral.embeddings.create', async () => {
     const fact = { key: 'test_key', value: 'test_value', importance: 5 }
     await service.storeMemory(fact, 'user123', 'guild456', 'test context')
 
-    // Verify embedContent was called with correct shape
-    expect(mockEmbedContent).toHaveBeenCalledTimes(1)
-    const callArgs = mockEmbedContent.mock.calls[0][0] as any
-    expect(callArgs.model).toBe('gemini-embedding-001')
-    expect(callArgs.contents).toBe('test_key: test_value')
+    expect(mockMistralEmbeddings).toHaveBeenCalledTimes(1)
+    const callArgs = mockMistralEmbeddings.mock.calls[0][0] as any
+    expect(callArgs.model).toBe('mistral-embed')
+    expect(callArgs.inputs).toEqual(['test_key: test_value'])
   })
 
   test('embedding result is stored with saveMemory including embedding array', async () => {
     const fact = { key: 'name', value: 'Alice', importance: 8 }
     const result = await service.storeMemory(fact, 'user1', null, 'context')
 
-    // If the embedding extraction works, storeMemory should succeed
     expect(result).toBe(true)
 
-    // Verify saveMemory was called with embedding (not vectorId)
     expect(mockSaveMemory).toHaveBeenCalledTimes(1)
     const saveArgs = mockSaveMemory.mock.calls[0][0] as any
-    expect(saveArgs.embedding).toEqual(new Array(3072).fill(0.1))
+    expect(saveArgs.embedding).toEqual(new Array(1024).fill(0.1))
     expect(saveArgs.userId).toBe('user1')
     expect(saveArgs.guildId).toBeNull()
     expect(saveArgs.key).toBe('name')
     expect(saveArgs.value).toBe('Alice')
     expect(saveArgs.importance).toBe(8)
-    // vectorId should NOT be present
     expect(saveArgs.vectorId).toBeUndefined()
   })
 
-  test('extraction uses ai.models.generateContent', async () => {
+  test('extraction uses mistral.chat.complete', async () => {
     const memoryJson =
       '[{"key": "name", "value": "Alice", "importance": 8, "memoryType": "user"}]'
-    mockGenerateContent.mockImplementationOnce(() =>
+    mockMistralChat.mockImplementationOnce(() =>
       Promise.resolve({
-        text: memoryJson,
-        usageMetadata: { totalTokenCount: 20 },
-        candidates: [
-          { content: { role: 'model', parts: [{ text: memoryJson }] } },
-        ],
+        choices: [{ message: { content: memoryJson } }],
       })
     )
 
@@ -148,39 +153,39 @@ describe('MemoryService (new SDK)', () => {
     const messages = [
       {
         role: 'user' as const,
-        parts: [{ text: 'My name is Alice' }],
+        content: 'My name is Alice',
         timestamp: fixedTimestamp,
         userId: 'u1',
         displayName: 'Alice',
       },
       {
-        role: 'model' as const,
-        parts: [{ text: 'Nice to meet you Alice!' }],
+        role: 'assistant' as const,
+        content: 'Nice to meet you Alice!',
         timestamp: fixedTimestamp + 1000,
       },
       {
         role: 'user' as const,
-        parts: [{ text: 'I like pizza' }],
+        content: 'I like pizza',
         timestamp: fixedTimestamp + 2000,
         userId: 'u1',
         displayName: 'Alice',
       },
       {
-        role: 'model' as const,
-        parts: [{ text: 'Pizza is great!' }],
+        role: 'assistant' as const,
+        content: 'Pizza is great!',
         timestamp: fixedTimestamp + 3000,
       },
     ]
 
     const facts = await service.extractMemories(messages)
 
-    // Verify generateContent was called with correct shape
-    expect(mockGenerateContent).toHaveBeenCalledTimes(1)
-    const callArgs = mockGenerateContent.mock.calls[0][0] as any
-    expect(callArgs.model).toBe('gemini-2.5-flash-lite')
-    expect(typeof callArgs.contents).toBe('string') // extraction prompt is a string
+    expect(mockMistralChat).toHaveBeenCalledTimes(1)
+    const callArgs = mockMistralChat.mock.calls[0][0] as any
+    expect(callArgs.model).toBe('mistral-small-latest')
+    expect(Array.isArray(callArgs.messages)).toBe(true)
+    expect(callArgs.messages[0].role).toBe('user')
+    expect(typeof callArgs.messages[0].content).toBe('string')
 
-    // Assert extracted memory facts
     expect(facts).toHaveLength(1)
     expect(facts[0]).toEqual({
       key: 'name',
@@ -220,13 +225,12 @@ describe('MemoryService (new SDK)', () => {
       5
     )
 
-    // Verify embedContent was called for the query
-    expect(mockEmbedContent).toHaveBeenCalledTimes(1)
+    expect(mockMistralEmbeddings).toHaveBeenCalledTimes(1)
 
     // Verify vectorSearch was called with the right params
     expect(mockVectorSearch).toHaveBeenCalledTimes(1)
     const [queryVector, filter, limit] = mockVectorSearch.mock.calls[0] as any
-    expect(queryVector).toEqual(new Array(3072).fill(0.1))
+    expect(queryVector).toEqual(new Array(1024).fill(0.1))
     expect(filter.userId).toBe('user1')
     // Overfetch to compensate for DM post-filtering (Math.max(5*2, 5+10) = 15)
     expect(limit).toBe(15)
@@ -356,10 +360,9 @@ describe('MemoryService (new SDK)', () => {
   })
 
   test('storeMemory skips dedup when threshold is 0', async () => {
-    // Create a service with dedup disabled
     const noDedupService = new MemoryService()
     await noDedupService.initialize({
-      authConfig: { mode: 'api-key', apiKey: 'test-key' },
+      mistralApiKey: 'test-key',
       dedupThreshold: 0,
     })
 

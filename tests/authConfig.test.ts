@@ -1,122 +1,137 @@
-import { describe, test, expect, mock } from 'bun:test'
+import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
-// Mock database dependencies before importing
+// Mock database - mutable so tests can override model names
+let mockDbConfig = {
+  globallyEnabled: true,
+  model: 'mistral-small-latest',
+  embeddingModel: 'mistral-embed',
+  extractionModel: 'mistral-small-latest',
+  maxTokens: 1024,
+  timeoutMs: 20000,
+  systemPrompt: 'test prompt',
+  temperature: 0.7,
+  dmEnabledGlobally: false,
+  dedupThreshold: 0.85,
+}
+
 mock.module('../src/database/schemas/Dev', () => ({
-  getAiConfig: async () => ({
-    globallyEnabled: false,
-    model: 'gemini-3-flash-preview',
-    embeddingModel: 'gemini-embedding-001',
-    extractionModel: 'gemini-2.5-flash-lite',
-    maxTokens: 1024,
-    timeoutMs: 30000,
-    systemPrompt: 'test',
-    temperature: 0.7,
-    dmEnabledGlobally: false,
+  getAiConfig: async () => ({ ...mockDbConfig }),
+}))
+
+// Mock secrets - will be overridden per test
+let mockSecrets: Record<string, string | undefined> = {}
+mock.module('../src/config/secrets', () => ({
+  secret: new Proxy({} as any, {
+    get: (_target: any, prop: string) => mockSecrets[prop],
   }),
 }))
-mock.module('../src/config/secrets', () => ({
-  secret: {
-    GEMINI_KEY: '',
-    VERTEX_PROJECT_ID: '',
-    VERTEX_REGION: 'global',
-    GOOGLE_SERVICE_ACCOUNT_JSON: '',
-  },
-}))
+
 mock.module('../src/config/config', () => ({
   config: {
     AI: {
-      MODEL: 'gemini-3-flash-preview',
-      EMBEDDING_MODEL: 'gemini-embedding-001',
-      EXTRACTION_MODEL: 'gemini-2.5-flash-lite',
+      MODEL: 'mistral-small-latest',
+      EMBEDDING_MODEL: 'mistral-embed',
+      EXTRACTION_MODEL: 'mistral-small-latest',
+      DEDUP_THRESHOLD: 0.85,
     },
   },
 }))
 
-const { validateServiceAccountJson, detectAuthMode } =
-  await import('../src/config/aiResponder')
+const { configCache } = await import('../src/config/aiResponder')
 
-describe('Service Account JSON Validation', () => {
-  test('valid service account JSON passes validation', () => {
-    const validJson = JSON.stringify({
-      client_email: 'test@project.iam.gserviceaccount.com',
-      private_key:
-        '-----BEGIN RSA PRIVATE KEY-----\nfake\n-----END RSA PRIVATE KEY-----',
-      project_id: 'test-project',
-    })
-    const base64 = Buffer.from(validJson).toString('base64')
-
-    const result = validateServiceAccountJson(base64)
-    expect(result.client_email).toBe('test@project.iam.gserviceaccount.com')
-    expect(result.private_key).toContain('BEGIN RSA PRIVATE KEY')
+describe('ConfigCache', () => {
+  beforeEach(() => {
+    configCache.invalidate()
+    mockSecrets = { MISTRAL: 'test-mistral-key' }
+    mockDbConfig = {
+      globallyEnabled: true,
+      model: 'mistral-small-latest',
+      embeddingModel: 'mistral-embed',
+      extractionModel: 'mistral-small-latest',
+      maxTokens: 1024,
+      timeoutMs: 20000,
+      systemPrompt: 'test prompt',
+      temperature: 0.7,
+      dmEnabledGlobally: false,
+      dedupThreshold: 0.85,
+    }
   })
 
-  test('empty string throws base64 error', () => {
-    expect(() => validateServiceAccountJson('')).toThrow(/not valid base64/)
+  test('returns valid config with MISTRAL key', async () => {
+    const config = await configCache.getConfig()
+    expect(config.globallyEnabled).toBe(true)
+    expect(config.mistralApiKey).toBe('test-mistral-key')
+    expect(config.model).toBe('mistral-small-latest')
   })
 
-  test('invalid base64 characters throw base64 error', () => {
-    expect(() => validateServiceAccountJson('not-valid-base64!!!')).toThrow(
-      /not valid base64/
-    )
+  test('throws when MISTRAL key missing and AI enabled', async () => {
+    mockSecrets = {}
+    await expect(configCache.getConfig()).rejects.toThrow(/MISTRAL/)
   })
 
-  test('valid base64 but not JSON throws error', () => {
-    const notJson = Buffer.from('this is not json').toString('base64')
-    expect(() => validateServiceAccountJson(notJson)).toThrow(/not valid JSON/)
+  test('GROQ key is optional', async () => {
+    mockSecrets = { MISTRAL: 'test-key' }
+    const config = await configCache.getConfig()
+    expect(config.groqApiKey).toBeUndefined()
   })
 
-  test('missing client_email throws error', () => {
-    const json = JSON.stringify({
-      private_key:
-        '-----BEGIN RSA PRIVATE KEY-----\nfake\n-----END RSA PRIVATE KEY-----',
-      project_id: 'test-project',
-    })
-    const base64 = Buffer.from(json).toString('base64')
-    expect(() => validateServiceAccountJson(base64)).toThrow(/client_email/)
+  test('includes GROQ key when present', async () => {
+    mockSecrets = { MISTRAL: 'test-key', GROQ: 'groq-key' }
+    const config = await configCache.getConfig()
+    expect(config.groqApiKey).toBe('groq-key')
   })
 
-  test('missing private_key throws error', () => {
-    const json = JSON.stringify({
-      client_email: 'test@project.iam.gserviceaccount.com',
-      project_id: 'test-project',
-    })
-    const base64 = Buffer.from(json).toString('base64')
-    expect(() => validateServiceAccountJson(base64)).toThrow(/private_key/)
-  })
-
-  test('missing project_id throws error', () => {
-    const json = JSON.stringify({
-      client_email: 'test@project.iam.gserviceaccount.com',
-      private_key:
-        '-----BEGIN RSA PRIVATE KEY-----\nfake\n-----END RSA PRIVATE KEY-----',
-    })
-    const base64 = Buffer.from(json).toString('base64')
-    expect(() => validateServiceAccountJson(base64)).toThrow(/project_id/)
+  test('invalidate clears cache', async () => {
+    await configCache.getConfig() // warm cache
+    configCache.invalidate()
+    // Should re-fetch on next call (no error means it worked)
+    const config = await configCache.getConfig()
+    expect(config).toBeDefined()
   })
 })
 
-describe('Auth Mode Auto-Detection', () => {
-  test('api-key mode when no Vertex credentials provided', () => {
-    expect(detectAuthMode('', '')).toBe('api-key')
+describe('ConfigCache - stale Gemini model override', () => {
+  beforeEach(() => {
+    configCache.invalidate()
+    mockSecrets = { MISTRAL: 'test-mistral-key' }
+    mockDbConfig = {
+      globallyEnabled: true,
+      model: 'gemini-3-flash-preview',
+      embeddingModel: 'gemini-embedding-001',
+      extractionModel: 'gemini-2.5-flash-lite',
+      maxTokens: 1024,
+      timeoutMs: 20000,
+      systemPrompt: 'test prompt',
+      temperature: 0.7,
+      dmEnabledGlobally: false,
+      dedupThreshold: 0.85,
+    }
   })
 
-  test('vertex mode when service account and project are present', () => {
-    const validJson = JSON.stringify({
-      client_email: 'test@project.iam.gserviceaccount.com',
-      private_key:
-        '-----BEGIN RSA PRIVATE KEY-----\nfake\n-----END RSA PRIVATE KEY-----',
-    })
-    const hasServiceAccount = Buffer.from(validJson).toString('base64')
-    expect(detectAuthMode(hasServiceAccount, 'test-project')).toBe('vertex')
+  test('overrides stale gemini model with mistral default', async () => {
+    const cfg = await configCache.getConfig()
+    expect(cfg.model).toBe('mistral-small-latest')
   })
 
-  test('api-key mode when service account present but no project', () => {
-    const validJson = JSON.stringify({
-      client_email: 'test@x.iam.gserviceaccount.com',
-      private_key:
-        '-----BEGIN RSA PRIVATE KEY-----\nfake\n-----END RSA PRIVATE KEY-----',
-    })
-    const hasServiceAccount = Buffer.from(validJson).toString('base64')
-    expect(detectAuthMode(hasServiceAccount, '')).toBe('api-key')
+  test('overrides stale gemini embeddingModel with mistral default', async () => {
+    const cfg = await configCache.getConfig()
+    expect(cfg.embeddingModel).toBe('mistral-embed')
+  })
+
+  test('overrides stale gemini extractionModel with mistral default', async () => {
+    const cfg = await configCache.getConfig()
+    expect(cfg.extractionModel).toBe('mistral-small-latest')
+  })
+
+  test('preserves non-gemini model names from DB', async () => {
+    mockDbConfig.model = 'custom-model-v2'
+    mockDbConfig.embeddingModel = 'custom-embed'
+    mockDbConfig.extractionModel = 'custom-extract'
+    configCache.invalidate()
+
+    const cfg = await configCache.getConfig()
+    expect(cfg.model).toBe('custom-model-v2')
+    expect(cfg.embeddingModel).toBe('custom-embed')
+    expect(cfg.extractionModel).toBe('custom-extract')
   })
 })

@@ -3,13 +3,13 @@ import { MinaEmbed } from '@structures/embeds'
 import * as permissions from './permissions'
 import config from '@src/config'
 import { secret, validateSecrets } from '@src/config'
-import { log, warn, error } from './Logger'
+import { warn, error } from './Logger'
 import { ApplicationCommandType } from 'discord.js'
 // CommandData and ContextData are now globally available - see types/commands.d.ts and types/contexts.d.ts
 
 export class Validator {
   static validateConfiguration(): void {
-    log('Validating config file and environment variables')
+    // log('Validating config file and environment variables')
 
     // Validate required secrets
     try {

@@ -30,32 +30,37 @@ mock.module('@helpers/Logger', () => ({
   debug: mockLogger.debug,
 }))
 
-// Mock @google/genai
-const mockEmbedContent = mock(() =>
-  Promise.resolve({
-    embeddings: [{ values: new Array(3072).fill(0.1) }],
-  })
+// Mock @mistralai/mistralai
+const mockMistralEmbeddings = mock(
+  (): Promise<any> =>
+    Promise.resolve({
+      data: [{ embedding: new Array(1024).fill(0.1) }],
+    })
+)
+const mockMistralChat = mock(
+  (): Promise<any> =>
+    Promise.resolve({
+      choices: [{ message: { content: '[]' } }],
+    })
 )
 
-mock.module('@google/genai', () => ({
-  GoogleGenAI: class MockGoogleGenAI {
-    models = {
-      generateContent: mock(() => Promise.resolve({ text: '[]' })),
-      embedContent: mockEmbedContent,
-    }
+mock.module('@mistralai/mistralai', () => ({
+  Mistral: class MockMistral {
+    embeddings = { create: mockMistralEmbeddings }
+    chat = { complete: mockMistralChat }
   },
 }))
 
 // Mock database schemas
-const mockSaveMemory = mock(() => Promise.resolve())
-const mockGetUserMemoryCount = mock(() => Promise.resolve(0))
-const mockPruneLeastImportantMemories = mock(() =>
-  Promise.resolve({ deletedCount: 0 })
+const mockSaveMemory = mock((): Promise<any> => Promise.resolve())
+const mockGetUserMemoryCount = mock((): Promise<any> => Promise.resolve(0))
+const mockPruneLeastImportantMemories = mock(
+  (): Promise<any> => Promise.resolve({ deletedCount: 0 })
 )
-const mockVectorSearch = mock(() => Promise.resolve([]))
-const mockFindSimilarMemory = mock(() => Promise.resolve(null))
-const mockFindByIdAndUpdate = mock(() => Promise.resolve())
-const mockFindByIdAndDelete = mock(() => Promise.resolve())
+const mockVectorSearch = mock((): Promise<any> => Promise.resolve([]))
+const mockFindSimilarMemory = mock((): Promise<any> => Promise.resolve(null))
+const mockFindByIdAndUpdate = mock((): Promise<any> => Promise.resolve())
+const mockFindByIdAndDelete = mock((): Promise<any> => Promise.resolve())
 
 mock.module('../src/database/schemas/AiMemory', () => ({
   saveMemory: mockSaveMemory,
@@ -159,7 +164,8 @@ describe('MemoryManipulator', () => {
     mockFindSimilarMemory.mockClear()
     mockFindByIdAndUpdate.mockClear()
     mockFindByIdAndDelete.mockClear()
-    mockEmbedContent.mockClear()
+    mockMistralEmbeddings.mockClear()
+    mockMistralChat.mockClear()
 
     // Reset default mock implementations
     mockFindSimilarMemory.mockImplementation(() => Promise.resolve(null))
@@ -169,9 +175,9 @@ describe('MemoryManipulator', () => {
     // Initialize memory service
     memoryService = new MemoryService()
     await memoryService.initialize({
-      authConfig: { mode: 'api-key', apiKey: 'test-api-key' },
-      embeddingModel: 'gemini-embedding-001',
-      extractionModel: 'gemini-2.5-flash-lite',
+      mistralApiKey: 'test-mistral-key',
+      embeddingModel: 'mistral-embed',
+      extractionModel: 'mistral-small-latest',
     })
 
     // Initialize registry (lightweight test double)
@@ -477,7 +483,7 @@ describe('MemoryManipulator', () => {
       { query: 'any topic', limit: -5 },
       { userId: 'user123', guildId: null }
     )
-    // Verify it didn't throw — clamping worked
+    // Verify it didn't throw -- clamping worked
 
     mockVectorSearch.mockImplementationOnce(() => Promise.resolve([]))
 
@@ -487,6 +493,19 @@ describe('MemoryManipulator', () => {
       { query: 'any topic', limit: 100 },
       { userId: 'user123', guildId: null }
     )
-    // Verify it didn't throw — clamping worked
+    // Verify it didn't throw -- clamping worked
+  })
+
+  test('MEMORY_TOOLS use lowercase OpenAI-format type strings', () => {
+    const tools = registry.getTools()
+    for (const tool of tools) {
+      const params = (tool as any).function?.parameters || (tool as any).parameters
+      if (params) {
+        expect(params.type).toBe('object')
+        for (const prop of Object.values(params.properties) as any[]) {
+          expect(prop.type).toMatch(/^(string|integer|number|boolean|array|object)$/)
+        }
+      }
+    }
   })
 })

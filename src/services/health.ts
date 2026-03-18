@@ -18,7 +18,7 @@ const server = Bun.serve({
   },
 })
 
-Logger.success(`[Health] Health check server running on port ${server.port}`)
+// Logger.success(`[Health] Health check server running on port ${server.port}`)
 
 // Handle graceful shutdown
 const shutdown = () => {

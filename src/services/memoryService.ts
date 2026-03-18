@@ -1,6 +1,6 @@
 // @root/src/services/memoryService.ts
 
-import { GoogleGenAI, type GoogleGenAIOptions } from '@google/genai'
+import { Mistral } from '@mistralai/mistralai'
 import Logger from '@helpers/Logger'
 import {
   saveMemory,
@@ -24,56 +24,26 @@ const logger = Logger
 // MemoryFact and RecalledMemory are now globally available - see types/services.d.ts
 
 export class MemoryService {
-  private ai: GoogleGenAI | null = null
-  private embeddingModel: string = 'gemini-embedding-001' // fallback; overridden by config
-  private extractionModel: string = 'gemini-2.5-flash-lite' // fallback; overridden by config
+  private mistral: Mistral | null = null
+  private embeddingModel: string = 'mistral-embed'
+  private extractionModel: string = 'mistral-small-latest'
   private dedupThreshold: number = 0.85
-  private readonly MAX_MEMORIES_PER_USER = 50 // Max memories per user per context (DM or guild)
+  private readonly MAX_MEMORIES_PER_USER = 50
 
   async initialize(options: {
-    authConfig: AiAuthConfig
+    mistralApiKey: string
     embeddingModel?: string
     extractionModel?: string
     dedupThreshold?: number
   }) {
     try {
-      const { authConfig } = options
-
-      // Initialize Gemini based on auth mode
-      if (authConfig.mode === 'vertex') {
-        if (!authConfig.project || !authConfig.location) {
-          throw new Error(
-            'Vertex AI requires non-empty project and location in authConfig'
-          )
-        }
-        const genaiOptions: GoogleGenAIOptions = {
-          vertexai: true,
-          project: authConfig.project,
-          location: authConfig.location,
-        }
-        if (authConfig.credentials) {
-          genaiOptions.googleAuthOptions = {
-            credentials: authConfig.credentials,
-          }
-        }
-        this.ai = new GoogleGenAI(genaiOptions)
-      } else {
-        if (!authConfig.apiKey) {
-          throw new Error(
-            'API key mode requires a non-empty apiKey in authConfig'
-          )
-        }
-        this.ai = new GoogleGenAI({ apiKey: authConfig.apiKey })
-      }
-
-      // Use configured models if provided
+      this.mistral = new Mistral({ apiKey: options.mistralApiKey })
       if (options.embeddingModel) this.embeddingModel = options.embeddingModel
       if (options.extractionModel)
         this.extractionModel = options.extractionModel
       if (options.dedupThreshold !== undefined)
         this.dedupThreshold = options.dedupThreshold
-
-      logger.success(`Memory Service initialized (auth: ${authConfig.mode})`)
+      logger.success('Memory Service initialized')
     } catch (error: any) {
       logger.error(
         `Failed to initialize Memory Service: ${error.message}`,
@@ -86,7 +56,7 @@ export class MemoryService {
    * Extract memories from a conversation
    */
   async extractMemories(conversationHistory: Message[]): Promise<MemoryFact[]> {
-    if (!this.ai) {
+    if (!this.mistral) {
       logger.warn(
         'extractMemories skipped: Memory Service not initialized (AI client missing)'
       )
@@ -100,14 +70,12 @@ export class MemoryService {
         .slice(-10) // Last 10 messages
         .map(m => {
           const text = ConversationBuffer.getTextContent(m)
-          if (m.role === 'model') {
-            return `model: ${text}`
+          if (m.role === 'assistant') {
+            return `assistant: ${text}`
           }
-          // User message with attribution if available
           if (m.userId && m.displayName) {
             return `${m.displayName}: ${text}`
           }
-          // Fallback for old messages without attribution
           return `user: ${text}`
         })
         .join('\n')
@@ -126,11 +94,13 @@ Return ONLY valid JSON array (no markdown, no explanation):
 
 If nothing worth remembering, return: []`
 
-      const result = await this.ai.models.generateContent({
+      const result = await this.mistral.chat.complete({
         model: this.extractionModel,
-        contents: extractionPrompt,
+        messages: [{ role: 'user', content: extractionPrompt }],
       })
-      const response = (result.text ?? '').trim()
+      const response = (
+        (result.choices?.[0]?.message?.content as string) ?? ''
+      ).trim()
 
       // Clean response - remove markdown code blocks if present
       const cleanResponse = response
@@ -157,7 +127,7 @@ If nothing worth remembering, return: []`
     guildId: string | null,
     context: string
   ): Promise<boolean> {
-    if (!this.ai) {
+    if (!this.mistral) {
       logger.warn(
         'storeMemory skipped: Memory Service not initialized (AI client missing)'
       )
@@ -167,11 +137,11 @@ If nothing worth remembering, return: []`
     try {
       // Generate embedding for the memory
       const embeddingText = `${fact.key}: ${fact.value}`
-      const embeddingResult = await this.ai.models.embedContent({
+      const embeddingResult = await this.mistral.embeddings.create({
         model: this.embeddingModel,
-        contents: embeddingText,
+        inputs: [embeddingText],
       })
-      const embedding = embeddingResult.embeddings?.[0]?.values
+      const embedding = embeddingResult.data?.[0]?.embedding
       if (!embedding) {
         logger.warn('Failed to generate embedding: no values returned')
         return false
@@ -273,7 +243,7 @@ If nothing worth remembering, return: []`
       globalServerMemories?: boolean
     }
   ): Promise<RecalledMemory[]> {
-    if (!this.ai) {
+    if (!this.mistral) {
       logger.warn(
         'recallMemories skipped: Memory Service not initialized (AI client missing)'
       )
@@ -282,11 +252,11 @@ If nothing worth remembering, return: []`
 
     try {
       // Generate embedding for the query
-      const embeddingResult = await this.ai.models.embedContent({
+      const embeddingResult = await this.mistral.embeddings.create({
         model: this.embeddingModel,
-        contents: userMessage,
+        inputs: [userMessage],
       })
-      const queryVector = embeddingResult.embeddings?.[0]?.values
+      const queryVector = embeddingResult.data?.[0]?.embedding
       if (!queryVector) {
         logger.warn('Failed to generate query embedding: no values returned')
         return []
@@ -503,18 +473,18 @@ If nothing worth remembering, return: []`
    * Generate an embedding vector for the given text.
    */
   async generateEmbedding(text: string): Promise<number[] | null> {
-    if (!this.ai) {
+    if (!this.mistral) {
       logger.warn(
         'generateEmbedding skipped: Memory Service not initialized (AI client missing)'
       )
       return null
     }
     try {
-      const embeddingResult = await this.ai.models.embedContent({
+      const embeddingResult = await this.mistral.embeddings.create({
         model: this.embeddingModel,
-        contents: text,
+        inputs: [text],
       })
-      return embeddingResult.embeddings?.[0]?.values ?? null
+      return embeddingResult.data?.[0]?.embedding ?? null
     } catch (error: any) {
       logger.error(`Failed to generate embedding: ${error.message}`)
       return null

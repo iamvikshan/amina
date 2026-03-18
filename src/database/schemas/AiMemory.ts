@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 // REQUIRED: Create Atlas Vector Search index on the 'aimemories' collection:
 // {
 //   "fields": [
-//     { "type": "vector", "path": "embedding", "numDimensions": 3072, "similarity": "cosine" },
+//     { "type": "vector", "path": "embedding", "numDimensions": 1024, "similarity": "cosine" },
 //     { "type": "filter", "path": "userId" },
 //     { "type": "filter", "path": "guildId" },
 //     { "type": "filter", "path": "memoryType" }
@@ -32,11 +32,11 @@ const Schema = new mongoose.Schema(
       validate: {
         validator: (v: number[]) =>
           v.length === 0 ||
-          (v.length === 3072 && v.every(n => Number.isFinite(n))),
+          (v.length === 1024 && v.every(n => Number.isFinite(n))),
         message:
-          'Embedding must be empty or exactly 3072 finite numbers (NaN/Infinity not allowed)',
+          'Embedding must be empty or exactly 1024 finite numbers (NaN/Infinity not allowed)',
       },
-    }, // 3072-dimension vector for Atlas Vector Search
+    }, // 1024-dimension vector for Atlas Vector Search
     lastAccessedAt: { type: Date, default: Date.now },
     accessCount: { type: Number, default: 0 },
   },

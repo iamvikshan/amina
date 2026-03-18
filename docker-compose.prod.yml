@@ -118,7 +118,9 @@ services:
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_POLL_INTERVAL=86400
       - WATCHTOWER_INCLUDE_STOPPED=false
-      - WATCHTOWER_ROLLING_RESTART=true
+      # Rolling restart disabled: containers have depends_on chains
+      # incompatible with rolling restarts (watchtower restarts all at once)
+      - WATCHTOWER_ROLLING_RESTART=false
       # Discord notifications (uses LOGS_WEBHOOK from .env)
       - WATCHTOWER_NOTIFICATION_URL=${LOGS_WEBHOOK}
     networks:

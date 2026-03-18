@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, mock } from 'bun:test'
 import { Model } from '../src/database/schemas/Conversation'
 
 // -----------------------------------------------------------------
-// 1. Schema-level tests — inspect the real Mongoose model/schema
+// 1. Schema-level tests -- inspect the real Mongoose model/schema
 // -----------------------------------------------------------------
 describe('Conversation Persistence Schema', () => {
   test('schema defines conversationId as required, unique, and indexed', () => {
@@ -16,7 +16,6 @@ describe('Conversation Persistence Schema', () => {
   test('schema defines messages array with default empty', () => {
     const path = Model.schema.path('messages')
     expect(path).toBeDefined()
-    // Mongoose wraps array defaults — assert there's a default that produces []
     const defaultVal =
       typeof path.options.default === 'function'
         ? path.options.default()
@@ -37,22 +36,20 @@ describe('Conversation Persistence Schema', () => {
         fields.lastActivity !== undefined && opts?.expireAfterSeconds != null
     )
     expect(ttlIndex).toBeDefined()
-    expect(ttlIndex?.[1].expireAfterSeconds).toBe(1800) // 30 minutes
+    expect(ttlIndex?.[1].expireAfterSeconds).toBe(1800)
   })
 
-  test('message sub-schema requires role and parts', () => {
-    // Introspect the messages array element schema
+  test('message sub-schema requires role and content', () => {
     const msgSchema = (Model.schema.path('messages') as any).schema
     expect(msgSchema).toBeDefined()
 
     const rolePath = msgSchema.path('role')
     expect(rolePath).toBeDefined()
     expect(rolePath.options.required).toBe(true)
-    expect(rolePath.options.enum).toEqual(['user', 'model'])
+    expect(rolePath.options.enum).toEqual(['user', 'assistant', 'tool', 'system'])
 
-    const partsPath = msgSchema.path('parts')
-    expect(partsPath).toBeDefined()
-    expect(partsPath.options.required).toBe(true)
+    const contentPath = msgSchema.path('content')
+    expect(contentPath).toBeDefined()
   })
 
   test('message sub-schema includes optional user attribution fields', () => {
@@ -61,6 +58,13 @@ describe('Conversation Persistence Schema', () => {
     expect(msgSchema.path('username')).toBeDefined()
     expect(msgSchema.path('displayName')).toBeDefined()
     expect(msgSchema.path('timestamp')).toBeDefined()
+  })
+
+  test('message sub-schema includes tool-related fields', () => {
+    const msgSchema = (Model.schema.path('messages') as any).schema
+    expect(msgSchema.path('tool_calls')).toBeDefined()
+    expect(msgSchema.path('tool_call_id')).toBeDefined()
+    expect(msgSchema.path('name')).toBeDefined()
   })
 })
 
@@ -81,7 +85,7 @@ mock.module('../src/database/schemas/Conversation', () => ({
 import { ConversationBuffer } from '../src/structures/conversationBuffer'
 
 // -----------------------------------------------------------------
-// 3. Integration tests — ConversationBuffer with async getHistory
+// 3. Integration tests -- ConversationBuffer with async getHistory
 // -----------------------------------------------------------------
 describe('ConversationBuffer with Persistence', () => {
   let buffer: ConversationBuffer
@@ -107,9 +111,8 @@ describe('ConversationBuffer with Persistence', () => {
 
     const history = await buffer.getHistory('test-conv')
     expect(history).toHaveLength(1)
-    expect(history[0].parts[0]).toEqual({ text: 'cached message' })
+    expect(history[0].content).toBe('cached message')
 
-    // loadConversation should not be called for cache hits
     expect(mockLoad).not.toHaveBeenCalled()
 
     buffer.shutdown()
@@ -117,23 +120,15 @@ describe('ConversationBuffer with Persistence', () => {
 
   test('getHistory restores conversation from DB on cache miss', async () => {
     const dbMessages = [
-      {
-        role: 'user' as const,
-        parts: [{ text: 'restored msg' }],
-        timestamp: 999,
-      },
-      {
-        role: 'model' as const,
-        parts: [{ text: 'restored reply' }],
-        timestamp: 1000,
-      },
+      { role: 'user' as const, content: 'restored msg', timestamp: 999 },
+      { role: 'assistant' as const, content: 'restored reply', timestamp: 1000 },
     ]
     mockLoad.mockResolvedValueOnce(dbMessages)
 
     const history = await buffer.getHistory('restored-conv')
     expect(history).toHaveLength(2)
-    expect(history[0].parts[0]).toEqual({ text: 'restored msg' })
-    expect(history[1].parts[0]).toEqual({ text: 'restored reply' })
+    expect(history[0].content).toBe('restored msg')
+    expect(history[1].content).toBe('restored reply')
 
     // Subsequent call should hit cache, not DB
     mockLoad.mockClear()
@@ -147,23 +142,21 @@ describe('ConversationBuffer with Persistence', () => {
   test('getHistory respects maxMessages on DB restore', async () => {
     const dbMessages = Array.from({ length: 10 }, (_, i) => ({
       role: 'user' as const,
-      parts: [{ text: `msg ${i}` }],
+      content: `msg ${i}`,
       timestamp: i,
     }))
     mockLoad.mockResolvedValueOnce(dbMessages)
 
     const history = await buffer.getHistory('big-conv', 3)
     expect(history).toHaveLength(3)
-    // Should be last 3
-    expect(history[0].parts[0]).toEqual({ text: 'msg 7' })
+    expect(history[0].content).toBe('msg 7')
 
     buffer.shutdown()
   })
 
-  test('appendParts triggers fire-and-forget DB persistence', async () => {
-    buffer.appendParts('test-conv', 'user', [{ text: 'test' }])
+  test('append triggers fire-and-forget DB persistence', async () => {
+    buffer.append('test-conv', 'user', 'test')
 
-    // Cache should be immediately available
     const history = await buffer.getHistory('test-conv')
     expect(history).toHaveLength(1)
 
@@ -189,32 +182,27 @@ describe('ConversationBuffer with Persistence', () => {
     mockLoad.mockRejectedValueOnce(new Error('DB connection failed'))
 
     const history = await buffer.getHistory('fail-conv')
-    expect(history).toEqual([]) // Graceful fallback
+    expect(history).toEqual([])
 
     buffer.shutdown()
   })
 
   test('shutdown clears pending persist timers', async () => {
-    buffer.appendParts('test-conv', 'user', [{ text: 'test' }])
+    buffer.append('test-conv', 'user', 'test')
     buffer.shutdown()
 
-    // After shutdown + debounce time, upsert should NOT have been called
     await new Promise(resolve => setTimeout(resolve, 2500))
     expect(mockUpsert).not.toHaveBeenCalled()
   })
 
   test('TTL is 30 minutes', async () => {
-    // Access the TTL_MS through the class
-    // We test indirectly: a message timestamped >30min ago should be expired
     buffer.append('test-conv', 'user', 'old message')
 
-    // Manually expire the entry by manipulating the cache
-    // (we access the private cache via any cast for testing)
     const entry = (buffer as any).cache.get('test-conv')
-    entry.lastActivityAt = Date.now() - 31 * 60 * 1000 // 31 minutes ago
+    entry.lastActivityAt = Date.now() - 31 * 60 * 1000
 
     const history = await buffer.getHistory('test-conv')
-    expect(history).toEqual([]) // Expired
+    expect(history).toEqual([])
 
     buffer.shutdown()
   })

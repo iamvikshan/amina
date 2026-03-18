@@ -4,7 +4,6 @@ import type { GuildMember, Message } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
 import { getUser } from '@schemas/User'
 import { AiClient } from '@helpers/aiClient'
-// ConversationMessage is now globally available - see types/services.d.ts
 import {
   conversationBuffer,
   ConversationBuffer,
@@ -88,81 +87,42 @@ export class AiResponderService {
     try {
       const config = await configCache.getConfig()
 
-      // logger.log(
-      //   `AI Config loaded - Enabled: ${config.globallyEnabled}, Model: ${config.model}, HasKey: ${!!config.geminiKey}`
-      // )
-
       if (config.globallyEnabled) {
-        // Validate credentials based on auth mode
-        if (config.authMode === 'api-key' && !config.geminiKey) {
-          logger.error(
-            'AI globally enabled with api-key mode but GEMINI_KEY is empty'
-          )
-          this.client = null
-          this.currentClientConfig = null
-          return
-        }
-        if (
-          config.authMode === 'vertex' &&
-          (!config.vertexProjectId ||
-            !config.vertexRegion ||
-            !config.googleServiceAccountJson ||
-            !config.parsedCredentials)
-        ) {
-          const missing = [
-            !config.vertexProjectId && 'vertexProjectId',
-            !config.vertexRegion && 'vertexRegion',
-            !config.googleServiceAccountJson && 'googleServiceAccountJson',
-            !config.parsedCredentials && 'parsedCredentials',
-          ].filter(Boolean)
-          logger.error(
-            `AI globally enabled with vertex mode but missing required credential(s): ${missing.join(', ')}`
-          )
+        if (!config.mistralApiKey) {
+          logger.error('AI globally enabled but MISTRAL API key is empty')
           this.client = null
           this.currentClientConfig = null
           return
         }
 
-        // Build auth config — credentials pre-parsed by configCache
-        const geminiKey = config.geminiKey ?? ''
-        const authConfig: AiAuthConfig =
-          config.authMode === 'vertex'
-            ? {
-                mode: 'vertex',
-                project: config.vertexProjectId,
-                location: config.vertexRegion,
-                credentials: config.parsedCredentials,
-              }
-            : { mode: 'api-key', apiKey: geminiKey }
-
-        // Fingerprint for change detection — includes credential hash for rotation
-        const credentialFingerprint =
-          config.authMode === 'vertex' && config.googleServiceAccountJson
-            ? Bun.hash(config.googleServiceAccountJson).toString(16).slice(0, 8)
-            : config.authMode === 'api-key' && geminiKey
-              ? Bun.hash(geminiKey).toString(16).slice(0, 8)
-              : 'none'
-        const authConfigKey = `${config.authMode}:${
-          config.authMode === 'vertex'
-            ? `${config.vertexProjectId}:${config.vertexRegion}`
-            : 'gemini'
-        }:${credentialFingerprint}`
+        const authFingerprint = Bun.hash(config.mistralApiKey)
+          .toString(16)
+          .slice(0, 8)
+        const groqFingerprint = config.groqApiKey
+          ? Bun.hash(config.groqApiKey).toString(16).slice(0, 8)
+          : ''
+        const configKey = `mistral:${authFingerprint}${groqFingerprint ? `:groq:${groqFingerprint}` : ''}`
 
         const needsClientRecreation =
           !this.currentClientConfig ||
           this.currentClientConfig.model !== config.model ||
           this.currentClientConfig.timeoutMs !== config.timeoutMs ||
-          this.currentClientConfig.authConfig !== authConfigKey
+          this.currentClientConfig.authConfig !== configKey
 
         if (needsClientRecreation) {
-          this.client = new AiClient(authConfig, config.model, config.timeoutMs)
+          this.client = new AiClient({
+            mistralApiKey: config.mistralApiKey,
+            groqApiKey: config.groqApiKey,
+            model: config.model,
+            timeout: config.timeoutMs,
+          })
           this.currentClientConfig = {
             model: config.model,
             timeoutMs: config.timeoutMs,
-            authConfig: authConfigKey,
+            authConfig: configKey,
           }
           logger.success(
-            `AI Responder initialized - Model: ${config.model}, Auth: ${config.authMode}`
+            `AI Responder initialized` /* - Model: ${config.model}, Provider: Mistral${config.groqApiKey ? ' + Groq fallback' : ''}` */
           )
         } else {
           logger.debug(
@@ -344,11 +304,6 @@ export class AiResponderService {
       // Get history BEFORE appending current message
       let history = await conversationBuffer.getHistory(conversationId)
 
-      // Validate: history must start with 'user' role (Google AI requirement)
-      while (history.length > 0 && history[0].role !== 'user') {
-        history.shift() // Remove leading 'model' messages
-      }
-
       // Append user message to buffer for next interaction
       conversationBuffer.append(
         conversationId,
@@ -516,7 +471,7 @@ export class AiResponderService {
       const hasMediaContent = mediaItems.length > 0
 
       if (!this.client) {
-        logger.warn('No AI client available for response')
+        logger.error('No AI client available for response')
         return
       }
 
@@ -529,14 +484,14 @@ export class AiResponderService {
       // Check for injection attempts
       const injectionCheck = checkInjection(message.content || '')
       if (injectionCheck.detected) {
-        logger.warn(
+        logger.error(
           `Injection attempt detected from ${message.author.id}: ${injectionCheck.patterns.join(', ')}`
         )
         // Don't block — just log for now. The system prompt should be robust enough.
         // Could add rate limiting or blocking for repeat offenders in the future.
       }
 
-      // Generate response with media if present (gemini-flash-latest supports multimodal)
+      // Generate response with media if present
       let result = await this.client.generateResponse(
         enhancedPrompt,
         formattedHistory,
@@ -558,17 +513,22 @@ export class AiResponderService {
       let currentHistory = [...formattedHistory]
       let statusMessage: Message | null = null
 
+      // Add the current user turn to history for follow-up calls
+      if (message.content && message.content.trim()) {
+        currentHistory.push({ role: 'user', content: message.content })
+      }
+
       while (iteration < MAX_ITERATIONS) {
-        const functionCalls = result.functionCalls ?? []
-        if (functionCalls.length === 0) break
+        const toolCalls = result.toolCalls ?? []
+        if (toolCalls.length === 0) break
         iteration++
 
         // Count actual tool calls in this iteration
-        totalToolCalls += functionCalls.length
+        totalToolCalls += toolCalls.length
 
         // Send a personality-flavored status message on first tool call
         if (iteration === 1 && !statusMessage) {
-          const toolNames = functionCalls.map(fc => fc.name)
+          const toolNames = toolCalls.map(tc => tc.function.name)
           const category = getToolStatusCategory(toolNames)
           const statusText = mina.say(category)
           try {
@@ -578,23 +538,33 @@ export class AiResponderService {
           }
         }
 
-        // Skip sending intermediate text - we'll let AI comment after seeing the result
-        // This keeps chat cleaner: command output → AI commentary
-        // TODO!: might want to send intermediate text and delete it after AI responds
-        if (result.text && result.text.trim()) {
-          // Just add to history so AI has context, but don't send to user
-          currentHistory.push({
-            role: 'model',
-            parts: result.modelContent ?? [{ text: result.text }],
-          })
-        }
-
-        // Process all function calls in this response
+        // Process all tool calls in this response
         const functionResults: string[] = []
 
-        for (const call of functionCalls) {
-          const commandName = call.name
-          let args = call.args
+        for (const call of toolCalls) {
+          const commandName = call.function.name
+          let args: Record<string, any>
+          try {
+            const parsed =
+              typeof call.function.arguments === 'string'
+                ? JSON.parse(call.function.arguments)
+                : call.function.arguments
+            if (
+              typeof parsed !== 'object' ||
+              parsed === null ||
+              Array.isArray(parsed)
+            ) {
+              throw new TypeError(`Expected object, got ${typeof parsed}`)
+            }
+            args = parsed
+          } catch (parseError) {
+            Logger.error(
+              `Failed to parse tool arguments for ${commandName}`,
+              parseError
+            )
+            functionResults.push(`Error: invalid arguments for ${commandName}`)
+            continue
+          }
 
           // Check if this is a native tool (memory manipulation, etc.)
           if (aiCommandRegistry.isNativeTool(commandName)) {
@@ -691,54 +661,54 @@ export class AiResponderService {
           }
         }
 
-        // Feed function results back to AI as a user message (system feedback)
-        // Google AI requires history to alternate user/model, so we format this carefully
-        const systemFeedback = `[System Feedback]\n${functionResults.join('\n\n')}`
+        // Store the assistant message that requested tool calls
+        conversationBuffer.appendAssistantMessage(
+          conversationId,
+          result.text || '',
+          toolCalls
+        )
+        currentHistory.push({
+          role: 'assistant',
+          content: result.text || '',
+          tool_calls: toolCalls,
+        })
 
-        // If AI sent text with the function call, it's already in history as 'model'
-        // If not, we need to add a placeholder so the alternation works
-        if (!result.text || !result.text.trim()) {
-          currentHistory.push({
-            role: 'model',
-            parts: [{ text: '[Executing requested commands...]' }],
-          })
-          conversationBuffer.append(
+        // Each tool call gets its own separate tool message (OpenAI/Mistral format)
+        for (let i = 0; i < toolCalls.length; i++) {
+          const call = toolCalls[i]
+          const toolResult = functionResults[i] || 'No result'
+          conversationBuffer.appendToolResult(
             conversationId,
-            'model',
-            '[Executing requested commands...]'
+            call.id,
+            call.function.name,
+            toolResult
           )
+          currentHistory.push({
+            role: 'tool',
+            content: toolResult,
+            tool_call_id: call.id,
+            name: call.function.name,
+          })
         }
-
-        // Append to conversation buffer for persistence (but NOT to currentHistory - we'll pass it as the message)
-        conversationBuffer.append(conversationId, 'user', systemFeedback)
 
         // Show typing indicator while AI thinks about the results
         if ('sendTyping' in message.channel) {
           await message.channel.sendTyping()
         }
 
-        // Validate history starts with user before calling API
-        while (currentHistory.length > 0 && currentHistory[0].role !== 'user') {
-          currentHistory.shift()
-        }
-
-        // Generate follow-up response with the function results
-        // Pass systemFeedback as the current user message (Google AI requires non-empty message)
+        // Generate follow-up response -- tool results are in history as proper tool messages
         result = await this.client.generateResponse(
           enhancedPrompt,
           currentHistory,
-          systemFeedback, // Pass system feedback as the current message
+          '', // No user message -- tool results are in history
           config.maxTokens,
           config.temperature,
-          undefined, // No media in follow-up
+          undefined,
           tools
         )
 
         // Accumulate tokens from follow-up API call
         totalTokensUsed += result.tokensUsed
-
-        // Add the feedback to history for next iteration (if any)
-        currentHistory.push({ role: 'user', parts: [{ text: systemFeedback }] })
       }
 
       // Send final text reply if present
@@ -755,11 +725,11 @@ export class AiResponderService {
           // No tool calls were made — send as normal reply
           await message.reply(result.text)
         }
-        // Append bot response to conversation buffer with full model content
-        conversationBuffer.appendParts(
+        // Append bot response to conversation buffer
+        conversationBuffer.appendAssistantMessage(
           conversationId,
-          'model',
-          result.modelContent ?? [{ text: result.text }]
+          result.text,
+          result.toolCalls
         )
       } else if (statusMessage) {
         // No final text but status message exists — clean up orphan
@@ -772,7 +742,7 @@ export class AiResponderService {
 
       // Warn if we hit the iteration limit
       if (iteration >= MAX_ITERATIONS) {
-        logger.warn(
+        logger.error(
           `ReAct loop hit max iterations (${MAX_ITERATIONS}) for message ${message.id}`
         )
       }
@@ -783,11 +753,11 @@ export class AiResponderService {
         .getHistory(conversationId)
         .then(freshHistory =>
           this.extractAndStoreMemories(message, freshHistory).catch(err =>
-            logger.warn(`Failed to extract memories: ${err.message}`)
+            logger.error(`Failed to extract memories: ${err.message}`)
           )
         )
         .catch(err =>
-          logger.warn(
+          logger.error(
             `Failed to fetch fresh history for memory extraction: ${err.message}`
           )
         )
@@ -806,7 +776,7 @@ export class AiResponderService {
         this.clearFailures(message.guild.id)
       }
     } catch (error: any) {
-      logger.warn(
+      logger.error(
         `AI response failed - Error: ${error.message}, Guild: ${message.guild?.id}, Channel: ${message.channel.id}`
       )
 
@@ -943,9 +913,11 @@ export class AiResponderService {
       warn: ['warn', 'warning'],
       purge: ['purge', 'delete messages', 'clear messages', 'clean'],
       gamble: ['gamble', 'bet', 'wager'],
-      slots: ['slots', 'slot machine'],
-      coinflip: ['coinflip', 'flip a coin', 'coin flip'],
-      blackjack: ['blackjack', 'play blackjack', '21'],
+      bank: ['bank', 'transfer', 'deposit', 'withdraw', 'send coins'],
+      stop: ['stop', 'stop playing', 'end music'],
+      leave: ['leave', 'disconnect', 'leave vc', 'leave voice'],
+      report: ['report', 'bug report', 'feedback'],
+      tictactoe: ['tictactoe', 'tic tac toe'],
     }
 
     // Check command name directly
@@ -1014,7 +986,7 @@ export class AiResponderService {
     commandName: string,
     args: Record<string, any>
   ): Record<string, any> {
-    const limits = aiPermissions.freeWillLimits as Record<
+    const limits = aiPermissions.freeWill.limits as Record<
       string,
       {
         maxDurationSeconds?: number
@@ -1129,10 +1101,9 @@ export class AiResponderService {
    * Format conversation history with speaker attribution for AI
    * Adds display names to user messages so AI can track who said what
    */
-  private formatHistoryForAI(
-    history: BufferMessage[]
-  ): globalThis.ConversationMessage[] {
-    return history.map(msg => ConversationBuffer.formatWithAttribution(msg))
+  private formatHistoryForAI(history: BufferMessage[]): ChatMessage[] {
+    const sanitized = ConversationBuffer.sanitizeToolPairs(history)
+    return sanitized.map(msg => ConversationBuffer.formatWithAttribution(msg))
   }
 
   /**
@@ -1191,7 +1162,7 @@ export class AiResponderService {
         const userData = await getUser(user)
         return { userId, userData }
       } catch (error: any) {
-        logger.warn(
+        logger.error(
           `Failed to fetch profile for user ${userId}: ${error.message}`
         )
         return { userId, userData: null }
@@ -1238,7 +1209,7 @@ export class AiResponderService {
         )
       }
     } catch (error: any) {
-      logger.warn(`Memory extraction failed: ${error.message}`)
+      logger.error(`Memory extraction failed: ${error.message}`)
     }
   }
 }

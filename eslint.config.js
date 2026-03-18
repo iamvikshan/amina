@@ -113,6 +113,7 @@ export default [
     ignores: [
       'node_modules/**',
       'dist/**',
+      '**/dist/**',
       'build/**',
       'logs/**',
       '.git/**',
