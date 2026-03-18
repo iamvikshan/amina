@@ -42,7 +42,7 @@ module.exports = {
       '@semantic-release/exec',
       {
         prepareCmd:
-          "node -e \"const fs=require('node:fs');for (const file of ['package.json','cli/package.json']) {const pkg=JSON.parse(fs.readFileSync(file,'utf8'));pkg.version='${nextRelease.version}';fs.writeFileSync(file,JSON.stringify(pkg,null,2)+'\\n');}\"",
+          "node -e \"const fs=require('node:fs');const file='package.json';const pkg=JSON.parse(fs.readFileSync(file,'utf8'));pkg.version='${nextRelease.version}';fs.writeFileSync(file,JSON.stringify(pkg,null,2)+'\\n');\"",
       },
     ],
 
