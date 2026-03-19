@@ -47,49 +47,6 @@ export default async (client: BotClient): Promise<void> => {
     // Initialize Memory Manipulator tools
     memoryManipulator.initialize(memoryService)
     memoryManipulator.registerTools(aiCommandRegistry)
-
-    // One-time migration: re-embed memories with old 3072-dim embeddings to new 1024-dim
-    try {
-      const { Model } = await import('@schemas/AiMemory')
-      const oldDimMemories = await Model.collection
-        .find({ $expr: { $eq: [{ $size: '$embedding' }, 3072] } })
-        .toArray()
-
-      if (oldDimMemories.length > 0) {
-        client.logger.log(
-          `Re-embedding ${oldDimMemories.length} memories from 3072-dim to 1024-dim...`
-        )
-        let updated = 0
-        let failed = 0
-
-        for (const memory of oldDimMemories) {
-          try {
-            const text = `${memory.key}: ${memory.value}`
-            const embeddingResult = await memoryService.generateEmbedding(text)
-            if (embeddingResult) {
-              await Model.collection.updateOne(
-                { _id: memory._id },
-                { $set: { embedding: embeddingResult } }
-              )
-              updated++
-            } else {
-              failed++
-            }
-          } catch (err: any) {
-            failed++
-            client.logger.debug(
-              `Failed to re-embed memory ${memory._id}: ${err.message}`
-            )
-          }
-        }
-
-        client.logger.success(
-          `Re-embedding complete: ${updated} updated, ${failed} failed`
-        )
-      }
-    } catch (err: any) {
-      client.logger.debug(`Re-embedding check skipped: ${err.message}`)
-    }
   } catch (error: any) {
     client.logger.warn(
       `Memory Service disabled - configuration error: ${error.message || error}`

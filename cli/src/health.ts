@@ -1,4 +1,4 @@
-import { sleep } from './shared'
+import { crimson, dim, electricBlue, gold, green, sleep } from './shared'
 import type { SpawnResult, PromptsFn } from './shared'
 
 export const SERVICES = [
@@ -113,7 +113,23 @@ export function showDashboard(
     s => s !== 'healthy' && s !== 'running'
   )
 
-  for (const line of lines) {
+  const ok = green
+  const bad = crimson
+  const info = electricBlue
+  const accent = gold
+  const subtle = dim
+
+  const styled = lines.map(line => {
+    if (line.includes('=== ')) return info.bold(line)
+    if (line.includes('--- ')) return accent(line)
+    if (line.includes('[+]')) return line.replace('[+]', ok('[+]'))
+    if (line.includes('[x]')) return line.replace('[x]', bad('[x]'))
+    if (line.startsWith('  ') && line.includes(':') && !line.includes('['))
+      return subtle(line)
+    return line
+  })
+
+  for (const line of styled) {
     if (anyBad) {
       prompts.log.warn(line)
     } else {

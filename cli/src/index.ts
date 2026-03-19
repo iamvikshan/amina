@@ -1,9 +1,19 @@
 #!/usr/bin/env node
 
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 import { runCheck } from './check'
 import { runInstall } from './install'
+import {
+  crimson,
+  cyberBlue,
+  dim,
+  electricBlue,
+  gold,
+  green,
+  roseRed,
+} from './shared'
 import { runStatus } from './status'
 import { runUninstall } from './uninstall'
 import { runUpdate } from './update'
@@ -29,23 +39,44 @@ export function parseFlags(args: string[]): CliFlags {
   return flags
 }
 
-const HELP_TEXT = `amina - Amina deployment CLI
+const require = createRequire(import.meta.url)
+const { version: VERSION } = require('../package.json') as {
+  version: string
+}
 
-Usage: amina <command> [options]
+const BANNER = [
+  crimson('    _    __  __ ___ _   _    _    '),
+  crimson('   / \\  |  \\/  |_ _| \\ | |  / \\   '),
+  roseRed('  / _ \\ | |\\/| || ||  \\| | / _ \\  '),
+  roseRed(' / ___ \\| |  | || || |\\  |/ ___ \\ '),
+  electricBlue('/_/   \\_\\_|  |_|___|_| \\_/_/   \\_\\'),
+].join('\n')
 
-Commands:
-  check      Check for new Amina releases
-  install    Deploy a fresh Amina instance
-  update     Update an existing deployment
-  uninstall  Remove an Amina deployment
-  status     Show deployment status
-  help       Show this help message
+const SUBTITLE = dim(`  Discord Bot Deployment CLI ${cyberBlue(`v${VERSION}`)}`)
 
-Options:
-  --dry-run   Preview changes without executing
-  --force     Skip confirmations (auto-approve)
-  --mode      Set mode: deploy (default) or dev
-  -f, -y      Alias for --force
+const SEP = dim('─'.repeat(42))
+
+const HELP_TEXT = `
+${BANNER}
+${SUBTITLE}
+${SEP}
+
+${electricBlue.bold('Usage:')} amina <command> [options]
+
+${electricBlue.bold('Commands:')}
+  ${green('check')}      ${dim('Check for new Amina releases')}
+  ${green('install')}    ${dim('Deploy a fresh Amina instance')}
+  ${green('update')}     ${dim('Update an existing deployment')}
+  ${green('uninstall')}  ${dim('Remove an Amina deployment')}
+  ${green('status')}     ${dim('Show deployment status')}
+  ${green('help')}       ${dim('Show this help message')}
+
+${electricBlue.bold('Options:')}
+  ${gold('--dry-run')}   ${dim('Preview changes without executing')}
+  ${gold('--force')}     ${dim('Skip confirmations (auto-approve)')}
+  ${gold('--mode')}      ${dim('Set mode: deploy (default) or dev')}
+  ${gold('-f, -y')}      ${dim('Alias for --force')}
+${SEP}
 `
 
 /**
@@ -81,7 +112,7 @@ export async function main(args: string[] = process.argv): Promise<number> {
       console.log(HELP_TEXT)
       return 0
     default:
-      console.error(`Unknown command: ${subcommand}\n`)
+      console.error(crimson(`Unknown command: ${subcommand}\n`))
       console.log(HELP_TEXT)
       return 1
   }

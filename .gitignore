@@ -17,5 +17,4 @@ plans/
 
 # Wrangler
 .wrangler/
-
-gen-lang-client-*.json
+hooks/

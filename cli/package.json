@@ -1,7 +1,17 @@
 {
   "name": "amina",
   "version": "3.3.0",
-  "description": "Standalone CLI for checking the latest Amina release and showing upgrade instructions",
+  "description": "CLI tool for deploying, updating, and managing Amina Discord bot instances",
+  "keywords": [
+    "discord",
+    "bot",
+    "cli",
+    "deployment",
+    "docker",
+    "amina",
+    "discord-bot",
+    "vps"
+  ],
   "type": "module",
   "license": "CC-BY-4.0",
   "homepage": "https://github.com/iamvikshan/amina#readme",
@@ -23,7 +33,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-    "node": ">=20",
+    "node": ">=22",
     "bun": ">=1.3.11"
   },
   "scripts": {
@@ -34,7 +44,8 @@
     "test": "bun test tests/"
   },
   "dependencies": {
-    "@clack/prompts": "^1.1.0"
+    "@clack/prompts": "^1.1.0",
+    "chalk": "^5.4.1"
   },
   "devDependencies": {
     "@types/node": "^25.5.0"

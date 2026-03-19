@@ -194,7 +194,9 @@ describe('subcommand routing', () => {
 
     console.log = origLog
     expect(code).toBe(0)
-    expect(lines.join('\n')).toContain('Usage: amina <command>')
+    // eslint-disable-next-line no-control-regex
+    const plain = lines.join('\n').replace(/\u001b\[[0-9;]*m/g, '')
+    expect(plain).toContain('Usage: amina <command>')
   })
 
   test('returns 1 for unknown subcommand', async () => {

@@ -120,7 +120,11 @@ _Track your rank (and secret achievements) in the [Command Center Dashboard](htt
 
 Want to deploy me on your own infra? Respect. Here's how:
 
-👉 **[Self-Hosting Guide](https://docs.4mina.app/wiki/quick-start-self-hosting)** — Complete deployment instructions
+```bash
+bunx amina install
+```
+
+see full **[Self-Hosting Guide](https://docs.4mina.app/wiki/quick-start-self-hosting)** — Complete deployment instructions
 
 > **Note:** Self-hosting requires technical knowledge. For most users, I recommend using the [official hosted version](https://discord.com/api/oauth2/authorize?client_id=1035629678632915055&scope=bot+applications.commands&permissions=1374891928950) — it's easier and always up-to-date!
 

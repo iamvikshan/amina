@@ -1,26 +1,36 @@
 import { spawnSync } from 'node:child_process'
+import chalk from 'chalk'
 import * as clack from '@clack/prompts'
 
-const RESET = '\x1b[0m'
-const RED = '\x1b[31m'
-const GREEN = '\x1b[32m'
-const YELLOW = '\x1b[33m'
-const BLUE = '\x1b[34m'
+// Amina brand palette (Akame ga Kill inspired)
+export const crimson = chalk.hex('#dc143c')
+export const bloodRed = chalk.hex('#8b0000')
+export const roseRed = chalk.hex('#e63946')
+export const electricBlue = chalk.hex('#1e90ff')
+export const cyberBlue = chalk.hex('#00ced1')
+export const gold = chalk.hex('#ffd700')
+export const amberGold = chalk.hex('#ffa500')
+export const green = chalk.hex('#57f287')
+export const dim = chalk.dim
+
+export function header(msg: string): void {
+  console.log(electricBlue.bold(`\n--- ${msg} ---`))
+}
 
 export function log(message: string): void {
-  console.log(`${BLUE}[*]${RESET} ${message}`)
+  console.log(`${electricBlue('[*]')} ${message}`)
 }
 
 export function warn(message: string): void {
-  console.warn(`${YELLOW}[!]${RESET} ${message}`)
+  console.warn(`${amberGold('[!]')} ${message}`)
 }
 
 export function error(message: string): void {
-  console.error(`${RED}[x]${RESET} ${message}`)
+  console.error(`${crimson('[x]')} ${message}`)
 }
 
 export function success(message: string): void {
-  console.log(`${GREEN}[+]${RESET} ${message}`)
+  console.log(`${green('[+]')} ${message}`)
 }
 
 export const sleep = (ms: number): Promise<void> =>
