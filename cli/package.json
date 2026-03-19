@@ -1,6 +1,6 @@
 {
   "name": "amina",
-  "version": "3.2.5",
+  "version": "3.3.0",
   "description": "Standalone CLI for checking the latest Amina release and showing upgrade instructions",
   "type": "module",
   "license": "CC-BY-4.0",
