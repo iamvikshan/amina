@@ -34,7 +34,7 @@ testDir: tests/
 
 ## Stack
 
-- **Runtime:** Bun (>=1.3.8) — runs TypeScript natively, no build/compile step
+- **Runtime:** Bun (>=1.3.11) — runs TypeScript natively, no build/compile step
 - **Bot framework:** discord.js v14
 - **Database:** MongoDB via Mongoose
 - **AI integrations:** Mistral AI (`@mistralai/mistralai`), Groq SDK (`groq-sdk`)

@@ -5,10 +5,11 @@ FROM oven/bun:1.3.10-alpine AS dependencies
 
 WORKDIR /app
 
-# Copy lockfile and package files (api/package.json needed for workspace resolution)
+# Copy lockfile and workspace manifests needed for workspace resolution
 COPY bun.lock ./
 COPY package.json ./
 COPY api/package.json ./api/
+COPY cli/package.json ./cli/
 
 # Install production dependencies only (skip api workspace)
 RUN bun install --frozen-lockfile --production --ignore-scripts --filter 'amina'

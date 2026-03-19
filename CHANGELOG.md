@@ -1,3 +1,14 @@
+## [3.3.0](https://github.com/iamvikshan/amina/compare/v3.2.5...v3.3.0) (2026-03-19)
+
+### Features
+
+* migrate from Google GenAI to Mistral SDK for embeddings and chat functionalities ([a427b52](https://github.com/iamvikshan/amina/commit/a427b52733627c74b14df60359bebb7f503683a6))
+
+### Bug Fixes
+
+* **api:** update api dependencies ([#273](https://github.com/iamvikshan/amina/issues/273)) ([a5b28a5](https://github.com/iamvikshan/amina/commit/a5b28a5d570adaaca71d0b7d131457a193080e93))
+* **api:** update dependency hono to ^4.12.7 ([#285](https://github.com/iamvikshan/amina/issues/285)) ([de53b18](https://github.com/iamvikshan/amina/commit/de53b18c92907b9f28a6f75299680ce7d9b974c2))
+
 ## [3.2.5](https://github.com/iamvikshan/amina/compare/v3.2.4...v3.2.5) (2026-03-04)
 
 ### Bug Fixes
