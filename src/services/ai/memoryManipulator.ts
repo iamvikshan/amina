@@ -1,4 +1,4 @@
-// @root/src/services/memoryManipulator.ts
+// @root/src/services/ai/memoryManipulator.ts
 
 import type { MemoryService } from './memoryService'
 import type { AiCommandRegistry, NativeToolContext } from './aiCommandRegistry'

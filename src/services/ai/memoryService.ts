@@ -1,6 +1,6 @@
-// @root/src/services/memoryService.ts
+// @root/src/services/ai/memoryService.ts
 
-import { Mistral } from '@mistralai/mistralai'
+import OpenAI from 'openai'
 import Logger from '@helpers/Logger'
 import {
   saveMemory,
@@ -24,20 +24,49 @@ const logger = Logger
 // MemoryFact and RecalledMemory are now globally available - see types/services.d.ts
 
 export class MemoryService {
-  private mistral: Mistral | null = null
-  private embeddingModel: string = 'mistral-embed'
-  private extractionModel: string = 'mistral-small-latest'
+  private gemini: OpenAI | null = null
+  private mistral: OpenAI | null = null
+  private voyageNative: OpenAI | null = null
+  private voyageMongo: OpenAI | null = null
+  private embeddingModel: string = 'voyage-4-lite'
+  private extractionModel: string = 'gemini-3.1-flash-lite-preview'
   private dedupThreshold: number = 0.85
   private readonly MAX_MEMORIES_PER_USER = 50
 
   async initialize(options: {
-    mistralApiKey: string
+    geminiApiKey?: string
+    mistralApiKey?: string
+    voyageApiKey?: string
+    voyageMongoApiKey?: string
     embeddingModel?: string
     extractionModel?: string
     dedupThreshold?: number
   }) {
     try {
-      this.mistral = new Mistral({ apiKey: options.mistralApiKey })
+      this.gemini = options.geminiApiKey
+        ? new OpenAI({
+            apiKey: options.geminiApiKey,
+            baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+          })
+        : null
+      this.mistral = options.mistralApiKey
+        ? new OpenAI({
+            apiKey: options.mistralApiKey,
+            baseURL: 'https://api.mistral.ai/v1',
+          })
+        : null
+      this.voyageNative = options.voyageApiKey
+        ? new OpenAI({
+            apiKey: options.voyageApiKey,
+            baseURL: 'https://api.voyageai.com/v1',
+          })
+        : null
+      this.voyageMongo = options.voyageMongoApiKey
+        ? new OpenAI({
+            apiKey: options.voyageMongoApiKey,
+            baseURL: 'https://ai.mongodb.com/v1',
+          })
+        : null
       if (options.embeddingModel) this.embeddingModel = options.embeddingModel
       if (options.extractionModel)
         this.extractionModel = options.extractionModel
@@ -53,10 +82,89 @@ export class MemoryService {
   }
 
   /**
+   * Generate an embedding via Voyage AI (dual-key random selection), Gemini, or Mistral (fallback).
+   */
+  private async generateVoyageOrFallbackEmbedding(
+    text: string,
+    inputType?: 'query' | 'document'
+  ): Promise<number[] | null> {
+    // Build ordered Voyage client list with random primary selection
+    const voyageClients: { client: OpenAI; label: string }[] = []
+    if (this.voyageNative)
+      voyageClients.push({ client: this.voyageNative, label: 'Voyage native' })
+    if (this.voyageMongo)
+      voyageClients.push({ client: this.voyageMongo, label: 'Voyage MongoDB' })
+    // Randomize order when both are available
+    if (voyageClients.length === 2 && Math.random() < 0.5)
+      voyageClients.reverse()
+
+    for (const { client, label } of voyageClients) {
+      try {
+        const params: OpenAI.EmbeddingCreateParams & {
+          input_type?: string
+        } = {
+          model: this.embeddingModel,
+          input: [text],
+        }
+        if (inputType) params.input_type = inputType
+        const result = await client.embeddings.create(params)
+        const embedding = result.data?.[0]?.embedding
+        if (embedding?.length) {
+          logger.debug(
+            `Embedding generated via ${label} (${embedding.length}d)`
+          )
+          return embedding
+        }
+      } catch (err: any) {
+        logger.warn(`${label} embedding error: ${err.message}`)
+      }
+    }
+
+    if (this.gemini) {
+      try {
+        const result = await this.gemini.embeddings.create({
+          model: 'gemini-embedding-001',
+          input: [text],
+          dimensions: 1024,
+        })
+        const embedding = result.data?.[0]?.embedding
+        if (embedding?.length) {
+          logger.debug(
+            `Embedding generated via Gemini fallback (${embedding.length}d)`
+          )
+          return embedding
+        }
+      } catch (err: any) {
+        logger.warn(`Gemini embedding fallback failed: ${err.message}`)
+      }
+    }
+
+    if (this.mistral) {
+      try {
+        const result = await this.mistral.embeddings.create({
+          model: 'mistral-embed',
+          input: [text],
+        })
+        const embedding = result.data?.[0]?.embedding
+        if (embedding?.length) {
+          logger.debug(
+            `Embedding generated via Mistral fallback (${embedding.length}d)`
+          )
+          return embedding
+        }
+      } catch (err: any) {
+        logger.warn(`Mistral embedding fallback failed: ${err.message}`)
+      }
+    }
+
+    return null
+  }
+
+  /**
    * Extract memories from a conversation
    */
   async extractMemories(conversationHistory: Message[]): Promise<MemoryFact[]> {
-    if (!this.mistral) {
+    if (!this.gemini && !this.mistral) {
       logger.warn(
         'extractMemories skipped: Memory Service not initialized (AI client missing)'
       )
@@ -94,21 +202,51 @@ Return ONLY valid JSON array (no markdown, no explanation):
 
 If nothing worth remembering, return: []`
 
-      const result = await this.mistral.chat.complete({
-        model: this.extractionModel,
-        messages: [{ role: 'user', content: extractionPrompt }],
-      })
-      const response = (
-        (result.choices?.[0]?.message?.content as string) ?? ''
-      ).trim()
+      let facts: MemoryFact[] | null = null
 
-      // Clean response - remove markdown code blocks if present
-      const cleanResponse = response
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim()
+      // Primary: Gemini
+      if (this.gemini) {
+        try {
+          const result = await this.gemini.chat.completions.create({
+            model: this.extractionModel,
+            messages: [{ role: 'user', content: extractionPrompt }],
+          })
+          const raw = (result.choices?.[0]?.message?.content ?? '').trim()
+          if (raw) {
+            const clean = raw
+              .replace(/```json\n?/g, '')
+              .replace(/```\n?/g, '')
+              .trim()
+            facts = JSON.parse(clean)
+          }
+        } catch (err: any) {
+          logger.warn(
+            `Gemini extraction failed (${err.message}), trying Mistral fallback`
+          )
+        }
+      }
 
-      const facts: MemoryFact[] = JSON.parse(cleanResponse)
+      // Fallback: Mistral
+      if (!facts && this.mistral) {
+        try {
+          const result = await this.mistral.chat.completions.create({
+            model: 'mistral-small-latest',
+            messages: [{ role: 'user', content: extractionPrompt }],
+          })
+          const raw = (result.choices?.[0]?.message?.content ?? '').trim()
+          if (raw) {
+            const clean = raw
+              .replace(/```json\n?/g, '')
+              .replace(/```\n?/g, '')
+              .trim()
+            facts = JSON.parse(clean)
+          }
+        } catch (err: any) {
+          logger.warn(`Mistral extraction fallback failed: ${err.message}`)
+        }
+      }
+
+      if (!facts) return []
 
       logger.debug(`Extracted ${facts.length} memories from conversation`)
       return facts
@@ -127,7 +265,12 @@ If nothing worth remembering, return: []`
     guildId: string | null,
     context: string
   ): Promise<boolean> {
-    if (!this.mistral) {
+    if (
+      !this.voyageNative &&
+      !this.voyageMongo &&
+      !this.gemini &&
+      !this.mistral
+    ) {
       logger.warn(
         'storeMemory skipped: Memory Service not initialized (AI client missing)'
       )
@@ -135,15 +278,13 @@ If nothing worth remembering, return: []`
     }
 
     try {
-      // Generate embedding for the memory
       const embeddingText = `${fact.key}: ${fact.value}`
-      const embeddingResult = await this.mistral.embeddings.create({
-        model: this.embeddingModel,
-        inputs: [embeddingText],
-      })
-      const embedding = embeddingResult.data?.[0]?.embedding
+      const embedding = await this.generateVoyageOrFallbackEmbedding(
+        embeddingText,
+        'document'
+      )
       if (!embedding) {
-        logger.warn('Failed to generate embedding: no values returned')
+        logger.warn('Failed to generate embedding: no provider returned values')
         return false
       }
 
@@ -243,7 +384,12 @@ If nothing worth remembering, return: []`
       globalServerMemories?: boolean
     }
   ): Promise<RecalledMemory[]> {
-    if (!this.mistral) {
+    if (
+      !this.voyageNative &&
+      !this.voyageMongo &&
+      !this.gemini &&
+      !this.mistral
+    ) {
       logger.warn(
         'recallMemories skipped: Memory Service not initialized (AI client missing)'
       )
@@ -251,14 +397,14 @@ If nothing worth remembering, return: []`
     }
 
     try {
-      // Generate embedding for the query
-      const embeddingResult = await this.mistral.embeddings.create({
-        model: this.embeddingModel,
-        inputs: [userMessage],
-      })
-      const queryVector = embeddingResult.data?.[0]?.embedding
+      const queryVector = await this.generateVoyageOrFallbackEmbedding(
+        userMessage,
+        'query'
+      )
       if (!queryVector) {
-        logger.warn('Failed to generate query embedding: no values returned')
+        logger.warn(
+          'Failed to generate query embedding: no provider returned values'
+        )
         return []
       }
 
@@ -473,22 +619,18 @@ If nothing worth remembering, return: []`
    * Generate an embedding vector for the given text.
    */
   async generateEmbedding(text: string): Promise<number[] | null> {
-    if (!this.mistral) {
+    if (
+      !this.voyageNative &&
+      !this.voyageMongo &&
+      !this.gemini &&
+      !this.mistral
+    ) {
       logger.warn(
         'generateEmbedding skipped: Memory Service not initialized (AI client missing)'
       )
       return null
     }
-    try {
-      const embeddingResult = await this.mistral.embeddings.create({
-        model: this.embeddingModel,
-        inputs: [text],
-      })
-      return embeddingResult.data?.[0]?.embedding ?? null
-    } catch (error: any) {
-      logger.error(`Failed to generate embedding: ${error.message}`)
-      return null
-    }
+    return this.generateVoyageOrFallbackEmbedding(text)
   }
 
   /**

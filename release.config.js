@@ -5,7 +5,10 @@ module.exports = {
       '@semantic-release/commit-analyzer',
       {
         preset: 'conventionalcommits',
-        releaseRules: [{ scope: 'api', release: false }],
+        releaseRules: [
+          { scope: 'api', release: false },
+          { scope: 'cli', release: false },
+        ],
       },
     ],
 
@@ -47,13 +50,6 @@ module.exports = {
     ],
 
     [
-      '@semantic-release/npm',
-      {
-        pkgRoot: 'cli',
-      },
-    ],
-
-    [
       '@semantic-release/github',
       {
         successComment:
@@ -68,7 +64,7 @@ module.exports = {
     [
       '@semantic-release/git',
       {
-        assets: ['package.json', 'cli/package.json', 'CHANGELOG.md'],
+        assets: ['package.json', 'CHANGELOG.md'],
         message:
           'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },

@@ -1,6 +1,10 @@
 import { describe, expect, test, beforeEach } from 'bun:test'
 import type { PromptsFn, SpawnResult } from '../src/shared'
-import { runInstall, ensurePrerequisites, checkExistingDeployment } from '../src/install'
+import {
+  runInstall,
+  ensurePrerequisites,
+  checkExistingDeployment,
+} from '../src/install'
 import { parseFlags } from '../src/index'
 
 // DI-based env mocks -- passed via deps.configureEnvFn / deps.validateEnvFn
@@ -9,7 +13,9 @@ const ENV_VALID = 'BOT_TOKEN=tok\nMONGO_CONNECTION=mongo://x\n'
 
 function mockConfigureEnv() {
   return async () => {
-    return configureEnvQueue.length > 0 ? configureEnvQueue.shift() ?? ENV_VALID : ENV_VALID
+    return configureEnvQueue.length > 0
+      ? (configureEnvQueue.shift() ?? ENV_VALID)
+      : ENV_VALID
   }
 }
 
@@ -24,8 +30,10 @@ function mockValidateEnv() {
       if (key && val) map.set(key, val)
     }
     const errors: string[] = []
-    if (!map.get('BOT_TOKEN')) errors.push('Missing required variable: BOT_TOKEN')
-    if (!map.get('MONGO_CONNECTION')) errors.push('Missing required variable: MONGO_CONNECTION')
+    if (!map.get('BOT_TOKEN'))
+      errors.push('Missing required variable: BOT_TOKEN')
+    if (!map.get('MONGO_CONNECTION'))
+      errors.push('Missing required variable: MONGO_CONNECTION')
     return { ok: errors.length === 0, errors, warnings: [] as string[] }
   }
 }
@@ -45,13 +53,21 @@ function mockPrompts(overrides: Partial<PromptsFn> = {}): PromptsFn {
     outro: () => {},
     cancel: () => {},
     isCancel: (_v: unknown): _v is symbol => false,
-    log: { info: () => {}, warn: () => {}, error: () => {}, success: () => {}, step: () => {}, message: () => {} },
+    log: {
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+      success: () => {},
+      step: () => {},
+      message: () => {},
+    },
     ...overrides,
   }
 }
 
 function defaultSpawn(args: string[]): SpawnResult {
-  if (args.join(' ').includes('docker inspect')) return { success: true, stdout: 'healthy', stderr: '' }
+  if (args.join(' ').includes('docker inspect'))
+    return { success: true, stdout: 'healthy', stderr: '' }
   return { success: true, stdout: '', stderr: '' }
 }
 
@@ -118,7 +134,9 @@ describe('install prerequisite detection', () => {
     expect(result.ok).toBe(true)
     const aptCalls = spawnCalls.filter(a => a.join(' ').includes('apt-get'))
     expect(aptCalls.length).toBe(0) // git is present, no apt-get needed
-    const dockerInstallCalls = spawnCalls.filter(a => a.join(' ').includes('get.docker.com'))
+    const dockerInstallCalls = spawnCalls.filter(a =>
+      a.join(' ').includes('get.docker.com')
+    )
     expect(dockerInstallCalls.length).toBe(1)
   })
 })
@@ -133,16 +151,43 @@ describe('install deploy', () => {
 
     const result = await checkExistingDeployment({
       deployPath: '/deploy',
-      fileExists: (p: string) => p.endsWith('docker-compose.yml') || p.endsWith('.env'),
+      fileExists: (p: string) =>
+        p.endsWith('docker-compose.yml') || p.endsWith('.env'),
       spawnFn: () => ({ success: true, stdout: '', stderr: '' }),
       prompts: mockPrompts({
-        select: async () => { selectCalled = true; return 'restart' as never },
+        select: async () => {
+          selectCalled = true
+          return 'restart' as never
+        },
       }),
       mode: 'deploy',
     })
 
     expect(selectCalled).toBe(true)
     expect(result).toBe('restart')
+  })
+
+  test('change-path option exists in deployment menu', async () => {
+    let selectOptions: any[] = []
+
+    const result = await checkExistingDeployment({
+      deployPath: '/deploy',
+      fileExists: (p: string) =>
+        p.endsWith('docker-compose.yml') || p.endsWith('.env'),
+      spawnFn: () => ({ success: true, stdout: '', stderr: '' }),
+      prompts: mockPrompts({
+        select: async (opts: any) => {
+          selectOptions = opts?.options ?? []
+          return 'abort' as never
+        },
+      }),
+      mode: 'deploy',
+    })
+
+    expect(selectOptions.some((o: any) => o.value === 'change-path')).toBe(
+      true
+    )
+    expect(result).toBe('abort')
   })
 
   test('dry-run skips all mutations', async () => {
@@ -183,7 +228,10 @@ describe('install deploy', () => {
 
     let selectCalls = 0
     const prompts = mockPrompts({
-      select: async () => { selectCalls++; return 'guided' as never },
+      select: async () => {
+        selectCalls++
+        return 'guided' as never
+      },
     })
 
     const result = await runInstall({
@@ -192,7 +240,8 @@ describe('install deploy', () => {
       tmpdir: '/tmp/test-env-tmp',
       commandExistsFn: () => true,
       spawnFn: defaultSpawn,
-      fileExists: (p: string) => p.includes('docker-compose.prod.yml') || p.includes('application.yml'),
+      fileExists: (p: string) =>
+        p.includes('docker-compose.prod.yml') || p.includes('application.yml'),
       writeFile: noop as never,
       chmod: noop as never,
       mkdir: noop as never,
@@ -225,10 +274,12 @@ describe('install deploy', () => {
       deployPath: '/tmp/test-restart',
       commandExistsFn: () => true,
       spawnFn: (args: string[]) => {
-        if (args.includes('restart')) return { success: false, stdout: '', stderr: 'restart failed' }
+        if (args.includes('restart'))
+          return { success: false, stdout: '', stderr: 'restart failed' }
         return { success: true, stdout: '', stderr: '' }
       },
-      fileExists: (p: string) => p.endsWith('docker-compose.yml') || p.endsWith('.env'),
+      fileExists: (p: string) =>
+        p.endsWith('docker-compose.yml') || p.endsWith('.env'),
       prompts: mockPrompts({
         select: async () => 'restart' as never,
       }),
@@ -243,10 +294,12 @@ describe('install deploy', () => {
       deployPath: '/tmp/test-update',
       commandExistsFn: () => true,
       spawnFn: (args: string[]) => {
-        if (args.includes('up') && args.includes('-d')) return { success: false, stdout: '', stderr: 'up failed' }
+        if (args.includes('up') && args.includes('-d'))
+          return { success: false, stdout: '', stderr: 'up failed' }
         return { success: true, stdout: '', stderr: '' }
       },
-      fileExists: (p: string) => p.endsWith('docker-compose.yml') || p.endsWith('.env'),
+      fileExists: (p: string) =>
+        p.endsWith('docker-compose.yml') || p.endsWith('.env'),
       prompts: mockPrompts({
         select: async () => 'update' as never,
       }),
@@ -265,14 +318,19 @@ describe('install deploy', () => {
       tmpdir: '/tmp/test-cleanup-tmp',
       commandExistsFn: () => true,
       spawnFn: (args: string[]) => {
-        if (args.includes('up') && args.includes('-d')) return { success: false, stdout: '', stderr: 'up failed' }
+        if (args.includes('up') && args.includes('-d'))
+          return { success: false, stdout: '', stderr: 'up failed' }
         return { success: true, stdout: '', stderr: '' }
       },
-      fileExists: (p: string) => p.includes('docker-compose.prod.yml') || p.includes('application.yml'),
+      fileExists: (p: string) =>
+        p.includes('docker-compose.prod.yml') || p.includes('application.yml'),
       writeFile: noop as never,
       chmod: noop as never,
       mkdir: noop as never,
-      rmdir: ((p: string) => { rmdirCalled = true; rmdirPath = p }) as never,
+      rmdir: ((p: string) => {
+        rmdirCalled = true
+        rmdirPath = p
+      }) as never,
       copyFile: noop as never,
       prompts: mockPrompts({
         select: async () => 'guided' as never,
@@ -332,7 +390,15 @@ describe('install dev', () => {
 
 describe('parseFlags', () => {
   test('parses --dry-run --force --mode dev', () => {
-    const flags = parseFlags(['node', 'amina', 'install', '--dry-run', '--force', '--mode', 'dev'])
+    const flags = parseFlags([
+      'node',
+      'amina',
+      'install',
+      '--dry-run',
+      '--force',
+      '--mode',
+      'dev',
+    ])
 
     expect(flags.dryRun).toBe(true)
     expect(flags.force).toBe(true)
@@ -345,5 +411,124 @@ describe('parseFlags', () => {
     expect(flags.dryRun).toBe(false)
     expect(flags.force).toBe(false)
     expect(flags.mode).toBe('deploy')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Interactive path prompt
+// ---------------------------------------------------------------------------
+
+describe('install path prompt', () => {
+  test('deployment path prompt shown when no path provided', async () => {
+    let textCalled = false
+    let textMessage = ''
+
+    const result = await runInstall({
+      mode: 'deploy',
+      commandExistsFn: () => true,
+      spawnFn: defaultSpawn,
+      fileExists: (p: string) =>
+        p.includes('docker-compose.prod.yml') || p.includes('application.yml'),
+      writeFile: noop as never,
+      chmod: noop as never,
+      mkdir: noop as never,
+      rmdir: noop as never,
+      copyFile: noop as never,
+      prompts: mockPrompts({
+        text: async (opts: { message: string }) => {
+          if (!textCalled) {
+            textCalled = true
+            textMessage = opts?.message ?? ''
+            return '/tmp/test-prompted-path'
+          }
+          return ''
+        },
+        select: async () => 'guided' as never,
+      }),
+      configureEnvFn: mockConfigureEnv(),
+      validateEnvFn: mockValidateEnv(),
+    })
+
+    expect(result).toBe(0)
+    expect(textCalled).toBe(true)
+    expect(textMessage.toLowerCase()).toContain('path')
+  })
+
+  test('change-path loops back to path prompt', async () => {
+    let selectCallCount = 0
+    let textCallCount = 0
+
+    const result = await runInstall({
+      mode: 'deploy',
+      commandExistsFn: () => true,
+      spawnFn: defaultSpawn,
+      fileExists: (p: string) => {
+        if (
+          textCallCount <= 1 &&
+          (p.endsWith('docker-compose.yml') || p.endsWith('.env'))
+        )
+          return true
+        if (
+          p.includes('docker-compose.prod.yml') ||
+          p.includes('application.yml')
+        )
+          return true
+        return false
+      },
+      writeFile: noop as never,
+      chmod: noop as never,
+      mkdir: noop as never,
+      rmdir: noop as never,
+      copyFile: noop as never,
+      prompts: mockPrompts({
+        text: async () => {
+          textCallCount++
+          return textCallCount === 1
+            ? '/tmp/first-path'
+            : '/tmp/second-path'
+        },
+        select: async () => {
+          selectCallCount++
+          if (selectCallCount === 1) return 'change-path' as never
+          return 'guided' as never
+        },
+      }),
+      configureEnvFn: mockConfigureEnv(),
+      validateEnvFn: mockValidateEnv(),
+    })
+
+    expect(result).toBe(0)
+    expect(textCallCount).toBeGreaterThanOrEqual(2)
+    expect(selectCallCount).toBeGreaterThanOrEqual(2)
+  })
+
+  test('preset deployPath skips path prompt', async () => {
+    let textCalled = false
+
+    const result = await runInstall({
+      mode: 'deploy',
+      deployPath: '/tmp/preset-path',
+      commandExistsFn: () => true,
+      spawnFn: defaultSpawn,
+      fileExists: (p: string) =>
+        p.includes('docker-compose.prod.yml') || p.includes('application.yml'),
+      writeFile: noop as never,
+      chmod: noop as never,
+      mkdir: noop as never,
+      rmdir: noop as never,
+      copyFile: noop as never,
+      prompts: mockPrompts({
+        text: async () => {
+          textCalled = true
+          return ''
+        },
+        select: async () => 'guided' as never,
+      }),
+      configureEnvFn: mockConfigureEnv(),
+      validateEnvFn: mockValidateEnv(),
+    })
+
+    expect(result).toBe(0)
+    expect(textCalled).toBe(false)
   })
 })

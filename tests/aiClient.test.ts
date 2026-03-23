@@ -2,34 +2,41 @@ import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
 // -- Mocks must be declared before imports that use them --
 
-const mockMistralComplete = mock((): Promise<any> =>
+const mockGeminiCreate = mock((): Promise<any> =>
   Promise.resolve({
     choices: [
       {
-        message: { content: 'Hello!', toolCalls: undefined },
-        finishReason: 'stop',
+        message: { content: 'Hello!', tool_calls: undefined },
+        finish_reason: 'stop',
       },
     ],
-    usage: { totalTokens: 42, promptTokens: 10, completionTokens: 32 },
+    usage: { total_tokens: 42, prompt_tokens: 10, completion_tokens: 32 },
   })
 )
 
-mock.module('@mistralai/mistralai', () => ({
-  Mistral: class MockMistral {
-    chat = { complete: mockMistralComplete }
-  },
-}))
-
-const mockGroqCreate = mock((): Promise<any> =>
+const mockMistralCreate = mock((): Promise<any> =>
   Promise.resolve({
-    choices: [{ message: { content: 'Groq response', tool_calls: undefined } }],
+    choices: [{ message: { content: 'Mistral response', tool_calls: undefined } }],
     usage: { total_tokens: 20, prompt_tokens: 8, completion_tokens: 12 },
   })
 )
 
-mock.module('groq-sdk', () => ({
-  default: class MockGroq {
-    chat = { completions: { create: mockGroqCreate } }
+// Track which instances are created by baseURL
+const openaiInstances: Record<string, { chat: { completions: { create: any } } }> = {}
+
+mock.module('openai', () => ({
+  default: class MockOpenAI {
+    chat: any
+    constructor({ baseURL }: { baseURL: string }) {
+      if (baseURL === 'https://generativelanguage.googleapis.com/v1beta/openai/') {
+        this.chat = { completions: { create: mockGeminiCreate } }
+      } else if (baseURL === 'https://api.mistral.ai/v1') {
+        this.chat = { completions: { create: mockMistralCreate } }
+      } else {
+        this.chat = { completions: { create: mock() } }
+      }
+      openaiInstances[baseURL] = this as any
+    }
   },
 }))
 
@@ -58,23 +65,23 @@ describe('AiClient', () => {
   let client: AiClient
 
   beforeEach(() => {
-    mockMistralComplete.mockReset()
-    mockMistralComplete.mockImplementation(() =>
+    mockGeminiCreate.mockReset()
+    mockGeminiCreate.mockImplementation(() =>
       Promise.resolve({
         choices: [
           {
-            message: { content: 'Hello!', toolCalls: undefined },
-            finishReason: 'stop',
+            message: { content: 'Hello!', tool_calls: undefined },
+            finish_reason: 'stop',
           },
         ],
-        usage: { totalTokens: 42, promptTokens: 10, completionTokens: 32 },
+        usage: { total_tokens: 42, prompt_tokens: 10, completion_tokens: 32 },
       })
     )
-    mockGroqCreate.mockReset()
-    mockGroqCreate.mockImplementation(() =>
+    mockMistralCreate.mockReset()
+    mockMistralCreate.mockImplementation(() =>
       Promise.resolve({
         choices: [
-          { message: { content: 'Groq response', tool_calls: undefined } },
+          { message: { content: 'Mistral response', tool_calls: undefined } },
         ],
         usage: { total_tokens: 20, prompt_tokens: 8, completion_tokens: 12 },
       })
@@ -82,14 +89,14 @@ describe('AiClient', () => {
     AiClient.resetCircuit()
     AiClient.setRetryDelay(1)
     client = new AiClient({
+      geminiApiKey: 'test-gemini-key',
       mistralApiKey: 'test-mistral-key',
-      groqApiKey: 'test-groq-key',
-      model: 'mistral-small-latest',
+      model: 'gemini-flash-latest',
       timeout: 30000,
     })
   })
 
-  test('basic chat response from Mistral', async () => {
+  test('basic chat response from Gemini', async () => {
     const result = await client.generateResponse(
       'You are helpful',
       [],
@@ -105,14 +112,14 @@ describe('AiClient', () => {
     expect(result.latency).toBeGreaterThanOrEqual(0)
   })
 
-  test('tool call parsing from Mistral camelCase response', async () => {
-    mockMistralComplete.mockImplementationOnce(() =>
+  test('tool call parsing from Gemini response', async () => {
+    mockGeminiCreate.mockImplementationOnce(() =>
       Promise.resolve({
         choices: [
           {
             message: {
               content: 'I will timeout that user.',
-              toolCalls: [
+              tool_calls: [
                 {
                   id: 'call_1',
                   type: 'function',
@@ -123,10 +130,10 @@ describe('AiClient', () => {
                 },
               ],
             },
-            finishReason: 'tool_calls',
+            finish_reason: 'tool_calls',
           },
         ],
-        usage: { totalTokens: 50, promptTokens: 20, completionTokens: 30 },
+        usage: { total_tokens: 50, prompt_tokens: 20, completion_tokens: 30 },
       })
     )
 
@@ -151,14 +158,14 @@ describe('AiClient', () => {
   test('circuit breaker opens after repeated failures', async () => {
     AiClient.resetCircuit()
 
-    // Create client without Groq so Mistral failure is terminal
+    // Create client without Mistral so Gemini failure is terminal
     const noFallbackClient = new AiClient({
-      mistralApiKey: 'test-key',
-      model: 'mistral-small-latest',
+      geminiApiKey: 'test-key',
+      model: 'gemini-flash-latest',
       timeout: 30000,
     })
 
-    mockMistralComplete.mockImplementation(() => {
+    mockGeminiCreate.mockImplementation(() => {
       const error: any = new Error('Server error')
       error.status = 500
       return Promise.reject(error)
@@ -179,19 +186,19 @@ describe('AiClient', () => {
       }
     }
 
-    mockMistralComplete.mockClear()
+    mockGeminiCreate.mockClear()
 
     await expect(
       noFallbackClient.generateResponse('System', [], 'Hello', 1000, 0.7)
     ).rejects.toBeInstanceOf(AiCircuitBreakerError)
 
-    expect(mockMistralComplete).not.toHaveBeenCalled()
+    expect(mockGeminiCreate).not.toHaveBeenCalled()
     AiClient.resetCircuit()
   })
 
   test('retry on 429 and succeeds', async () => {
     let callCount = 0
-    mockMistralComplete.mockImplementation(() => {
+    mockGeminiCreate.mockImplementation(() => {
       callCount++
       if (callCount <= 2) {
         const error: any = new Error('Rate limited')
@@ -201,11 +208,11 @@ describe('AiClient', () => {
       return Promise.resolve({
         choices: [
           {
-            message: { content: 'Success after retry', toolCalls: undefined },
-            finishReason: 'stop',
+            message: { content: 'Success after retry', tool_calls: undefined },
+            finish_reason: 'stop',
           },
         ],
-        usage: { totalTokens: 10, promptTokens: 5, completionTokens: 5 },
+        usage: { total_tokens: 10, prompt_tokens: 5, completion_tokens: 5 },
       })
     })
 
@@ -220,9 +227,9 @@ describe('AiClient', () => {
     expect(callCount).toBe(3)
   })
 
-  test('Groq fallback on Mistral failure', async () => {
-    mockMistralComplete.mockImplementation(() =>
-      Promise.reject(new Error('Mistral is down'))
+  test('Mistral fallback on Gemini failure', async () => {
+    mockGeminiCreate.mockImplementation(() =>
+      Promise.reject(new Error('Gemini is down'))
     )
 
     const result = await client.generateResponse(
@@ -233,23 +240,23 @@ describe('AiClient', () => {
       0.7
     )
 
-    expect(result.text).toBe('Groq response')
+    expect(result.text).toBe('Mistral response')
     expect(result.tokensUsed).toBe(20)
     expect(result.promptTokens).toBe(8)
     expect(result.completionTokens).toBe(12)
   })
 
-  test('Groq fallback parses snake_case tool_calls correctly', async () => {
-    mockMistralComplete.mockImplementation(() =>
-      Promise.reject(new Error('Mistral is down'))
+  test('Mistral fallback parses snake_case tool_calls correctly', async () => {
+    mockGeminiCreate.mockImplementation(() =>
+      Promise.reject(new Error('Gemini is down'))
     )
-    mockGroqCreate.mockImplementationOnce(() =>
+    mockMistralCreate.mockImplementationOnce(() =>
       Promise.resolve({
         choices: [{
           message: {
             content: 'I will do that.',
             tool_calls: [{
-              id: 'groq_call_1',
+              id: 'mistral_call_1',
               type: 'function',
               function: {
                 name: 'ban_user',
@@ -266,7 +273,7 @@ describe('AiClient', () => {
 
     expect(result.toolCalls).toBeDefined()
     expect(result.toolCalls).toHaveLength(1)
-    expect(result.toolCalls?.[0].id).toBe('groq_call_1')
+    expect(result.toolCalls?.[0].id).toBe('mistral_call_1')
     expect(result.toolCalls?.[0].type).toBe('function')
     expect(result.toolCalls?.[0].function.name).toBe('ban_user')
     expect(result.toolCalls?.[0].function.arguments).toBe('{"userId":"456"}')
@@ -274,12 +281,12 @@ describe('AiClient', () => {
 
   test('timeout handling', async () => {
     const shortTimeoutClient = new AiClient({
-      mistralApiKey: 'test-key',
-      model: 'mistral-small-latest',
+      geminiApiKey: 'test-key',
+      model: 'gemini-flash-latest',
       timeout: 10,
     })
 
-    mockMistralComplete.mockImplementation(
+    mockGeminiCreate.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 5000))
     )
 
@@ -288,7 +295,7 @@ describe('AiClient', () => {
     ).rejects.toThrow('API timeout')
   })
 
-  test('image handling selects pixtral-large-latest model', async () => {
+  test('image handling uses current model for Gemini vision', async () => {
     // Mock global fetch for image fetching
     const originalFetch = globalThis.fetch
     globalThis.fetch = mock(() =>
@@ -310,8 +317,8 @@ describe('AiClient', () => {
         [{ url: 'https://example.com/image.png', mimeType: 'image/png', isVideo: false, isGif: false }]
       )
 
-      const callArgs = (mockMistralComplete.mock.calls[0] as any[])[0]
-      expect(callArgs.model).toBe('pixtral-large-latest')
+      const callArgs = (mockGeminiCreate.mock.calls[0] as any[])[0]
+      expect(callArgs.model).toBe('gemini-flash-latest')
 
       // Verify image_url format in the user message
       const userMsg = callArgs.messages[callArgs.messages.length - 1]
@@ -353,15 +360,15 @@ describe('AiClient', () => {
   })
 
   test('empty text defaults to empty string', async () => {
-    mockMistralComplete.mockImplementationOnce(() =>
+    mockGeminiCreate.mockImplementationOnce(() =>
       Promise.resolve({
         choices: [
           {
-            message: { content: undefined, toolCalls: undefined },
-            finishReason: 'stop',
+            message: { content: undefined, tool_calls: undefined },
+            finish_reason: 'stop',
           },
         ],
-        usage: { totalTokens: 5, promptTokens: 3, completionTokens: 2 },
+        usage: { total_tokens: 5, prompt_tokens: 3, completion_tokens: 2 },
       })
     )
 
@@ -375,14 +382,14 @@ describe('AiClient', () => {
     expect(result.text).toBe('')
   })
 
-  test('Mistral tool call with object arguments is JSON-stringified', async () => {
-    mockMistralComplete.mockImplementationOnce(() =>
+  test('Gemini tool call with object arguments is JSON-stringified', async () => {
+    mockGeminiCreate.mockImplementationOnce(() =>
       Promise.resolve({
         choices: [
           {
             message: {
               content: '',
-              toolCalls: [
+              tool_calls: [
                 {
                   id: 'call_obj',
                   type: 'function',
@@ -393,10 +400,10 @@ describe('AiClient', () => {
                 },
               ],
             },
-            finishReason: 'tool_calls',
+            finish_reason: 'tool_calls',
           },
         ],
-        usage: { totalTokens: 10, promptTokens: 5, completionTokens: 5 },
+        usage: { total_tokens: 10, prompt_tokens: 5, completion_tokens: 5 },
       })
     )
 
@@ -414,11 +421,11 @@ describe('AiClient', () => {
     )
   })
 
-  test('Groq tool call with object arguments is JSON-stringified', async () => {
-    mockMistralComplete.mockImplementation(() =>
-      Promise.reject(new Error('Mistral is down'))
+  test('Mistral fallback tool call with object arguments is JSON-stringified', async () => {
+    mockGeminiCreate.mockImplementation(() =>
+      Promise.reject(new Error('Gemini is down'))
     )
-    mockGroqCreate.mockImplementationOnce(() =>
+    mockMistralCreate.mockImplementationOnce(() =>
       Promise.resolve({
         choices: [
           {
@@ -426,7 +433,7 @@ describe('AiClient', () => {
               content: '',
               tool_calls: [
                 {
-                  id: 'groq_obj',
+                  id: 'mistral_obj',
                   type: 'function',
                   function: {
                     name: 'do_other',
@@ -453,7 +460,7 @@ describe('AiClient', () => {
     expect(result.toolCalls?.[0].function.arguments).toBe('{"foo":"bar"}')
   })
 
-  test('vision request does NOT fall back to Groq when Mistral fails', async () => {
+  test('vision request does NOT fall back to Mistral when Gemini fails', async () => {
     const originalFetch = globalThis.fetch
     globalThis.fetch = mock(() =>
       Promise.resolve(
@@ -464,8 +471,8 @@ describe('AiClient', () => {
       )
     ) as any
 
-    mockMistralComplete.mockImplementation(() =>
-      Promise.reject(new Error('Mistral vision error'))
+    mockGeminiCreate.mockImplementation(() =>
+      Promise.reject(new Error('Gemini vision error'))
     )
 
     try {
@@ -478,9 +485,9 @@ describe('AiClient', () => {
           0.7,
           [{ url: 'https://example.com/img.png', mimeType: 'image/png', isVideo: false, isGif: false }]
         )
-      ).rejects.toThrow('Mistral vision error')
+      ).rejects.toThrow('Gemini vision error')
 
-      expect(mockGroqCreate).not.toHaveBeenCalled()
+      expect(mockMistralCreate).not.toHaveBeenCalled()
     } finally {
       globalThis.fetch = originalFetch
     }
@@ -499,11 +506,11 @@ describe('AiClient', () => {
 
     // Open the circuit
     const noFallbackClient = new AiClient({
-      mistralApiKey: 'test-key',
-      model: 'mistral-small-latest',
+      geminiApiKey: 'test-key',
+      model: 'gemini-flash-latest',
       timeout: 30000,
     })
-    mockMistralComplete.mockImplementation(() => {
+    mockGeminiCreate.mockImplementation(() => {
       const error: any = new Error('Server error')
       error.status = 500
       return Promise.reject(error)
@@ -514,11 +521,11 @@ describe('AiClient', () => {
       } catch { /* expected */ }
     }
 
-    // Now create a client WITH groq but send a vision request
+    // Now create a client WITH Mistral fallback but send a vision request
     const visionClient = new AiClient({
-      mistralApiKey: 'test-key',
-      groqApiKey: 'test-groq-key',
-      model: 'mistral-small-latest',
+      geminiApiKey: 'test-key',
+      mistralApiKey: 'test-mistral-key',
+      model: 'gemini-flash-latest',
       timeout: 30000,
     })
 
@@ -534,15 +541,15 @@ describe('AiClient', () => {
         )
       ).rejects.toBeInstanceOf(AiCircuitBreakerError)
 
-      expect(mockGroqCreate).not.toHaveBeenCalled()
+      expect(mockMistralCreate).not.toHaveBeenCalled()
     } finally {
       globalThis.fetch = originalFetch
       AiClient.resetCircuit()
     }
   })
 
-  test('Mistral receives camelCase toolCalls and toolCallId in history', async () => {
-    const historyWithToolCalls: ChatMessage[] = [
+  test('Gemini sanitizes tool_calls history into plain text messages', async () => {
+    const historyWithToolCalls = [
       { role: 'user', content: 'check uptime' },
       {
         role: 'assistant',
@@ -554,104 +561,32 @@ describe('AiClient', () => {
       { role: 'tool', content: 'Uptime: 5h', tool_call_id: 'call_1', name: 'uptime' },
     ]
 
-    mockMistralComplete.mockImplementation(() =>
+    mockGeminiCreate.mockImplementation(() =>
       Promise.resolve({
-        choices: [{ message: { content: 'Bot has been up for 5h.', toolCalls: undefined }, finishReason: 'stop' }],
-        usage: { totalTokens: 30, promptTokens: 20, completionTokens: 10 },
+        choices: [{ message: { content: 'Bot has been up for 5h.', tool_calls: undefined }, finish_reason: 'stop' }],
+        usage: { total_tokens: 30, prompt_tokens: 20, completion_tokens: 10 },
       })
     )
 
     await client.generateResponse('System', historyWithToolCalls, '', 1000, 0.7)
 
-    const sentMessages = (mockMistralComplete.mock.calls[0] as any[])[0]?.messages
-    expect(sentMessages).toBeDefined()
+    const callArgs = (mockGeminiCreate.mock.calls[0] as any[])[0]
+    const sentMessages: any[] = callArgs.messages
 
-    // assistant message must use camelCase toolCalls
+    // Sanitizer strips tool_calls from assistant and converts tool messages to user text
     const assistantMsg = sentMessages.find((m: any) => m.role === 'assistant')
-    expect(assistantMsg.toolCalls).toBeDefined()
-    expect(assistantMsg.toolCalls[0].id).toBe('call_1')
     expect(assistantMsg.tool_calls).toBeUndefined()
 
-    // tool message must use camelCase toolCallId
     const toolMsg = sentMessages.find((m: any) => m.role === 'tool')
-    expect(toolMsg.toolCallId).toBe('call_1')
-    expect(toolMsg.tool_call_id).toBeUndefined()
-  })
+    expect(toolMsg).toBeUndefined()
 
-  test('Groq tool_use_failed retries without tools and succeeds', async () => {
-    mockMistralComplete.mockImplementation(() =>
-      Promise.reject(new Error('Mistral is down'))
+    // Tool results should appear as a user message
+    const toolResultUser = sentMessages.find(
+      (m: any) => m.role === 'user' && m.content.includes('[Tool Results]')
     )
-
-    let groqCallCount = 0
-    const groqCallArgs: any[][] = []
-    mockGroqCreate.mockImplementation((...args: any[]) => {
-      groqCallCount++
-      groqCallArgs.push(args)
-      if (groqCallCount === 1) {
-        const error: any = new Error('tool_use_failed: invalid tool call')
-        error.status = 400
-        return Promise.reject(error)
-      }
-      return Promise.resolve({
-        choices: [
-          { message: { content: 'Text-only fallback', tool_calls: undefined } },
-        ],
-        usage: { total_tokens: 15, prompt_tokens: 7, completion_tokens: 8 },
-      })
-    })
-
-    const tools: OpenAITool[] = [
-      {
-        type: 'function',
-        function: {
-          name: 'test_tool',
-          description: 'A test tool',
-          parameters: { type: 'object', properties: {} },
-        },
-      },
-    ]
-
-    const history: ChatMessage[] = [
-      { role: 'user', content: 'Call the tool' },
-      {
-        role: 'assistant',
-        content: '',
-        tool_calls: [
-          {
-            id: 'call_1',
-            type: 'function',
-            function: { name: 'test_tool', arguments: '{}' },
-          },
-        ],
-      },
-      { role: 'tool', content: 'tool result', tool_call_id: 'call_1' },
-    ]
-
-    const result = await client.generateResponse(
-      'System',
-      history,
-      'Use the tool',
-      1000,
-      0.7,
-      undefined,
-      tools
-    )
-
-    expect(result.text).toBe('Text-only fallback')
-    expect(groqCallCount).toBe(2)
-
-    // The retry call (second) must have tool messages stripped
-    const retryMessages: ChatMessage[] = groqCallArgs[1][0].messages
-    const toolRoleMessages = retryMessages.filter(
-      (m: ChatMessage) => m.role === 'tool'
-    )
-    expect(toolRoleMessages).toHaveLength(0)
-
-    const assistantWithToolCalls = retryMessages.filter(
-      (m: ChatMessage) => m.role === 'assistant' && m.tool_calls
-    )
-    expect(assistantWithToolCalls).toHaveLength(0)
+    expect(toolResultUser).toBeDefined()
+    expect(toolResultUser.content).toContain('uptime')
+    expect(toolResultUser.content).toContain('Uptime: 5h')
   })
 })
 

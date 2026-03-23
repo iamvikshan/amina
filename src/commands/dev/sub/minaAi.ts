@@ -3,8 +3,8 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { updateAiConfig, getAiConfig } from '@schemas/Dev'
 import { configCache } from '@src/config/aiResponder'
-import { aiResponderService } from '@src/services/aiResponder'
-import { ModelRouter } from '@src/services/modelRouter'
+import { aiResponderService } from '@src/services/ai/aiResponder'
+import { ModelRouter } from '@src/services/ai/modelRouter'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import Logger from '@helpers/Logger'
 
@@ -16,7 +16,11 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
   let routingDisplay: Record<string, string>
   try {
     const fullConfig = await configCache.getConfig()
-    authModeDisplay = `Mistral${fullConfig.groqApiKey ? ' + Groq' : ''}`
+    const providers = ['Gemini']
+    if (fullConfig.mistralApiKey) providers.push('Mistral')
+    if (fullConfig.voyageApiKey || fullConfig.voyageMongoApiKey)
+      providers.push('Voyage')
+    authModeDisplay = providers.join(' + ')
     const router = new ModelRouter({
       model: fullConfig.model,
       embeddingModel: fullConfig.embeddingModel,
@@ -310,7 +314,7 @@ export async function toggleDm(
 
 export async function memoryStats(interaction: ChatInputCommandInteraction) {
   try {
-    const { memoryService } = await import('@src/services/memoryService')
+    const { memoryService } = await import('@src/services/ai/memoryService')
     const stats = await memoryService.getStats()
 
     const embed = MinaEmbed.primary()

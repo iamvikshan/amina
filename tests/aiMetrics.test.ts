@@ -30,7 +30,7 @@ mock.module('@helpers/Logger', () => ({
   debug: mockLogger.debug,
 }))
 
-import { AiMetricsService, type AiMetricsDeps } from '../src/services/aiMetrics'
+import { AiMetricsService, type AiMetricsDeps } from '../src/services/ai/aiMetrics'
 
 describe('AiMetricsService', () => {
   let service: AiMetricsService

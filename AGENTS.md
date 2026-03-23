@@ -25,7 +25,6 @@ build: bun run build # alias for bun check (no compile step — Bun runs TS nati
 ```yaml
 fileNaming: camelCase (files/modules) | PascalCase (exported classes, types, schema files) | UPPER_SNAKE_CASE (.env & config.ts constants)
 docs: jsdoc (optional but encouraged on public methods)
-planDir: plans/
 testDir: tests/
 ```
 

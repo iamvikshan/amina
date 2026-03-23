@@ -1,9 +1,9 @@
-// @root/src/services/modelRouter.ts
+// @root/src/services/ai/modelRouter.ts
 
 import Logger from '@helpers/Logger'
 
 /** Task types that can be dispatched to different models */
-export type TaskType = 'chat' | 'embedding' | 'extraction' | 'reasoning'
+export type TaskType = 'chat' | 'embedding' | 'extraction'
 
 /** Model configuration returned by the router */
 export interface ModelConfig {
@@ -19,13 +19,11 @@ export class ModelRouter {
   private chatModel: string
   private embeddingModel: string
   private extractionModel: string
-  private reasoningModel: string | null // null = not configured, fall back to chat model
 
   constructor(config: {
     model: string
     embeddingModel: string
     extractionModel: string
-    reasoningModel?: string | null
   }) {
     if (!config.model?.trim())
       throw new TypeError('model is required and cannot be empty')
@@ -33,19 +31,10 @@ export class ModelRouter {
       throw new TypeError('embeddingModel is required and cannot be empty')
     if (!config.extractionModel?.trim())
       throw new TypeError('extractionModel is required and cannot be empty')
-    if (
-      config.reasoningModel !== undefined &&
-      config.reasoningModel !== null &&
-      !config.reasoningModel.trim()
-    ) {
-      throw new TypeError(
-        'reasoningModel cannot be an empty string when provided'
-      )
-    }
+
     this.chatModel = config.model
     this.embeddingModel = config.embeddingModel
     this.extractionModel = config.extractionModel
-    this.reasoningModel = config.reasoningModel ?? null
   }
 
   /**
@@ -59,25 +48,13 @@ export class ModelRouter {
         return { model: this.embeddingModel, taskType }
       case 'extraction':
         return { model: this.extractionModel, taskType }
-      case 'reasoning':
-        // Fall back to chat model if reasoning model not configured
-        return {
-          model: this.reasoningModel ?? this.chatModel,
-          taskType,
-        }
+
       default:
         Logger.warn(
           `Unknown task type: ${taskType}, falling back to chat model`
         )
         return { model: this.chatModel, taskType: 'chat' }
     }
-  }
-
-  /**
-   * Check if a dedicated reasoning model is configured
-   */
-  hasReasoningModel(): boolean {
-    return this.reasoningModel !== null
   }
 
   /**
@@ -88,7 +65,6 @@ export class ModelRouter {
       chat: this.chatModel,
       embedding: this.embeddingModel,
       extraction: this.extractionModel,
-      reasoning: this.reasoningModel ?? `${this.chatModel} (fallback)`,
     }
   }
 }

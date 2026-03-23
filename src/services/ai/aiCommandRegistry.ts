@@ -32,6 +32,14 @@ export class AiCommandRegistry {
   private client: BotClient | null = null
   private isInitialized: boolean = false
   private commandCache: Map<string, CommandData> = new Map()
+  private subcommandMap: Map<
+    string,
+    {
+      commandName: string
+      subcommand?: string
+      subcommandGroup?: string
+    }
+  > = new Map()
   private toolDefinitions: FunctionDeclaration[] = []
   private toolMetadata: Map<string, AiToolMetadata> = new Map()
   private nativeToolHandlers: Map<string, NativeToolHandler> = new Map()
@@ -51,22 +59,19 @@ export class AiCommandRegistry {
 
     // Clear only slash command entries; preserve native tools
     this.commandCache.clear()
+    this.subcommandMap.clear()
     this.toolDefinitions = [...this.nativeToolDefinitions]
     this.toolMetadata = new Map(this.nativeToolMetadata)
 
     this.client.slashCommands.forEach(cmd => {
-      // Filter commands
       if (!this.isCommandAllowed(cmd)) return
 
-      // Map to AI tool declaration
-      const tool = this.mapCommandToTool(cmd)
-      if (tool) {
+      const tools = this.mapCommandToTools(cmd)
+      const metadata = this.buildMetadata(cmd)
+      for (const tool of tools) {
         this.toolDefinitions.push(tool)
-        this.commandCache.set(cmd.name, cmd)
-
-        // Store metadata for permission checking
-        const metadata = this.buildMetadata(cmd)
-        this.toolMetadata.set(cmd.name, metadata)
+        this.commandCache.set(tool.name, cmd)
+        this.toolMetadata.set(tool.name, metadata)
       }
     })
   }
@@ -84,6 +89,16 @@ export class AiCommandRegistry {
 
   getMetadata(name: string): AiToolMetadata | undefined {
     return this.toolMetadata.get(name)
+  }
+
+  resolveToolName(compoundName: string):
+    | {
+        commandName: string
+        subcommand?: string
+        subcommandGroup?: string
+      }
+    | undefined {
+    return this.subcommandMap.get(compoundName)
   }
 
   /**
@@ -211,60 +226,95 @@ export class AiCommandRegistry {
     return true
   }
 
-  private mapCommandToTool(cmd: CommandData): FunctionDeclaration | null {
+  private mapCommandToTools(cmd: CommandData): FunctionDeclaration[] {
     try {
-      const properties: Record<string, any> = {}
-      const required: string[] = []
+      const results: FunctionDeclaration[] = []
+      const options = cmd.slashCommand.options || []
 
-      // Handle options
-      if (cmd.slashCommand.options) {
-        for (const option of cmd.slashCommand.options) {
-          // Handle Subcommands
-          if (option.type === ApplicationCommandOptionType.Subcommand) {
-            // For subcommands, we might need a different strategy.
-            // Simple strategy: Add a 'subcommand' argument that is an enum of available subcommands
-            // But the structure of options changes based on subcommand.
-            // For now, let's skip complex subcommand structures or flatten them if possible.
-            // A better approach is to register "command_subcommand" as the function name
-            // OR just register the top level and let the AI figure out the 'subcommand' string argument.
+      const hasSubcommands = options.some(
+        o =>
+          o.type === ApplicationCommandOptionType.Subcommand ||
+          o.type === ApplicationCommandOptionType.SubcommandGroup
+      )
 
-            // We will add a 'subcommand' property if it doesn't exist
-            if (!properties['subcommand']) {
-              properties['subcommand'] = {
-                type: 'string',
-                description: 'The specific operation to perform',
-                enum: [],
+      if (!hasSubcommands) {
+        const properties: Record<string, any> = {}
+        const required: string[] = []
+        for (const option of options) {
+          this.mapOption(option, properties, required)
+        }
+        results.push({
+          name: cmd.name,
+          description: cmd.description.substring(0, 1024),
+          parameters: {
+            type: 'object',
+            properties,
+            required: required.length > 0 ? required : undefined,
+          },
+        })
+        return results
+      }
+
+      for (const option of options) {
+        if (option.type === ApplicationCommandOptionType.SubcommandGroup) {
+          for (const subOption of option.options || []) {
+            if (subOption.type === ApplicationCommandOptionType.Subcommand) {
+              const compoundName = `${cmd.name}_${option.name}_${subOption.name}`
+              const properties: Record<string, any> = {}
+              const required: string[] = []
+              for (const subOpt of subOption.options || []) {
+                this.mapOption(subOpt, properties, required)
               }
-              required.push('subcommand')
+              results.push({
+                name: compoundName,
+                description:
+                  `${cmd.description} - ${option.name} ${subOption.name}`.substring(
+                    0,
+                    1024
+                  ),
+                parameters: {
+                  type: 'object',
+                  properties,
+                  required: required.length > 0 ? required : undefined,
+                },
+              })
+              this.subcommandMap.set(compoundName, {
+                commandName: cmd.name,
+                subcommandGroup: option.name,
+                subcommand: subOption.name,
+              })
             }
-            properties['subcommand'].enum.push(option.name)
-
-            // Merge subcommand options as optional (different subcommands
-            // have different required params -- flat schemas can't express that)
-            if (option.options) {
-              const ignored: string[] = []
-              for (const subOpt of option.options) {
-                this.mapOption(subOpt, properties, ignored)
-              }
-            }
-          } else {
-            this.mapOption(option, properties, required)
           }
+        } else if (option.type === ApplicationCommandOptionType.Subcommand) {
+          const compoundName = `${cmd.name}_${option.name}`
+          const properties: Record<string, any> = {}
+          const required: string[] = []
+          for (const subOpt of option.options || []) {
+            this.mapOption(subOpt, properties, required)
+          }
+          results.push({
+            name: compoundName,
+            description: `${cmd.description} - ${option.name}`.substring(
+              0,
+              1024
+            ),
+            parameters: {
+              type: 'object',
+              properties,
+              required: required.length > 0 ? required : undefined,
+            },
+          })
+          this.subcommandMap.set(compoundName, {
+            commandName: cmd.name,
+            subcommand: option.name,
+          })
         }
       }
 
-      return {
-        name: cmd.name,
-        description: cmd.description.substring(0, 1024), // Limit description length
-        parameters: {
-          type: 'object',
-          properties,
-          required: required.length > 0 ? required : undefined,
-        },
-      }
+      return results
     } catch (error) {
-      Logger.error(`Failed to map command ${cmd.name} to AI tool`, error)
-      return null
+      Logger.error(`Failed to map command ${cmd.name} to AI tools`, error)
+      return []
     }
   }
 

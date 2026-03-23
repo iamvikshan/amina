@@ -84,7 +84,6 @@ function toDiscordWebhookUrl(
 }
 
 /**
- * Type-safe access to secrets
  * All secrets should be accessed through this object
  */
 export const secrets: Secrets = {
@@ -103,8 +102,14 @@ export const secrets: Secrets = {
   get MISTRAL() {
     return getOptionalSecret('MISTRAL')
   },
-  get GROQ() {
-    return getOptionalSecret('GROQ')
+  get GEMINI() {
+    return getOptionalSecret('GEMINI')
+  },
+  get VOYAGE() {
+    return getOptionalSecret('VOYAGE')
+  },
+  get VOYAGE_MONGO() {
+    return getOptionalSecret('VOYAGE_MONGO')
   },
   get WEATHERSTACK_KEY() {
     return getOptionalSecret('WEATHERSTACK_KEY')

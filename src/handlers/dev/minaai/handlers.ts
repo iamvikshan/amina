@@ -23,7 +23,7 @@ import {
 } from '@commands/dev/sub/minaAi'
 import { getAiConfig } from '@schemas/Dev'
 import { configCache } from '@src/config/aiResponder'
-import { ModelRouter } from '@src/services/modelRouter'
+import { ModelRouter } from '@src/services/ai/modelRouter'
 import { postToBin } from '@helpers/HttpUtils'
 import { MinaRows, MinaButtons } from '@helpers/componentHelper'
 
@@ -36,12 +36,16 @@ export async function showMinaAiMenu(
   const config = await getAiConfig()
 
   // Get full config with provider info for display
-  let authModeDisplay = 'Mistral'
+  let authModeDisplay = 'Gemini'
   let embeddingModelDisplay = 'default'
   let extractionModelDisplay = 'default'
   try {
     const fullConfig = await configCache.getConfig()
-    authModeDisplay = `Mistral${fullConfig.groqApiKey ? ' + Groq' : ''}`
+    const providers = ['Gemini']
+    if (fullConfig.mistralApiKey) providers.push('Mistral')
+    if (fullConfig.voyageApiKey || fullConfig.voyageMongoApiKey)
+      providers.push('Voyage')
+    authModeDisplay = providers.join(' + ')
     const router = new ModelRouter({
       model: fullConfig.model,
       embeddingModel: fullConfig.embeddingModel,

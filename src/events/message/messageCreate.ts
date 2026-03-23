@@ -3,7 +3,7 @@ import { getSettings } from '@schemas/Guild'
 import { getUser, removeAfk } from '@schemas/User'
 import type { Message } from 'discord.js'
 import type { BotClient } from '@src/structures'
-import { aiResponderService } from '@src/services/aiResponder'
+import { aiResponderService } from '@src/services/ai/aiResponder'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { Logger } from '@helpers/Logger'
 

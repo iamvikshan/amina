@@ -1,7 +1,6 @@
 // @root/src/helpers/aiClient.ts
 
-import { Mistral } from '@mistralai/mistralai'
-import Groq from 'groq-sdk'
+import OpenAI from 'openai'
 import Logger from './Logger'
 import type { MediaItem } from './mediaExtractor'
 
@@ -17,9 +16,10 @@ export class AiCircuitBreakerError extends Error {
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024
 
 export class AiClient {
-  private mistral: Mistral
-  private groq: Groq | null
+  private gemini: OpenAI
+  private mistral: OpenAI | null
   private model: string
+  private fallbackModel = 'mistral-medium-latest'
   private timeout: number
 
   /** Retryable HTTP status codes */
@@ -33,7 +33,7 @@ export class AiClient {
   private static readonly CIRCUIT_THRESHOLD = 5
   private static readonly CIRCUIT_RESET_MS = 30_000
 
-  /** Image-only MIME types for Pixtral vision */
+  /** Image-only MIME types for vision */
   private static readonly ALLOWED_IMAGE_TYPES = new Set([
     'image/jpeg',
     'image/png',
@@ -42,14 +42,20 @@ export class AiClient {
   ])
 
   constructor(config: {
-    mistralApiKey: string
-    groqApiKey?: string
+    geminiApiKey: string
+    mistralApiKey?: string
     model: string
     timeout: number
   }) {
-    this.mistral = new Mistral({ apiKey: config.mistralApiKey })
-    this.groq = config.groqApiKey
-      ? new Groq({ apiKey: config.groqApiKey })
+    this.gemini = new OpenAI({
+      apiKey: config.geminiApiKey,
+      baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+    })
+    this.mistral = config.mistralApiKey
+      ? new OpenAI({
+          apiKey: config.mistralApiKey,
+          baseURL: 'https://api.mistral.ai/v1',
+        })
       : null
     this.model = config.model
     this.timeout = config.timeout
@@ -111,7 +117,7 @@ export class AiClient {
         ...conversationHistory,
       ]
 
-      // Build user message, optionally with image content for Pixtral vision
+      // Build user message, optionally with image content for vision
       let hasImages = false
       if (mediaItems && mediaItems.length > 0) {
         const imageContents: any[] = []
@@ -145,61 +151,39 @@ export class AiClient {
         messages.push({ role: 'user', content: userMessage })
       }
 
-      // Use pixtral-large-latest for vision requests
-      const model = hasImages ? 'pixtral-large-latest' : this.model
-
       const circuitOpen = this.isCircuitOpen()
 
       if (!circuitOpen) {
         try {
-          const response = await this.callMistral(
+          const response = await this.callGemini(
             messages,
-            model,
+            this.model,
             maxTokens,
             temperature,
             tools
           )
           this.recordSuccess()
           return { ...response, latency: Date.now() - startTime }
-        } catch (mistralError: any) {
+        } catch (geminiError: any) {
           this.recordFailure()
-          if (!this.groq || hasImages) throw mistralError
+          if (!this.mistral || hasImages) throw geminiError
           Logger.warn(
-            `Mistral API failed (${mistralError.message}), falling back to Groq`
+            `Gemini API failed (${geminiError.message}), falling back to Mistral`
           )
         }
-      } else if (!this.groq || hasImages) {
+      } else if (!this.mistral || hasImages) {
         throw new AiCircuitBreakerError()
       } else {
-        Logger.warn('Mistral circuit breaker open, using Groq directly')
+        Logger.warn('Gemini circuit breaker open, using Mistral directly')
       }
 
-      // Groq fallback (either circuit was open or Mistral failed)
-      try {
-        const response = await this.callGroq(
-          messages,
-          maxTokens,
-          temperature,
-          tools
-        )
-        return { ...response, latency: Date.now() - startTime }
-      } catch (groqError: any) {
-        // If Groq fails because the model hallucinated a bad tool call,
-        // retry without tools so the user still gets a text response.
-        if (
-          groqError?.status === 400 &&
-          tools?.length &&
-          String(groqError.message).includes('tool_use_failed')
-        ) {
-          Logger.warn(
-            'Groq tool_use_failed, retrying without tools for text-only response'
-          )
-          const cleaned = this.stripToolMessages(messages)
-          const response = await this.callGroq(cleaned, maxTokens, temperature)
-          return { ...response, latency: Date.now() - startTime }
-        }
-        throw groqError
-      }
+      const response = await this.callMistral(
+        messages,
+        maxTokens,
+        temperature,
+        tools
+      )
+      return { ...response, latency: Date.now() - startTime }
     } catch (error: any) {
       const latency = Date.now() - startTime
       this.handleError(error || new Error('Unknown error'), latency)
@@ -207,106 +191,13 @@ export class AiClient {
     }
   }
 
-  /** Remove tool-related messages so a retry without tools won't be rejected. */
-  private stripToolMessages(messages: ChatMessage[]): ChatMessage[] {
-    return messages
-      .filter(m => m.role !== 'tool')
-      .map(m => {
-        if (m.role === 'assistant' && m.tool_calls) {
-          const { tool_calls: _tc, tool_call_id: _id, ...rest } = m
-          return rest as ChatMessage
-        }
-        return m
-      })
-  }
-
-  /** Map our snake_case ChatMessage[] to the camelCase the Mistral SDK expects */
-  private toMistralMessages(
-    messages: ChatMessage[]
-  ): Record<string, unknown>[] {
-    return messages.map(msg => {
-      if (msg.role === 'assistant' && msg.tool_calls) {
-        const { tool_calls, ...rest } = msg
-        return { ...rest, toolCalls: tool_calls }
-      }
-      if (msg.role === 'tool' && msg.tool_call_id) {
-        const { tool_call_id, ...rest } = msg
-        return { ...rest, toolCallId: tool_call_id }
-      }
-      return { ...msg }
-    })
-  }
-
-  private async callMistral(
-    messages: ChatMessage[],
-    model: string,
-    maxTokens: number,
-    temperature: number,
-    tools?: OpenAITool[]
-  ): Promise<Omit<AiResponse, 'latency'>> {
-    const response = await this.withRetry(() =>
-      this.withTimeout(
-        this.mistral.chat.complete({
-          model,
-          messages: this.toMistralMessages(messages) as any,
-          maxTokens,
-          temperature,
-          tools: tools as any,
-        }),
-        this.timeout
-      )
-    )
-
-    const choice = response.choices?.[0]
-    const text = (choice?.message?.content as string) ?? ''
-
-    // Mistral uses camelCase: toolCalls
-    const rawToolCalls = choice?.message?.toolCalls
-    const toolCalls: ToolCall[] | undefined = rawToolCalls?.map(tc => ({
-      id: tc.id ?? '',
-      type: 'function' as const,
-      function: {
-        name: tc.function?.name ?? '',
-        arguments:
-          typeof tc.function?.arguments === 'string'
-            ? tc.function.arguments
-            : JSON.stringify(tc.function?.arguments ?? {}),
-      },
-    }))
-
-    return {
-      text,
-      tokensUsed: response.usage?.totalTokens ?? 0,
-      promptTokens: response.usage?.promptTokens ?? 0,
-      completionTokens: response.usage?.completionTokens ?? 0,
-      toolCalls: toolCalls?.length ? toolCalls : undefined,
-    }
-  }
-
-  private async callGroq(
-    messages: ChatMessage[],
-    maxTokens: number,
-    temperature: number,
-    tools?: OpenAITool[]
-  ): Promise<Omit<AiResponse, 'latency'>> {
-    const response = await this.withRetry(() =>
-      this.withTimeout(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- groq is checked by caller
-        this.groq!.chat.completions.create({
-          model: 'llama-3.3-70b-versatile',
-          messages: messages as any,
-          max_tokens: maxTokens,
-          temperature,
-          tools: tools as any,
-        }),
-        this.timeout
-      )
-    )
-
+  /** Parse an OpenAI-compatible chat completion response into our AiResponse shape */
+  private parseCompletionResponse(
+    response: OpenAI.Chat.Completions.ChatCompletion
+  ): Omit<AiResponse, 'latency'> {
     const choice = response.choices?.[0]
     const text = choice?.message?.content ?? ''
 
-    // Groq uses snake_case: tool_calls
     const rawToolCalls = choice?.message?.tool_calls
     const toolCalls: ToolCall[] | undefined = rawToolCalls?.map(tc => ({
       id: tc.id ?? '',
@@ -327,6 +218,105 @@ export class AiClient {
       completionTokens: response.usage?.completion_tokens ?? 0,
       toolCalls: toolCalls?.length ? toolCalls : undefined,
     }
+  }
+
+  /**
+   * Gemini's OpenAI-compatible endpoint does not support multi-turn tool
+   * calling (role:'tool' messages or tool_calls on assistant messages cause
+   * 400). Convert tool-related turns into plain user/assistant text so the
+   * model still sees the context.
+   */
+  private static sanitizeMessagesForGemini(
+    messages: ChatMessage[]
+  ): ChatMessage[] {
+    const result: ChatMessage[] = []
+
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i]
+
+      if (msg.role === 'assistant' && msg.tool_calls?.length) {
+        // Keep assistant text, strip tool_calls
+        result.push({
+          role: 'assistant',
+          content: msg.content || '',
+        })
+
+        // Gather consecutive tool-result messages
+        const parts: string[] = []
+        let j = i + 1
+        while (j < messages.length && messages[j].role === 'tool') {
+          const t = messages[j]
+          parts.push(`[${t.name ?? 'tool'}]: ${t.content}`)
+          j++
+        }
+
+        if (parts.length > 0) {
+          result.push({
+            role: 'user',
+            content: `[Tool Results]\n${parts.join('\n')}`,
+          })
+        }
+
+        i = j - 1 // skip processed tool messages
+      } else if (msg.role === 'tool') {
+        // Orphan tool message – convert to user text
+        result.push({
+          role: 'user',
+          content: `[Tool Result: ${msg.name ?? 'tool'}]: ${msg.content}`,
+        })
+      } else {
+        result.push(msg)
+      }
+    }
+
+    return result
+  }
+
+  private async callGemini(
+    messages: ChatMessage[],
+    model: string,
+    maxTokens: number,
+    temperature: number,
+    tools?: OpenAITool[]
+  ): Promise<Omit<AiResponse, 'latency'>> {
+    const sanitized = AiClient.sanitizeMessagesForGemini(messages)
+    const response = await this.withRetry(() =>
+      this.withTimeout(
+        this.gemini.chat.completions.create({
+          model,
+          messages: sanitized as any,
+          max_tokens: maxTokens,
+          temperature,
+          tools: tools as any,
+        }),
+        this.timeout
+      )
+    )
+
+    return this.parseCompletionResponse(response)
+  }
+
+  private async callMistral(
+    messages: ChatMessage[],
+    maxTokens: number,
+    temperature: number,
+    tools?: OpenAITool[]
+  ): Promise<Omit<AiResponse, 'latency'>> {
+    const response = await this.withRetry(() =>
+      this.withTimeout(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- mistral is checked by caller
+        this.mistral!.chat.completions.create({
+          model: this.fallbackModel,
+          messages: messages as any,
+          max_tokens: maxTokens,
+          temperature,
+          tools: tools as any,
+        }),
+        this.timeout
+      )
+    )
+
+    return this.parseCompletionResponse(response)
   }
 
   private async withRetry<T>(fn: () => Promise<T>): Promise<T> {

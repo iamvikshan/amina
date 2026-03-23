@@ -1,22 +1,43 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
-// Mock the @mistralai/mistralai module
-const mockMistralChat = mock((): Promise<any> =>
-  Promise.resolve({
-    choices: [{ message: { content: '[]' } }],
-  })
-)
+// Track OpenAI instances by baseURL for per-provider assertions
+const openaiInstances: Record<
+  string,
+  {
+    chat: { completions: { create: ReturnType<typeof mock> } }
+    embeddings: { create: ReturnType<typeof mock> }
+  }
+> = {}
 
-const mockMistralEmbeddings = mock((): Promise<any> =>
-  Promise.resolve({
-    data: [{ embedding: new Array(1024).fill(0.1) }],
-  })
-)
+// Default mock implementations
+const defaultEmbeddingResult = {
+  data: [{ embedding: new Array(1024).fill(0.1) }],
+}
+const defaultChatResult = {
+  choices: [{ message: { content: '[]' } }],
+}
 
-mock.module('@mistralai/mistralai', () => ({
-  Mistral: class MockMistral {
-    embeddings = { create: mockMistralEmbeddings }
-    chat = { complete: mockMistralChat }
+mock.module('openai', () => ({
+  default: class MockOpenAI {
+    chat: any
+    embeddings: any
+    constructor({ baseURL }: { baseURL: string }) {
+      const instance = {
+        chat: {
+          completions: {
+            create: mock(() => Promise.resolve({ ...defaultChatResult })),
+          },
+        },
+        embeddings: {
+          create: mock(() =>
+            Promise.resolve({ ...defaultEmbeddingResult })
+          ),
+        },
+      }
+      this.chat = instance.chat
+      this.embeddings = instance.embeddings
+      openaiInstances[baseURL] = instance
+    }
   },
 }))
 
@@ -85,14 +106,18 @@ mock.module('../src/database/schemas/AiMemory', () => ({
   },
 }))
 
-import { MemoryService } from '../src/services/memoryService'
+import { MemoryService } from '../src/services/ai/memoryService'
 
 describe('MemoryService (new SDK)', () => {
   let service: MemoryService
 
+  /** Helper to get the mock for a specific provider by baseURL */
+  const getMock = (url: string) => openaiInstances[url]
+
   beforeEach(async () => {
-    mockMistralEmbeddings.mockClear()
-    mockMistralChat.mockClear()
+    // Clear instance registry
+    for (const key of Object.keys(openaiInstances)) delete openaiInstances[key]
+
     mockSaveMemory.mockClear()
     mockGetUserMemoryCount.mockClear()
     mockPruneLeastImportantMemories.mockClear()
@@ -104,22 +129,29 @@ describe('MemoryService (new SDK)', () => {
     mockGetUserMemories.mockClear()
     mockGetMemoryStats.mockClear()
     mockPruneMemories.mockClear()
+
     service = new MemoryService()
     await service.initialize({
+      geminiApiKey: 'test-gemini-key',
       mistralApiKey: 'test-mistral-key',
-      embeddingModel: 'mistral-embed',
-      extractionModel: 'mistral-small-latest',
+      voyageApiKey: 'test-voyage-key',
+      voyageMongoApiKey: 'test-voyage-mongo-key',
+      embeddingModel: 'voyage-4-lite',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
     })
   })
 
-  test('embedding via Mistral SDK uses mistral.embeddings.create', async () => {
+  test('embedding uses Voyage provider via OpenAI SDK', async () => {
     const fact = { key: 'test_key', value: 'test_value', importance: 5 }
     await service.storeMemory(fact, 'user123', 'guild456', 'test context')
 
-    expect(mockMistralEmbeddings).toHaveBeenCalledTimes(1)
-    const callArgs = mockMistralEmbeddings.mock.calls[0][0] as any
-    expect(callArgs.model).toBe('mistral-embed')
-    expect(callArgs.inputs).toEqual(['test_key: test_value'])
+    // One of the Voyage clients should have been called
+    const voyageNative = getMock('https://api.voyageai.com/v1')
+    const voyageMongo = getMock('https://ai.mongodb.com/v1')
+    const voyageCalls =
+      voyageNative.embeddings.create.mock.calls.length +
+      voyageMongo.embeddings.create.mock.calls.length
+    expect(voyageCalls).toBe(1)
   })
 
   test('embedding result is stored with saveMemory including embedding array', async () => {
@@ -139,10 +171,13 @@ describe('MemoryService (new SDK)', () => {
     expect(saveArgs.vectorId).toBeUndefined()
   })
 
-  test('extraction uses mistral.chat.complete', async () => {
+  test('extraction uses Gemini as primary', async () => {
     const memoryJson =
       '[{"key": "name", "value": "Alice", "importance": 8, "memoryType": "user"}]'
-    mockMistralChat.mockImplementationOnce(() =>
+
+    // Set up Gemini mock to return extraction result
+    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
+    gemini.chat.completions.create.mockImplementationOnce(() =>
       Promise.resolve({
         choices: [{ message: { content: memoryJson } }],
       })
@@ -179,9 +214,9 @@ describe('MemoryService (new SDK)', () => {
 
     const facts = await service.extractMemories(messages)
 
-    expect(mockMistralChat).toHaveBeenCalledTimes(1)
-    const callArgs = mockMistralChat.mock.calls[0][0] as any
-    expect(callArgs.model).toBe('mistral-small-latest')
+    expect(gemini.chat.completions.create).toHaveBeenCalledTimes(1)
+    const callArgs = gemini.chat.completions.create.mock.calls[0][0] as any
+    expect(callArgs.model).toBe('gemini-3.1-flash-lite-preview')
     expect(Array.isArray(callArgs.messages)).toBe(true)
     expect(callArgs.messages[0].role).toBe('user')
     expect(typeof callArgs.messages[0].content).toBe('string')
@@ -225,7 +260,13 @@ describe('MemoryService (new SDK)', () => {
       5
     )
 
-    expect(mockMistralEmbeddings).toHaveBeenCalledTimes(1)
+    // Verify one of the Voyage clients was used for embedding
+    const voyageNative = getMock('https://api.voyageai.com/v1')
+    const voyageMongo = getMock('https://ai.mongodb.com/v1')
+    const embCalls =
+      voyageNative.embeddings.create.mock.calls.length +
+      voyageMongo.embeddings.create.mock.calls.length
+    expect(embCalls).toBe(1)
 
     // Verify vectorSearch was called with the right params
     expect(mockVectorSearch).toHaveBeenCalledTimes(1)
@@ -363,6 +404,8 @@ describe('MemoryService (new SDK)', () => {
     const noDedupService = new MemoryService()
     await noDedupService.initialize({
       mistralApiKey: 'test-key',
+      voyageApiKey: 'test-voyage-key',
+      embeddingModel: 'voyage-4-lite',
       dedupThreshold: 0,
     })
 
@@ -424,5 +467,195 @@ describe('MemoryService (new SDK)', () => {
     expect(result).toBe(true)
     expect(mockSaveMemory).toHaveBeenCalledTimes(1)
     expect(mockFindByIdAndUpdate).not.toHaveBeenCalled()
+  })
+
+  test('embedding via Voyage AI uses OpenAI SDK', async () => {
+    const fact = { key: 'test_key', value: 'test_value', importance: 5 }
+    await service.storeMemory(fact, 'user123', 'guild456', 'test context')
+
+    // One of the two Voyage clients should have been called
+    const voyageNative = getMock('https://api.voyageai.com/v1')
+    const voyageMongo = getMock('https://ai.mongodb.com/v1')
+    const nativeCalls = voyageNative.embeddings.create.mock.calls.length
+    const mongoCalls = voyageMongo.embeddings.create.mock.calls.length
+    expect(nativeCalls + mongoCalls).toBe(1)
+
+    // Check whichever was called
+    const calledMock = nativeCalls > 0 ? voyageNative : voyageMongo
+    const callArgs = calledMock.embeddings.create.mock.calls[0][0] as any
+    expect(callArgs.model).toBe('voyage-4-lite')
+    expect(callArgs.input).toEqual(['test_key: test_value'])
+
+    // Mistral should NOT be called when Voyage succeeds
+    const mistral = getMock('https://api.mistral.ai/v1')
+    expect(mistral.embeddings.create).not.toHaveBeenCalled()
+  })
+
+  test('embedding falls back to Gemini when both Voyage clients fail', async () => {
+    // Make both Voyage clients reject
+    const voyageNative = getMock('https://api.voyageai.com/v1')
+    const voyageMongo = getMock('https://ai.mongodb.com/v1')
+    voyageNative.embeddings.create.mockImplementation(() =>
+      Promise.reject(new Error('Voyage native failed'))
+    )
+    voyageMongo.embeddings.create.mockImplementation(() =>
+      Promise.reject(new Error('Voyage mongo failed'))
+    )
+
+    const fact = { key: 'test_key', value: 'test_value', importance: 5 }
+    await service.storeMemory(fact, 'user123', 'guild456', 'test context')
+
+    // Gemini should be called as fallback
+    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
+    expect(gemini.embeddings.create).toHaveBeenCalledTimes(1)
+    const callArgs = gemini.embeddings.create.mock.calls[0][0] as any
+    expect(callArgs.model).toBe('gemini-embedding-001')
+    expect(callArgs.dimensions).toBe(1024)
+
+    // Mistral should NOT be called when Gemini succeeds
+    const mistral = getMock('https://api.mistral.ai/v1')
+    expect(mistral.embeddings.create).not.toHaveBeenCalled()
+  })
+
+  test('embedding falls back to Mistral when Voyage and Gemini both fail', async () => {
+    // Make Voyage clients reject
+    const voyageNative = getMock('https://api.voyageai.com/v1')
+    const voyageMongo = getMock('https://ai.mongodb.com/v1')
+    voyageNative.embeddings.create.mockImplementation(() =>
+      Promise.reject(new Error('Voyage native failed'))
+    )
+    voyageMongo.embeddings.create.mockImplementation(() =>
+      Promise.reject(new Error('Voyage mongo failed'))
+    )
+    // Make Gemini reject too
+    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
+    gemini.embeddings.create.mockImplementation(() =>
+      Promise.reject(new Error('Gemini embedding failed'))
+    )
+
+    const fact = { key: 'test_key', value: 'test_value', importance: 5 }
+    await service.storeMemory(fact, 'user123', 'guild456', 'test context')
+
+    // Mistral should be called as last-resort fallback
+    const mistral = getMock('https://api.mistral.ai/v1')
+    expect(mistral.embeddings.create).toHaveBeenCalledTimes(1)
+    const callArgs = mistral.embeddings.create.mock.calls[0][0] as any
+    expect(callArgs.model).toBe('mistral-embed')
+    // dimensions must NOT be passed to Mistral
+    expect(callArgs.dimensions).toBeUndefined()
+  })
+
+  test('extraction falls back to Mistral when Gemini fails', async () => {
+    // Make Gemini extraction reject
+    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
+    gemini.chat.completions.create.mockImplementation(() =>
+      Promise.reject(new Error('Gemini extraction down'))
+    )
+
+    const memoryJson =
+      '[{"key": "food", "value": "pizza", "importance": 6, "memoryType": "user"}]'
+    const mistral = getMock('https://api.mistral.ai/v1')
+    mistral.chat.completions.create.mockImplementationOnce(() =>
+      Promise.resolve({
+        choices: [{ message: { content: memoryJson } }],
+      })
+    )
+
+    const fixedTimestamp = 1700000000000
+    const messages = [
+      { role: 'user' as const, content: 'I love pizza', timestamp: fixedTimestamp, userId: 'u1', displayName: 'Bob' },
+      { role: 'assistant' as const, content: 'Nice!', timestamp: fixedTimestamp + 1000 },
+      { role: 'user' as const, content: 'Its my fav', timestamp: fixedTimestamp + 2000, userId: 'u1', displayName: 'Bob' },
+      { role: 'assistant' as const, content: 'Cool!', timestamp: fixedTimestamp + 3000 },
+    ]
+
+    const facts = await service.extractMemories(messages)
+
+    expect(mistral.chat.completions.create).toHaveBeenCalledTimes(1)
+    const callArgs = mistral.chat.completions.create.mock.calls[0][0] as any
+    expect(callArgs.model).toBe('mistral-small-latest')
+    expect(facts).toHaveLength(1)
+    expect(facts[0].key).toBe('food')
+  })
+
+  test('extraction falls back to Mistral when Gemini returns malformed JSON', async () => {
+    // Make Gemini return malformed JSON (not a throw, but unparseable)
+    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
+    gemini.chat.completions.create.mockImplementationOnce(() =>
+      Promise.resolve({
+        choices: [{ message: { content: 'This is not JSON at all' } }],
+      })
+    )
+
+    const memoryJson =
+      '[{"key": "lang", "value": "TypeScript", "importance": 7, "memoryType": "user"}]'
+    const mistral = getMock('https://api.mistral.ai/v1')
+    mistral.chat.completions.create.mockImplementationOnce(() =>
+      Promise.resolve({
+        choices: [{ message: { content: memoryJson } }],
+      })
+    )
+
+    const fixedTimestamp = 1700000000000
+    const messages = [
+      { role: 'user' as const, content: 'I code in TS', timestamp: fixedTimestamp, userId: 'u1', displayName: 'Dev' },
+      { role: 'assistant' as const, content: 'Great!', timestamp: fixedTimestamp + 1000 },
+      { role: 'user' as const, content: 'Love it', timestamp: fixedTimestamp + 2000, userId: 'u1', displayName: 'Dev' },
+      { role: 'assistant' as const, content: 'Same!', timestamp: fixedTimestamp + 3000 },
+    ]
+
+    const facts = await service.extractMemories(messages)
+
+    expect(mistral.chat.completions.create).toHaveBeenCalledTimes(1)
+    expect(facts).toHaveLength(1)
+    expect(facts[0].key).toBe('lang')
+  })
+
+  test('storeMemory fails when no embedding providers available', async () => {
+    const noKeyService = new MemoryService()
+    await noKeyService.initialize({
+      embeddingModel: 'voyage-4-lite',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
+    })
+
+    const fact = { key: 'test', value: 'val', importance: 5 }
+    const result = await noKeyService.storeMemory(
+      fact,
+      'user1',
+      null,
+      'ctx'
+    )
+    expect(result).toBe(false)
+  })
+
+  test('storeMemory uses input_type document', async () => {
+    const fact = { key: 'food', value: 'pizza', importance: 5 }
+    await service.storeMemory(fact, 'user1', null, 'ctx')
+
+    // Check whichever Voyage client was called
+    const voyageNative = getMock('https://api.voyageai.com/v1')
+    const voyageMongo = getMock('https://ai.mongodb.com/v1')
+    const calledMock =
+      voyageNative.embeddings.create.mock.calls.length > 0
+        ? voyageNative
+        : voyageMongo
+    const callArgs = calledMock.embeddings.create.mock.calls[0][0] as any
+    expect(callArgs.input_type).toBe('document')
+  })
+
+  test('recallMemories uses input_type query', async () => {
+    mockVectorSearch.mockImplementationOnce(() => Promise.resolve([]))
+
+    await service.recallMemories('What is my name?', 'user1', null, 5)
+
+    // Check whichever Voyage client was called
+    const voyageNative = getMock('https://api.voyageai.com/v1')
+    const voyageMongo = getMock('https://ai.mongodb.com/v1')
+    const calledMock =
+      voyageNative.embeddings.create.mock.calls.length > 0
+        ? voyageNative
+        : voyageMongo
+    const callArgs = calledMock.embeddings.create.mock.calls[0][0] as any
+    expect(callArgs.input_type).toBe('query')
   })
 })

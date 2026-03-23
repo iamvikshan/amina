@@ -30,7 +30,7 @@ mock.module('@helpers/Logger', () => ({
   debug: mockLogger.debug,
 }))
 
-const { ModelRouter } = await import('../src/services/modelRouter')
+const { ModelRouter } = await import('../src/services/ai/modelRouter')
 
 describe('ModelRouter', () => {
   const router = new ModelRouter({
@@ -57,46 +57,11 @@ describe('ModelRouter', () => {
     expect(config.taskType).toBe('extraction')
   })
 
-  describe('reasoning', () => {
-    const routerWithReasoning = new ModelRouter({
-      model: 'mistral-small-latest',
-      embeddingModel: 'mistral-embed',
-      extractionModel: 'mistral-small-latest',
-      reasoningModel: 'mistral-large-latest',
-    })
-
-    test('falls back to chat model when not configured', () => {
-      const config = router.getModel('reasoning')
-      expect(config.model).toBe('mistral-small-latest')
-      expect(config.taskType).toBe('reasoning')
-    })
-
-    test('uses dedicated model when configured', () => {
-      const config = routerWithReasoning.getModel('reasoning')
-      expect(config.model).toBe('mistral-large-latest')
-      expect(config.taskType).toBe('reasoning')
-    })
-
-    test('hasReasoningModel returns false when not configured', () => {
-      expect(router.hasReasoningModel()).toBe(false)
-    })
-
-    test('hasReasoningModel returns true when configured', () => {
-      expect(routerWithReasoning.hasReasoningModel()).toBe(true)
-    })
-
-    test('getRoutingSummary shows reasoning model when configured', () => {
-      const summary = routerWithReasoning.getRoutingSummary()
-      expect(summary.reasoning).toBe('mistral-large-latest')
-    })
-  })
-
   test('getRoutingSummary shows all models', () => {
     const summary = router.getRoutingSummary()
     expect(summary.chat).toBe('mistral-small-latest')
     expect(summary.embedding).toBe('mistral-embed')
     expect(summary.extraction).toBe('mistral-small-latest')
-    expect(summary.reasoning).toBe('mistral-small-latest (fallback)')
   })
 
   test('throws on empty model string', () => {
@@ -108,17 +73,5 @@ describe('ModelRouter', () => {
           extractionModel: 'mistral-small-latest',
         })
     ).toThrow(/model is required and cannot be empty/)
-  })
-
-  test('throws on empty reasoningModel when provided', () => {
-    expect(
-      () =>
-        new ModelRouter({
-          model: 'mistral-small-latest',
-          embeddingModel: 'mistral-embed',
-          extractionModel: 'mistral-small-latest',
-          reasoningModel: '',
-        })
-    ).toThrow(/reasoningModel cannot be an empty string/)
   })
 })

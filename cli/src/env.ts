@@ -74,7 +74,7 @@ export const ENV_CATEGORIES: EnvCategory[] = [
       { key: 'WEBHOOK_SECRET', prompt: 'Dashboard webhook auth secret' },
       { key: 'LOGS_WEBHOOK', prompt: 'Discord webhook for bot logs' },
       { key: 'MISTRAL', prompt: 'Mistral AI API key' },
-      { key: 'GROQ', prompt: 'Groq API key' },
+      { key: 'GEMINI', prompt: 'Gemini AI API key' },
     ],
   },
   {
@@ -108,6 +108,7 @@ export type EnvMode = 'guided' | 'paste' | 'import'
 export type EnvDependencies = {
   fileExists?: (path: string) => boolean
   readFile?: (path: string) => string
+  input?: NodeJS.ReadableStream
 }
 
 /** Parse KEY=VALUE lines, skipping comments and blanks. */
@@ -195,19 +196,31 @@ export async function envGuidedMode(prompts: PromptsFn): Promise<string> {
 }
 
 /** Paste env content line-by-line from stdin. */
-export async function envPasteMode(prompts: PromptsFn): Promise<string> {
+export async function envPasteMode(
+  prompts: PromptsFn,
+  input?: NodeJS.ReadableStream
+): Promise<string> {
   prompts.log.info(
-    'Paste your .env content below. Enter an empty line to finish.'
+    'Paste your .env content below. Enter two empty lines to finish.'
   )
   const lines: string[] = []
-  const rl = createInterface({ input: process.stdin, output: process.stdout })
+  let consecutiveEmpty = 0
+  const rl = createInterface({
+    input: input ?? process.stdin,
+    output: process.stdout,
+  })
 
   return new Promise(resolve => {
     rl.on('line', line => {
       if (line.trim() === '') {
-        rl.close()
-        resolve(lines.join('\n'))
+        consecutiveEmpty++
+        if (consecutiveEmpty >= 2) {
+          rl.close()
+          return
+        }
+        lines.push(line)
       } else {
+        consecutiveEmpty = 0
         lines.push(line)
       }
     })
@@ -259,7 +272,7 @@ export async function configureEnv(
     case 'guided':
       return envGuidedMode(prompts)
     case 'paste':
-      return envPasteMode(prompts)
+      return envPasteMode(prompts, deps?.input)
     case 'import':
       return envImportMode(prompts, deps)
   }

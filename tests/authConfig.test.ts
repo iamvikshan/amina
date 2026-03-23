@@ -3,9 +3,9 @@ import { describe, test, expect, mock, beforeEach } from 'bun:test'
 // Mock database - mutable so tests can override model names
 let mockDbConfig = {
   globallyEnabled: true,
-  model: 'mistral-small-latest',
-  embeddingModel: 'mistral-embed',
-  extractionModel: 'mistral-small-latest',
+  model: 'gemini-flash-latest',
+  embeddingModel: 'voyage-4-lite',
+  extractionModel: 'gemini-3.1-flash-lite-preview',
   maxTokens: 1024,
   timeoutMs: 20000,
   systemPrompt: 'test prompt',
@@ -29,9 +29,9 @@ mock.module('../src/config/secrets', () => ({
 mock.module('../src/config/config', () => ({
   config: {
     AI: {
-      MODEL: 'mistral-small-latest',
-      EMBEDDING_MODEL: 'mistral-embed',
-      EXTRACTION_MODEL: 'mistral-small-latest',
+      MODEL: 'gemini-flash-latest',
+      EMBEDDING_MODEL: 'voyage-4-lite',
+      EXTRACTION_MODEL: 'gemini-3.1-flash-lite-preview',
       DEDUP_THRESHOLD: 0.85,
     },
   },
@@ -42,12 +42,12 @@ const { configCache } = await import('../src/config/aiResponder')
 describe('ConfigCache', () => {
   beforeEach(() => {
     configCache.invalidate()
-    mockSecrets = { MISTRAL: 'test-mistral-key' }
+    mockSecrets = { GEMINI: 'test-gemini-key', MISTRAL: 'test-mistral-key' }
     mockDbConfig = {
       globallyEnabled: true,
-      model: 'mistral-small-latest',
-      embeddingModel: 'mistral-embed',
-      extractionModel: 'mistral-small-latest',
+      model: 'gemini-flash-latest',
+      embeddingModel: 'voyage-4-lite',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
       maxTokens: 1024,
       timeoutMs: 20000,
       systemPrompt: 'test prompt',
@@ -57,48 +57,50 @@ describe('ConfigCache', () => {
     }
   })
 
-  test('returns valid config with MISTRAL key', async () => {
+  test('returns valid config with GEMINI key', async () => {
     const config = await configCache.getConfig()
     expect(config.globallyEnabled).toBe(true)
-    expect(config.mistralApiKey).toBe('test-mistral-key')
-    expect(config.model).toBe('mistral-small-latest')
+    expect(config.geminiApiKey).toBe('test-gemini-key')
+    expect(config.model).toBe('gemini-flash-latest')
   })
 
-  test('throws when MISTRAL key missing and AI enabled', async () => {
+  test('throws when GEMINI key missing and AI enabled', async () => {
     mockSecrets = {}
-    await expect(configCache.getConfig()).rejects.toThrow(/MISTRAL/)
+    await expect(configCache.getConfig()).rejects.toThrow(/GEMINI/)
   })
 
-  test('GROQ key is optional', async () => {
-    mockSecrets = { MISTRAL: 'test-key' }
+  test('MISTRAL key is optional', async () => {
+    mockSecrets = { GEMINI: 'test-key' }
     const config = await configCache.getConfig()
-    expect(config.groqApiKey).toBeUndefined()
+    expect(config.mistralApiKey).toBeUndefined()
   })
 
-  test('includes GROQ key when present', async () => {
-    mockSecrets = { MISTRAL: 'test-key', GROQ: 'groq-key' }
+  test('includes MISTRAL key when present', async () => {
+    mockSecrets = { GEMINI: 'test-key', MISTRAL: 'mistral-key' }
     const config = await configCache.getConfig()
-    expect(config.groqApiKey).toBe('groq-key')
+    expect(config.mistralApiKey).toBe('mistral-key')
   })
 
   test('invalidate clears cache', async () => {
     await configCache.getConfig() // warm cache
     configCache.invalidate()
-    // Should re-fetch on next call (no error means it worked)
     const config = await configCache.getConfig()
     expect(config).toBeDefined()
   })
 })
 
-describe('ConfigCache - stale Gemini model override', () => {
+describe('ConfigCache - DB model pass-through', () => {
   beforeEach(() => {
     configCache.invalidate()
-    mockSecrets = { MISTRAL: 'test-mistral-key' }
+    mockSecrets = { GEMINI: 'test-gemini-key' }
+  })
+
+  test('passes through model names from DB unchanged', async () => {
     mockDbConfig = {
       globallyEnabled: true,
-      model: 'gemini-3-flash-preview',
-      embeddingModel: 'gemini-embedding-001',
-      extractionModel: 'gemini-2.5-flash-lite',
+      model: 'gemini-flash-latest',
+      embeddingModel: 'voyage-4-lite',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
       maxTokens: 1024,
       timeoutMs: 20000,
       systemPrompt: 'test prompt',
@@ -106,28 +108,26 @@ describe('ConfigCache - stale Gemini model override', () => {
       dmEnabledGlobally: false,
       dedupThreshold: 0.85,
     }
-  })
 
-  test('overrides stale gemini model with mistral default', async () => {
     const cfg = await configCache.getConfig()
-    expect(cfg.model).toBe('mistral-small-latest')
+    expect(cfg.model).toBe('gemini-flash-latest')
+    expect(cfg.embeddingModel).toBe('voyage-4-lite')
+    expect(cfg.extractionModel).toBe('gemini-3.1-flash-lite-preview')
   })
 
-  test('overrides stale gemini embeddingModel with mistral default', async () => {
-    const cfg = await configCache.getConfig()
-    expect(cfg.embeddingModel).toBe('mistral-embed')
-  })
-
-  test('overrides stale gemini extractionModel with mistral default', async () => {
-    const cfg = await configCache.getConfig()
-    expect(cfg.extractionModel).toBe('mistral-small-latest')
-  })
-
-  test('preserves non-gemini model names from DB', async () => {
-    mockDbConfig.model = 'custom-model-v2'
-    mockDbConfig.embeddingModel = 'custom-embed'
-    mockDbConfig.extractionModel = 'custom-extract'
-    configCache.invalidate()
+  test('preserves custom model names from DB', async () => {
+    mockDbConfig = {
+      globallyEnabled: true,
+      model: 'custom-model-v2',
+      embeddingModel: 'custom-embed',
+      extractionModel: 'custom-extract',
+      maxTokens: 1024,
+      timeoutMs: 20000,
+      systemPrompt: 'test prompt',
+      temperature: 0.7,
+      dmEnabledGlobally: false,
+      dedupThreshold: 0.85,
+    }
 
     const cfg = await configCache.getConfig()
     expect(cfg.model).toBe('custom-model-v2')

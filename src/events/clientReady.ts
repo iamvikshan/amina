@@ -7,11 +7,11 @@ import { getSettings } from '@schemas/Guild'
 import { getPresenceConfig, getDevCommandsConfig } from '@schemas/Dev'
 import { ApplicationCommandType, RateLimitError } from 'discord.js'
 import type { BotClient } from '@src/structures'
-import { aiResponderService } from '@src/services/aiResponder'
-import { aiCommandRegistry } from '@src/services/aiCommandRegistry'
-import { memoryService } from '@src/services/memoryService'
-import { memoryManipulator } from '@src/services/memoryManipulator'
-import { aiMetrics } from '@src/services/aiMetrics'
+import { aiResponderService } from '@src/services/ai/aiResponder'
+import { aiCommandRegistry } from '@src/services/ai/aiCommandRegistry'
+import { memoryService } from '@src/services/ai/memoryService'
+import { memoryManipulator } from '@src/services/ai/memoryManipulator'
+import { aiMetrics } from '@src/services/ai/aiMetrics'
 import { config } from '@src/config'
 import BotUtils from '@helpers/BotUtils'
 
@@ -38,7 +38,10 @@ export default async (client: BotClient): Promise<void> => {
     const aiConfig = await configCache.getConfig()
 
     await memoryService.initialize({
+      geminiApiKey: aiConfig.geminiApiKey,
       mistralApiKey: aiConfig.mistralApiKey,
+      voyageApiKey: aiConfig.voyageApiKey,
+      voyageMongoApiKey: aiConfig.voyageMongoApiKey,
       embeddingModel: aiConfig.embeddingModel,
       extractionModel: aiConfig.extractionModel,
       dedupThreshold: aiConfig.dedupThreshold,

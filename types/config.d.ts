@@ -114,7 +114,9 @@ declare global {
 
     // API Keys & Tokens
     readonly MISTRAL?: string
-    readonly GROQ?: string
+    readonly GEMINI?: string
+    readonly VOYAGE?: string
+    readonly VOYAGE_MONGO?: string
     readonly WEATHERSTACK_KEY?: string
     readonly STRANGE_API_KEY?: string
     readonly SPOTIFY_CLIENT_ID?: string
@@ -143,13 +145,17 @@ declare global {
     temperature: number
     dmEnabledGlobally: boolean
     dedupThreshold: number
-    mistralApiKey: string
-    groqApiKey?: string
+    geminiApiKey: string
+    mistralApiKey?: string
+    voyageApiKey?: string
+    voyageMongoApiKey?: string
   }
 
   interface AiAuthConfig {
-    mistralApiKey: string
-    groqApiKey?: string
+    geminiApiKey: string
+    mistralApiKey?: string
+    voyageApiKey?: string
+    voyageMongoApiKey?: string
   }
 }
 

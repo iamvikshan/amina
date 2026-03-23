@@ -1,6 +1,6 @@
 // src/helpers/BotUtils.ts
 import HttpUtils from '@helpers/HttpUtils'
-import { /*success,*/ warn, error } from '@helpers/Logger'
+import { warn, error } from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import type { Message } from 'discord.js'
 // Validation is now globally available - see types/commands.d.ts
@@ -22,16 +22,7 @@ export default class BotUtils {
     if (response.success && response.data?.tag_name) {
       latestVersion = (response.data.tag_name as string).replace(/^v/, '')
     } else {
-      // Try npm registry as fallback
-      const npmResponse = await HttpUtils.getJson(
-        'https://registry.npmjs.org/amina/latest'
-      )
-      if (!npmResponse.success || !npmResponse.data?.version) {
-        return error(
-          'VersionCheck: Failed to check for bot updates (GitHub and npm both failed)'
-        )
-      }
-      latestVersion = npmResponse.data.version
+      return error('VersionCheck: Failed to check for bot updates')
     }
 
     const packageJson = await import('@root/package.json')
@@ -57,8 +48,6 @@ export default class BotUtils {
       warn(
         'Run `bunx amina update` to update, or visit: https://github.com/iamvikshan/amina/releases/latest'
       )
-    } else {
-      // success('VersionCheck: Your discord bot is up to date')
     }
   }
 

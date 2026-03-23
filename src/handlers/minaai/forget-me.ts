@@ -1,5 +1,5 @@
 import { StringSelectMenuInteraction, ButtonInteraction } from 'discord.js'
-import { memoryService } from '@src/services/memoryService'
+import { memoryService } from '@src/services/ai/memoryService'
 import { getUser } from '@schemas/User'
 import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
@@ -74,21 +74,25 @@ export async function handleForgetMeConfirm(
     }
     await userData.save()
 
-    const embed =
-      deleted > 0
-        ? MinaEmbed.success()
-        : MinaEmbed.warning()
-            .setTitle(mina.say('minaai.forget.success.title'))
-            .setDescription(
-              deleted > 0
-                ? mina.sayf('minaai.forget.success.deleted', {
-                    count: deleted.toString(),
-                    plural: deleted === 1 ? 'memory' : 'memories',
-                  })
-                : mina.say('minaai.forget.success.none')
-            )
-            .setFooter({ text: mina.say('minaai.forget.success.footer') })
-            .setTimestamp()
+    let embed: MinaEmbed
+    if (deleted > 0) {
+      embed = MinaEmbed.success()
+        .setTitle(mina.say('minaai.forget.success.title'))
+        .setDescription(
+          mina.sayf('minaai.forget.success.deleted', {
+            count: deleted.toString(),
+            plural: deleted === 1 ? 'memory' : 'memories',
+          })
+        )
+        .setFooter({ text: mina.say('minaai.forget.success.footer') })
+        .setTimestamp()
+    } else {
+      embed = MinaEmbed.warning()
+        .setTitle(mina.say('minaai.forget.success.title'))
+        .setDescription(mina.say('minaai.forget.success.none'))
+        .setFooter({ text: mina.say('minaai.forget.success.footer') })
+        .setTimestamp()
+    }
 
     const backButton = MinaRows.backRow('minaai:btn:back')
 

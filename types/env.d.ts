@@ -10,7 +10,9 @@ declare global {
       // Secrets - Optional
       LOGS_WEBHOOK?: string
       MISTRAL?: string
-      GROQ?: string
+      GEMINI?: string
+      VOYAGE?: string
+      VOYAGE_MONGO?: string
       WEATHERSTACK_KEY?: string
       STRANGE_API_KEY?: string
       SPOTIFY_CLIENT_ID?: string

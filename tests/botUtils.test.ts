@@ -1,10 +1,12 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
 const logCalls: string[] = []
+const requestedUrls: string[] = []
 const noop = () => {}
 
-// Top-level mock with configurable getJson behavior per test
-let getJsonImpl: (url: string) => Promise<any> = async () => ({ success: false })
+let getJsonImpl: (url: string) => Promise<any> = async () => ({
+  success: false,
+})
 
 mock.module('@helpers/Logger', () => ({
   default: { success: noop, log: noop, warn: noop, error: noop, debug: noop },
@@ -21,7 +23,10 @@ mock.module('@root/package.json', () => ({
 
 mock.module('@helpers/HttpUtils', () => ({
   default: {
-    getJson: async (url: string) => getJsonImpl(url),
+    getJson: async (url: string) => {
+      requestedUrls.push(url)
+      return getJsonImpl(url)
+    },
   },
 }))
 
@@ -30,33 +35,20 @@ const { default: BotUtils } = await import('../src/helpers/BotUtils')
 describe('BotUtils.checkForUpdates', () => {
   beforeEach(() => {
     logCalls.length = 0
+    requestedUrls.length = 0
   })
 
-  test('uses npm registry when GitHub fetch fails', async () => {
-    getJsonImpl = async (url: string) => {
-      if (url.includes('github.com')) return { success: false }
-      if (url.includes('npmjs.org'))
-        return { success: true, data: { version: '3.2.5' } }
-      return { success: false }
-    }
-
-    await BotUtils.checkForUpdates()
-
-    expect(logCalls.some((m) => m.includes('error'))).toBe(false)
-    expect(logCalls.some((m) => m.includes('v3.2.5 update is available'))).toBe(
-      true
-    )
-    expect(logCalls.some((m) => m.includes('bunx amina update'))).toBe(true)
-  })
-
-  test('returns gracefully when both GitHub and npm fail', async () => {
+  test('returns gracefully when GitHub fails', async () => {
     getJsonImpl = async () => ({ success: false })
 
     await BotUtils.checkForUpdates()
 
     expect(
-      logCalls.some((m) => m.includes('GitHub and npm both failed'))
+      logCalls.some(m => m.includes('Failed to check for bot updates'))
     ).toBe(true)
+    expect(requestedUrls).toHaveLength(1)
+    expect(requestedUrls[0]).toContain('api.github.com')
+    expect(requestedUrls.some(u => u.includes('npmjs'))).toBe(false)
   })
 
   test('does not log update or error when already up to date (GitHub succeeds)', async () => {
@@ -67,7 +59,7 @@ describe('BotUtils.checkForUpdates', () => {
 
     await BotUtils.checkForUpdates()
 
-    expect(logCalls.some((m) => m.includes('update is available'))).toBe(false)
-    expect(logCalls.some((m) => m.includes('failed'))).toBe(false)
+    expect(logCalls.some(m => m.includes('update is available'))).toBe(false)
+    expect(logCalls.some(m => m.includes('failed'))).toBe(false)
   })
 })

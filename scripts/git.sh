@@ -538,6 +538,25 @@ fi
 SIGNING_KEY_PATH="$HOME/.ssh/id_ed25519_signing"
 SIGNING_KEY_PUB="$SIGNING_KEY_PATH.pub"
 
+# Normalize the public key to the canonical "type base64" form used by GitHub's
+# SSH signing key API. Public key files often include a trailing comment.
+NORMALIZED_SIGNING_KEY=$(awk '{print $1 " " $2}' "$SIGNING_KEY_PUB" 2>/dev/null || echo "")
+
+remote_signing_key_exists() {
+  local normalized_key="$1"
+  local remote_keys=""
+
+  if ! remote_keys=$(gh api /user/ssh_signing_keys --paginate --jq '.[] | .key' 2>/dev/null); then
+    return 1
+  fi
+
+  if printf '%s\n' "$remote_keys" | grep -qFx "$normalized_key"; then
+    return 0
+  fi
+
+  return 1
+}
+
 # Check if key already exists locally
 if [[ -f "$SIGNING_KEY_PATH" && -f "$SIGNING_KEY_PUB" ]]; then
   echo "✓ Found existing SSH signing key: $SIGNING_KEY_PATH"
@@ -571,25 +590,31 @@ if [[ "$HAS_SIGNING_SCOPE" != "true" ]]; then
   echo "   Then re-run this script to upload the key"
 else
   echo "Ensuring SSH signing key is added to GitHub..."
-  KEY_FINGERPRINT=$(ssh-keygen -lf "$SIGNING_KEY_PUB" 2> /dev/null | awk '{print $2}' || echo "")
-
-  # Try to add the key (will fail gracefully if already exists)
-  # NOTE: Defensive '|| ADD_EXIT_CODE=$?' pattern prevents 'set -e' from killing the script
-  ADD_EXIT_CODE=0
-  ADD_OUTPUT=$(gh ssh-key add "$SIGNING_KEY_PUB" --type signing --title "$GIT_USER signing key" 2>&1) || ADD_EXIT_CODE=$?
-
-  if [[ $ADD_EXIT_CODE -eq 0 ]]; then
-    echo "✓ SSH signing key added to GitHub"
+  if [[ -z "$NORMALIZED_SIGNING_KEY" ]]; then
+    echo "⚠️  Failed to normalize the SSH signing key"
+    echo "   Public key location: $SIGNING_KEY_PUB"
+    echo "   If the key file is corrupted, remove it and rerun this script to regenerate it"
   else
-    # Check if key is already on GitHub by verifying fingerprint in list
-    if [[ -n "$KEY_FINGERPRINT" ]] && gh api /user/ssh_signing_keys --paginate 2> /dev/null | grep -qF "$KEY_FINGERPRINT"; then
+    if remote_signing_key_exists "$NORMALIZED_SIGNING_KEY"; then
       echo "✓ SSH signing key already exists on GitHub"
     else
-      echo "⚠️  Failed to add SSH signing key to GitHub"
-      echo "   Exit code: $ADD_EXIT_CODE"
-      echo "   Output: $ADD_OUTPUT"
-      echo "   You may need to add it manually at: https://github.com/settings/keys"
-      echo "   Public key location: $SIGNING_KEY_PUB"
+      # Try to create the key through the documented REST API.
+      # NOTE: Defensive '|| ADD_EXIT_CODE=$?' pattern prevents 'set -e' from killing the script.
+      ADD_EXIT_CODE=0
+      ADD_OUTPUT=$(gh api -X POST /user/ssh_signing_keys -f key="$NORMALIZED_SIGNING_KEY" -f title="$GIT_USER signing key" 2>&1) || ADD_EXIT_CODE=$?
+
+      if [[ $ADD_EXIT_CODE -eq 0 ]]; then
+        echo "✓ SSH signing key added to GitHub"
+      elif remote_signing_key_exists "$NORMALIZED_SIGNING_KEY"; then
+        echo "✓ SSH signing key already exists on GitHub"
+      else
+        echo "⚠️  Failed to add SSH signing key to GitHub"
+        echo "   Exit code: $ADD_EXIT_CODE"
+        echo "   Output: $ADD_OUTPUT"
+        echo "   If the token is missing write access, refresh it with: gh auth refresh -h github.com -s write:ssh_signing_key"
+        echo "   If the key itself is stale or broken, remove it and rerun this script to regenerate it:"
+        echo "   rm -f '$SIGNING_KEY_PATH' '$SIGNING_KEY_PUB'"
+      fi
     fi
   fi
 fi

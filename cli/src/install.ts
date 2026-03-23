@@ -125,7 +125,9 @@ export async function ensurePrerequisites(
 /** Check for an existing deployment and return the user's chosen action. */
 export async function checkExistingDeployment(
   deps: InstallDependencies
-): Promise<'proceed' | 'restart' | 'update' | 'reconfigure' | 'abort'> {
+): Promise<
+  'proceed' | 'restart' | 'update' | 'reconfigure' | 'change-path' | 'abort'
+> {
   const home = process.env.HOME ?? '/root'
   const deployPath = deps.deployPath ?? path.join(home, DEFAULT_DEPLOY_DIR)
   const fileExists = deps.fileExists ?? existsSync
@@ -163,13 +165,14 @@ export async function checkExistingDeployment(
   spawnFn(['docker', 'compose', 'ps', '-q'], { cwd: deployPath })
 
   const action = await prompts.select<
-    'restart' | 'update' | 'reconfigure' | 'abort'
+    'restart' | 'update' | 'reconfigure' | 'change-path' | 'abort'
   >({
     message: 'Existing deployment detected. What would you like to do?',
     options: [
       { value: 'restart', label: 'Restart services' },
       { value: 'update', label: 'Update & restart' },
       { value: 'reconfigure', label: 'Full reconfigure' },
+      { value: 'change-path', label: 'Deploy to different path' },
       { value: 'abort', label: 'Cancel' },
     ],
   })
@@ -183,7 +186,6 @@ export async function runInstall(
   deps: InstallDependencies = {}
 ): Promise<number> {
   const home = process.env.HOME ?? '/root'
-  const deployPath = deps.deployPath ?? path.join(home, DEFAULT_DEPLOY_DIR)
   const spawnFn = deps.spawnFn ?? spawn
   const fileExists = deps.fileExists ?? existsSync
   const writeFile = deps.writeFile ?? writeFileSync
@@ -194,9 +196,23 @@ export async function runInstall(
   const prompts = deps.prompts ?? defaultPrompts()
   const dryRun = deps.dryRun ?? false
   const mode = deps.mode ?? 'deploy'
-  const tmpdir = deps.tmpdir ?? path.join(deployPath, '.amina-tmp')
 
-  const resolved: InstallDependencies = {
+  let deployPath: string
+  if (deps.deployPath) {
+    deployPath = deps.deployPath
+  } else {
+    const pathResponse = await prompts.text({
+      message: 'Deployment path',
+      placeholder: path.join(home, DEFAULT_DEPLOY_DIR),
+      defaultValue: path.join(home, DEFAULT_DEPLOY_DIR),
+    })
+    if (prompts.isCancel(pathResponse)) return 0
+    deployPath = String(pathResponse) || path.join(home, DEFAULT_DEPLOY_DIR)
+  }
+
+  prompts.intro('Amina Install')
+
+  const prereqs = await ensurePrerequisites({
     ...deps,
     deployPath,
     spawnFn,
@@ -208,12 +224,8 @@ export async function runInstall(
     prompts,
     dryRun,
     mode,
-    tmpdir,
-  }
-
-  prompts.intro('Amina Install')
-
-  const prereqs = await ensurePrerequisites(resolved)
+    tmpdir: deps.tmpdir ?? path.join(deployPath, '.amina-tmp'),
+  })
   if (!prereqs.ok) {
     error('Missing prerequisites:')
     for (const m of prereqs.missing) error(`  - ${m}`)
@@ -221,7 +233,34 @@ export async function runInstall(
     return 1
   }
 
-  const existing = await checkExistingDeployment(resolved)
+  let existing: Awaited<ReturnType<typeof checkExistingDeployment>>
+  do {
+    existing = await checkExistingDeployment({
+      ...deps,
+      deployPath,
+      spawnFn,
+      fileExists,
+      writeFile,
+      chmod,
+      mkdir,
+      rmdir,
+      prompts,
+      dryRun,
+      mode,
+      tmpdir: deps.tmpdir ?? path.join(deployPath, '.amina-tmp'),
+    })
+    if (existing === 'change-path') {
+      const newPath = await prompts.text({
+        message: 'New deployment path',
+        placeholder: deployPath,
+      })
+      if (prompts.isCancel(newPath)) return 0
+      deployPath = String(newPath) || deployPath
+    }
+  } while (existing === 'change-path')
+
+  const tmpdir = deps.tmpdir ?? path.join(deployPath, '.amina-tmp')
+
   switch (existing) {
     case 'restart': {
       if (dryRun) {

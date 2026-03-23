@@ -1,4 +1,4 @@
-// @root/src/services/aiMetrics.ts
+// @root/src/services/ai/aiMetrics.ts
 
 import Logger from '@helpers/Logger'
 

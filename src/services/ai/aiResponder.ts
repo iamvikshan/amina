@@ -1,4 +1,4 @@
-// @root/src/services/aiResponder.ts
+// @root/src/services/ai/aiResponder.ts
 
 import type { GuildMember, Message } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
@@ -11,7 +11,7 @@ import {
 } from '@structures/conversationBuffer'
 import { memoryService } from './memoryService'
 import Logger from '@helpers/Logger'
-import { config, configCache } from '../config'
+import { config, configCache } from '../../config'
 import { extractMediaFromMessage } from '@helpers/mediaExtractor'
 import { aiCommandRegistry } from './aiCommandRegistry'
 import { VirtualInteraction } from '@structures/VirtualInteraction'
@@ -88,20 +88,20 @@ export class AiResponderService {
       const config = await configCache.getConfig()
 
       if (config.globallyEnabled) {
-        if (!config.mistralApiKey) {
-          logger.error('AI globally enabled but MISTRAL API key is empty')
+        if (!config.geminiApiKey) {
+          logger.error('AI globally enabled but GEMINI API key is empty')
           this.client = null
           this.currentClientConfig = null
           return
         }
 
-        const authFingerprint = Bun.hash(config.mistralApiKey)
+        const authFingerprint = Bun.hash(config.geminiApiKey)
           .toString(16)
           .slice(0, 8)
-        const groqFingerprint = config.groqApiKey
-          ? Bun.hash(config.groqApiKey).toString(16).slice(0, 8)
+        const mistralFingerprint = config.mistralApiKey
+          ? Bun.hash(config.mistralApiKey).toString(16).slice(0, 8)
           : ''
-        const configKey = `mistral:${authFingerprint}${groqFingerprint ? `:groq:${groqFingerprint}` : ''}`
+        const configKey = `gemini:${authFingerprint}${mistralFingerprint ? `:mistral:${mistralFingerprint}` : ''}`
 
         const needsClientRecreation =
           !this.currentClientConfig ||
@@ -111,8 +111,8 @@ export class AiResponderService {
 
         if (needsClientRecreation) {
           this.client = new AiClient({
+            geminiApiKey: config.geminiApiKey,
             mistralApiKey: config.mistralApiKey,
-            groqApiKey: config.groqApiKey,
             model: config.model,
             timeout: config.timeoutMs,
           })
@@ -121,9 +121,7 @@ export class AiResponderService {
             timeoutMs: config.timeoutMs,
             authConfig: configKey,
           }
-          logger.success(
-            `AI Responder initialized` /* - Model: ${config.model}, Provider: Mistral${config.groqApiKey ? ' + Groq fallback' : ''}` */
-          )
+          logger.success(`AI Responder initialized`)
         } else {
           logger.debug(
             'AI Responder config unchanged, skipping client recreation'
@@ -139,6 +137,8 @@ export class AiResponderService {
         }
       }
     } catch (error: any) {
+      this.client = null
+      this.currentClientConfig = null
       logger.error(`Failed to initialize AI Responder: ${error.message}`, error)
     }
   }
@@ -265,12 +265,19 @@ export class AiResponderService {
     if (!mode || !this.client) return
 
     try {
-      // Check if user @mentioned in a non-free-will channel and show helpful tip about free will channels
+      // Rate limiting
+      if (this.isRateLimited(message, mode)) {
+        logger.debug(
+          `Message rate limited - User: ${message.author.id}, Channel: ${message.channel.id}`
+        )
+        return
+      }
+
+      // Show helpful tip about free will channels when user @mentions in a non-free-will channel
       if (message.guild && mode === 'mention') {
         const guildSettings = await getSettings(message.guild)
         const freeWillChannels = this.getFreeWillChannels(guildSettings)
 
-        // Only show tip if there are free will channels configured
         if (freeWillChannels.length > 0) {
           const channelMentions = freeWillChannels
             .map(id => `<#${id}>`)
@@ -283,14 +290,6 @@ export class AiResponderService {
               .catch(() => {})
           }
         }
-      }
-
-      // Rate limiting
-      if (this.isRateLimited(message, mode)) {
-        logger.debug(
-          `Message rate limited - User: ${message.author.id}, Channel: ${message.channel.id}`
-        )
-        return
       }
 
       // Show typing indicator
@@ -602,12 +601,22 @@ export class AiResponderService {
             continue
           }
 
+          // Resolve compound tool name (e.g., 'moderation_ban' -> { commandName: 'moderation', subcommand: 'ban' })
+          const resolved = aiCommandRegistry.resolveToolName(commandName)
+          const realCommandName = resolved?.commandName ?? commandName
+          if (resolved?.subcommand) {
+            args.subcommand = resolved.subcommand
+          }
+          if (resolved?.subcommandGroup) {
+            args.subcommandGroup = resolved.subcommandGroup
+          }
+
           const command = aiCommandRegistry.getCommand(commandName)
           const metadata = aiCommandRegistry.getMetadata(commandName)
 
           if (!command || !metadata) {
             functionResults.push(
-              `Command /${commandName} not found. Available commands may be limited.`
+              `Command /${realCommandName} not found. Available commands may be limited.`
             )
             continue
           }
@@ -615,7 +624,7 @@ export class AiResponderService {
           // Permission checks based on model
           const permissionCheck = await this.checkCommandPermissions(
             message,
-            commandName,
+            realCommandName,
             metadata,
             args
           )
@@ -627,13 +636,13 @@ export class AiResponderService {
 
           // Apply free will limits (e.g., timeout duration cap)
           if (permissionCheck.isFreeWill) {
-            args = this.applyFreeWillLimits(commandName, args)
+            args = this.applyFreeWillLimits(realCommandName, args)
           }
 
           const virtualInteraction = new VirtualInteraction(
             message.client,
             message,
-            commandName,
+            realCommandName,
             args
           )
 
@@ -691,8 +700,10 @@ export class AiResponderService {
           })
         }
 
-        // Show typing indicator while AI thinks about the results
-        if ('sendTyping' in message.channel) {
+        // Show typing indicator only when no status message exists (editing
+        // the status message already signals activity; a redundant sendTyping
+        // would leave the typing indicator lingering ~10s after the edit).
+        if (!statusMessage && 'sendTyping' in message.channel) {
           await message.channel.sendTyping()
         }
 

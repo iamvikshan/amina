@@ -30,24 +30,42 @@ mock.module('@helpers/Logger', () => ({
   debug: mockLogger.debug,
 }))
 
-// Mock @mistralai/mistralai
-const mockMistralEmbeddings = mock(
-  (): Promise<any> =>
-    Promise.resolve({
-      data: [{ embedding: new Array(1024).fill(0.1) }],
-    })
-)
-const mockMistralChat = mock(
-  (): Promise<any> =>
-    Promise.resolve({
-      choices: [{ message: { content: '[]' } }],
-    })
-)
+// Track OpenAI instances by baseURL for per-provider assertions
+const openaiInstances: Record<
+  string,
+  {
+    chat: { completions: { create: ReturnType<typeof mock> } }
+    embeddings: { create: ReturnType<typeof mock> }
+  }
+> = {}
 
-mock.module('@mistralai/mistralai', () => ({
-  Mistral: class MockMistral {
-    embeddings = { create: mockMistralEmbeddings }
-    chat = { complete: mockMistralChat }
+mock.module('openai', () => ({
+  default: class MockOpenAI {
+    chat: any
+    embeddings: any
+    constructor({ baseURL }: { baseURL: string }) {
+      const instance = {
+        chat: {
+          completions: {
+            create: mock(() =>
+              Promise.resolve({
+                choices: [{ message: { content: '[]' } }],
+              })
+            ),
+          },
+        },
+        embeddings: {
+          create: mock(() =>
+            Promise.resolve({
+              data: [{ embedding: new Array(1024).fill(0.1) }],
+            })
+          ),
+        },
+      }
+      this.chat = instance.chat
+      this.embeddings = instance.embeddings
+      openaiInstances[baseURL] = instance
+    }
   },
 }))
 
@@ -83,8 +101,8 @@ mock.module('../src/database/schemas/AiMemory', () => ({
   },
 }))
 
-import { MemoryService } from '../src/services/memoryService'
-import { MemoryManipulator } from '../src/services/memoryManipulator'
+import { MemoryService } from '../src/services/ai/memoryService'
+import { MemoryManipulator } from '../src/services/ai/memoryManipulator'
 
 // Lightweight test double for AiCommandRegistry
 // Captures registerNativeTools calls and provides isNativeTool/executeNativeTool
@@ -156,6 +174,9 @@ describe('MemoryManipulator', () => {
   let manipulator: MemoryManipulator
 
   beforeEach(async () => {
+    // Clear instance registry
+    for (const key of Object.keys(openaiInstances)) delete openaiInstances[key]
+
     // Reset mocks
     mockSaveMemory.mockClear()
     mockGetUserMemoryCount.mockClear()
@@ -164,8 +185,6 @@ describe('MemoryManipulator', () => {
     mockFindSimilarMemory.mockClear()
     mockFindByIdAndUpdate.mockClear()
     mockFindByIdAndDelete.mockClear()
-    mockMistralEmbeddings.mockClear()
-    mockMistralChat.mockClear()
 
     // Reset default mock implementations
     mockFindSimilarMemory.mockImplementation(() => Promise.resolve(null))
@@ -175,9 +194,11 @@ describe('MemoryManipulator', () => {
     // Initialize memory service
     memoryService = new MemoryService()
     await memoryService.initialize({
+      geminiApiKey: 'test-gemini-key',
       mistralApiKey: 'test-mistral-key',
-      embeddingModel: 'mistral-embed',
-      extractionModel: 'mistral-small-latest',
+      voyageApiKey: 'test-voyage-key',
+      embeddingModel: 'voyage-4-lite',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
     })
 
     // Initialize registry (lightweight test double)

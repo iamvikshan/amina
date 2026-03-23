@@ -1,4 +1,36 @@
-import { describe, test, expect } from 'bun:test'
+import { describe, test, expect, mock } from 'bun:test'
+import { ApplicationCommandOptionType, Collection } from 'discord.js'
+
+const mockLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  log: () => {},
+  success: () => {},
+}
+
+mock.module('../src/helpers/Logger', () => ({
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
+}))
+
+mock.module('@helpers/Logger', () => ({
+  default: mockLogger,
+  Logger: mockLogger,
+  success: mockLogger.success,
+  log: mockLogger.log,
+  warn: mockLogger.warn,
+  error: mockLogger.error,
+  debug: mockLogger.debug,
+}))
+
+import { AiCommandRegistry } from '../src/services/ai/aiCommandRegistry'
 
 /**
  * Registry test double that mirrors real AiCommandRegistry dedup logic
@@ -164,5 +196,239 @@ describe('AiCommandRegistry OpenAITool format', () => {
       expect(tool.function).toBeDefined()
       expect(typeof tool.function.name).toBe('string')
     }
+  })
+})
+
+function createMockClient(commands: any[]): any {
+  const slashCommands = new Collection<string, any>()
+  for (const cmd of commands) {
+    slashCommands.set(cmd.name, cmd)
+  }
+  return { slashCommands }
+}
+
+const mockModeration = {
+  name: 'moderation',
+  description: 'Moderation commands',
+  category: 'MODERATION',
+  devOnly: false,
+  userPermissions: ['BanMembers'],
+  slashCommand: {
+    enabled: true,
+    options: [
+      {
+        name: 'ban',
+        type: ApplicationCommandOptionType.Subcommand,
+        description: 'Ban a user',
+        options: [
+          {
+            name: 'user',
+            type: ApplicationCommandOptionType.User,
+            description: 'The user to ban',
+            required: true,
+          },
+          {
+            name: 'reason',
+            type: ApplicationCommandOptionType.String,
+            description: 'Ban reason',
+            required: false,
+          },
+        ],
+      },
+      {
+        name: 'kick',
+        type: ApplicationCommandOptionType.Subcommand,
+        description: 'Kick a user',
+        options: [
+          {
+            name: 'user',
+            type: ApplicationCommandOptionType.User,
+            description: 'The user to kick',
+            required: true,
+          },
+        ],
+      },
+    ],
+  },
+  interactionRun: async () => {},
+}
+
+const mockInvite = {
+  name: 'invite',
+  description: 'Invite management',
+  category: 'SOCIAL',
+  devOnly: false,
+  slashCommand: {
+    enabled: true,
+    options: [
+      {
+        name: 'rank',
+        type: ApplicationCommandOptionType.SubcommandGroup,
+        description: 'Manage invite ranks',
+        options: [
+          {
+            name: 'add',
+            type: ApplicationCommandOptionType.Subcommand,
+            description: 'Add an invite rank',
+            options: [
+              {
+                name: 'role',
+                type: ApplicationCommandOptionType.Role,
+                description: 'Role to assign',
+                required: true,
+              },
+              {
+                name: 'invites',
+                type: ApplicationCommandOptionType.Integer,
+                description: 'Required invites',
+                required: true,
+              },
+            ],
+          },
+          {
+            name: 'remove',
+            type: ApplicationCommandOptionType.Subcommand,
+            description: 'Remove an invite rank',
+            options: [
+              {
+                name: 'role',
+                type: ApplicationCommandOptionType.Role,
+                description: 'Role to remove',
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  interactionRun: async () => {},
+}
+
+const mockPing = {
+  name: 'ping',
+  description: 'Check bot latency',
+  category: 'UTILITY',
+  devOnly: false,
+  slashCommand: {
+    enabled: true,
+    options: [
+      {
+        name: 'ephemeral',
+        type: ApplicationCommandOptionType.Boolean,
+        description: 'Send privately',
+        required: false,
+      },
+    ],
+  },
+  interactionRun: async () => {},
+}
+
+describe('AiCommandRegistry subcommand tool mapping (real)', () => {
+  test('produces separate tools for each subcommand', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockModeration]))
+
+    const tools = registry.getTools()
+    const names = tools.map(t => t.function.name)
+    expect(names).toContain('moderation_ban')
+    expect(names).toContain('moderation_kick')
+
+    const banTool = tools.find(t => t.function.name === 'moderation_ban')
+    if (!banTool) throw new Error('Expected moderation_ban tool')
+    expect(banTool.function.parameters.properties).toHaveProperty('user')
+    expect(banTool.function.parameters.properties).toHaveProperty('reason')
+    expect(banTool.function.parameters.required).toEqual(['user'])
+
+    const kickTool = tools.find(t => t.function.name === 'moderation_kick')
+    if (!kickTool) throw new Error('Expected moderation_kick tool')
+    expect(kickTool.function.parameters.properties).toHaveProperty('user')
+    expect(kickTool.function.parameters.properties).not.toHaveProperty(
+      'reason'
+    )
+  })
+
+  test('handles SubcommandGroup correctly', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockInvite]))
+
+    const tools = registry.getTools()
+    const names = tools.map(t => t.function.name)
+    expect(names).toContain('invite_rank_add')
+    expect(names).toContain('invite_rank_remove')
+
+    const addTool = tools.find(t => t.function.name === 'invite_rank_add')
+    if (!addTool) throw new Error('Expected invite_rank_add tool')
+    expect(addTool.function.parameters.properties).toHaveProperty('role')
+    expect(addTool.function.parameters.properties).toHaveProperty('invites')
+
+    const removeTool = tools.find(
+      t => t.function.name === 'invite_rank_remove'
+    )
+    if (!removeTool) throw new Error('Expected invite_rank_remove tool')
+    expect(removeTool.function.parameters.properties).toHaveProperty('role')
+    expect(removeTool.function.parameters.properties).not.toHaveProperty(
+      'invites'
+    )
+  })
+
+  test('produces single tool for simple commands', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockPing]))
+
+    const tools = registry.getTools()
+    expect(tools.length).toBe(1)
+    expect(tools[0].function.name).toBe('ping')
+    expect(tools[0].function.parameters.properties).toHaveProperty(
+      'ephemeral'
+    )
+  })
+
+  test('resolveToolName for flat subcommand', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockModeration]))
+
+    expect(registry.resolveToolName('moderation_ban')).toEqual({
+      commandName: 'moderation',
+      subcommand: 'ban',
+    })
+  })
+
+  test('resolveToolName for grouped subcommand', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockInvite]))
+
+    expect(registry.resolveToolName('invite_rank_add')).toEqual({
+      commandName: 'invite',
+      subcommandGroup: 'rank',
+      subcommand: 'add',
+    })
+  })
+
+  test('resolveToolName returns undefined for unknown', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockPing]))
+
+    expect(registry.resolveToolName('nonexistent')).toBeUndefined()
+  })
+
+  test('getCommand maps compound name to parent command', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockModeration]))
+
+    const cmd = registry.getCommand('moderation_ban')
+    expect(cmd).toBeDefined()
+    if (!cmd) throw new Error('Expected command for moderation_ban')
+    expect(cmd.name).toBe('moderation')
+  })
+
+  test('getMetadata available for compound names', () => {
+    const registry = new AiCommandRegistry()
+    registry.initialize(createMockClient([mockModeration]))
+
+    const meta = registry.getMetadata('moderation_ban')
+    expect(meta).toBeDefined()
+    if (!meta) throw new Error('Expected metadata for moderation_ban')
+    expect(meta.name).toBe('moderation')
   })
 })

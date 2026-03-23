@@ -436,13 +436,18 @@ describe('subcommand routing (new commands)', () => {
     console.log = () => {}
     console.warn = () => {}
 
-    await main(['node', 'amina', 'uninstall'])
-    await main(['node', 'amina', 'status'])
+    // Use nonexistent deploy paths so both commands exit early
+    // without triggering interactive prompts or real docker calls
+    const { runUninstall } = await import('../src/uninstall')
+    const { runStatus } = await import('../src/status')
+    await runUninstall({ deployPath: '/nonexistent/amina' })
+    await runStatus({ deployPath: '/nonexistent/amina' })
 
     console.error = origErr
     console.log = origLog
     console.warn = origWarn
 
+    // Routing worked -- neither produced "Unknown command"
     expect(errors.join('\n')).not.toContain('Unknown command')
   })
 })

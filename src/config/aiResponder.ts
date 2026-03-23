@@ -34,41 +34,30 @@ class ConfigCache {
     const cache = this.cache
     if (!cache) throw new Error('AI config cache is empty')
 
+    const geminiApiKey = secret.GEMINI || ''
     const mistralApiKey = secret.MISTRAL || ''
-    const groqApiKey = secret.GROQ || ''
-
-    // Override stale Gemini model names persisted in DB
-    const model =
-      cache.model && !cache.model.startsWith('gemini')
-        ? cache.model
-        : config.AI.MODEL
-    const embeddingModel =
-      cache.embeddingModel && !cache.embeddingModel.startsWith('gemini')
-        ? cache.embeddingModel
-        : config.AI.EMBEDDING_MODEL
-    const extractionModel =
-      cache.extractionModel && !cache.extractionModel.startsWith('gemini')
-        ? cache.extractionModel
-        : config.AI.EXTRACTION_MODEL
+    const voyageMongoApiKey = secret.VOYAGE_MONGO || ''
 
     const aiConfig: AiConfig = {
       globallyEnabled: cache.globallyEnabled,
-      model,
-      embeddingModel,
-      extractionModel,
+      model: cache.model,
+      embeddingModel: cache.embeddingModel,
+      extractionModel: cache.extractionModel,
       maxTokens: cache.maxTokens,
       timeoutMs: cache.timeoutMs,
       systemPrompt: cache.systemPrompt,
       temperature: cache.temperature,
       dmEnabledGlobally: cache.dmEnabledGlobally,
       dedupThreshold: cache.dedupThreshold ?? config.AI.DEDUP_THRESHOLD,
-      mistralApiKey,
-      groqApiKey: groqApiKey || undefined,
+      geminiApiKey,
+      mistralApiKey: mistralApiKey || undefined,
+      voyageApiKey: secret.VOYAGE,
+      voyageMongoApiKey: voyageMongoApiKey || undefined,
     }
 
     if (aiConfig.globallyEnabled) {
-      if (!mistralApiKey)
-        throw new Error('MISTRAL API key is required when AI is enabled')
+      if (!geminiApiKey)
+        throw new Error('GEMINI API key is required when AI is enabled')
       if (!aiConfig.model) throw new Error('Model name is required')
       if (!aiConfig.systemPrompt) throw new Error('System prompt is required')
     }
