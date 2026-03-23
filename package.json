@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@honeybadger-io/js": "^6.12.3",
-    "@mistralai/mistralai": "^2.0.0",
+    "@mistralai/mistralai": "^2.1.1",
     "@vitalets/google-translate-api": "^9.2.1",
     "axios": "^1.13.6",
     "common-tags": "^1.8.2",

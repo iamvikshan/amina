@@ -6,7 +6,7 @@
       "name": "amina",
       "dependencies": {
         "@honeybadger-io/js": "^6.12.3",
-        "@mistralai/mistralai": "^2.0.0",
+        "@mistralai/mistralai": "^2.1.1",
         "@vitalets/google-translate-api": "^9.2.1",
         "axios": "^1.13.6",
         "common-tags": "^1.8.2",
@@ -272,7 +272,7 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 
-    "@mistralai/mistralai": ["@mistralai/mistralai@2.0.0", "", { "dependencies": { "ws": "^8.18.0", "zod": "^3.25.0 || ^4.0.0", "zod-to-json-schema": "^3.25.0" } }, "sha512-F39E/pXQqtnR1fuLWB5oQF7/dWi4bgki8wEfAobhZDrhOvZfDtSrM31or/KI1IORQerYoRxgt6ke5QnnSKIQwA=="],
+    "@mistralai/mistralai": ["@mistralai/mistralai@2.1.2", "", { "dependencies": { "ws": "^8.18.0", "zod": "^3.25.0 || ^4.0.0", "zod-to-json-schema": "^3.25.0" } }, "sha512-0NlXBNdTMmi4z0oSUWa8KseBHlli+/FkaUTaAyLYTJzkKh3mYM/D3DnJzRil8VD6QC7W3IteARjd3LnxAZGPUw=="],
 
     "@mongodb-js/saslprep": ["@mongodb-js/saslprep@1.4.6", "", { "dependencies": { "sparse-bitfield": "^3.0.3" } }, "sha512-y+x3H1xBZd38n10NZF/rEBlvDOOMQ6LKUTHqr8R9VkJ+mmQOYtJFxIlkkK8fZrtOiL6VixbOBWMbZGBdal3Z1g=="],
 
