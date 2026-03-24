@@ -6,6 +6,9 @@ import { memberInteract, logModeration } from './core'
 
 /**
  * Warns the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function warnTarget(
   issuer: GuildMember,

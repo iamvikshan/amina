@@ -12,6 +12,8 @@ import {
 /**
  * Handle viewing a user's profile
  * Used by /info profile command
+ * @param interaction
+ * @param target
  */
 export default async function profileView(
   interaction: ChatInputCommandInteraction,

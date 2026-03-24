@@ -10,6 +10,7 @@ export interface BirthdateValidation {
 
 /**
  * Validates and parses a birthdate string
+ * @param birthdate
  */
 export function validateBirthdate(birthdate: string): BirthdateValidation {
   const ddmmyyyyRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/
@@ -82,6 +83,7 @@ export function validateBirthdate(birthdate: string): BirthdateValidation {
 
 /**
  * Calculates age from birthdate
+ * @param birthdate
  */
 export function calculateAge(birthdate: Date): number {
   const today = new Date()

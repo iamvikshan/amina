@@ -39,6 +39,7 @@ export async function generateApiKey(): Promise<{
 
 /**
  * Hash an API key using SHA-256
+ * @param key
  */
 export async function hashApiKey(key: string): Promise<string> {
   const encoder = new TextEncoder()
@@ -50,6 +51,8 @@ export async function hashApiKey(key: string): Promise<string> {
 
 /**
  * Find a user by API key hash
+ * @param db
+ * @param apiKey
  */
 export async function findUserByApiKey(
   db: MongoDB,
@@ -80,6 +83,9 @@ export async function findUserByApiKey(
 
 /**
  * Update API key usage
+ * @param db
+ * @param userId
+ * @param keyId
  */
 export async function updateApiKeyUsage(
   db: MongoDB,

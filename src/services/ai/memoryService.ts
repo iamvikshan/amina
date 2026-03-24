@@ -14,10 +14,6 @@ import {
   findSimilarMemory,
   Model,
 } from '@schemas/AiMemory'
-import {
-  ConversationBuffer,
-  type Message,
-} from '@structures/conversationBuffer'
 
 const logger = Logger
 
@@ -29,7 +25,6 @@ export class MemoryService {
   private voyageNative: OpenAI | null = null
   private voyageMongo: OpenAI | null = null
   private embeddingModel: string = 'voyage-4-lite'
-  private extractionModel: string = 'gemini-3.1-flash-lite-preview'
   private dedupThreshold: number = 0.85
   private readonly MAX_MEMORIES_PER_USER = 50
 
@@ -39,7 +34,6 @@ export class MemoryService {
     voyageApiKey?: string
     voyageMongoApiKey?: string
     embeddingModel?: string
-    extractionModel?: string
     dedupThreshold?: number
   }) {
     try {
@@ -68,8 +62,6 @@ export class MemoryService {
           })
         : null
       if (options.embeddingModel) this.embeddingModel = options.embeddingModel
-      if (options.extractionModel)
-        this.extractionModel = options.extractionModel
       if (options.dedupThreshold !== undefined)
         this.dedupThreshold = options.dedupThreshold
       logger.success('Memory Service initialized')
@@ -83,6 +75,8 @@ export class MemoryService {
 
   /**
    * Generate an embedding via Voyage AI (dual-key random selection), Gemini, or Mistral (fallback).
+   * @param text
+   * @param inputType
    */
   private async generateVoyageOrFallbackEmbedding(
     text: string,
@@ -161,103 +155,11 @@ export class MemoryService {
   }
 
   /**
-   * Extract memories from a conversation
-   */
-  async extractMemories(conversationHistory: Message[]): Promise<MemoryFact[]> {
-    if (!this.gemini && !this.mistral) {
-      logger.warn(
-        'extractMemories skipped: Memory Service not initialized (AI client missing)'
-      )
-      return []
-    }
-    if (conversationHistory.length < 3) return []
-
-    try {
-      // Build conversation context with speaker attribution
-      const conversationText = conversationHistory
-        .slice(-10) // Last 10 messages
-        .map(m => {
-          const text = ConversationBuffer.getTextContent(m)
-          if (m.role === 'assistant') {
-            return `assistant: ${text}`
-          }
-          if (m.userId && m.displayName) {
-            return `${m.displayName}: ${text}`
-          }
-          return `user: ${text}`
-        })
-        .join('\n')
-
-      const extractionPrompt = `Analyze this conversation and extract 0-3 important facts worth remembering long-term.
-Only extract clearly stated information (user preferences, names, important events, recurring topics).
-Ignore casual greetings and temporary information.
-
-Conversation:
-${conversationText}
-
-Return ONLY valid JSON array (no markdown, no explanation):
-[
-  {"key": "fact_name", "value": "fact_value", "importance": 1-10, "memoryType": "user|guild|topic"}
-]
-
-If nothing worth remembering, return: []`
-
-      let facts: MemoryFact[] | null = null
-
-      // Primary: Gemini
-      if (this.gemini) {
-        try {
-          const result = await this.gemini.chat.completions.create({
-            model: this.extractionModel,
-            messages: [{ role: 'user', content: extractionPrompt }],
-          })
-          const raw = (result.choices?.[0]?.message?.content ?? '').trim()
-          if (raw) {
-            const clean = raw
-              .replace(/```json\n?/g, '')
-              .replace(/```\n?/g, '')
-              .trim()
-            facts = JSON.parse(clean)
-          }
-        } catch (err: any) {
-          logger.warn(
-            `Gemini extraction failed (${err.message}), trying Mistral fallback`
-          )
-        }
-      }
-
-      // Fallback: Mistral
-      if (!facts && this.mistral) {
-        try {
-          const result = await this.mistral.chat.completions.create({
-            model: 'mistral-small-latest',
-            messages: [{ role: 'user', content: extractionPrompt }],
-          })
-          const raw = (result.choices?.[0]?.message?.content ?? '').trim()
-          if (raw) {
-            const clean = raw
-              .replace(/```json\n?/g, '')
-              .replace(/```\n?/g, '')
-              .trim()
-            facts = JSON.parse(clean)
-          }
-        } catch (err: any) {
-          logger.warn(`Mistral extraction fallback failed: ${err.message}`)
-        }
-      }
-
-      if (!facts) return []
-
-      logger.debug(`Extracted ${facts.length} memories from conversation`)
-      return facts
-    } catch (error: any) {
-      logger.warn(`Failed to extract memories: ${error.message}`)
-      return []
-    }
-  }
-
-  /**
    * Store a memory in MongoDB with its embedding vector
+   * @param fact
+   * @param userId
+   * @param guildId
+   * @param context
    */
   async storeMemory(
     fact: MemoryFact,
@@ -373,6 +275,13 @@ If nothing worth remembering, return: []`
    * Recall relevant memories for a message.
    * Note: when post-filtering is needed (server context with global memories but not combining DM),
    * the actual number of results may be less than the requested limit due to Atlas filter limitations.
+   * @param userMessage
+   * @param userId
+   * @param guildId
+   * @param limit
+   * @param userPrefs
+   * @param userPrefs.combineDmWithServer
+   * @param userPrefs.globalServerMemories
    */
   async recallMemories(
     userMessage: string,
@@ -497,6 +406,8 @@ If nothing worth remembering, return: []`
 
   /**
    * Delete all memories for a user
+   * @param userId
+   * @param guildId
    */
   async forgetUser(userId: string, guildId: string | null): Promise<number> {
     try {
@@ -511,6 +422,8 @@ If nothing worth remembering, return: []`
 
   /**
    * Get all memories for a user (for /memories command)
+   * @param userId
+   * @param guildId
    */
   async listUserMemories(
     userId: string,
@@ -617,6 +530,7 @@ If nothing worth remembering, return: []`
 
   /**
    * Generate an embedding vector for the given text.
+   * @param text
    */
   async generateEmbedding(text: string): Promise<number[] | null> {
     if (
@@ -635,6 +549,11 @@ If nothing worth remembering, return: []`
 
   /**
    * Find and update an existing memory that semantically matches the description.
+   * @param description
+   * @param newValue
+   * @param userId
+   * @param guildId
+   * @param memoryType
    */
   async updateMemoryByMatch(
     description: string,
@@ -682,6 +601,10 @@ If nothing worth remembering, return: []`
 
   /**
    * Find and delete an existing memory that semantically matches the description.
+   * @param description
+   * @param userId
+   * @param guildId
+   * @param memoryType
    */
   async deleteMemoryByMatch(
     description: string,

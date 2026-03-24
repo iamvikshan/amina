@@ -18,6 +18,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show topics management submenu
+ * @param interaction
  */
 export async function showTopicsMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -81,6 +82,7 @@ export async function showTopicsMenu(
 
 /**
  * Handle topics menu selection
+ * @param interaction
  */
 export async function handleTopicsMenu(
   interaction: StringSelectMenuInteraction
@@ -109,6 +111,7 @@ export async function handleTopicsMenu(
 
 /**
  * Show list of all topics
+ * @param interaction
  */
 async function showTopicsList(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -155,6 +158,7 @@ async function showTopicsList(
 
 /**
  * Show modal for adding a topic
+ * @param interaction
  */
 async function showAddTopicModal(
   interaction: StringSelectMenuInteraction
@@ -181,6 +185,7 @@ async function showAddTopicModal(
 
 /**
  * Handle add topic modal submission
+ * @param interaction
  */
 export async function handleAddTopicModal(
   interaction: ModalSubmitInteraction
@@ -303,6 +308,7 @@ export async function handleAddTopicModal(
 
 /**
  * Show select menu for removing a topic
+ * @param interaction
  */
 async function showRemoveTopicSelect(
   interaction: StringSelectMenuInteraction
@@ -360,6 +366,7 @@ async function showRemoveTopicSelect(
 
 /**
  * Handle topic removal selection
+ * @param interaction
  */
 export async function handleRemoveTopicSelect(
   interaction: StringSelectMenuInteraction
@@ -393,6 +400,7 @@ export async function handleRemoveTopicSelect(
 
 /**
  * Handle topic removal confirmation
+ * @param interaction
  */
 export async function handleRemoveTopicConfirm(
   interaction: ButtonInteraction
@@ -489,6 +497,7 @@ export async function handleRemoveTopicConfirm(
 
 /**
  * Handle topic removal cancellation
+ * @param interaction
  */
 export async function handleRemoveTopicCancel(
   interaction: ButtonInteraction
@@ -499,6 +508,7 @@ export async function handleRemoveTopicCancel(
 
 /**
  * Handle back button to topics menu
+ * @param interaction
  */
 export async function handleBackToTopics(
   interaction: ButtonInteraction

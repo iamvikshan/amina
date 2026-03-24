@@ -13,6 +13,7 @@ const DEFAULT_DURATION_MS = 6 * 60 * 60 * 1000 // 6 hours
 
 /**
  * Handle /reminder add command
+ * @param interaction
  */
 export async function handleAddReminder(
   interaction: ChatInputCommandInteraction
@@ -115,6 +116,8 @@ export async function handleAddReminder(
 
 /**
  * Calculate remind_at date with timezone support
+ * @param durationMs
+ * @param userId
  */
 async function calculateRemindAt(
   durationMs: number,

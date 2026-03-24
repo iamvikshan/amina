@@ -14,12 +14,12 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
-    "hono": "^4.12.8",
+    "hono": "^4.12.9",
     "mongodb": "^7.1.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260317.1",
-    "wrangler": "^4.75.0"
+    "wrangler": "^4.76.0"
   }
 }

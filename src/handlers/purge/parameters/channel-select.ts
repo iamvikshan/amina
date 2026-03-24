@@ -14,6 +14,13 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show optional channel selection
+ * @param interaction
+ * @param purgeType
+ * @param amount
+ * @param additionalData
+ * @param additionalData.token
+ * @param additionalData.userId
+ * @param isManualSelection
  */
 export async function showChannelSelect(
   interaction:
@@ -96,6 +103,7 @@ export async function showChannelSelect(
 
 /**
  * Handle channel selection
+ * @param interaction
  */
 export async function handleChannelSelect(
   interaction: ChannelSelectMenuInteraction
@@ -138,6 +146,7 @@ export async function handleChannelSelect(
 
 /**
  * Handle "use current channel" button
+ * @param interaction
  */
 export async function handleUseCurrentChannel(
   interaction: ButtonInteraction
@@ -179,6 +188,7 @@ export async function handleUseCurrentChannel(
 
 /**
  * Handle "proceed channel" button for default flow
+ * @param interaction
  */
 export async function handleProceedChannel(
   interaction: ButtonInteraction
@@ -220,6 +230,7 @@ export async function handleProceedChannel(
 
 /**
  * Get human-readable label for purge type
+ * @param type
  */
 function getPurgeTypeLabel(type: PurgeType): string {
   const labels: Record<PurgeType, string> = {

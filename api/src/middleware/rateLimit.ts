@@ -26,6 +26,7 @@ function getInstanceSalt(): string {
 
 /**
  * Create a rate limiting middleware with given config
+ * @param config
  */
 export function rateLimit(config: RateLimitMiddlewareConfig) {
   const {
@@ -82,6 +83,7 @@ export function rateLimit(config: RateLimitMiddlewareConfig) {
 
 /**
  * Default key generator - uses IP address and endpoint
+ * @param c
  */
 async function defaultKeyGenerator(
   c: Context<{ Bindings: Env }>
@@ -122,6 +124,7 @@ async function defaultKeyGenerator(
 /**
  * Key generator for API key authenticated requests
  * API keys are hashed before use as KV keys to prevent credential leakage.
+ * @param c
  */
 export async function apiKeyKeyGenerator(c: Context): Promise<string> {
   const authHeader = c.req.header('Authorization')
@@ -170,6 +173,7 @@ async function sha256(message: string): Promise<string> {
 
 /**
  * Key generator for bot requests
+ * @param c
  */
 export async function botKeyGenerator(
   c: Context<{ Bindings: Env }>

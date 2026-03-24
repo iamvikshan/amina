@@ -5,6 +5,7 @@
 
 /**
  * Get a required secret from environment variables
+ * @param key
  * @throws Error if the secret is not set
  */
 function getRequiredSecret(key: keyof Secrets): string {
@@ -19,6 +20,7 @@ function getRequiredSecret(key: keyof Secrets): string {
 
 /**
  * Get an optional secret from environment variables
+ * @param key
  */
 function getOptionalSecret(key: keyof Secrets): string | undefined {
   return process.env[key]
@@ -72,6 +74,7 @@ export function validateSecrets(): void {
  * Convert Shoutrrr Discord URL format to standard Discord webhook URL
  * Shoutrrr format: discord://TOKEN@WEBHOOK_ID
  * Standard format: https://discord.com/api/webhooks/WEBHOOK_ID/TOKEN
+ * @param shoutrrrUrl
  */
 function toDiscordWebhookUrl(
   shoutrrrUrl: string | undefined

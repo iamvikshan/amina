@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach, mock } from 'bun:test'
 import { Model } from '../src/database/schemas/Conversation'
+import type { Message as ConversationMessage } from '../src/structures/conversationBuffer'
 
 // -----------------------------------------------------------------
 // 1. Schema-level tests -- inspect the real Mongoose model/schema
@@ -72,7 +73,12 @@ describe('Conversation Persistence Schema', () => {
 // 2. Mock the Conversation DB functions for ConversationBuffer tests
 // -----------------------------------------------------------------
 const mockUpsert = mock(() => Promise.resolve())
-const mockLoad = mock(() => Promise.resolve(null))
+const mockLoad = mock(
+  (
+    _conversationId: string,
+    _ttlMs?: number
+  ): Promise<ConversationMessage[] | null> => Promise.resolve(null)
+)
 const mockDelete = mock(() => Promise.resolve())
 
 mock.module('../src/database/schemas/Conversation', () => ({

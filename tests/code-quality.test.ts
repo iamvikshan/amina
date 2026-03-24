@@ -2,6 +2,17 @@ import { describe, test, expect } from 'bun:test'
 import { svgResponse } from '../api/src/lib/svg-utils'
 import { errors } from '../api/src/lib/response'
 
+type ErrorResponseBody = {
+  success: false
+  error: {
+    message: string
+    code?: string
+  }
+  meta: {
+    generatedAt: string
+  }
+}
+
 // Minimal Hono-like Context mock for testing error helpers
 function createMockContext() {
   return {
@@ -13,6 +24,9 @@ function createMockContext() {
     },
   } as Parameters<typeof errors.notImplemented>[0]
 }
+
+const readErrorBody = (response: Response): Promise<ErrorResponseBody> =>
+  response.json() as Promise<ErrorResponseBody>
 
 describe('svgResponse', () => {
   test('returns correct Content-Type header', () => {
@@ -71,7 +85,7 @@ describe('errors.notImplemented', () => {
   test('returns default message', async () => {
     const c = createMockContext()
     const response = errors.notImplemented(c)
-    const body = await response.json()
+    const body = await readErrorBody(response)
     expect(body.success).toBe(false)
     expect(body.error.message).toBe('Not implemented')
     expect(body.error.code).toBe('NOT_IMPLEMENTED')
@@ -80,14 +94,14 @@ describe('errors.notImplemented', () => {
   test('returns custom message', async () => {
     const c = createMockContext()
     const response = errors.notImplemented(c, 'Feature coming soon')
-    const body = await response.json()
+    const body = await readErrorBody(response)
     expect(body.error.message).toBe('Feature coming soon')
   })
 
   test('response has standard error shape with meta', async () => {
     const c = createMockContext()
     const response = errors.notImplemented(c)
-    const body = await response.json()
+    const body = await readErrorBody(response)
     expect(body).toHaveProperty('success')
     expect(body).toHaveProperty('error')
     expect(body).toHaveProperty('meta')

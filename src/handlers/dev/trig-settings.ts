@@ -13,6 +13,7 @@ import type { Client, Guild } from 'discord.js'
 
 /**
  * Show trigger settings menu
+ * @param interaction
  */
 export async function showTrigSettings(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -51,6 +52,7 @@ export async function showTrigSettings(
 
 /**
  * Handle channel select for trigger settings
+ * @param interaction
  */
 export async function handleTrigSettingsChannelSelect(
   interaction: ChannelSelectMenuInteraction
@@ -68,6 +70,7 @@ export async function handleTrigSettingsChannelSelect(
 
 /**
  * Handle trigger confirm button (trigger for all servers)
+ * @param interaction
  */
 export async function handleTrigSettingsConfirm(
   interaction: ButtonInteraction
@@ -79,6 +82,9 @@ export async function handleTrigSettingsConfirm(
 
 /**
  * Trigger onboarding for server(s)
+ * @param client
+ * @param serverId
+ * @param interaction
  */
 async function triggerOnboarding(
   client: Client,

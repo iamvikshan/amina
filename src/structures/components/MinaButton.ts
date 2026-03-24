@@ -52,6 +52,8 @@ export function parseState(customId: string): Record<string, string | number> {
 /**
  * Build custom_id with state
  * Format: base|key1:value1|key2:value2
+ * @param base
+ * @param state
  * @example buildCustomId('roles:menu:cleanup', { page: 2, filter: 'prefix' })
  *   -> 'roles:menu:cleanup|page:2|filter:prefix'
  */

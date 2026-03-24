@@ -5,6 +5,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 /**
  * Handle adding a new color to the server palette
  * Requires ManageRoles permission
+ * @param interaction
  */
 export async function handleAddColor(
   interaction: ChatInputCommandInteraction

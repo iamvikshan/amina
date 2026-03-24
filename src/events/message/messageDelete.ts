@@ -6,6 +6,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 /**
  * Handles message deletion events
  * @param {BotClient} client - The bot client instance
+ * @param _client
  * @param {Message | PartialMessage} message - The deleted message
  */
 export default async (

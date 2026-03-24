@@ -6,6 +6,7 @@ import { Logger } from '@helpers/Logger'
 
 /**
  * Show confirmation for close all operation
+ * @param interaction
  */
 export async function showCloseAllConfirmation(
   interaction: StringSelectMenuInteraction
@@ -36,6 +37,7 @@ export async function showCloseAllConfirmation(
 
 /**
  * Handle close all confirmation
+ * @param interaction
  */
 export async function handleCloseAllConfirm(
   interaction: ButtonInteraction
@@ -101,6 +103,7 @@ export async function handleCloseAllConfirm(
 
 /**
  * Handle close all cancellation
+ * @param interaction
  */
 export async function handleCloseAllCancel(
   interaction: ButtonInteraction

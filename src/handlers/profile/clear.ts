@@ -11,6 +11,7 @@ import { Logger } from '@helpers/Logger'
 /**
  * Legacy handler for old String Select Menu clear confirmation
  * Kept for backward compatibility
+ * @param interaction
  */
 export async function handleProfileClear(
   interaction: StringSelectMenuInteraction
@@ -49,6 +50,7 @@ export async function handleProfileClear(
 
 /**
  * Show clear profile confirmation
+ * @param interaction
  */
 export async function showClearConfirmation(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -99,6 +101,7 @@ export async function showClearConfirmation(
 
 /**
  * Handle clear profile confirmation
+ * @param interaction
  */
 export async function handleClearConfirm(
   interaction: ButtonInteraction
@@ -127,6 +130,7 @@ export async function handleClearConfirm(
 
 /**
  * Handle clear profile cancellation
+ * @param interaction
  */
 export async function handleClearCancel(
   interaction: ButtonInteraction

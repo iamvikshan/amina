@@ -12,6 +12,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show settings menu for user preferences
+ * @param interaction
  */
 export async function showSettings(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -111,6 +112,7 @@ export async function showSettings(
 
 /**
  * Handle settings menu selection
+ * @param interaction
  */
 export async function handleSettingsMenu(
   interaction: StringSelectMenuInteraction

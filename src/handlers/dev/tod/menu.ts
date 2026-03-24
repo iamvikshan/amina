@@ -10,6 +10,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Truth or Dare operations menu
+ * @param interaction
  */
 export async function showTodMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -51,6 +52,7 @@ export async function showTodMenu(
 
 /**
  * Handle ToD operation selection
+ * @param interaction
  */
 export async function handleTodMenu(
   interaction: StringSelectMenuInteraction

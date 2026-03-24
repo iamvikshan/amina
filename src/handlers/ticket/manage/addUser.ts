@@ -13,6 +13,7 @@ import Logger from '@helpers/Logger'
 
 /**
  * Show user select for adding users to ticket
+ * @param interaction
  */
 export async function showAddUserSelect(
   interaction: StringSelectMenuInteraction
@@ -60,6 +61,7 @@ export async function showAddUserSelect(
 
 /**
  * Handle user selection for adding to ticket
+ * @param interaction
  */
 export async function handleAddUserSelect(
   interaction: UserSelectMenuInteraction

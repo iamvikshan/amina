@@ -15,6 +15,7 @@ export const numericStatFields = [
 /**
  * Validate bot stats payload.
  * Each numeric field must be a finite, non-negative number.
+ * @param stats
  */
 export function validateBotStats(stats: Record<string, unknown>): {
   valid: boolean

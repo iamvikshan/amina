@@ -111,7 +111,10 @@ export type EnvDependencies = {
   input?: NodeJS.ReadableStream
 }
 
-/** Parse KEY=VALUE lines, skipping comments and blanks. */
+/**
+ * Parse KEY=VALUE lines, skipping comments and blanks.
+ * @param content
+ */
 function parseEnv(content: string): Map<string, string> {
   const map = new Map<string, string>()
   for (const line of content.split('\n')) {
@@ -131,7 +134,10 @@ function parseEnv(content: string): Map<string, string> {
   return map
 }
 
-/** Validate env content string for required and optional keys. */
+/**
+ * Validate env content string for required and optional keys.
+ * @param content
+ */
 export function validateEnv(content: string): {
   ok: boolean
   errors: string[]
@@ -157,7 +163,10 @@ export function validateEnv(content: string): {
   return { ok: errors.length === 0, errors, warnings }
 }
 
-/** Interactive guided env configuration. */
+/**
+ * Interactive guided env configuration.
+ * @param prompts
+ */
 export async function envGuidedMode(prompts: PromptsFn): Promise<string> {
   const lines: string[] = []
 
@@ -195,7 +204,11 @@ export async function envGuidedMode(prompts: PromptsFn): Promise<string> {
   return lines.join('\n')
 }
 
-/** Paste env content line-by-line from stdin. */
+/**
+ * Paste env content line-by-line from stdin.
+ * @param prompts
+ * @param input
+ */
 export async function envPasteMode(
   prompts: PromptsFn,
   input?: NodeJS.ReadableStream
@@ -228,7 +241,11 @@ export async function envPasteMode(
   })
 }
 
-/** Import env from an existing file path. */
+/**
+ * Import env from an existing file path.
+ * @param prompts
+ * @param deps
+ */
 export async function envImportMode(
   prompts: PromptsFn,
   deps: EnvDependencies = {}
@@ -262,7 +279,12 @@ export async function envImportMode(
   return readFile(resolved)
 }
 
-/** Run env configuration in the selected mode. */
+/**
+ * Run env configuration in the selected mode.
+ * @param prompts
+ * @param mode
+ * @param deps
+ */
 export async function configureEnv(
   prompts: PromptsFn,
   mode: EnvMode,

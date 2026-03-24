@@ -9,6 +9,7 @@ import { escapeXml, sanitizeUrl } from '../svg-utils'
 
 /**
  * Generate a Spotify card SVG
+ * @param options
  */
 export function generateSpotifyCard(options: SpotifyCardOptions): string {
   // Normalize and clamp progress to [0, 100]
@@ -120,6 +121,8 @@ export function generateSpotifyCard(options: SpotifyCardOptions): string {
 
 /**
  * Truncate text with ellipsis
+ * @param text
+ * @param maxLength
  */
 function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text

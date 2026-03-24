@@ -14,6 +14,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handle roles operation selection from main hub
+ * @param interaction
  */
 export async function handleRolesOperationMenu(
   interaction: StringSelectMenuInteraction
@@ -47,6 +48,7 @@ export async function handleRolesOperationMenu(
 
 /**
  * Handle back button to return to main roles hub
+ * @param interaction
  */
 export async function handleRolesBackButton(
   interaction: ButtonInteraction

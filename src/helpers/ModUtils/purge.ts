@@ -5,6 +5,11 @@ import { logModeration } from './core'
 
 /**
  * Delete the specified number of messages matching the type
+ * @param issuer
+ * @param channel
+ * @param type
+ * @param amount
+ * @param argument
  */
 export async function purgeMessages(
   issuer: GuildMember,

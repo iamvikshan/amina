@@ -13,6 +13,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Server Settings submenu
+ * @param interaction
  */
 export async function showServerSettingsMenu(
   interaction: StringSelectMenuInteraction
@@ -68,6 +69,7 @@ export async function showServerSettingsMenu(
 
 /**
  * Handle Server Settings action selection
+ * @param interaction
  */
 export async function handleServerSettingsMenu(
   interaction: StringSelectMenuInteraction
@@ -102,6 +104,8 @@ export async function handleServerSettingsMenu(
 
 /**
  * Show channel selector for updates channel
+ * @param interaction
+ * @param action
  */
 async function showChannelSelector(
   interaction: StringSelectMenuInteraction,
@@ -132,6 +136,8 @@ async function showChannelSelector(
 
 /**
  * Show role selector for staff roles
+ * @param interaction
+ * @param action
  */
 async function showRoleSelector(
   interaction: StringSelectMenuInteraction,

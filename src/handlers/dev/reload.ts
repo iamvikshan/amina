@@ -13,6 +13,7 @@ import { mina } from '@helpers/mina'
 
 /**
  * Show reload menu
+ * @param interaction
  */
 export async function showReloadMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -56,6 +57,7 @@ export async function showReloadMenu(
 
 /**
  * Handle reload type selection
+ * @param interaction
  */
 export async function handleReloadType(
   interaction: StringSelectMenuInteraction

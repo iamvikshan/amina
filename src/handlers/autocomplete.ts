@@ -27,6 +27,7 @@ export function registerAutocomplete(
 /**
  * Handle autocomplete interaction
  * Routes to the appropriate provider based on command and option name
+ * @param interaction
  */
 export async function handleAutocomplete(
   interaction: AutocompleteInteraction

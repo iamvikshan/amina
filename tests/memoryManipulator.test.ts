@@ -70,7 +70,21 @@ mock.module('openai', () => ({
 }))
 
 // Mock database schemas
-const mockSaveMemory = mock((): Promise<any> => Promise.resolve())
+type SavedMemoryPayload = {
+  userId: string
+  guildId: string | null
+  memoryType: string
+  key: string
+  value: string
+  context: string
+  importance: number
+  embedding?: number[]
+  vectorId?: string
+}
+
+const mockSaveMemory = mock(
+  (_payload: SavedMemoryPayload): Promise<void> => Promise.resolve()
+)
 const mockGetUserMemoryCount = mock((): Promise<any> => Promise.resolve(0))
 const mockPruneLeastImportantMemories = mock(
   (): Promise<any> => Promise.resolve({ deletedCount: 0 })
@@ -198,7 +212,6 @@ describe('MemoryManipulator', () => {
       mistralApiKey: 'test-mistral-key',
       voyageApiKey: 'test-voyage-key',
       embeddingModel: 'voyage-4-lite',
-      extractionModel: 'gemini-3.1-flash-lite-preview',
     })
 
     // Initialize registry (lightweight test double)

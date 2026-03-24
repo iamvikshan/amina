@@ -10,6 +10,8 @@
 
 /**
  * Get bot metadata by client ID
+ * @param kv
+ * @param clientId
  */
 export async function getBotMeta(
   kv: KVNamespace,
@@ -33,6 +35,9 @@ export async function getBotMeta(
 
 /**
  * Update bot metadata
+ * @param kv
+ * @param clientId
+ * @param updates
  */
 export async function updateBotMeta(
   kv: KVNamespace,
@@ -58,6 +63,8 @@ export async function updateBotMeta(
 
 /**
  * Update bot's lastSeen timestamp (heartbeat)
+ * @param kv
+ * @param clientId
  */
 export async function updateBotHeartbeat(
   kv: KVNamespace,
@@ -74,6 +81,12 @@ export async function updateBotHeartbeat(
  * NOTE: Pagination is applied after loading the full KV dataset because
  * KV prefix listing doesn't support efficient offset-based pagination.
  * For large bot counts, consider migrating to D1 or Durable Objects.
+ * @param kv
+ * @param options
+ * @param options.publicOnly
+ * @param options.ownerId
+ * @param options.limit
+ * @param options.page
  */
 export async function listBots(
   kv: KVNamespace,
@@ -171,6 +184,8 @@ export async function listBots(
 
 /**
  * Get bot statistics
+ * @param kv
+ * @param clientId
  */
 async function getBotStats(
   kv: KVNamespace,
@@ -194,6 +209,9 @@ async function getBotStats(
 
 /**
  * Push bot statistics
+ * @param kv
+ * @param clientId
+ * @param stats
  */
 export async function pushBotStats(
   kv: KVNamespace,
@@ -222,6 +240,8 @@ export async function pushBotStats(
 
 /**
  * Get combined bot info (meta + stats)
+ * @param kv
+ * @param clientId
  */
 export async function getBotInfo(
   kv: KVNamespace,
@@ -245,6 +265,8 @@ export async function getBotInfo(
 
 /**
  * Get bot commands
+ * @param kv
+ * @param clientId
  */
 export async function getBotCommands(
   kv: KVNamespace,
@@ -268,6 +290,9 @@ export async function getBotCommands(
 
 /**
  * Update bot commands
+ * @param kv
+ * @param clientId
+ * @param commands
  */
 export async function updateBotCommands(
   kv: KVNamespace,
@@ -292,6 +317,9 @@ export async function updateBotCommands(
 
 /**
  * Check if a bot is online (has recent heartbeat)
+ * @param kv
+ * @param clientId
+ * @param maxAgeMs
  */
 export async function isBotOnline(
   kv: KVNamespace,
@@ -318,6 +346,8 @@ export async function isBotOnline(
 
 /**
  * Get bot avatar URL
+ * @param clientId
+ * @param avatarHash
  */
 export function getBotAvatarUrl(
   clientId: string,

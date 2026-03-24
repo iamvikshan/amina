@@ -162,6 +162,7 @@ function getFallbackQuotes(): Quote[] {
 
 /**
  * Get a random item from an array
+ * @param arr
  */
 function random<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -204,6 +205,8 @@ export const mina = {
 
   /**
    * Legacy version with category/subcategory params
+   * @param category
+   * @param subcategory
    * @deprecated Use say('category.subcategory') instead
    */
   sayLegacy: (category: string, subcategory?: string): string => {
@@ -222,6 +225,7 @@ export const mina = {
 
   /**
    * Get random emoticon by mood
+   * @param mood
    */
   emote: (mood: EmoticonMood): string => {
     const pool = responses.emoticons[mood]
@@ -339,6 +343,7 @@ export const mina = {
 
   /**
    * Get color by name (flexible lookup)
+   * @param name
    */
   getColor: (name: string): ColorResolvable => {
     // Check embed colors first
@@ -367,57 +372,70 @@ export const mina = {
 
   /**
    * Create a markdown link
+   * @param text
+   * @param url
    */
   link: (text: string, url: string): string => `[${text}](${url})`,
 
   /**
    * Italicize text
+   * @param text
    */
   italic: (text: string): string => `*${text}*`,
 
   /**
    * Bold text
+   * @param text
    */
   bold: (text: string): string => `**${text}**`,
 
   /**
    * Bold + italic
+   * @param text
    */
   boldItalic: (text: string): string => `***${text}***`,
 
   /**
    * Strikethrough text
+   * @param text
    */
   strike: (text: string): string => `~~${text}~~`,
 
   /**
    * Underline text
+   * @param text
    */
   underline: (text: string): string => `__${text}__`,
 
   /**
    * Spoiler text
+   * @param text
    */
   spoiler: (text: string): string => `||${text}||`,
 
   /**
    * Inline code
+   * @param text
    */
   code: (text: string): string => `\`${text}\``,
 
   /**
    * Code block with optional language
+   * @param text
+   * @param lang
    */
   codeBlock: (text: string, lang = ''): string =>
     `\`\`\`${lang}\n${text}\n\`\`\``,
 
   /**
    * Block quote (discord style)
+   * @param text
    */
   blockQuote: (text: string): string => `> ${text}`,
 
   /**
    * Multi-line block quote
+   * @param text
    */
   blockQuoteMulti: (text: string): string => `>>> ${text}`,
 }

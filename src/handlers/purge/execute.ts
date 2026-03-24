@@ -5,6 +5,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handle purge confirmation and execution
+ * @param interaction
  */
 export async function handlePurgeConfirm(
   interaction: ButtonInteraction
@@ -174,6 +175,7 @@ export async function handlePurgeConfirm(
 
 /**
  * Handle purge cancellation
+ * @param interaction
  */
 export async function handlePurgeCancel(
   interaction: ButtonInteraction
@@ -195,6 +197,7 @@ export async function handlePurgeCancel(
 
 /**
  * Get human-readable label for purge type
+ * @param type
  */
 function getPurgeTypeLabel(type: string): string {
   const labels: Record<string, string> = {

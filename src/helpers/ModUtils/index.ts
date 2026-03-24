@@ -29,6 +29,10 @@ export * from './voice'
 
 /**
  * Add a moderation action based on the action type
+ * @param issuer
+ * @param target
+ * @param reason
+ * @param action
  */
 export async function addModAction(
   issuer: GuildMember,
@@ -63,6 +67,8 @@ export async function addModAction(
 export default class ModUtils {
   /**
    * Check if issuer can moderate target
+   * @param issuer
+   * @param target
    */
   static canModerate(issuer: GuildMember, target: GuildMember): boolean {
     const { guild } = issuer
@@ -73,6 +79,10 @@ export default class ModUtils {
 
   /**
    * Add a moderation action
+   * @param issuer
+   * @param target
+   * @param reason
+   * @param action
    */
   static async addModAction(
     issuer: GuildMember,
@@ -85,6 +95,11 @@ export default class ModUtils {
 
   /**
    * Delete messages based on type
+   * @param issuer
+   * @param channel
+   * @param type
+   * @param amount
+   * @param argument
    */
   static async purgeMessages(
     issuer: GuildMember,
@@ -98,6 +113,9 @@ export default class ModUtils {
 
   /**
    * Warn a target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async warnTarget(
     issuer: GuildMember,
@@ -109,6 +127,10 @@ export default class ModUtils {
 
   /**
    * Timeout a target member
+   * @param issuer
+   * @param target
+   * @param ms
+   * @param reason
    */
   static async timeoutTarget(
     issuer: GuildMember,
@@ -121,6 +143,9 @@ export default class ModUtils {
 
   /**
    * Remove timeout from target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async unTimeoutTarget(
     issuer: GuildMember,
@@ -132,6 +157,9 @@ export default class ModUtils {
 
   /**
    * Kick a target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async kickTarget(
     issuer: GuildMember,
@@ -143,6 +171,9 @@ export default class ModUtils {
 
   /**
    * Softban a target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async softbanTarget(
     issuer: GuildMember,
@@ -154,6 +185,9 @@ export default class ModUtils {
 
   /**
    * Ban a target user
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async banTarget(
     issuer: GuildMember,
@@ -165,6 +199,9 @@ export default class ModUtils {
 
   /**
    * Unban a target user
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async unBanTarget(
     issuer: GuildMember,
@@ -176,6 +213,9 @@ export default class ModUtils {
 
   /**
    * Voice mute a target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async vMuteTarget(
     issuer: GuildMember,
@@ -187,6 +227,9 @@ export default class ModUtils {
 
   /**
    * Voice unmute a target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async vUnmuteTarget(
     issuer: GuildMember,
@@ -198,6 +241,9 @@ export default class ModUtils {
 
   /**
    * Deafen a target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async deafenTarget(
     issuer: GuildMember,
@@ -209,6 +255,9 @@ export default class ModUtils {
 
   /**
    * Undeafen a target member
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async unDeafenTarget(
     issuer: GuildMember,
@@ -220,6 +269,9 @@ export default class ModUtils {
 
   /**
    * Disconnect a target member from voice
+   * @param issuer
+   * @param target
+   * @param reason
    */
   static async disconnectTarget(
     issuer: GuildMember,
@@ -231,6 +283,10 @@ export default class ModUtils {
 
   /**
    * Move a target member to another voice channel
+   * @param issuer
+   * @param target
+   * @param reason
+   * @param channel
    */
   static async moveTarget(
     issuer: GuildMember,

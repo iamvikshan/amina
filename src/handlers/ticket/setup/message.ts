@@ -20,6 +20,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show channel select for ticket message setup
+ * @param interaction
  */
 export async function showMessageChannelSelect(
   interaction: StringSelectMenuInteraction
@@ -47,6 +48,7 @@ export async function showMessageChannelSelect(
 
 /**
  * Handle channel selection for ticket message
+ * @param interaction
  */
 export async function handleMessageChannelSelect(
   interaction: ChannelSelectMenuInteraction
@@ -93,6 +95,8 @@ export async function handleMessageChannelSelect(
 
 /**
  * Show modal for ticket message customization
+ * @param interaction
+ * @param channel
  */
 async function showTicketMessageModal(
   interaction: ChannelSelectMenuInteraction,
@@ -140,6 +144,7 @@ async function showTicketMessageModal(
 
 /**
  * Handle ticket message modal submission
+ * @param interaction
  */
 export async function handleTicketMessageModal(
   interaction: ModalSubmitInteraction

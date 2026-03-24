@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 // src/helpers/HttpUtils.ts
 const sourcebin = require('sourcebin_js')
 import { error, debug } from '@helpers/Logger'

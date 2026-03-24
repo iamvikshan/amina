@@ -234,6 +234,10 @@ export async function applyImportanceDecay(
  * Used for semantic deduplication before storing new memories.
  * Scoped to the same userId + guildId + memoryType to prevent cross-category merges.
  * Returns the best match with its similarity score, or null if no match found.
+ * @param queryVector
+ * @param userId
+ * @param guildId
+ * @param memoryType
  */
 export async function findSimilarMemory(
   queryVector: number[],

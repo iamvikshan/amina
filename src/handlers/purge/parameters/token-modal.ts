@@ -9,6 +9,7 @@ import {
 
 /**
  * Show token/keyword input modal
+ * @param interaction
  */
 export async function showTokenModal(
   interaction: StringSelectMenuInteraction
@@ -35,6 +36,7 @@ export async function showTokenModal(
 
 /**
  * Handle token modal submission
+ * @param interaction
  */
 export async function handleTokenModal(
   interaction: ModalSubmitInteraction

@@ -9,6 +9,7 @@ import { escapeXml, sanitizeUrl, validateHexColor } from '../svg-utils'
 
 /**
  * Generate a welcome/farewell card SVG
+ * @param options
  */
 export function generateWelcomeCard(options: WelcomeCardOptions): string {
   const type = options.type || 'welcome'

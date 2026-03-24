@@ -10,6 +10,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main dev hub with category selection
+ * @param interaction
  */
 export async function showDevHub(
   interaction:
@@ -77,6 +78,7 @@ export async function showDevHub(
 
 /**
  * Handle category selection
+ * @param interaction
  */
 export async function handleCategoryMenu(
   interaction: StringSelectMenuInteraction
@@ -135,6 +137,7 @@ export async function handleCategoryMenu(
 
 /**
  * Handle back button - return to main hub
+ * @param interaction
  */
 export async function handleDevBackButton(
   interaction: ButtonInteraction

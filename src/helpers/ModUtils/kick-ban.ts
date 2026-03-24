@@ -4,6 +4,9 @@ import { memberInteract, logModeration } from './core'
 
 /**
  * Kicks the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function kickTarget(
   issuer: GuildMember,
@@ -26,6 +29,9 @@ export async function kickTarget(
 
 /**
  * Softbans the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function softbanTarget(
   issuer: GuildMember,
@@ -49,6 +55,9 @@ export async function softbanTarget(
 
 /**
  * Bans the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function banTarget(
   issuer: GuildMember,
@@ -76,6 +85,9 @@ export async function banTarget(
 
 /**
  * Unbans the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function unBanTarget(
   issuer: GuildMember,

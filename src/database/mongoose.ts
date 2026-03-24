@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 import mongoose from 'mongoose'
 import { /*log,*/ success, error } from '@helpers/Logger'
 import { secret } from '@src/config'

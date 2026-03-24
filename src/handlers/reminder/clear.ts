@@ -7,6 +7,7 @@ import { showReminderHub } from './main-hub'
 
 /**
  * Show clear all confirmation
+ * @param interaction
  */
 export async function showClearConfirmation(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -48,6 +49,7 @@ export async function showClearConfirmation(
 
 /**
  * Handle clear confirmation
+ * @param interaction
  */
 export async function handleClearConfirm(
   interaction: ButtonInteraction
@@ -74,6 +76,7 @@ export async function handleClearConfirm(
 
 /**
  * Handle clear cancellation
+ * @param interaction
  */
 export async function handleClearCancel(
   interaction: ButtonInteraction

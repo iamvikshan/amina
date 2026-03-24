@@ -32,6 +32,9 @@ export interface MinaSelectOption {
 export class MinaSelect extends StringSelectMenuBuilder {
   /**
    * Create a select menu with options
+   * @param customId
+   * @param placeholder
+   * @param options
    */
   static create(
     customId: string,
@@ -61,6 +64,9 @@ export class MinaSelect extends StringSelectMenuBuilder {
 
   /**
    * Create a select menu wrapped in an action row
+   * @param customId
+   * @param placeholder
+   * @param options
    */
   static row(
     customId: string,
@@ -74,6 +80,7 @@ export class MinaSelect extends StringSelectMenuBuilder {
 
   /**
    * Wrap an existing select menu in an action row
+   * @param menu
    */
   static wrapInRow(menu: MinaSelect): ActionRowBuilder<MinaSelect> {
     return new ActionRowBuilder<MinaSelect>().addComponents(menu)

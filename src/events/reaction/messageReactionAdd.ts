@@ -10,6 +10,7 @@ import type {
 /**
  * Handles message reaction add events
  * @param {BotClient} client - The bot client instance
+ * @param _client
  * @param {MessageReaction | PartialMessageReaction} reaction - The reaction that was added
  * @param {User | PartialUser} user - The user who added the reaction
  */

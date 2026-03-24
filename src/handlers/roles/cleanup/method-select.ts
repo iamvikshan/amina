@@ -9,6 +9,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show cleanup method selection menu
+ * @param interaction
  */
 export async function showCleanupMethodMenu(
   interaction: StringSelectMenuInteraction
@@ -56,6 +57,7 @@ export async function showCleanupMethodMenu(
 
 /**
  * Handle cleanup method selection
+ * @param interaction
  */
 export async function handleCleanupMethodMenu(
   interaction: StringSelectMenuInteraction

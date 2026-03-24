@@ -92,6 +92,7 @@ describe('AiClient', () => {
       geminiApiKey: 'test-gemini-key',
       mistralApiKey: 'test-mistral-key',
       model: 'gemini-flash-latest',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
       timeout: 30000,
     })
   })
@@ -162,6 +163,7 @@ describe('AiClient', () => {
     const noFallbackClient = new AiClient({
       geminiApiKey: 'test-key',
       model: 'gemini-flash-latest',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
       timeout: 30000,
     })
 
@@ -283,6 +285,7 @@ describe('AiClient', () => {
     const shortTimeoutClient = new AiClient({
       geminiApiKey: 'test-key',
       model: 'gemini-flash-latest',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
       timeout: 10,
     })
 
@@ -508,6 +511,7 @@ describe('AiClient', () => {
     const noFallbackClient = new AiClient({
       geminiApiKey: 'test-key',
       model: 'gemini-flash-latest',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
       timeout: 30000,
     })
     mockGeminiCreate.mockImplementation(() => {
@@ -526,6 +530,7 @@ describe('AiClient', () => {
       geminiApiKey: 'test-key',
       mistralApiKey: 'test-mistral-key',
       model: 'gemini-flash-latest',
+      extractionModel: 'gemini-3.1-flash-lite-preview',
       timeout: 30000,
     })
 
@@ -549,7 +554,7 @@ describe('AiClient', () => {
   })
 
   test('Gemini sanitizes tool_calls history into plain text messages', async () => {
-    const historyWithToolCalls = [
+    const historyWithToolCalls: ChatMessage[] = [
       { role: 'user', content: 'check uptime' },
       {
         role: 'assistant',
@@ -587,6 +592,107 @@ describe('AiClient', () => {
     expect(toolResultUser).toBeDefined()
     expect(toolResultUser.content).toContain('uptime')
     expect(toolResultUser.content).toContain('Uptime: 5h')
+  })
+
+  describe('extractAnalysis', () => {
+    const validExtraction = JSON.stringify({
+      intent: 'greeting',
+      tools: [],
+      memories: [],
+      statusText: 'Thinking...',
+    })
+
+    test('returns parsed ExtractionResult from Gemini', async () => {
+      mockGeminiCreate.mockImplementationOnce(() =>
+        Promise.resolve({
+          choices: [{ message: { content: validExtraction } }],
+        })
+      )
+
+      const result = await client.extractAnalysis(
+        'System prompt',
+        [],
+        'Hello there',
+        '- greet: Say hello (params: none)'
+      )
+
+      expect(result.intent).toBe('greeting')
+      expect(result.tools).toEqual([])
+      expect(result.memories).toEqual([])
+      expect(result.statusText).toBe('Thinking...')
+    })
+
+    test('falls back to Mistral on Gemini failure', async () => {
+      mockGeminiCreate.mockImplementationOnce(() =>
+        Promise.reject(new Error('Gemini down'))
+      )
+      mockMistralCreate.mockImplementationOnce(() =>
+        Promise.resolve({
+          choices: [{ message: { content: validExtraction } }],
+        })
+      )
+
+      const result = await client.extractAnalysis(
+        'System prompt',
+        [],
+        'Hello',
+        ''
+      )
+
+      expect(result.intent).toBe('greeting')
+      expect(mockMistralCreate).toHaveBeenCalled()
+    })
+
+    test('handles tools and memories in extraction', async () => {
+      const withTools = JSON.stringify({
+        intent: 'ban user',
+        tools: [{ name: 'moderation_ban', args: { user: '123' } }],
+        memories: [
+          {
+            key: 'name',
+            value: 'Alice',
+            importance: 8,
+            memoryType: 'user',
+          },
+        ],
+        statusText: 'On it...',
+      })
+      mockGeminiCreate.mockImplementationOnce(() =>
+        Promise.resolve({
+          choices: [{ message: { content: withTools } }],
+        })
+      )
+
+      const result = await client.extractAnalysis(
+        'System',
+        [],
+        'Ban user 123',
+        ''
+      )
+
+      expect(result.tools).toHaveLength(1)
+      expect(result.tools[0].name).toBe('moderation_ban')
+      expect(result.tools[0].args).toEqual({ user: '123' })
+      expect(result.memories).toHaveLength(1)
+      expect(result.memories[0].key).toBe('name')
+    })
+
+    test('throws on malformed JSON from both providers', async () => {
+      mockGeminiCreate.mockImplementationOnce(() =>
+        Promise.resolve({
+          choices: [{ message: { content: 'not json' } }],
+        })
+      )
+      mockMistralCreate.mockImplementationOnce(() =>
+        Promise.resolve({
+          choices: [{ message: { content: 'also not json' } }],
+        })
+      )
+
+      await expect(
+        client.extractAnalysis('System', [], 'Hello', '')
+      ).rejects.toThrow()
+    })
   })
 })
 

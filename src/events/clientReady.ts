@@ -43,7 +43,6 @@ export default async (client: BotClient): Promise<void> => {
       voyageApiKey: aiConfig.voyageApiKey,
       voyageMongoApiKey: aiConfig.voyageMongoApiKey,
       embeddingModel: aiConfig.embeddingModel,
-      extractionModel: aiConfig.extractionModel,
       dedupThreshold: aiConfig.dedupThreshold,
     })
 

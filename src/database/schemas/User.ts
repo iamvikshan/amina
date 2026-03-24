@@ -182,6 +182,8 @@ export async function removeAllFlags(userId: string) {
 
 /**
  * Remove flags from a specific server only
+ * @param userId
+ * @param serverId
  */
 export async function removeFlagsByServer(userId: string, serverId: string) {
   const user = await Model.findByIdAndUpdate(
@@ -197,6 +199,13 @@ export async function removeFlagsByServer(userId: string, serverId: string) {
 /**
  * Add a flag from a moderation action
  * Formats the reason as "{actionType} by {issuerDisplayName}: {reason}" or "{actionType} by {issuerDisplayName}: No reason provided"
+ * @param userId
+ * @param reason
+ * @param flaggedBy
+ * @param flaggedByDisplayName
+ * @param serverId
+ * @param serverName
+ * @param actionType
  */
 export async function addFlagFromModAction(
   userId: string,

@@ -14,6 +14,7 @@ import type { Context } from 'hono'
  * Convert Shoutrrr Discord URL format to standard Discord webhook URL
  * Shoutrrr format: discord://TOKEN@WEBHOOK_ID
  * Standard format: https://discord.com/api/webhooks/WEBHOOK_ID/TOKEN
+ * @param shoutrrrUrl
  */
 function toDiscordWebhookUrl(
   shoutrrrUrl: string | undefined
@@ -133,6 +134,8 @@ export class Logger {
 
   /**
    * Log an informational message (console only)
+   * @param message
+   * @param details
    */
   info(message: string, details?: Record<string, unknown>): void {
     if (details !== undefined) {
@@ -144,6 +147,8 @@ export class Logger {
 
   /**
    * Log a warning with Discord webhook notification
+   * @param message
+   * @param details
    */
   warn(message: string, details?: Record<string, unknown>): void {
     // Always log to console for Cloudflare dashboard
@@ -161,6 +166,9 @@ export class Logger {
 
   /**
    * Log an error with Discord webhook notification
+   * @param message
+   * @param error
+   * @param details
    */
   error(
     message: string,
@@ -204,6 +212,9 @@ export class Logger {
 
   /**
    * Send log message to Discord webhook (runs in background via waitUntil)
+   * @param level
+   * @param message
+   * @param details
    */
   private sendToDiscord(
     level: 'warning' | 'error',
@@ -286,6 +297,7 @@ export class Logger {
 
 /**
  * Create a logger instance from Hono context
+ * @param c
  */
 export function createLogger(c: Context<any, any, any>): Logger {
   return new Logger(c)

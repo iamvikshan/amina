@@ -15,6 +15,7 @@ import { mina } from '@helpers/mina'
 
 /**
  * Send onboarding menu to a channel
+ * @param channel
  */
 async function sendOnboardingMenu(channel: TextChannel): Promise<void> {
   const embed = MinaEmbed.primary()
@@ -36,6 +37,7 @@ async function sendOnboardingMenu(channel: TextChannel): Promise<void> {
 
 /**
  * Handle setup button click
+ * @param interaction
  */
 async function handleSetupButton(
   interaction: ButtonInteraction
@@ -73,6 +75,7 @@ async function handleSetupButton(
 
 /**
  * Handle setup modal submission
+ * @param interaction
  */
 async function handleSetupModal(
   interaction: ModalSubmitInteraction
@@ -160,6 +163,7 @@ async function handleSetupModal(
 
 /**
  * Handle remind button click
+ * @param interaction
  */
 async function handleRemindButton(
   interaction: ButtonInteraction
@@ -187,6 +191,7 @@ async function handleRemindButton(
 
 /**
  * Handle remind modal submission
+ * @param interaction
  */
 async function handleRemindModal(
   interaction: ModalSubmitInteraction

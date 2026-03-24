@@ -39,6 +39,7 @@ const Model = mongoose.model<IReminderDocument>('reminder', Schema)
 
 /**
  * Get next reminder ID for a user
+ * @param userId
  */
 async function getNextReminderId(userId: string): Promise<number> {
   const lastReminder = await Model.findOne({ user_id: userId })
@@ -51,6 +52,11 @@ async function getNextReminderId(userId: string): Promise<number> {
 
 /**
  * Create a new reminder
+ * @param userId
+ * @param message
+ * @param remindAt
+ * @param channelId
+ * @param guildId
  */
 export async function createReminder(
   userId: string,
@@ -80,6 +86,8 @@ export async function createReminder(
 
 /**
  * Get all active reminders for a user
+ * @param userId
+ * @param includeNotified
  */
 export async function getUserReminders(
   userId: string,
@@ -97,6 +105,8 @@ export async function getUserReminders(
 
 /**
  * Get a specific reminder by user ID and reminder ID
+ * @param userId
+ * @param reminderId
  */
 export async function getReminder(
   userId: string,
@@ -115,6 +125,9 @@ export async function getReminder(
 
 /**
  * Update reminder message
+ * @param userId
+ * @param reminderId
+ * @param newMessage
  */
 export async function updateReminderMessage(
   userId: string,
@@ -134,6 +147,9 @@ export async function updateReminderMessage(
 
 /**
  * Update reminder time
+ * @param userId
+ * @param reminderId
+ * @param newRemindAt
  */
 export async function updateReminderTime(
   userId: string,
@@ -153,6 +169,8 @@ export async function updateReminderTime(
 
 /**
  * Mark reminder as notified
+ * @param userId
+ * @param reminderId
  */
 export async function markReminderNotified(
   userId: string,
@@ -171,6 +189,8 @@ export async function markReminderNotified(
 
 /**
  * Delete a reminder
+ * @param userId
+ * @param reminderId
  */
 export async function deleteReminder(
   userId: string,
@@ -184,6 +204,7 @@ export async function deleteReminder(
 
 /**
  * Delete all reminders for a user
+ * @param userId
  */
 export async function deleteAllUserReminders(userId: string): Promise<number> {
   const result = await Model.deleteMany({ user_id: userId })
@@ -210,6 +231,8 @@ export async function getDueReminders(): Promise<IReminderDocument[]> {
 
 /**
  * Get reminder count for a user
+ * @param userId
+ * @param includeNotified
  */
 export async function getUserReminderCount(
   userId: string,

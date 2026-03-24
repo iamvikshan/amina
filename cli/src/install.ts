@@ -51,7 +51,10 @@ export type InstallDependencies = {
   }
 }
 
-/** Check and optionally install prerequisites based on mode. */
+/**
+ * Check and optionally install prerequisites based on mode.
+ * @param deps
+ */
 export async function ensurePrerequisites(
   deps: InstallDependencies
 ): Promise<{ ok: boolean; missing: string[] }> {
@@ -122,7 +125,10 @@ export async function ensurePrerequisites(
     : { ok: false, missing: stillMissing }
 }
 
-/** Check for an existing deployment and return the user's chosen action. */
+/**
+ * Check for an existing deployment and return the user's chosen action.
+ * @param deps
+ */
 export async function checkExistingDeployment(
   deps: InstallDependencies
 ): Promise<
@@ -181,7 +187,10 @@ export async function checkExistingDeployment(
   return action
 }
 
-/** Run a fresh Amina deployment or dev clone. */
+/**
+ * Run a fresh Amina deployment or dev clone.
+ * @param deps
+ */
 export async function runInstall(
   deps: InstallDependencies = {}
 ): Promise<number> {

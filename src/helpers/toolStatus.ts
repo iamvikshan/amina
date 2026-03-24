@@ -3,6 +3,7 @@
 
 /**
  * Map tool names to status message category for personality-flavored status messages.
+ * @param toolNames
  */
 export function getToolStatusCategory(toolNames: string[]): string {
   const memoryTools = ['remember_fact', 'update_memory']

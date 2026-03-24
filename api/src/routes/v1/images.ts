@@ -95,6 +95,8 @@ images.get('/rank-card', async c => {
 
 /**
  * Shared handler for welcome/farewell card generation
+ * @param type
+ * @param defaultAccentColor
  */
 function handleGreetingCard(
   type: 'welcome' | 'farewell',

@@ -9,6 +9,13 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show purge preview with confirmation
+ * @param interaction
+ * @param purgeType
+ * @param amount
+ * @param channelId
+ * @param additionalData
+ * @param additionalData.token
+ * @param additionalData.userId
  */
 export async function showPurgePreview(
   interaction: ButtonInteraction | ChannelSelectMenuInteraction,

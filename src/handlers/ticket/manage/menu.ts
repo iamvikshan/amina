@@ -12,6 +12,7 @@ import { mina } from '@helpers/mina'
 
 /**
  * Show manage menu with runtime operations
+ * @param interaction
  */
 export async function showManageMenu(
   interaction: MessageComponentInteraction
@@ -55,6 +56,7 @@ export async function showManageMenu(
 
 /**
  * Handle manage menu selection
+ * @param interaction
  */
 export async function handleManageMenu(
   interaction: StringSelectMenuInteraction

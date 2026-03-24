@@ -18,6 +18,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * Show parameter input for the selected cleanup method
  * Note: For methods using modals (prefix, below, older), the interaction must NOT be deferred
  * before calling this function, as showModal() requires an undeferred interaction.
+ * @param interaction
+ * @param method
  */
 export async function showParameterInputForMethod(
   interaction: StringSelectMenuInteraction,
@@ -42,6 +44,7 @@ export async function showParameterInputForMethod(
 
 /**
  * Show modal for prefix input
+ * @param interaction
  */
 async function showPrefixModal(
   interaction: StringSelectMenuInteraction
@@ -70,6 +73,7 @@ async function showPrefixModal(
 
 /**
  * Show modal for position input
+ * @param interaction
  */
 async function showPositionModal(
   interaction: StringSelectMenuInteraction
@@ -98,6 +102,7 @@ async function showPositionModal(
 
 /**
  * Show modal for older than input
+ * @param interaction
  */
 async function showOlderModal(
   interaction: StringSelectMenuInteraction
@@ -126,6 +131,7 @@ async function showOlderModal(
 
 /**
  * Handle modal submissions for cleanup parameters
+ * @param interaction
  */
 export async function handleCleanupModal(
   interaction: ModalSubmitInteraction
@@ -177,6 +183,9 @@ export async function handleCleanupModal(
 
 /**
  * Show role select menu to choose roles to keep (optional)
+ * @param interaction
+ * @param method
+ * @param params
  */
 async function showRoleKeepSelect(
   interaction: StringSelectMenuInteraction | ModalSubmitInteraction,
@@ -226,6 +235,7 @@ async function showRoleKeepSelect(
 
 /**
  * Handle role keep select interaction
+ * @param interaction
  */
 export async function handleRoleKeepSelect(
   interaction: RoleSelectMenuInteraction
@@ -266,6 +276,7 @@ export async function handleRoleKeepSelect(
 
 /**
  * Handle continue button (no exclusions)
+ * @param interaction
  */
 export async function handleContinueButton(interaction: any): Promise<void> {
   await interaction.deferUpdate()

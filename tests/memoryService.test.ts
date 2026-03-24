@@ -72,7 +72,21 @@ mock.module('@helpers/Logger', () => ({
 }))
 
 // Mock database schemas
-const mockSaveMemory = mock((): Promise<any> => Promise.resolve())
+type SavedMemoryPayload = {
+  userId: string
+  guildId: string | null
+  memoryType: string
+  key: string
+  value: string
+  context: string
+  importance: number
+  embedding?: number[]
+  vectorId?: string
+}
+
+const mockSaveMemory = mock(
+  (_payload: SavedMemoryPayload): Promise<void> => Promise.resolve()
+)
 const mockGetUserMemories = mock((): Promise<any> => Promise.resolve([]))
 const mockDeleteUserMemories = mock((): Promise<any> => Promise.resolve(0))
 const mockGetMemoryStats = mock(
@@ -137,7 +151,6 @@ describe('MemoryService (new SDK)', () => {
       voyageApiKey: 'test-voyage-key',
       voyageMongoApiKey: 'test-voyage-mongo-key',
       embeddingModel: 'voyage-4-lite',
-      extractionModel: 'gemini-3.1-flash-lite-preview',
     })
   })
 
@@ -169,65 +182,6 @@ describe('MemoryService (new SDK)', () => {
     expect(saveArgs.value).toBe('Alice')
     expect(saveArgs.importance).toBe(8)
     expect(saveArgs.vectorId).toBeUndefined()
-  })
-
-  test('extraction uses Gemini as primary', async () => {
-    const memoryJson =
-      '[{"key": "name", "value": "Alice", "importance": 8, "memoryType": "user"}]'
-
-    // Set up Gemini mock to return extraction result
-    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
-    gemini.chat.completions.create.mockImplementationOnce(() =>
-      Promise.resolve({
-        choices: [{ message: { content: memoryJson } }],
-      })
-    )
-
-    const fixedTimestamp = 1700000000000
-
-    const messages = [
-      {
-        role: 'user' as const,
-        content: 'My name is Alice',
-        timestamp: fixedTimestamp,
-        userId: 'u1',
-        displayName: 'Alice',
-      },
-      {
-        role: 'assistant' as const,
-        content: 'Nice to meet you Alice!',
-        timestamp: fixedTimestamp + 1000,
-      },
-      {
-        role: 'user' as const,
-        content: 'I like pizza',
-        timestamp: fixedTimestamp + 2000,
-        userId: 'u1',
-        displayName: 'Alice',
-      },
-      {
-        role: 'assistant' as const,
-        content: 'Pizza is great!',
-        timestamp: fixedTimestamp + 3000,
-      },
-    ]
-
-    const facts = await service.extractMemories(messages)
-
-    expect(gemini.chat.completions.create).toHaveBeenCalledTimes(1)
-    const callArgs = gemini.chat.completions.create.mock.calls[0][0] as any
-    expect(callArgs.model).toBe('gemini-3.1-flash-lite-preview')
-    expect(Array.isArray(callArgs.messages)).toBe(true)
-    expect(callArgs.messages[0].role).toBe('user')
-    expect(typeof callArgs.messages[0].content).toBe('string')
-
-    expect(facts).toHaveLength(1)
-    expect(facts[0]).toEqual({
-      key: 'name',
-      value: 'Alice',
-      importance: 8,
-      memoryType: 'user',
-    })
   })
 
   test('recallMemories uses vectorSearch with correct filter', async () => {
@@ -545,77 +499,10 @@ describe('MemoryService (new SDK)', () => {
     expect(callArgs.dimensions).toBeUndefined()
   })
 
-  test('extraction falls back to Mistral when Gemini fails', async () => {
-    // Make Gemini extraction reject
-    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
-    gemini.chat.completions.create.mockImplementation(() =>
-      Promise.reject(new Error('Gemini extraction down'))
-    )
-
-    const memoryJson =
-      '[{"key": "food", "value": "pizza", "importance": 6, "memoryType": "user"}]'
-    const mistral = getMock('https://api.mistral.ai/v1')
-    mistral.chat.completions.create.mockImplementationOnce(() =>
-      Promise.resolve({
-        choices: [{ message: { content: memoryJson } }],
-      })
-    )
-
-    const fixedTimestamp = 1700000000000
-    const messages = [
-      { role: 'user' as const, content: 'I love pizza', timestamp: fixedTimestamp, userId: 'u1', displayName: 'Bob' },
-      { role: 'assistant' as const, content: 'Nice!', timestamp: fixedTimestamp + 1000 },
-      { role: 'user' as const, content: 'Its my fav', timestamp: fixedTimestamp + 2000, userId: 'u1', displayName: 'Bob' },
-      { role: 'assistant' as const, content: 'Cool!', timestamp: fixedTimestamp + 3000 },
-    ]
-
-    const facts = await service.extractMemories(messages)
-
-    expect(mistral.chat.completions.create).toHaveBeenCalledTimes(1)
-    const callArgs = mistral.chat.completions.create.mock.calls[0][0] as any
-    expect(callArgs.model).toBe('mistral-small-latest')
-    expect(facts).toHaveLength(1)
-    expect(facts[0].key).toBe('food')
-  })
-
-  test('extraction falls back to Mistral when Gemini returns malformed JSON', async () => {
-    // Make Gemini return malformed JSON (not a throw, but unparseable)
-    const gemini = getMock('https://generativelanguage.googleapis.com/v1beta/openai/')
-    gemini.chat.completions.create.mockImplementationOnce(() =>
-      Promise.resolve({
-        choices: [{ message: { content: 'This is not JSON at all' } }],
-      })
-    )
-
-    const memoryJson =
-      '[{"key": "lang", "value": "TypeScript", "importance": 7, "memoryType": "user"}]'
-    const mistral = getMock('https://api.mistral.ai/v1')
-    mistral.chat.completions.create.mockImplementationOnce(() =>
-      Promise.resolve({
-        choices: [{ message: { content: memoryJson } }],
-      })
-    )
-
-    const fixedTimestamp = 1700000000000
-    const messages = [
-      { role: 'user' as const, content: 'I code in TS', timestamp: fixedTimestamp, userId: 'u1', displayName: 'Dev' },
-      { role: 'assistant' as const, content: 'Great!', timestamp: fixedTimestamp + 1000 },
-      { role: 'user' as const, content: 'Love it', timestamp: fixedTimestamp + 2000, userId: 'u1', displayName: 'Dev' },
-      { role: 'assistant' as const, content: 'Same!', timestamp: fixedTimestamp + 3000 },
-    ]
-
-    const facts = await service.extractMemories(messages)
-
-    expect(mistral.chat.completions.create).toHaveBeenCalledTimes(1)
-    expect(facts).toHaveLength(1)
-    expect(facts[0].key).toBe('lang')
-  })
-
   test('storeMemory fails when no embedding providers available', async () => {
     const noKeyService = new MemoryService()
     await noKeyService.initialize({
       embeddingModel: 'voyage-4-lite',
-      extractionModel: 'gemini-3.1-flash-lite-preview',
     })
 
     const fact = { key: 'test', value: 'val', importance: 5 }

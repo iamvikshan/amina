@@ -12,6 +12,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show privacy settings menu
+ * @param interaction
  */
 export async function showPrivacyMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -81,6 +82,7 @@ export async function showPrivacyMenu(
 
 /**
  * Handle privacy setting toggle
+ * @param interaction
  */
 export async function handlePrivacyMenu(
   interaction: StringSelectMenuInteraction

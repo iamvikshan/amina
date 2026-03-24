@@ -31,6 +31,9 @@ interface GreetingConfig {
 
 /**
  * Parse greeting message with placeholders
+ * @param content
+ * @param member
+ * @param inviterData
  */
 const parse = async (
   content: string,
@@ -90,6 +93,10 @@ const parse = async (
 
 /**
  * Build greeting message with content and embed
+ * @param member
+ * @param type
+ * @param config
+ * @param inviterData
  */
 const buildGreeting = async (
   member: GuildMember,
@@ -140,6 +147,8 @@ const buildGreeting = async (
 
 /**
  * Send welcome message
+ * @param member
+ * @param inviterData
  */
 async function sendWelcome(
   member: GuildMember,
@@ -161,6 +170,8 @@ async function sendWelcome(
 
 /**
  * Send farewell message
+ * @param member
+ * @param inviterData
  */
 async function sendFarewell(
   member: GuildMember,

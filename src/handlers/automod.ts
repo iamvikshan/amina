@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 import { Message } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
@@ -29,6 +30,7 @@ setInterval(
 
 /**
  * Check if the message needs to be moderated and has required permissions
+ * @param message
  */
 const shouldModerate = (message: Message): boolean => {
   const { member, guild, channel } = message
@@ -51,6 +53,8 @@ const shouldModerate = (message: Message): boolean => {
 
 /**
  * Perform moderation on the message
+ * @param message
+ * @param settings
  */
 async function performAutomod(message: Message, settings: any): Promise<void> {
   const { automod } = settings

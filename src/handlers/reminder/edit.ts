@@ -27,6 +27,8 @@ const MAX_DURATION_DAYS = 365
 
 /**
  * Show edit reminder view
+ * @param interaction
+ * @param reminderId
  */
 export async function showEditReminder(
   interaction: ButtonInteraction | StringSelectMenuInteraction,
@@ -89,6 +91,7 @@ export async function showEditReminder(
 
 /**
  * Handle edit action menu
+ * @param interaction
  */
 export async function handleEditActionMenu(
   interaction: StringSelectMenuInteraction
@@ -184,6 +187,7 @@ export async function handleEditActionMenu(
 
 /**
  * Handle edit message modal submit
+ * @param interaction
  */
 export async function handleEditMessageModal(
   interaction: ModalSubmitInteraction
@@ -261,6 +265,7 @@ export async function handleEditMessageModal(
 
 /**
  * Handle edit time modal submit
+ * @param interaction
  */
 export async function handleEditTimeModal(
   interaction: ModalSubmitInteraction

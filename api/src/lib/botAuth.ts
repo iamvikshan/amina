@@ -27,6 +27,10 @@ const SALT_LENGTH = 16 // 128 bits
 /**
  * Derive a key using PBKDF2 via WebCrypto (async, non-blocking).
  * Replaces synchronous pbkdf2Sync which exhausts Worker CPU budgets.
+ * @param password
+ * @param salt
+ * @param iterations
+ * @param keyLength
  */
 async function pbkdf2Derive(
   password: string,
@@ -63,6 +67,7 @@ async function pbkdf2Derive(
  * Hash a secret for secure storage using PBKDF2 with random salt
  * Format: salt.hash (hex-encoded, separated by dot)
  * Never store raw secrets!
+ * @param secret
  */
 export async function hashSecret(secret: string): Promise<string> {
   // Generate cryptographically secure random salt
@@ -83,6 +88,8 @@ export async function hashSecret(secret: string): Promise<string> {
 /**
  * Compare a secret against a stored hash using timing-safe comparison
  * Expected format: salt.hash (hex-encoded, separated by dot)
+ * @param secret
+ * @param storedValue
  */
 export async function verifySecretHash(
   secret: string,
@@ -132,6 +139,9 @@ export async function verifySecretHash(
 /**
  * Verify bot credentials against Discord API
  * Uses client_credentials grant to validate the secret
+ * @param clientId
+ * @param clientSecret
+ * @param logger
  */
 export async function verifyWithDiscord(
   clientId: string,
@@ -205,6 +215,9 @@ export async function verifyWithDiscord(
 
 /**
  * Fetch bot application info from Discord
+ * @param clientId
+ * @param clientSecret
+ * @param logger
  */
 export async function fetchBotInfo(
   clientId: string,
@@ -324,6 +337,8 @@ export async function fetchBotInfo(
 
 /**
  * Register a new bot or update existing registration
+ * @param kv
+ * @param payload
  */
 export async function registerBot(
   kv: KVNamespace,
@@ -389,6 +404,10 @@ export async function registerBot(
 /**
  * Validate bot request credentials
  * Uses cached verification, falls back to Discord API when expired
+ * @param kv
+ * @param clientId
+ * @param clientSecret
+ * @param logger
  */
 export async function validateBotRequest(
   kv: KVNamespace,
@@ -484,6 +503,10 @@ export async function validateBotRequest(
 
 /**
  * Remove a bot registration
+ * @param kv
+ * @param clientId
+ * @param clientSecret
+ * @param logger
  */
 export async function deregisterBot(
   kv: KVNamespace,
@@ -612,6 +635,10 @@ export async function deregisterBot(
 
 /**
  * Check if a user owns a bot
+ * @param kv
+ * @param clientId
+ * @param userId
+ * @param logger
  */
 export async function verifyBotOwnership(
   kv: KVNamespace,

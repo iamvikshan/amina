@@ -16,6 +16,7 @@ import { updatePresence } from './update'
 
 /**
  * Show presence management menu (Hub Flow)
+ * @param interaction
  */
 export async function showPresenceMenu(
   interaction:
@@ -84,6 +85,7 @@ export async function showPresenceMenu(
 
 /**
  * Handle presence operation selection
+ * @param interaction
  */
 export async function handlePresenceOperation(
   interaction: StringSelectMenuInteraction
@@ -111,6 +113,7 @@ export async function handlePresenceOperation(
 
 /**
  * Toggle presence enabled/disabled
+ * @param interaction
  */
 async function handleToggleEnabled(
   interaction: StringSelectMenuInteraction
@@ -132,6 +135,7 @@ async function handleToggleEnabled(
 
 /**
  * Show presence modal for message and URL input
+ * @param interaction
  */
 export async function showPresenceModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -176,6 +180,7 @@ export async function showPresenceModal(
 
 /**
  * Handle presence modal submission
+ * @param interaction
  */
 export async function handlePresenceModal(
   interaction: ModalSubmitInteraction
@@ -200,6 +205,7 @@ export async function handlePresenceModal(
 
 /**
  * Show activity type selection menu
+ * @param interaction
  */
 async function showTypeSelection(
   interaction: StringSelectMenuInteraction
@@ -254,6 +260,7 @@ async function showTypeSelection(
 
 /**
  * Handle activity type selection
+ * @param interaction
  */
 export async function handlePresenceTypeMenu(
   interaction: StringSelectMenuInteraction
@@ -275,6 +282,7 @@ export async function handlePresenceTypeMenu(
 
 /**
  * Show status selection menu
+ * @param interaction
  */
 async function showStatusSelection(
   interaction: StringSelectMenuInteraction
@@ -324,6 +332,7 @@ async function showStatusSelection(
 
 /**
  * Handle status selection
+ * @param interaction
  */
 export async function handlePresenceStatusMenu(
   interaction: StringSelectMenuInteraction
@@ -345,6 +354,7 @@ export async function handlePresenceStatusMenu(
 
 /**
  * Handle back button to presence menu
+ * @param interaction
  */
 export async function handleBackToPresenceMenu(
   interaction: ButtonInteraction
@@ -355,6 +365,7 @@ export async function handleBackToPresenceMenu(
 
 /**
  * Handle presence confirm button
+ * @param interaction
  */
 export async function handlePresenceConfirm(
   interaction: ButtonInteraction

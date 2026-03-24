@@ -12,6 +12,10 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Filter roles based on cleanup criteria and permissions
+ * @param guild
+ * @param method
+ * @param params
+ * @param botTopPos
  */
 function filterRoles(
   guild: any,
@@ -84,6 +88,8 @@ function filterRoles(
 
 /**
  * Summarize roles for display (with limit)
+ * @param roles
+ * @param limit
  */
 function summarizeRoles(roles: Role[], limit = 20): string {
   if (roles.length === 0) return 'None'
@@ -98,6 +104,9 @@ function summarizeRoles(roles: Role[], limit = 20): string {
 
 /**
  * Show cleanup preview with confirmation buttons
+ * @param interaction
+ * @param method
+ * @param params
  */
 export async function showCleanupPreview(
   interaction:

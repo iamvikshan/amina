@@ -25,6 +25,8 @@ const MAX_CATEGORY_PAGES = 2 // Maximum pages in category view before showing DM
 
 /**
  * Show memories view (server or DM)
+ * @param interaction
+ * @param memoryTypeParam
  */
 export async function showMemoriesView(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -230,6 +232,7 @@ export async function showMemoriesView(
 
 /**
  * Show category detail view - all memories of a specific type
+ * @param interaction
  */
 export async function showCategoryDetailView(
   interaction: ButtonInteraction
@@ -411,6 +414,7 @@ export async function showCategoryDetailView(
 
 /**
  * Handle DM Me button - sends embed + pastebin link
+ * @param interaction
  */
 export async function handleDmMe(
   interaction: ButtonInteraction
@@ -580,6 +584,7 @@ export async function handleDmMe(
 
 /**
  * Handle category pagination button
+ * @param interaction
  */
 export async function handleCategoryPage(
   interaction: ButtonInteraction
@@ -589,6 +594,7 @@ export async function handleCategoryPage(
 
 /**
  * Handle back to main memories view
+ * @param interaction
  */
 export async function handleBackToMemories(
   interaction: ButtonInteraction

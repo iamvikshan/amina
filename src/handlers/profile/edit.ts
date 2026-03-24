@@ -16,6 +16,7 @@ import { Logger } from '@helpers/Logger'
 
 /**
  * Show edit profile menu
+ * @param interaction
  */
 export async function showEditMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -62,6 +63,7 @@ export async function showEditMenu(
 
 /**
  * Handle edit category selection
+ * @param interaction
  */
 export async function handleEditMenu(
   interaction: StringSelectMenuInteraction
@@ -90,6 +92,7 @@ export async function handleEditMenu(
 
 /**
  * Handle profile modal submission
+ * @param interaction
  */
 export async function handleProfileModal(
   interaction: ModalSubmitInteraction

@@ -13,6 +13,7 @@ import Logger from '@helpers/Logger'
 
 /**
  * Show user select for removing users from ticket
+ * @param interaction
  */
 export async function showRemoveUserSelect(
   interaction: StringSelectMenuInteraction
@@ -60,6 +61,7 @@ export async function showRemoveUserSelect(
 
 /**
  * Handle user selection for removing from ticket
+ * @param interaction
  */
 export async function handleRemoveUserSelect(
   interaction: UserSelectMenuInteraction

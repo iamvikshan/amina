@@ -21,6 +21,7 @@ const HEALTH_CHECK_INTERVAL_MS = 30_000 // 30 seconds
 /**
  * Get a MongoDB client instance (cached for connection reuse)
  * Uses periodic health checks (every 30s) instead of per-call pings to reduce latency.
+ * @param config
  */
 export async function getMongoClient(
   config: MongoDBConfig
@@ -57,6 +58,7 @@ export async function getMongoClient(
 
 /**
  * Get a MongoDB database instance
+ * @param config
  */
 export async function getDatabase(config: MongoDBConfig): Promise<Db> {
   if (cachedDb && cachedDb.databaseName === config.database) {
@@ -70,6 +72,8 @@ export async function getDatabase(config: MongoDBConfig): Promise<Db> {
 
 /**
  * Get a MongoDB collection
+ * @param config
+ * @param collectionName
  */
 export async function getCollection<T extends Document>(
   config: MongoDBConfig,
@@ -190,6 +194,8 @@ export class MongoDB {
 /**
  * Create a MongoDB instance from environment variables
  * Extracts database name from the connection string if present
+ * @param env
+ * @param env.MONGO_CONNECTION
  */
 export function createMongoClient(env: {
   MONGO_CONNECTION?: string

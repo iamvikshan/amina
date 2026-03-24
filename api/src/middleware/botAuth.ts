@@ -30,6 +30,8 @@ export function getBotClientSecret(
 /**
  * Middleware to authenticate bot requests
  * Expects X-Client-Id and X-Client-Secret headers
+ * @param c
+ * @param next
  */
 export async function botAuthMiddleware(
   c: Context<{ Bindings: Env; Variables: BotAuthContext }>,
@@ -100,6 +102,8 @@ export async function botAuthMiddleware(
 /**
  * Optional bot auth - doesn't fail if no credentials provided
  * Useful for endpoints that behave differently for authenticated bots
+ * @param c
+ * @param next
  */
 export async function optionalBotAuthMiddleware(
   c: Context<{ Bindings: Env; Variables: Partial<BotAuthContext> }>,

@@ -22,6 +22,7 @@ const CLOSE_PERMS = ['ManageChannels', 'ReadMessageHistory'] as const
 
 /**
  * Check if channel is a ticket channel
+ * @param channel
  */
 export function isTicketChannel(channel: Channel): boolean {
   return (
@@ -34,6 +35,7 @@ export function isTicketChannel(channel: Channel): boolean {
 
 /**
  * Get all ticket channels in a guild
+ * @param guild
  */
 export function getTicketChannels(guild: Guild): Collection<string, any> {
   return guild.channels.cache.filter(ch => isTicketChannel(ch))
@@ -41,6 +43,8 @@ export function getTicketChannels(guild: Guild): Collection<string, any> {
 
 /**
  * Get existing ticket channel for a user
+ * @param guild
+ * @param userId
  */
 export function getExistingTicketChannel(guild: Guild, userId: string): any {
   const tktChannels = getTicketChannels(guild)
@@ -49,6 +53,7 @@ export function getExistingTicketChannel(guild: Guild, userId: string): any {
 
 /**
  * Parse ticket details from channel topic
+ * @param channel
  */
 export async function parseTicketDetails(
   channel: BaseGuildTextChannel
@@ -65,6 +70,9 @@ export async function parseTicketDetails(
 
 /**
  * Close a ticket channel
+ * @param channel
+ * @param closedBy
+ * @param reason
  */
 export async function closeTicket(
   channel: BaseGuildTextChannel,
@@ -287,6 +295,8 @@ export async function closeTicket(
 
 /**
  * Close all open tickets in a guild
+ * @param guild
+ * @param author
  */
 export async function closeAllTickets(
   guild: Guild,

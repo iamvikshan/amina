@@ -3,6 +3,12 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 /**
  * Create a successful API response
+ * @param c
+ * @param data
+ * @param options
+ * @param options.status
+ * @param options.cached
+ * @param options.cacheAge
  */
 export function success<T>(
   c: Context,
@@ -30,6 +36,12 @@ export function success<T>(
 
 /**
  * Create an error API response
+ * @param c
+ * @param message
+ * @param options
+ * @param options.status
+ * @param options.code
+ * @param options.details
  */
 export function error(
   c: Context,

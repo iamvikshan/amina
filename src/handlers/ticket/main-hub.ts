@@ -11,6 +11,7 @@ import { mina } from '@helpers/mina'
 
 /**
  * Show main ticket hub with operation selection
+ * @param interaction
  */
 export async function showTicketHub(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -44,6 +45,7 @@ export async function showTicketHub(
 
 /**
  * Handle ticket category selection from main hub
+ * @param interaction
  */
 export async function handleTicketCategoryMenu(
   interaction: StringSelectMenuInteraction
@@ -74,6 +76,7 @@ export async function handleTicketCategoryMenu(
 
 /**
  * Handle back button to return to main ticket hub
+ * @param interaction
  */
 export async function handleTicketBackButton(
   interaction: ButtonInteraction

@@ -12,6 +12,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show autorole management menu with current status
+ * @param interaction
  */
 export async function showAutoroleMenu(
   interaction: StringSelectMenuInteraction
@@ -74,6 +75,7 @@ export async function showAutoroleMenu(
 
 /**
  * Handle autorole enable button - show role select
+ * @param interaction
  */
 export async function handleAutoroleEnableButton(
   interaction: ButtonInteraction
@@ -110,6 +112,7 @@ export async function handleAutoroleEnableButton(
 
 /**
  * Handle autorole role selection
+ * @param interaction
  */
 export async function handleAutoroleRoleSelect(
   interaction: RoleSelectMenuInteraction
@@ -188,6 +191,7 @@ export async function handleAutoroleRoleSelect(
 
 /**
  * Handle autorole disable button - show confirmation
+ * @param interaction
  */
 export async function handleAutoroleDisableButton(
   interaction: ButtonInteraction
@@ -234,6 +238,7 @@ export async function handleAutoroleDisableButton(
 
 /**
  * Handle autorole disable confirmation
+ * @param interaction
  */
 export async function handleAutoroleDisableConfirm(
   interaction: ButtonInteraction
@@ -269,6 +274,7 @@ export async function handleAutoroleDisableConfirm(
 
 /**
  * Handle autorole cancel button
+ * @param interaction
  */
 export async function handleAutoroleCancel(
   interaction: ButtonInteraction
@@ -279,6 +285,8 @@ export async function handleAutoroleCancel(
 
 /**
  * Validate if a role can be used as autorole
+ * @param guild
+ * @param role
  */
 function validateAutorole(
   guild: any,

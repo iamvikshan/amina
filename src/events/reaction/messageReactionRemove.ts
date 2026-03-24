@@ -5,6 +5,7 @@ import type { MessageReaction, PartialMessageReaction, User } from 'discord.js'
 /**
  * Handles message reaction remove events
  * @param {BotClient} client - The bot client instance
+ * @param _client
  * @param {MessageReaction | PartialMessageReaction} reaction - The reaction that was removed
  * @param {User} user - The user who removed the reaction
  */

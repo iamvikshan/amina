@@ -63,6 +63,8 @@ export async function checkUserReminders(client: BotClient): Promise<void> {
 /**
  * Send reminder notification to user
  * Tries channel first, falls back to DM
+ * @param client
+ * @param reminder
  */
 async function sendReminderNotification(
   client: BotClient,

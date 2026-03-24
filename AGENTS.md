@@ -3,6 +3,7 @@
 - Prefer little code that does more. Reach for mature packages instead of reinventing common solutions.
 - Keep modules cohesive, reusable, and easy to share without creating needless file sprawl.
 - Breaking changes are acceptable in this repo. Remove dead code instead of adding backward-compatibility or deprecation layers.
+- node is prohibited, use bun at all times.
 
 ---
 
@@ -81,7 +82,6 @@ Always use path aliases for internal imports. Never use deep relative paths when
 - **Shared types:** `types/` — ambient global `.d.ts` declarations, import via `@types/*`
 - **API workspace:** `api/` — Hono REST API (routes: bot, guild, images, v1, internal, webhooks)
 - **Tests:** `tests/` — flat directory, `<name>.test.ts` files
-- **Plans:** `plans/` — task plans and phase completion records
 
 Barrel `index.ts` files exist in many directories (structures, handlers, config, helpers/ModUtils). Use them when importing multiple exports from a module group.
 

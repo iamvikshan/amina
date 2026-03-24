@@ -13,6 +13,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show modal for ticket limit input
+ * @param interaction
  */
 export async function showLimitModal(
   interaction: StringSelectMenuInteraction
@@ -51,6 +52,7 @@ export async function showLimitModal(
 
 /**
  * Handle ticket limit modal submission
+ * @param interaction
  */
 export async function handleLimitModal(
   interaction: ModalSubmitInteraction

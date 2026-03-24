@@ -7,6 +7,7 @@ const { getInviteCache } = inviteHandler
 /**
  * Handles invite deletion event
  * @param {BotClient} client - The bot client instance
+ * @param _client
  * @param {Invite} invite - The deleted invite
  */
 export default async (_client: BotClient, invite: Invite): Promise<void> => {

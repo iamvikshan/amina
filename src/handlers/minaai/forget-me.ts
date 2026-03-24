@@ -11,6 +11,7 @@ const logger = Logger
 
 /**
  * Show forget-me confirmation screen
+ * @param interaction
  */
 export async function showForgetMeConfirmation(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -40,6 +41,7 @@ export async function showForgetMeConfirmation(
 
 /**
  * Handle forget-me confirmation
+ * @param interaction
  */
 export async function handleForgetMeConfirm(
   interaction: ButtonInteraction
@@ -125,6 +127,7 @@ export async function handleForgetMeConfirm(
 
 /**
  * Handle forget-me cancellation
+ * @param interaction
  */
 export async function handleForgetMeCancel(
   interaction: ButtonInteraction

@@ -6,6 +6,10 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Filter roles based on cleanup criteria and permissions
+ * @param guild
+ * @param method
+ * @param params
+ * @param botTopPos
  */
 function filterRoles(
   guild: any,
@@ -78,6 +82,9 @@ function filterRoles(
 
 /**
  * Execute role cleanup (deletion)
+ * @param interaction
+ * @param method
+ * @param params
  */
 export async function executeCleanup(
   interaction: ButtonInteraction,
@@ -183,6 +190,7 @@ export async function executeCleanup(
 
 /**
  * Handle cleanup confirmation button
+ * @param interaction
  */
 export async function handleCleanupConfirm(
   interaction: ButtonInteraction
@@ -216,6 +224,7 @@ export async function handleCleanupConfirm(
 
 /**
  * Handle cleanup cancellation button
+ * @param interaction
  */
 export async function handleCleanupCancel(
   interaction: ButtonInteraction

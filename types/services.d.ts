@@ -62,7 +62,20 @@ declare global {
     latency: number
     toolCalls?: ToolCall[]
   }
+
+  interface ExtractionResult {
+    intent: string
+    tools: Array<{ name: string; args: Record<string, any> }>
+    memories: MemoryFact[]
+    statusText: string
+  }
 }
 
-export type { ChatMessage, ToolCall, FunctionDeclaration, OpenAITool }
+export type {
+  ChatMessage,
+  ToolCall,
+  FunctionDeclaration,
+  OpenAITool,
+  ExtractionResult,
+}
 

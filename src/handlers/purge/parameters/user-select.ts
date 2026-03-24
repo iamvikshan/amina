@@ -9,6 +9,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show user selection menu
+ * @param interaction
  */
 export async function showUserSelect(
   interaction: StringSelectMenuInteraction
@@ -34,6 +35,7 @@ export async function showUserSelect(
 
 /**
  * Handle user selection
+ * @param interaction
  */
 export async function handleUserSelect(
   interaction: UserSelectMenuInteraction

@@ -14,6 +14,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handle admin category selection from main hub
+ * @param interaction
  */
 export async function handleAdminCategoryMenu(
   interaction: StringSelectMenuInteraction
@@ -47,6 +48,7 @@ export async function handleAdminCategoryMenu(
 
 /**
  * Handle back button to return to main admin hub
+ * @param interaction
  */
 export async function handleAdminBackButton(
   interaction: ButtonInteraction

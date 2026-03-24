@@ -32,7 +32,12 @@ function isTerminal(statuses: Record<string, string>): boolean {
   return allReady || anyUnhealthy
 }
 
-/** Poll Docker containers until all healthy or timeout. */
+/**
+ * Poll Docker containers until all healthy or timeout.
+ * @param spawnFn
+ * @param prompts
+ * @param opts
+ */
 export async function pollHealth(
   spawnFn: SpawnFn,
   prompts: PromptsFn,
@@ -76,7 +81,11 @@ export async function pollHealth(
   return statuses
 }
 
-/** Format a deployment status dashboard. */
+/**
+ * Format a deployment status dashboard.
+ * @param statuses
+ * @param deployPath
+ */
 export function formatDashboard(
   statuses: Record<string, string>,
   deployPath: string
@@ -102,7 +111,12 @@ export function formatDashboard(
   return lines
 }
 
-/** Display the health dashboard using prompts logging. */
+/**
+ * Display the health dashboard using prompts logging.
+ * @param statuses
+ * @param deployPath
+ * @param prompts
+ */
 export function showDashboard(
   statuses: Record<string, string>,
   deployPath: string,

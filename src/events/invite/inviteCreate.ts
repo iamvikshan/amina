@@ -7,6 +7,7 @@ const { getInviteCache, cacheInvite } = inviteHandler
 /**
  * Handles invite creation event
  * @param {BotClient} client - The bot client instance
+ * @param _client
  * @param {Invite} invite - The created invite
  */
 export default async (_client: BotClient, invite: Invite): Promise<void> => {

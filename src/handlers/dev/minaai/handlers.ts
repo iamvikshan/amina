@@ -29,6 +29,7 @@ import { MinaRows, MinaButtons } from '@helpers/componentHelper'
 
 /**
  * Show Mina AI operations menu with current settings
+ * @param interaction
  */
 export async function showMinaAiMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -202,6 +203,7 @@ export async function showMinaAiMenu(
 
 /**
  * Handle Mina AI operation selection
+ * @param interaction
  */
 export async function handleMinaAiMenu(
   interaction: StringSelectMenuInteraction
@@ -213,6 +215,8 @@ export async function handleMinaAiMenu(
 
 /**
  * Handle Mina AI operation execution
+ * @param interaction
+ * @param operation
  */
 export async function handleMinaAiOperation(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -350,6 +354,9 @@ export async function handleMinaAiOperation(
 
 /**
  * Show boolean select menu for toggle operations
+ * @param interaction
+ * @param operation
+ * @param title
  */
 async function showBooleanSelect(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -386,6 +393,8 @@ async function showBooleanSelect(
 
 /**
  * Handle boolean select for toggle operations
+ * @param interaction
+ * @param operation
  */
 export async function handleMinaAiToggle(
   interaction: StringSelectMenuInteraction,
@@ -433,6 +442,7 @@ export async function handleMinaAiToggle(
 
 /**
  * Show modal for model input
+ * @param interaction
  */
 async function showModelModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -461,6 +471,7 @@ async function showModelModal(
 
 /**
  * Show modal for tokens input
+ * @param interaction
  */
 async function showTokensModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -489,6 +500,7 @@ async function showTokensModal(
 
 /**
  * Show modal for prompt input
+ * @param interaction
  */
 async function showPromptModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -517,6 +529,7 @@ async function showPromptModal(
 
 /**
  * Show modal for temperature input
+ * @param interaction
  */
 async function showTemperatureModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -545,6 +558,7 @@ async function showTemperatureModal(
 
 /**
  * Handle modal submissions for Mina AI
+ * @param interaction
  */
 export async function handleMinaAiModal(
   interaction: ModalSubmitInteraction

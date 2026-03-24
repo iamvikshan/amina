@@ -180,6 +180,7 @@ export class VirtualInteraction {
 
   /**
    * Extract rich output from a message including embeds for AI context
+   * @param msg
    */
   private extractRichOutput(msg: Message): string {
     const parts: string[] = []

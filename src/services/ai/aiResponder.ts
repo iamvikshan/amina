@@ -12,7 +12,10 @@ import {
 import { memoryService } from './memoryService'
 import Logger from '@helpers/Logger'
 import { config, configCache } from '../../config'
-import { extractMediaFromMessage } from '@helpers/mediaExtractor'
+import {
+  extractMediaFromMessage,
+  type MediaItem,
+} from '@helpers/mediaExtractor'
 import { aiCommandRegistry } from './aiCommandRegistry'
 import { VirtualInteraction } from '@structures/VirtualInteraction'
 import aiPermissions from '@data/aiPermissions.json'
@@ -40,12 +43,14 @@ export class AiResponderService {
   // Track current client config to avoid unnecessary recreation
   private currentClientConfig: {
     model: string
+    extractionModel: string
     timeoutMs: number
     authConfig: string // serialized for comparison
   } | null = null
 
   /**
    * Check if a guild is the test guild
+   * @param guildId
    */
   private isTestGuild(guildId: string | null): boolean {
     if (!guildId) return false
@@ -54,6 +59,7 @@ export class AiResponderService {
 
   /**
    * Get free-will channels from guild settings
+   * @param guildSettings
    */
   private getFreeWillChannels(guildSettings: any): string[] {
     if (!guildSettings?.aiResponder) return []
@@ -63,6 +69,7 @@ export class AiResponderService {
   /**
    * Check if a message is a reply to the bot
    * Fetches the referenced message and verifies it's from the bot
+   * @param message
    */
   private async isReplyToBot(message: Message): Promise<boolean> {
     if (!message.reference?.messageId || !message.client.user) {
@@ -106,6 +113,7 @@ export class AiResponderService {
         const needsClientRecreation =
           !this.currentClientConfig ||
           this.currentClientConfig.model !== config.model ||
+          this.currentClientConfig.extractionModel !== config.extractionModel ||
           this.currentClientConfig.timeoutMs !== config.timeoutMs ||
           this.currentClientConfig.authConfig !== configKey
 
@@ -114,10 +122,12 @@ export class AiResponderService {
             geminiApiKey: config.geminiApiKey,
             mistralApiKey: config.mistralApiKey,
             model: config.model,
+            extractionModel: config.extractionModel,
             timeout: config.timeoutMs,
           })
           this.currentClientConfig = {
             model: config.model,
+            extractionModel: config.extractionModel,
             timeoutMs: config.timeoutMs,
             authConfig: configKey,
           }
@@ -490,260 +500,224 @@ export class AiResponderService {
         // Could add rate limiting or blocking for repeat offenders in the future.
       }
 
-      // Generate response with media if present
-      let result = await this.client.generateResponse(
-        enhancedPrompt,
+      // Build tool descriptions for extraction
+      const toolDescriptions = tools
+        .map(t => {
+          const params = t.function.parameters?.properties
+            ? Object.entries(t.function.parameters.properties)
+                .map(
+                  ([k, v]: [string, any]) =>
+                    `${k}: ${v.type}${v.description ? ' - ' + v.description : ''}`
+                )
+                .join(', ')
+            : 'none'
+          return `- ${t.function.name}: ${t.function.description} (params: ${params})`
+        })
+        .join('\n')
+
+      // Call 1 - Extraction: intent, tools, memories, status
+      const extractionUserMessage = hasMediaContent
+        ? `${message.content || ''} [User attached ${mediaItems.length} image(s)]`
+        : message.content || ''
+
+      let extraction: ExtractionResult
+      try {
+        extraction = await this.client.extractAnalysis(
+          enhancedPrompt,
+          formattedHistory,
+          extractionUserMessage,
+          toolDescriptions
+        )
+      } catch (err: any) {
+        logger.warn(
+          `Extraction failed (${err.message}), falling back to ReAct loop`
+        )
+        return this._reactFallback(
+          message,
+          enhancedPrompt,
+          formattedHistory,
+          config,
+          mediaItems,
+          conversationId
+        )
+      }
+
+      let totalToolCalls = 0
+      let statusMessage: Message | null = null
+      const statusText = extraction.statusText?.trim()
+
+      // Execute tools from extraction result
+      const toolResults: string[] = []
+      const historyWithCurrentUser = this.appendCurrentUserMessage(
         formattedHistory,
-        message.content ||
-          (hasMediaContent ? 'What do you see in this image?' : ''),
+        message.content || ''
+      )
+
+      for (const toolSpec of extraction.tools) {
+        const commandName = toolSpec.name
+        let args = this.getValidExtractionArgs(commandName, toolSpec.args)
+        if (!args) continue
+
+        // Check if native tool
+        if (aiCommandRegistry.isNativeTool(commandName)) {
+          const metadata = aiCommandRegistry.getMetadata(commandName)
+          if (metadata) {
+            const permissionCheck = await this.checkCommandPermissions(
+              message,
+              commandName,
+              metadata,
+              args
+            )
+            if (!permissionCheck.allowed) {
+              toolResults.push(permissionCheck.reason)
+              continue
+            }
+          }
+
+          try {
+            const nativeContext = {
+              userId: message.author.id,
+              guildId: message.guild?.id ?? null,
+            }
+            const toolResult = await aiCommandRegistry.executeNativeTool(
+              commandName,
+              args,
+              nativeContext
+            )
+            totalToolCalls++
+            toolResults.push(toolResult)
+          } catch (err: any) {
+            logger.error(
+              `Failed to execute native tool ${commandName}: ${err.message}`
+            )
+            toolResults.push(`Tool ${commandName} failed: ${err.message}`)
+          }
+          continue
+        }
+
+        // Resolve compound name
+        const resolved = aiCommandRegistry.resolveToolName(commandName)
+        const realCommandName = resolved?.commandName ?? commandName
+        if (resolved?.subcommand) args.subcommand = resolved.subcommand
+        if (resolved?.subcommandGroup)
+          args.subcommandGroup = resolved.subcommandGroup
+
+        const command = aiCommandRegistry.getCommand(commandName)
+        const metadata = aiCommandRegistry.getMetadata(commandName)
+
+        if (!command || !metadata) {
+          toolResults.push(
+            `Command /${realCommandName} not found. Available commands may be limited.`
+          )
+          continue
+        }
+
+        const permissionCheck = await this.checkCommandPermissions(
+          message,
+          realCommandName,
+          metadata,
+          args
+        )
+
+        if (!permissionCheck.allowed) {
+          toolResults.push(permissionCheck.reason)
+          continue
+        }
+
+        if (permissionCheck.isFreeWill) {
+          args = this.applyFreeWillLimits(realCommandName, args)
+        }
+
+        const virtualInteraction = new VirtualInteraction(
+          message.client,
+          message,
+          realCommandName,
+          args
+        )
+
+        try {
+          await command.interactionRun(virtualInteraction as any, {
+            settings: message.guild
+              ? await getSettings(message.guild)
+              : undefined,
+          })
+
+          const output = virtualInteraction.getOutput()
+          const resultText = output
+            ? `Command /${commandName} executed successfully. Result:\n${output}`
+            : `Command /${commandName} executed successfully (no text output).`
+
+          totalToolCalls++
+          toolResults.push(resultText)
+        } catch (err: any) {
+          logger.error(
+            `Failed to execute AI command ${commandName}: ${err.message}`
+          )
+          toolResults.push(
+            `Command /${commandName} failed with error: ${err.message}`
+          )
+        }
+      }
+
+      // Show status message only when at least one tool actually executed
+      if (totalToolCalls > 0 && statusText && statusText.length > 1) {
+        try {
+          statusMessage = await message.reply(statusText)
+        } catch {
+          // If status message fails to send, continue without it
+        }
+      }
+
+      // Store extracted memories (fire-and-forget)
+      const memoriesCreated = this.storeExtractedMemories(
+        extraction.memories,
+        message,
+        historyWithCurrentUser
+      )
+
+      // Build synthetic history for Call 2
+      const updatedHistory: ChatMessage[] = [...historyWithCurrentUser]
+
+      // Only inject tool results into history when tools were actually used
+      if (toolResults.length > 0) {
+        const toolSummary = `Used tools: ${extraction.tools.map(t => t.name).join(', ')}. Results:\n${toolResults.join('\n')}`
+        const syntheticMessage = `[Intent: ${extraction.intent}] ${toolSummary}`
+        conversationBuffer.appendAssistantMessage(
+          conversationId,
+          syntheticMessage
+        )
+        updatedHistory.push({ role: 'assistant', content: syntheticMessage })
+      }
+
+      // Show typing indicator before Call 2
+      if (!statusMessage && 'sendTyping' in message.channel) {
+        await message.channel.sendTyping()
+      }
+
+      // Call 2 - Response: generate final reply (no tools)
+      const result = await this.client.generateResponse(
+        enhancedPrompt,
+        updatedHistory,
+        '',
         config.maxTokens,
         config.temperature,
         hasMediaContent ? mediaItems : undefined,
-        tools
+        undefined
       )
 
-      // Accumulate metrics across all API calls in the ReAct loop
-      let totalTokensUsed = result.tokensUsed
-      let totalToolCalls = 0
-
-      // ReAct Loop: Allow AI to call functions and see results
-      const MAX_ITERATIONS = 5 // Safety limit to prevent infinite loops
-      let iteration = 0
-      let currentHistory = [...formattedHistory]
-      let statusMessage: Message | null = null
-
-      // Add the current user turn to history for follow-up calls
-      if (message.content && message.content.trim()) {
-        currentHistory.push({ role: 'user', content: message.content })
-      }
-
-      while (iteration < MAX_ITERATIONS) {
-        const toolCalls = result.toolCalls ?? []
-        if (toolCalls.length === 0) break
-        iteration++
-
-        // Count actual tool calls in this iteration
-        totalToolCalls += toolCalls.length
-
-        // Send a personality-flavored status message on first tool call
-        if (iteration === 1 && !statusMessage) {
-          const toolNames = toolCalls.map(tc => tc.function.name)
-          const category = getToolStatusCategory(toolNames)
-          const statusText = mina.say(category)
-          try {
-            statusMessage = await message.reply(statusText)
-          } catch {
-            // If status message fails to send, continue without it
-          }
-        }
-
-        // Process all tool calls in this response
-        const functionResults: string[] = []
-
-        for (const call of toolCalls) {
-          const commandName = call.function.name
-          let args: Record<string, any>
-          try {
-            const parsed =
-              typeof call.function.arguments === 'string'
-                ? JSON.parse(call.function.arguments)
-                : call.function.arguments
-            if (
-              typeof parsed !== 'object' ||
-              parsed === null ||
-              Array.isArray(parsed)
-            ) {
-              throw new TypeError(`Expected object, got ${typeof parsed}`)
-            }
-            args = parsed
-          } catch (parseError) {
-            Logger.error(
-              `Failed to parse tool arguments for ${commandName}`,
-              parseError
-            )
-            functionResults.push(`Error: invalid arguments for ${commandName}`)
-            continue
-          }
-
-          // Check if this is a native tool (memory manipulation, etc.)
-          if (aiCommandRegistry.isNativeTool(commandName)) {
-            const metadata = aiCommandRegistry.getMetadata(commandName)
-            if (metadata) {
-              const permissionCheck = await this.checkCommandPermissions(
-                message,
-                commandName,
-                metadata,
-                args
-              )
-              if (!permissionCheck.allowed) {
-                functionResults.push(permissionCheck.reason)
-                continue
-              }
-            }
-
-            try {
-              const nativeContext = {
-                userId: message.author.id,
-                guildId: message.guild?.id ?? null,
-              }
-              const toolResult = await aiCommandRegistry.executeNativeTool(
-                commandName,
-                args,
-                nativeContext
-              )
-              functionResults.push(toolResult)
-            } catch (err: any) {
-              logger.error(
-                `Failed to execute native tool ${commandName}: ${err.message}`
-              )
-              functionResults.push(`Tool ${commandName} failed: ${err.message}`)
-            }
-            continue
-          }
-
-          // Resolve compound tool name (e.g., 'moderation_ban' -> { commandName: 'moderation', subcommand: 'ban' })
-          const resolved = aiCommandRegistry.resolveToolName(commandName)
-          const realCommandName = resolved?.commandName ?? commandName
-          if (resolved?.subcommand) {
-            args.subcommand = resolved.subcommand
-          }
-          if (resolved?.subcommandGroup) {
-            args.subcommandGroup = resolved.subcommandGroup
-          }
-
-          const command = aiCommandRegistry.getCommand(commandName)
-          const metadata = aiCommandRegistry.getMetadata(commandName)
-
-          if (!command || !metadata) {
-            functionResults.push(
-              `Command /${realCommandName} not found. Available commands may be limited.`
-            )
-            continue
-          }
-
-          // Permission checks based on model
-          const permissionCheck = await this.checkCommandPermissions(
-            message,
-            realCommandName,
-            metadata,
-            args
-          )
-
-          if (!permissionCheck.allowed) {
-            functionResults.push(permissionCheck.reason)
-            continue
-          }
-
-          // Apply free will limits (e.g., timeout duration cap)
-          if (permissionCheck.isFreeWill) {
-            args = this.applyFreeWillLimits(realCommandName, args)
-          }
-
-          const virtualInteraction = new VirtualInteraction(
-            message.client,
-            message,
-            realCommandName,
-            args
-          )
-
-          try {
-            await command.interactionRun(virtualInteraction as any, {
-              settings: message.guild
-                ? await getSettings(message.guild)
-                : undefined,
-            })
-
-            // Capture output for AI context
-            const output = virtualInteraction.getOutput()
-            const resultText = output
-              ? `Command /${commandName} executed successfully. Result:\n${output}`
-              : `Command /${commandName} executed successfully (no text output).`
-
-            functionResults.push(resultText)
-          } catch (err: any) {
-            logger.error(
-              `Failed to execute AI command ${commandName}: ${err.message}`
-            )
-            functionResults.push(
-              `Command /${commandName} failed with error: ${err.message}`
-            )
-          }
-        }
-
-        // Store the assistant message that requested tool calls
-        conversationBuffer.appendAssistantMessage(
-          conversationId,
-          result.text || '',
-          toolCalls
-        )
-        currentHistory.push({
-          role: 'assistant',
-          content: result.text || '',
-          tool_calls: toolCalls,
-        })
-
-        // Each tool call gets its own separate tool message (OpenAI/Mistral format)
-        for (let i = 0; i < toolCalls.length; i++) {
-          const call = toolCalls[i]
-          const toolResult = functionResults[i] || 'No result'
-          conversationBuffer.appendToolResult(
-            conversationId,
-            call.id,
-            call.function.name,
-            toolResult
-          )
-          currentHistory.push({
-            role: 'tool',
-            content: toolResult,
-            tool_call_id: call.id,
-            name: call.function.name,
-          })
-        }
-
-        // Show typing indicator only when no status message exists (editing
-        // the status message already signals activity; a redundant sendTyping
-        // would leave the typing indicator lingering ~10s after the edit).
-        if (!statusMessage && 'sendTyping' in message.channel) {
-          await message.channel.sendTyping()
-        }
-
-        // Generate follow-up response -- tool results are in history as proper tool messages
-        result = await this.client.generateResponse(
-          enhancedPrompt,
-          currentHistory,
-          '', // No user message -- tool results are in history
-          config.maxTokens,
-          config.temperature,
-          undefined,
-          tools
-        )
-
-        // Accumulate tokens from follow-up API call
-        totalTokensUsed += result.tokensUsed
-      }
-
-      // Send final text reply if present
+      // Send final text reply
       if (result.text && result.text.trim()) {
         if (statusMessage) {
-          // Edit the status message with the final response
           try {
             await statusMessage.edit(result.text)
           } catch {
-            // If edit fails (e.g., message deleted), send as new reply
             await message.reply(result.text)
           }
         } else {
-          // No tool calls were made — send as normal reply
           await message.reply(result.text)
         }
-        // Append bot response to conversation buffer
-        conversationBuffer.appendAssistantMessage(
-          conversationId,
-          result.text,
-          result.toolCalls
-        )
+        conversationBuffer.appendAssistantMessage(conversationId, result.text)
       } else if (statusMessage) {
-        // No final text but status message exists — clean up orphan
         try {
           await statusMessage.delete()
         } catch {
@@ -751,35 +725,13 @@ export class AiResponderService {
         }
       }
 
-      // Warn if we hit the iteration limit
-      if (iteration >= MAX_ITERATIONS) {
-        logger.error(
-          `ReAct loop hit max iterations (${MAX_ITERATIONS}) for message ${message.id}`
-        )
-      }
-
-      // Re-fetch fresh history including the model's final response
-      // Extract and store memories (async, don't block)
-      conversationBuffer
-        .getHistory(conversationId)
-        .then(freshHistory =>
-          this.extractAndStoreMemories(message, freshHistory).catch(err =>
-            logger.error(`Failed to extract memories: ${err.message}`)
-          )
-        )
-        .catch(err =>
-          logger.error(
-            `Failed to fetch fresh history for memory extraction: ${err.message}`
-          )
-        )
-
-      // Record AI metrics (accumulated across all ReAct iterations)
+      // Record AI metrics
       aiMetrics.record({
         userId: message.author.id,
         guildId: message.guild?.id ?? null,
-        tokensUsed: totalTokensUsed,
+        tokensUsed: result.tokensUsed,
         toolCalls: totalToolCalls,
-        memoriesCreated: 0, // memory extraction is async, counted separately
+        memoriesCreated,
       })
 
       // Clear failure count on success
@@ -809,6 +761,13 @@ export class AiResponderService {
 
   /**
    * Check if AI can execute a command based on permission model
+   * @param message
+   * @param commandName
+   * @param metadata
+   * @param metadata.permissionModel
+   * @param metadata.userPermissions
+   * @param metadata.freeWillAllowed
+   * @param args
    */
   private async checkCommandPermissions(
     message: Message,
@@ -902,6 +861,7 @@ export class AiResponderService {
 
   /**
    * Detect if user message contains prompt injection patterns
+   * @param content
    */
   private detectPromptInjection(content: string): boolean {
     const lower = content.toLowerCase()
@@ -912,6 +872,8 @@ export class AiResponderService {
 
   /**
    * Check if user message likely contains explicit request for this command
+   * @param content
+   * @param commandName
    */
   private isLikelyUserRequest(content: string, commandName: string): boolean {
     const lower = content.toLowerCase()
@@ -941,6 +903,8 @@ export class AiResponderService {
 
   /**
    * Check if target user has higher/equal role than bot (for free will actions)
+   * @param message
+   * @param args
    */
   private async checkTargetHierarchy(
     message: Message,
@@ -992,6 +956,8 @@ export class AiResponderService {
 
   /**
    * Apply limits to free will command arguments
+   * @param commandName
+   * @param args
    */
   private applyFreeWillLimits(
     commandName: string,
@@ -1111,10 +1077,102 @@ export class AiResponderService {
   /**
    * Format conversation history with speaker attribution for AI
    * Adds display names to user messages so AI can track who said what
+   * @param history
    */
   private formatHistoryForAI(history: BufferMessage[]): ChatMessage[] {
     const sanitized = ConversationBuffer.sanitizeToolPairs(history)
     return sanitized.map(msg => ConversationBuffer.formatWithAttribution(msg))
+  }
+
+  private appendCurrentUserMessage(
+    history: ChatMessage[],
+    userMessage: string
+  ): ChatMessage[] {
+    if (!userMessage.trim()) return [...history]
+    return [...history, { role: 'user', content: userMessage }]
+  }
+
+  private buildConversationSnippet(history: ChatMessage[]): string {
+    return history
+      .slice(-3)
+      .map(message =>
+        (typeof message.content === 'string' ? message.content : '').substring(
+          0,
+          50
+        )
+      )
+      .join(' | ')
+  }
+
+  private getValidExtractionArgs(
+    commandName: string,
+    rawArgs: unknown
+  ): Record<string, any> | null {
+    if (!this.isPlainObject(rawArgs)) {
+      logger.error(
+        `Invalid extraction tool arguments for ${commandName}: expected plain object, got ${this.describeValueType(rawArgs)}`
+      )
+      return null
+    }
+
+    return { ...rawArgs }
+  }
+
+  private isPlainObject(value: unknown): value is Record<string, any> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value)
+  }
+
+  private describeValueType(value: unknown): string {
+    if (value === null) return 'null'
+    if (Array.isArray(value)) return 'array'
+    return typeof value
+  }
+
+  private storeExtractedMemories(
+    memories: MemoryFact[],
+    message: Message,
+    history: ChatMessage[]
+  ): number {
+    if (memories.length === 0) return 0
+
+    const conversationSnippet = this.buildConversationSnippet(history)
+
+    for (const fact of memories) {
+      memoryService
+        .storeMemory(
+          fact,
+          message.author.id,
+          message.guild?.id || null,
+          conversationSnippet
+        )
+        .catch(err => logger.error(`Failed to store memory: ${err.message}`))
+    }
+
+    return memories.length
+  }
+
+  private async extractFallbackMemories(
+    message: Message,
+    enhancedPrompt: string,
+    history: ChatMessage[],
+    userMessage: string
+  ): Promise<MemoryFact[]> {
+    if (!this.client || !userMessage.trim()) return []
+
+    try {
+      const extraction = await this.client.extractAnalysis(
+        enhancedPrompt,
+        history,
+        userMessage,
+        ''
+      )
+      return extraction.memories
+    } catch (error: any) {
+      logger.warn(
+        `Fallback memory extraction failed for ${message.author.id}: ${error.message}`
+      )
+      return []
+    }
   }
 
   /**
@@ -1122,6 +1180,10 @@ export class AiResponderService {
    * - Users from last N messages (conversation thread context)
    * - Users who spoke within time window (recent activity)
    * This handles both active conversations and prevents stale participants
+   * @param history
+   * @param currentUserId
+   * @param timeWindowMs
+   * @param maxMessageLookback
    */
   private getActiveParticipants(
     history: BufferMessage[],
@@ -1159,6 +1221,7 @@ export class AiResponderService {
   /**
    * Fetch profiles for all participants
    * Respects privacy settings and caches results
+   * @param userIds
    */
   private async getParticipantProfiles(
     userIds: string[]
@@ -1191,36 +1254,301 @@ export class AiResponderService {
     return profiles
   }
 
-  private async extractAndStoreMemories(
+  /**
+   * ReAct loop fallback when the 2-call extraction pipeline fails.
+   * Contains the full original multi-iteration tool-calling flow.
+   * @param message
+   * @param enhancedPrompt
+   * @param formattedHistory
+   * @param config
+   * @param mediaItems
+   * @param conversationId
+   */
+  private async _reactFallback(
     message: Message,
-    history: any[]
+    enhancedPrompt: string,
+    formattedHistory: ChatMessage[],
+    config: AiConfig,
+    mediaItems: MediaItem[],
+    conversationId: string
   ): Promise<void> {
-    // Only extract if conversation is long enough
-    if (history.length < 5) return
+    const hasMediaContent = mediaItems.length > 0
+    const tools = aiCommandRegistry.getTools()
 
-    const guildId = message.guild?.id || null
-    const userId = message.author.id
+    if (!this.client) throw new Error('AI client unavailable')
 
-    try {
-      // Extract memories using AI
-      const facts = await memoryService.extractMemories(history)
+    let result = await this.client.generateResponse(
+      enhancedPrompt,
+      formattedHistory,
+      message.content ||
+        (hasMediaContent ? 'What do you see in this image?' : ''),
+      config.maxTokens,
+      config.temperature,
+      hasMediaContent ? mediaItems : undefined,
+      tools
+    )
 
-      // Store each memory
-      const conversationSnippet = history
-        .slice(-3)
-        .map(m => ConversationBuffer.getTextContent(m).substring(0, 50))
-        .join(' | ')
+    let totalTokensUsed = result.tokensUsed
+    let totalToolCalls = 0
 
-      for (const fact of facts) {
-        await memoryService.storeMemory(
-          fact,
-          userId,
-          guildId,
-          conversationSnippet
+    const MAX_ITERATIONS = 5
+    let iteration = 0
+    let currentHistory = [...formattedHistory]
+    let statusMessage: Message | null = null
+
+    if (message.content && message.content.trim()) {
+      currentHistory.push({ role: 'user', content: message.content })
+    }
+
+    while (iteration < MAX_ITERATIONS) {
+      const toolCalls = result.toolCalls ?? []
+      if (toolCalls.length === 0) break
+      iteration++
+
+      const functionResults: string[] = []
+
+      for (const call of toolCalls) {
+        const commandName = call.function.name
+        let args: Record<string, any>
+        try {
+          const parsed =
+            typeof call.function.arguments === 'string'
+              ? JSON.parse(call.function.arguments)
+              : call.function.arguments
+          if (
+            typeof parsed !== 'object' ||
+            parsed === null ||
+            Array.isArray(parsed)
+          ) {
+            throw new TypeError(`Expected object, got ${typeof parsed}`)
+          }
+          args = parsed
+        } catch (parseError) {
+          Logger.error(
+            `Failed to parse tool arguments for ${commandName}`,
+            parseError
+          )
+          functionResults.push(`Error: invalid arguments for ${commandName}`)
+          continue
+        }
+
+        if (aiCommandRegistry.isNativeTool(commandName)) {
+          const metadata = aiCommandRegistry.getMetadata(commandName)
+          if (metadata) {
+            const permissionCheck = await this.checkCommandPermissions(
+              message,
+              commandName,
+              metadata,
+              args
+            )
+            if (!permissionCheck.allowed) {
+              functionResults.push(permissionCheck.reason)
+              continue
+            }
+          }
+
+          try {
+            const nativeContext = {
+              userId: message.author.id,
+              guildId: message.guild?.id ?? null,
+            }
+            const toolResult = await aiCommandRegistry.executeNativeTool(
+              commandName,
+              args,
+              nativeContext
+            )
+            totalToolCalls++
+            functionResults.push(toolResult)
+          } catch (err: any) {
+            logger.error(
+              `Failed to execute native tool ${commandName}: ${err.message}`
+            )
+            functionResults.push(`Tool ${commandName} failed: ${err.message}`)
+          }
+          continue
+        }
+
+        const resolved = aiCommandRegistry.resolveToolName(commandName)
+        const realCommandName = resolved?.commandName ?? commandName
+        if (resolved?.subcommand) args.subcommand = resolved.subcommand
+        if (resolved?.subcommandGroup)
+          args.subcommandGroup = resolved.subcommandGroup
+
+        const command = aiCommandRegistry.getCommand(commandName)
+        const metadata = aiCommandRegistry.getMetadata(commandName)
+
+        if (!command || !metadata) {
+          functionResults.push(
+            `Command /${realCommandName} not found. Available commands may be limited.`
+          )
+          continue
+        }
+
+        const permissionCheck = await this.checkCommandPermissions(
+          message,
+          realCommandName,
+          metadata,
+          args
         )
+
+        if (!permissionCheck.allowed) {
+          functionResults.push(permissionCheck.reason)
+          continue
+        }
+
+        if (permissionCheck.isFreeWill) {
+          args = this.applyFreeWillLimits(realCommandName, args)
+        }
+
+        const virtualInteraction = new VirtualInteraction(
+          message.client,
+          message,
+          realCommandName,
+          args
+        )
+
+        try {
+          await command.interactionRun(virtualInteraction as any, {
+            settings: message.guild
+              ? await getSettings(message.guild)
+              : undefined,
+          })
+
+          const output = virtualInteraction.getOutput()
+          const resultText = output
+            ? `Command /${commandName} executed successfully. Result:\n${output}`
+            : `Command /${commandName} executed successfully (no text output).`
+
+          totalToolCalls++
+          functionResults.push(resultText)
+        } catch (err: any) {
+          logger.error(
+            `Failed to execute AI command ${commandName}: ${err.message}`
+          )
+          functionResults.push(
+            `Command /${commandName} failed with error: ${err.message}`
+          )
+        }
       }
-    } catch (error: any) {
-      logger.error(`Memory extraction failed: ${error.message}`)
+
+      // Show status message only when at least one tool actually executed (first iteration only)
+      if (totalToolCalls > 0 && !statusMessage) {
+        const toolNames = toolCalls.map(tc => tc.function.name)
+        const category = getToolStatusCategory(toolNames)
+        const statusText = mina.say(category)
+        try {
+          statusMessage = await message.reply(statusText)
+        } catch {
+          // If status message fails to send, continue without it
+        }
+      }
+
+      conversationBuffer.appendAssistantMessage(
+        conversationId,
+        result.text || '',
+        toolCalls
+      )
+      currentHistory.push({
+        role: 'assistant',
+        content: result.text || '',
+        tool_calls: toolCalls,
+      })
+
+      for (let i = 0; i < toolCalls.length; i++) {
+        const call = toolCalls[i]
+        const toolResult = functionResults[i] || 'No result'
+        conversationBuffer.appendToolResult(
+          conversationId,
+          call.id,
+          call.function.name,
+          toolResult
+        )
+        currentHistory.push({
+          role: 'tool',
+          content: toolResult,
+          tool_call_id: call.id,
+          name: call.function.name,
+        })
+      }
+
+      if (!statusMessage && 'sendTyping' in message.channel) {
+        await message.channel.sendTyping()
+      }
+
+      result = await this.client.generateResponse(
+        enhancedPrompt,
+        currentHistory,
+        '',
+        config.maxTokens,
+        config.temperature,
+        undefined,
+        tools
+      )
+
+      totalTokensUsed += result.tokensUsed
+    }
+
+    const fallbackUserMessage =
+      message.content ||
+      (hasMediaContent ? 'What do you see in this image?' : '')
+    const fallbackMemories = await this.extractFallbackMemories(
+      message,
+      enhancedPrompt,
+      formattedHistory,
+      fallbackUserMessage
+    )
+
+    let memoryHistory = [...currentHistory]
+
+    if (result.text && result.text.trim()) {
+      if (statusMessage) {
+        try {
+          await statusMessage.edit(result.text)
+        } catch {
+          await message.reply(result.text)
+        }
+      } else {
+        await message.reply(result.text)
+      }
+      conversationBuffer.appendAssistantMessage(
+        conversationId,
+        result.text,
+        result.toolCalls
+      )
+      memoryHistory = [
+        ...memoryHistory,
+        { role: 'assistant', content: result.text },
+      ]
+    } else if (statusMessage) {
+      try {
+        await statusMessage.delete()
+      } catch {
+        // Ignore if already deleted
+      }
+    }
+
+    if (iteration >= MAX_ITERATIONS) {
+      logger.error(
+        `ReAct loop hit max iterations (${MAX_ITERATIONS}) for message ${message.id}`
+      )
+    }
+
+    const memoriesCreated = this.storeExtractedMemories(
+      fallbackMemories,
+      message,
+      memoryHistory
+    )
+
+    aiMetrics.record({
+      userId: message.author.id,
+      guildId: message.guild?.id ?? null,
+      tokensUsed: totalTokensUsed,
+      toolCalls: totalToolCalls,
+      memoriesCreated,
+    })
+
+    if (message.guild) {
+      this.clearFailures(message.guild.id)
     }
   }
 }

@@ -10,6 +10,8 @@ export * from './rateLimit'
 /**
  * CORS middleware for handling cross-origin requests
  * Allows requests from Amina dashboard and local development
+ * @param c
+ * @param next
  */
 export async function cors(c: Context<{ Bindings: Env }>, next: Next) {
   const origin = c.req.header('Origin') || ''
@@ -62,6 +64,8 @@ export async function cors(c: Context<{ Bindings: Env }>, next: Next) {
 
 /**
  * Request logging middleware
+ * @param c
+ * @param next
  */
 export async function logger(c: Context<{ Bindings: Env }>, next: Next) {
   const start = Date.now()
@@ -79,6 +83,8 @@ export async function logger(c: Context<{ Bindings: Env }>, next: Next) {
 /**
  * Cache control middleware
  * Sets appropriate cache headers for different endpoints
+ * @param c
+ * @param next
  */
 export async function cacheControl(c: Context<{ Bindings: Env }>, next: Next) {
   await next()
@@ -108,6 +114,8 @@ export async function cacheControl(c: Context<{ Bindings: Env }>, next: Next) {
 
 /**
  * Error handling middleware
+ * @param c
+ * @param next
  */
 export async function errorHandler(c: Context<{ Bindings: Env }>, next: Next) {
   try {

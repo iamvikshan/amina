@@ -336,14 +336,18 @@ describe('AiCommandRegistry subcommand tool mapping (real)', () => {
 
     const banTool = tools.find(t => t.function.name === 'moderation_ban')
     if (!banTool) throw new Error('Expected moderation_ban tool')
-    expect(banTool.function.parameters.properties).toHaveProperty('user')
-    expect(banTool.function.parameters.properties).toHaveProperty('reason')
-    expect(banTool.function.parameters.required).toEqual(['user'])
+    const banParameters = banTool.function.parameters
+    if (!banParameters) throw new Error('Expected moderation_ban parameters')
+    expect(banParameters.properties).toHaveProperty('user')
+    expect(banParameters.properties).toHaveProperty('reason')
+    expect(banParameters.required).toEqual(['user'])
 
     const kickTool = tools.find(t => t.function.name === 'moderation_kick')
     if (!kickTool) throw new Error('Expected moderation_kick tool')
-    expect(kickTool.function.parameters.properties).toHaveProperty('user')
-    expect(kickTool.function.parameters.properties).not.toHaveProperty(
+    const kickParameters = kickTool.function.parameters
+    if (!kickParameters) throw new Error('Expected moderation_kick parameters')
+    expect(kickParameters.properties).toHaveProperty('user')
+    expect(kickParameters.properties).not.toHaveProperty(
       'reason'
     )
   })
@@ -359,15 +363,21 @@ describe('AiCommandRegistry subcommand tool mapping (real)', () => {
 
     const addTool = tools.find(t => t.function.name === 'invite_rank_add')
     if (!addTool) throw new Error('Expected invite_rank_add tool')
-    expect(addTool.function.parameters.properties).toHaveProperty('role')
-    expect(addTool.function.parameters.properties).toHaveProperty('invites')
+    const addParameters = addTool.function.parameters
+    if (!addParameters) throw new Error('Expected invite_rank_add parameters')
+    expect(addParameters.properties).toHaveProperty('role')
+    expect(addParameters.properties).toHaveProperty('invites')
 
     const removeTool = tools.find(
       t => t.function.name === 'invite_rank_remove'
     )
     if (!removeTool) throw new Error('Expected invite_rank_remove tool')
-    expect(removeTool.function.parameters.properties).toHaveProperty('role')
-    expect(removeTool.function.parameters.properties).not.toHaveProperty(
+    const removeParameters = removeTool.function.parameters
+    if (!removeParameters) {
+      throw new Error('Expected invite_rank_remove parameters')
+    }
+    expect(removeParameters.properties).toHaveProperty('role')
+    expect(removeParameters.properties).not.toHaveProperty(
       'invites'
     )
   })
@@ -378,8 +388,12 @@ describe('AiCommandRegistry subcommand tool mapping (real)', () => {
 
     const tools = registry.getTools()
     expect(tools.length).toBe(1)
-    expect(tools[0].function.name).toBe('ping')
-    expect(tools[0].function.parameters.properties).toHaveProperty(
+    const pingTool = tools[0]
+    if (!pingTool) throw new Error('Expected ping tool')
+    expect(pingTool.function.name).toBe('ping')
+    const pingParameters = pingTool.function.parameters
+    if (!pingParameters) throw new Error('Expected ping parameters')
+    expect(pingParameters.properties).toHaveProperty(
       'ephemeral'
     )
   })

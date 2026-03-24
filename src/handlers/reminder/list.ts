@@ -18,6 +18,8 @@ const REMINDERS_PER_PAGE = 5
 
 /**
  * Show paginated list of reminders
+ * @param interaction
+ * @param page
  */
 export async function showRemindersList(
   interaction:
@@ -154,6 +156,7 @@ export async function showRemindersList(
 
 /**
  * Handle pagination button
+ * @param interaction
  */
 export async function handleReminderPage(
   interaction: ButtonInteraction
@@ -165,6 +168,7 @@ export async function handleReminderPage(
 
 /**
  * Handle delete reminder menu
+ * @param interaction
  */
 export async function handleDeleteReminderMenu(
   interaction: StringSelectMenuInteraction
@@ -219,6 +223,7 @@ export async function handleDeleteReminderMenu(
 
 /**
  * Handle edit reminder menu
+ * @param interaction
  */
 export async function handleEditReminderMenu(
   interaction: StringSelectMenuInteraction

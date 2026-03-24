@@ -9,6 +9,7 @@ import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 
 /**
  * Show the add to user menu - starts with user selection
+ * @param interaction
  */
 export async function showAddToUserMenu(
   interaction: ButtonInteraction
@@ -56,6 +57,7 @@ export async function showAddToUserMenu(
 
 /**
  * Handle user selection - show role selector
+ * @param interaction
  */
 export async function handleUserSelect(
   interaction: UserSelectMenuInteraction
@@ -136,6 +138,7 @@ export async function handleUserSelect(
 
 /**
  * Handle role selection - show preview
+ * @param interaction
  */
 export async function handleRoleSelect(
   interaction: RoleSelectMenuInteraction
@@ -286,6 +289,7 @@ export async function handleRoleSelect(
 
 /**
  * Execute role assignment
+ * @param interaction
  */
 export async function handleAssignConfirm(
   interaction: ButtonInteraction

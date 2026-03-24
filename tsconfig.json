@@ -13,9 +13,6 @@
     // Emit settings - we don't need to emit since Bun runs TS natively
     "noEmit": true,
     "isolatedModules": true,
-
-    // Path mapping
-    "baseUrl": "./",
     "paths": {
       "@root/*": ["./*"],
       "@data/*": ["./src/data/*"],

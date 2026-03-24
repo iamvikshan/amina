@@ -38,6 +38,7 @@ const themes = {
 
 /**
  * Generate a rank card SVG
+ * @param options
  */
 export function generateRankCard(options: RankCardOptions): string {
   const theme = themes[options.theme || 'amina']

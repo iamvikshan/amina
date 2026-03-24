@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { loadDefaultPrompt } from '@helpers/promptLoader'
-import config from '../../config/config'
+import config from '../../config'
 
 // Load default system prompt from prompt.md (used as seed value)
 const defaultSystemPrompt = loadDefaultPrompt()

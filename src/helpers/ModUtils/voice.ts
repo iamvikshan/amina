@@ -4,6 +4,9 @@ import { memberInteract, logModeration } from './core'
 
 /**
  * Voice mutes the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function vMuteTarget(
   issuer: GuildMember,
@@ -29,6 +32,9 @@ export async function vMuteTarget(
 
 /**
  * Voice unmutes the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function vUnmuteTarget(
   issuer: GuildMember,
@@ -54,6 +60,9 @@ export async function vUnmuteTarget(
 
 /**
  * Deafens the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function deafenTarget(
   issuer: GuildMember,
@@ -79,6 +88,9 @@ export async function deafenTarget(
 
 /**
  * UnDeafens the target and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function unDeafenTarget(
   issuer: GuildMember,
@@ -104,6 +116,9 @@ export async function unDeafenTarget(
 
 /**
  * Disconnects the target from voice channel and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
  */
 export async function disconnectTarget(
   issuer: GuildMember,
@@ -128,6 +143,10 @@ export async function disconnectTarget(
 
 /**
  * Moves the target to another voice channel and logs to the database, channel
+ * @param issuer
+ * @param target
+ * @param reason
+ * @param channel
  */
 export async function moveTarget(
   issuer: GuildMember,

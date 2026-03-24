@@ -88,6 +88,7 @@ export class MemoryManipulator {
 
   /**
    * Store a reference to the memory service for handler use.
+   * @param memoryService
    */
   initialize(memoryService: MemoryService) {
     this.memoryService = memoryService
@@ -95,6 +96,7 @@ export class MemoryManipulator {
 
   /**
    * Register the 4 memory tools as native tools with the AI command registry.
+   * @param registry
    */
   registerTools(registry: AiCommandRegistry) {
     registry.registerNativeTools([

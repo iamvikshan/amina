@@ -8,6 +8,7 @@
 /**
  * Escape XML/SVG special characters to prevent injection.
  * Use for ALL user-controlled text interpolated into SVG markup.
+ * @param text
  */
 export function escapeXml(text: string): string {
   return text
@@ -21,6 +22,7 @@ export function escapeXml(text: string): string {
 /**
  * Sanitize a URL for safe use in SVG attributes (xlink:href, href).
  * Only allows http: and https: schemes. Returns empty string for unsafe URLs.
+ * @param url
  */
 export function sanitizeUrl(url: string): string {
   try {
@@ -41,6 +43,9 @@ export function sanitizeUrl(url: string): string {
  *
  * The returned URL is escaped with escapeXml() so it can be safely
  * interpolated into SVG attributes without additional escaping.
+ * @param c
+ * @param c.req
+ * @param c.req.query
  */
 export function getImageUrl(c: {
   req: { query: (key: string) => string | undefined }
@@ -61,6 +66,10 @@ export function getImageUrl(c: {
 /**
  * Clamp a dimension value to a safe range for SVG generation.
  * Ensures the value is a finite number within [min, max].
+ * @param value
+ * @param min
+ * @param max
+ * @param fallback
  */
 export function clampDimension(
   value: number,
@@ -76,6 +85,10 @@ export function clampDimension(
  * Safely parse a numeric query parameter with default, min, and max.
  * Returns defaultValue if the string is undefined, empty, or not a finite number.
  * Clamps between min/max if provided.
+ * @param value
+ * @param defaultValue
+ * @param min
+ * @param max
  */
 export function parseNumberOrDefault(
   value: string | undefined,
@@ -95,6 +108,9 @@ export function parseNumberOrDefault(
 /**
  * Create a Response with SVG content-type and cache headers.
  * Replaces repeated `new Response(svg, { headers: { ... } })` patterns.
+ * @param svg
+ * @param maxAge
+ * @param staleWhileRevalidate
  */
 export function svgResponse(
   svg: string,
@@ -116,6 +132,7 @@ export function svgResponse(
 /**
  * Validate a hex color string.
  * Accepts #RGB, #RGBA, #RRGGBB, and #RRGGBBAA formats.
+ * @param color
  */
 export function validateHexColor(color: string): boolean {
   return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(

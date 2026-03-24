@@ -36,6 +36,7 @@ const MAX_ITEMS_TO_SHOW = 15 // Prevent Discord Embed limits from breaking the w
 
 /**
  * Transform Doppler payload to Discord embed format
+ * @param payload
  */
 export function transformDopplerPayload(
   payload: DopplerPayload

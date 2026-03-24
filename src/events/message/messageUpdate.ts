@@ -6,6 +6,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 /**
  * Handles message update events
  * @param {BotClient} client - The bot client instance
+ * @param _client
  * @param {Message | PartialMessage} oldMessage - The old message before update
  * @param {Message | PartialMessage} newMessage - The new message after update
  */

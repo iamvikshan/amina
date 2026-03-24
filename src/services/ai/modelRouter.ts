@@ -39,6 +39,7 @@ export class ModelRouter {
 
   /**
    * Get the model ID for a given task type
+   * @param taskType
    */
   getModel(taskType: TaskType): ModelConfig {
     switch (taskType) {

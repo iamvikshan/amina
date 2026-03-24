@@ -12,6 +12,7 @@ export interface MediaItem {
 /**
  * Extract images, videos, and GIFs from a Discord message
  * Checks attachments and embed images
+ * @param message
  */
 export function extractMediaFromMessage(message: Message): MediaItem[] {
   const media: MediaItem[] = []
@@ -79,6 +80,7 @@ export function extractMediaFromMessage(message: Message): MediaItem[] {
 
 /**
  * Check if a message contains any media (images, videos, GIFs)
+ * @param message
  */
 export function hasMedia(message: Message): boolean {
   return extractMediaFromMessage(message).length > 0

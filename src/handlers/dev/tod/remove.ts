@@ -11,6 +11,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show modal for removing a ToD question
+ * @param interaction
  */
 export async function showRemoveTodModal(
   interaction: StringSelectMenuInteraction
@@ -39,6 +40,7 @@ export async function showRemoveTodModal(
 
 /**
  * Handle ToD remove modal submission
+ * @param interaction
  */
 export async function handleRemoveTodModal(
   interaction: ModalSubmitInteraction

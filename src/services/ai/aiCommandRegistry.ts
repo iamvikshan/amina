@@ -103,6 +103,7 @@ export class AiCommandRegistry {
 
   /**
    * Register native tools (not backed by slash commands)
+   * @param tools
    */
   registerNativeTools(
     tools: Array<{
@@ -145,6 +146,7 @@ export class AiCommandRegistry {
 
   /**
    * Check if a tool is a native tool (not a slash command)
+   * @param name
    */
   isNativeTool(name: string): boolean {
     return this.nativeToolHandlers.has(name)
@@ -152,6 +154,9 @@ export class AiCommandRegistry {
 
   /**
    * Execute a native tool by name
+   * @param name
+   * @param args
+   * @param context
    */
   async executeNativeTool(
     name: string,
@@ -165,6 +170,7 @@ export class AiCommandRegistry {
 
   /**
    * Get permission model for a command
+   * @param cmd
    */
   private getPermissionModel(cmd: CommandData): PermissionModel {
     const { overrides } = aiPermissions
@@ -190,6 +196,7 @@ export class AiCommandRegistry {
 
   /**
    * Build metadata for a command
+   * @param cmd
    */
   private buildMetadata(cmd: CommandData): AiToolMetadata {
     const permissionModel = this.getPermissionModel(cmd)

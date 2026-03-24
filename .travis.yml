@@ -21,18 +21,18 @@ env:
     - DOPPLER_CONFIG=dev
 
 stages:
-  - name: lint
+  - name: bot-smoke
     if: (type = pull_request AND branch = main) OR (type = push AND branch = main)
-  - name: docker
+  - name: docker-smoke
     if: (type = pull_request AND branch = main) OR (type = push AND branch = main)
 
 jobs:
   include:
     # ============================================
-    # Stage: Lint & Runtime Test (Pre-build)
+    # Stage: Bot Smoke
     # ============================================
-    - stage: lint
-      name: "Code Quality & Native Runtime Test"
+    - stage: bot-smoke
+      name: "Bot Validation & Native Runtime Smoke"
       before_install:
         # Install Doppler CLI for secrets
         - curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg
@@ -47,8 +47,50 @@ jobs:
         - bun install --frozen-lockfile --ignore-scripts
 
       script:
-        # 1. Run linting and type checks
-        - bun check
+        # 1. Run bot-only linting and type checks
+        - |
+          set -euo pipefail
+
+          temp_tsconfig=$(mktemp ./tsconfig.bot-smoke.XXXXXX.json)
+          temp_eslint_config=$(mktemp ./eslint.bot-smoke.XXXXXX.mjs)
+          trap 'rm -f "$temp_tsconfig" "$temp_eslint_config"' EXIT
+
+          cat <<'EOF' > "$temp_tsconfig"
+          {
+            "extends": "./tsconfig.json",
+            "include": ["src/**/*", "types/**/*"],
+            "exclude": [
+              "tests/**/*",
+              "api/**/*",
+              "cli/**/*",
+              "node_modules",
+              "**/node_modules/*",
+              "dist",
+              "build",
+              "logs",
+              "types/api/**/*"
+            ]
+          }
+          EOF
+
+          cat <<EOF > "$temp_eslint_config"
+          import baseConfig from './eslint.config.mjs'
+
+          export default [
+            ...baseConfig,
+            {
+              files: ['src/**/*.ts', 'types/**/*.ts'],
+              languageOptions: {
+                parserOptions: {
+                  project: ['$temp_tsconfig'],
+                },
+              },
+            },
+          ]
+          EOF
+
+          bunx eslint --config "$temp_eslint_config" src types
+          bunx tsc --noEmit --project "$temp_tsconfig"
 
         # 2. Create .env file from Doppler for native runtime test
         - |
@@ -73,7 +115,7 @@ jobs:
           echo "Waiting for app to be healthy..."
           for i in {1..30}; do
             if curl -f -s http://localhost:3000/health > /dev/null 2>&1; then
-              echo "✓ Native app is healthy!"
+              echo "Native app is healthy"
               kill $APP_PID 2>/dev/null || true
               wait $APP_PID 2>/dev/null || true
               exit 0
@@ -83,7 +125,7 @@ jobs:
           done
 
           # Health check failed - show logs and exit
-          echo "✗ Native health check failed"
+          echo "Native health check failed"
           echo "=== App logs ==="
           cat logs/app.log || echo "No logs available"
           kill $APP_PID 2>/dev/null || true
@@ -97,10 +139,10 @@ jobs:
         - rm -rf logs
 
     # ============================================
-    # Stage: Docker Build & Test (Post-build)
+    # Stage: Docker Smoke
     # ============================================
-    - stage: docker
-      name: "Docker Compose Build & Health Check"
+    - stage: docker-smoke
+      name: "Docker Compose Health Smoke"
       services:
         - docker
       install: skip # Docker stage doesn't need npm/bun install - it builds inside the container

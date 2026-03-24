@@ -86,6 +86,9 @@ export class MinaEmbed extends EmbedBuilder {
   /**
    * Format quote for display
    * Returns: "quote text" — character - anime
+   * @param quote
+   * @param character
+   * @param anime
    */
   private formatQuote(quote: string, character: string, anime: string): string {
     return `*"${quote}"*\n— ${character} - ${anime}`
@@ -152,6 +155,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Add custom footer
+   * @param text
+   * @param iconURL
    */
   withFooter(text: string, iconURL?: string): this {
     this.setFooter({ text, iconURL })
@@ -175,6 +180,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply user context to embed
+   * @param ctx
    */
   withUser(ctx: UserContext): this {
     if (ctx.showAvatar !== false) {
@@ -188,6 +194,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply member context to embed
+   * @param ctx
    */
   withMember(ctx: MemberContext): this {
     if (ctx.showAvatar !== false) {
@@ -229,6 +236,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply guild context to embed
+   * @param ctx
    */
   withGuild(ctx: GuildContext): this {
     if (ctx.showIcon !== false && ctx.guild.iconURL()) {
@@ -252,6 +260,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply bot as author
+   * @param ctx
    */
   withBot(ctx: BotContext): this {
     if (ctx.showAsAuthor !== false) {
@@ -265,6 +274,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply moderation context
+   * @param ctx
    */
   withModeration(ctx: ModerationContext): this {
     const target =
@@ -295,6 +305,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply economy context
+   * @param ctx
    */
   withEconomy(ctx: EconomyContext): this {
     this.setThumbnail(ctx.user.displayAvatarURL({ size: 256 }))
@@ -322,6 +333,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply music context
+   * @param ctx
    */
   withMusic(ctx: MusicContext): this {
     if (ctx.track.thumbnail) {
@@ -371,6 +383,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply level/rank context
+   * @param ctx
    */
   withLevel(ctx: LevelContext): this {
     this.setThumbnail(ctx.user.displayAvatarURL({ size: 256 }))
@@ -402,6 +415,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Success embed (green) - 30% quote chance
+   * @param description
    */
   static success(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -412,6 +426,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Error embed (blood red) - 10% quote chance
+   * @param description
    */
   static error(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -422,6 +437,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Warning embed (amber) - 10% quote chance
+   * @param description
    */
   static warning(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -432,6 +448,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Info embed (cyber blue) - 30% quote chance
+   * @param description
    */
   static info(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -442,6 +459,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Primary embed (crimson) - 30% quote chance
+   * @param description
    */
   static primary(description?: string): MinaEmbed {
     const embed = new MinaEmbed().withRandomExtras(0.3)
@@ -453,6 +471,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Secondary embed (electric blue) - 30% quote chance
+   * @param description
    */
   static secondary(description?: string): MinaEmbed {
     const embed = new MinaEmbed()
@@ -466,6 +485,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Gold/Achievement embed - 30% quote chance
+   * @param description
    */
   static gold(description?: string): MinaEmbed {
     const embed = new MinaEmbed()
@@ -479,6 +499,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Loading embed - no quote/tip (keep clean)
+   * @param description
    */
   static loading(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -488,6 +509,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Moderation action embed - 0% quote (keep professional)
+   * @param action
+   * @param description
    */
   static mod(
     action:
@@ -510,6 +533,7 @@ export class MinaEmbed extends EmbedBuilder {
   /**
    * Plain embed - no automatic quote/tip
    * Use when you want full control
+   * @param description
    */
   static plain(description?: string): MinaEmbed {
     const embed = new MinaEmbed()

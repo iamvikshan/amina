@@ -77,7 +77,9 @@ function getVerbConjugation(subject: string): string {
 
 /**
  * Generates a pronoun-aware AFK message
- * @param {Object} params Parameters for generating message
+ * @param {object} params Parameters for generating message
+ * @param params.pronouns
+ * @param params.minutes
  * @returns {string} Formatted AFK message
  */
 function generateAfkMessage(params: {

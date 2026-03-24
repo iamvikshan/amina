@@ -10,6 +10,8 @@ export const DEFAULT_TIMEOUT_HOURS = 24 // hours
 
 /**
  * Check if issuer can moderate target based on role hierarchy
+ * @param issuer
+ * @param target
  */
 export const memberInteract = (
   issuer: GuildMember,
@@ -23,6 +25,11 @@ export const memberInteract = (
 
 /**
  * Send logs to the configured channel and stores in the database
+ * @param issuer
+ * @param target
+ * @param reason
+ * @param type
+ * @param data
  */
 export const logModeration = async (
   issuer: GuildMember,

@@ -7,6 +7,7 @@ import {
 
 /**
  * Handle role selection for staff roles
+ * @param interaction
  */
 export async function handleRoleSelect(
   interaction: RoleSelectMenuInteraction

@@ -12,6 +12,9 @@ const memoryStore = new Map<string, { count: number; resetAt: number }>()
 
 /**
  * Check and update rate limit for a key
+ * @param kv
+ * @param key
+ * @param config
  */
 export async function checkRateLimit(
   kv: KVNamespace | undefined,
@@ -38,6 +41,10 @@ export async function checkRateLimit(
  * For strict rate limiting, consider Cloudflare Durable Objects or the
  * built-in Rate Limiting API. This implementation is sufficient for
  * best-effort rate limiting in typical API usage patterns.
+ * @param kv
+ * @param key
+ * @param config
+ * @param resetAt
  */
 async function checkRateLimitKV(
   kv: KVNamespace,
@@ -74,6 +81,10 @@ async function checkRateLimitKV(
 
 /**
  * Memory-based rate limiting (fallback, per-isolate)
+ * @param key
+ * @param config
+ * @param now
+ * @param resetAt
  */
 function checkRateLimitMemory(
   key: string,
@@ -132,6 +143,7 @@ function checkRateLimitMemory(
 
 /**
  * Generate rate limit headers
+ * @param result
  */
 export function rateLimitHeaders(
   result: RateLimitResult

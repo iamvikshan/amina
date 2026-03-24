@@ -24,6 +24,8 @@ declare module 'hono' {
 /**
  * Middleware to require API key authentication
  * Use on routes that need API key auth
+ * @param c
+ * @param next
  */
 export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
   const authHeader = c.req.header('Authorization')
@@ -126,6 +128,8 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
 
 /**
  * Optional API key middleware - doesn't require auth but extracts user if present
+ * @param c
+ * @param next
  */
 export async function optionalApiKey(
   c: Context<{ Bindings: Env }>,
@@ -169,6 +173,8 @@ export async function optionalApiKey(
 
 /**
  * Check if the authenticated user has a specific permission
+ * @param c
+ * @param permission
  */
 export function hasPermission(
   c: Context<{ Bindings: Env }>,
@@ -185,6 +191,7 @@ export function hasPermission(
 
 /**
  * Middleware factory to check for specific permission
+ * @param permission
  */
 export function requirePermission(permission: string) {
   return async (c: Context<{ Bindings: Env }>, next: Next) => {
