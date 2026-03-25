@@ -75,6 +75,8 @@ export const ENV_CATEGORIES: EnvCategory[] = [
       { key: 'LOGS_WEBHOOK', prompt: 'Discord webhook for bot logs' },
       { key: 'MISTRAL', prompt: 'Mistral AI API key' },
       { key: 'GEMINI', prompt: 'Gemini AI API key' },
+      { key: 'VOYAGE', prompt: 'Voyage AI API key' },
+      { key: 'VOYAGE_MONGO', prompt: 'Voyage MongoDB connection string' },
     ],
   },
   {

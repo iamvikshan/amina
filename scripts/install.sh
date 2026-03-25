@@ -773,23 +773,28 @@ env_guided_mode() {
         env_content+="LOGS_WEBHOOK=${logs_webhook}"$'\n'
 
         local gemini_key
-        gemini_key=$(read_input "Google Gemini AI API key" "")
-        env_content+="GEMINI_KEY=${gemini_key}"$'\n'
+        gemini_key=$(read_input "Google Gemini AI API key (primary)" "")
+        env_content+="GEMINI=${gemini_key}"$'\n'
 
-        local upstash_vector
-        upstash_vector=$(read_input "Upstash Vector Database token" "")
-        env_content+="UPSTASH_VECTOR=${upstash_vector}"$'\n'
+        local mistral_key
+        mistral_key=$(read_input "Mistral AI API key (fallback, optional)" "")
+        env_content+="MISTRAL=${mistral_key}"$'\n'
 
-        local openai_key
-        openai_key=$(read_input "OpenAI API key" "")
-        env_content+="OPENAI=${openai_key}"$'\n'
+        local voyage_key
+        voyage_key=$(read_input "Voyage AI API key (embeddings)" "")
+        env_content+="VOYAGE=${voyage_key}"$'\n'
+
+        local voyage_mongo_key
+        voyage_mongo_key=$(read_input "Voyage AI MongoDB API key (optional)" "")
+        env_content+="VOYAGE_MONGO=${voyage_mongo_key}"$'\n'
         echo ""
     else
         env_content+="WEBHOOK_SECRET="$'\n'
         env_content+="LOGS_WEBHOOK="$'\n'
-        env_content+="GEMINI_KEY="$'\n'
-        env_content+="UPSTASH_VECTOR="$'\n'
-        env_content+="OPENAI="$'\n'
+        env_content+="GEMINI="$'\n'
+        env_content+="MISTRAL="$'\n'
+        env_content+="VOYAGE="$'\n'
+        env_content+="VOYAGE_MONGO="$'\n'
     fi
 
     # ═══ Utility Commands ═══
@@ -804,14 +809,10 @@ env_guided_mode() {
         strange_key=$(read_input "Image manipulation API key" "")
         env_content+="STRANGE_API_KEY=${strange_key}"$'\n'
 
-        local gh_token
-        gh_token=$(read_input "GitHub token for changelog command" "")
-        env_content+="GH_TOKEN=${gh_token}"$'\n'
         echo ""
     else
         env_content+="WEATHERSTACK_KEY="$'\n'
         env_content+="STRANGE_API_KEY="$'\n'
-        env_content+="GH_TOKEN="$'\n'
     fi
 
     # ═══ Monitoring ═══
@@ -899,14 +900,14 @@ validate_env() {
         "LAVALINK_PASS"
         "WEBHOOK_SECRET"
         "LOGS_WEBHOOK"
-        "GEMINI_KEY"
-        "UPSTASH_VECTOR"
-        "OPENAI"
+        "GEMINI"
+        "MISTRAL"
+        "VOYAGE"
+        "VOYAGE_MONGO"
         "SPOTIFY_CLIENT_ID"
         "SPOTIFY_CLIENT_SECRET"
         "WEATHERSTACK_KEY"
         "STRANGE_API_KEY"
-        "GH_TOKEN"
         "HONEYBADGER_API_KEY"
     )
 

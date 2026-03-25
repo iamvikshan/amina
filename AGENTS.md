@@ -4,6 +4,7 @@
 - Keep modules cohesive, reusable, and easy to share without creating needless file sprawl.
 - Breaking changes are acceptable in this repo. Remove dead code instead of adding backward-compatibility or deprecation layers.
 - node is prohibited, use bun at all times.
+- absolutely no downgrading packages or tools for the sake of compatibility with old code. update old code to be compatible with modern tools and packages.
 
 ---
 
@@ -14,11 +15,7 @@ language: typescript
 pm: bun
 format: bun run f # formats changed files only — NEVER use bun f:all
 lint: bun check # combined lint + typecheck (eslint + tsc --noEmit)
-typecheck: bunx tsc --noEmit
 test: bun test # run all tests
-test-single: bun test tests/<name>.test.ts # run one test file
-test-grep: bun test --grep "pattern" # run tests matching description
-build: bun run build # alias for bun check (no compile step — Bun runs TS natively)
 ```
 
 ## project.conventions
@@ -38,7 +35,7 @@ testDir: tests/
 - **Runtime:** Bun (>=1.3.11) — runs TypeScript natively, no build/compile step
 - **Bot framework:** discord.js v14
 - **Database:** MongoDB via Mongoose
-- **AI integrations:** Mistral AI (`@mistralai/mistralai`), Groq SDK (`groq-sdk`)
+- **AI integrations:** Gemini (primary), Mistral (fallback) via OpenAI SDK (`openai`), Voyage AI (embedding)
 - **Music:** Lavalink server + `lavalink-client` (Spotify, Apple Music, Deezer, YouTube via plugins)
 - **Logging:** Pino + pino-pretty, wrapped by `src/helpers/Logger.ts`
 - **Error monitoring:** Honeybadger (`@honeybadger-io/js`)

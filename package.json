@@ -14,12 +14,9 @@
   ],
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "bun check",
     "start": "bun src/index.ts",
-    "check:watch": "tsc --noEmit --watch",
-    "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "check": "bun lint && tsc --noEmit",
+    "check": "eslint . && tsc --noEmit",
     "f": "(git diff --name-only --diff-filter=ACMR HEAD && git ls-files --others --exclude-standard) | grep -E '\\.(Dockerfile|yaml|yml|ts|tsx|js|jsx|json|css|md|mjs)$' | xargs bunx prettier --write --ignore-unknown",
     "f:all": "prettier --write .",
     "f:check": "prettier --check .",
@@ -64,7 +61,7 @@
     "table": "^6.9.0"
   },
   "devDependencies": {
-    "@eslint/js": "9",
+    "@eslint/js": "^10.0.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/exec": "^7.1.0",
@@ -76,7 +73,7 @@
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
     "conventional-changelog-conventionalcommits": "^9.3.0",
-    "eslint": "9",
+    "eslint": "^10.1.0",
     "eslint-plugin-jsdoc": "^62.8.0",
     "husky": "^9.1.7",
     "prettier": "3.8.1",

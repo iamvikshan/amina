@@ -58,23 +58,24 @@
       "required": false,
       "value": ""
     },
-    "SPOTIFY_CLIENT_ID": {
-      "description": "Spotify API client ID (https://developer.spotify.com/dashboard)",
+    "GEMINI": {
+      "description": "Google Gemini API Key (https://aistudio.google.com/apikey)",
       "required": false,
       "value": ""
     },
-    "SPOTIFY_CLIENT_SECRET": {
-      "description": "Spotify API client secret (https://developer.spotify.com/dashboard)",
+    "MISTRAL": {
+      "description": "Mistral API Key (https://mistral.ai)",
       "required": false,
       "value": ""
     },
-    "GEMINI_KEY": {
-      "description": "Google Gemini API Key (https://makersuite.google.com/app/apikey)",
+    
+    "VOYAGE": {
+      "description": "Voyage AI API Key (https://dash.voyageai.com/api-keys)",
       "required": false,
       "value": ""
     },
-    "WEATHERSTACK_KEY": {
-      "description": "Weather command API key (https://weatherstack.com)",
+    "VOYAGE_MONGO": {
+      "description": "Voyage AI MongoDB API Key (alt source for the voyage key, obtained from MongoDB Atlas.) - embedding provider.",
       "required": false,
       "value": ""
     },
