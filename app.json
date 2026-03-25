@@ -68,7 +68,7 @@
       "required": false,
       "value": ""
     },
-    
+
     "VOYAGE": {
       "description": "Voyage AI API Key (https://dash.voyageai.com/api-keys)",
       "required": false,

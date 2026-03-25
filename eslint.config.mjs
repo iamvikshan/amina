@@ -2,11 +2,7 @@
 import eslint from '@eslint/js'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
-
-// eslint-plugin-jsdoc >=50 requires Node 20+ (uses modern regex features)
-const nodeMajor = Number(globalThis.process?.versions?.node?.split('.')[0] ?? 0)
-const jsdoc =
-  nodeMajor >= 20 ? (await import('eslint-plugin-jsdoc')).default : null
+import jsdoc from 'eslint-plugin-jsdoc'
 
 export default [
   // Base ESLint recommended config
@@ -75,7 +71,7 @@ export default [
     files: ['**/*.ts', '**/*.tsx'],
     plugins: {
       '@typescript-eslint': tseslint,
-      ...(jsdoc ? { jsdoc } : {}),
+      jsdoc,
     },
     languageOptions: {
       parser: tsparser,
@@ -100,7 +96,7 @@ export default [
         },
       ],
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'warn',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-var-requires': 'error',
@@ -111,24 +107,20 @@ export default [
       '@typescript-eslint/no-misused-promises': 'warn',
       '@typescript-eslint/await-thenable': 'warn',
 
-      // JSDoc rules (only when plugin is available, requires Node 20+)
-      ...(jsdoc
-        ? {
-            'jsdoc/check-alignment': 'warn',
-            'jsdoc/check-indentation': 'warn',
-            'jsdoc/check-param-names': 'warn',
-            'jsdoc/check-syntax': 'warn',
-            'jsdoc/check-tag-names': 'warn',
-            'jsdoc/check-types': 'warn',
-            'jsdoc/require-description': 'warn',
-            'jsdoc/require-param': 'warn',
-            'jsdoc/require-param-description': 'warn',
-            'jsdoc/require-param-type': 'warn',
-            'jsdoc/require-returns': 'warn',
-            'jsdoc/require-returns-description': 'warn',
-            'jsdoc/require-returns-type': 'warn',
-          }
-        : {}),
+      // JSDoc rules
+      'jsdoc/check-alignment': 'warn',
+      'jsdoc/check-indentation': 'warn',
+      'jsdoc/check-param-names': 'warn',
+      'jsdoc/check-syntax': 'warn',
+      'jsdoc/check-tag-names': 'warn',
+      'jsdoc/check-types': 'warn',
+      'jsdoc/require-description': 'warn',
+      'jsdoc/require-param': 'warn',
+      'jsdoc/require-param-description': 'warn',
+      'jsdoc/require-param-type': 'warn',
+      'jsdoc/require-returns': 'warn',
+      'jsdoc/require-returns-description': 'warn',
+      'jsdoc/require-returns-type': 'warn',
     },
   },
 
@@ -144,6 +136,7 @@ export default [
       'coverage/**',
       '*.min.js',
       '**/.wrangler/**',
+      'api/**', // API workspace has its own lint pipeline (bun api:check)
       'types/api/**', // API types use a separate tsconfig (api/tsconfig.json)
       'tests/**', // Tests use bun:test, not eslint
       'release.config.js', // CJS files

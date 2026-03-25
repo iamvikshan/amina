@@ -27,6 +27,13 @@ import { checkInjection } from '@helpers/injectionDetector'
 
 const logger = Logger
 
+export const MEMORY_TOOLS = new Set([
+  'remember_fact',
+  'update_memory',
+  'forget_memory',
+  'recall_memories',
+])
+
 // ResponseMode and RateLimitEntry are now globally available - see types/services.d.ts
 
 export class AiResponderService {
@@ -545,6 +552,7 @@ export class AiResponderService {
       let totalToolCalls = 0
       let statusMessage: Message | null = null
       const statusText = extraction.statusText?.trim()
+      const executedToolNames = new Set<string>()
 
       // Execute tools from extraction result
       const toolResults: string[] = []
@@ -585,6 +593,7 @@ export class AiResponderService {
               nativeContext
             )
             totalToolCalls++
+            executedToolNames.add(commandName)
             toolResults.push(toolResult)
           } catch (err: any) {
             logger.error(
@@ -648,6 +657,7 @@ export class AiResponderService {
             : `Command /${commandName} executed successfully (no text output).`
 
           totalToolCalls++
+          executedToolNames.add(commandName)
           toolResults.push(resultText)
         } catch (err: any) {
           logger.error(
@@ -659,8 +669,11 @@ export class AiResponderService {
         }
       }
 
-      // Show status message only when at least one tool actually executed
-      if (totalToolCalls > 0 && statusText && statusText.length > 1) {
+      // Skip status message when only memory tools executed
+      const hasNonMemoryTools = [...executedToolNames].some(
+        name => !MEMORY_TOOLS.has(name)
+      )
+      if (hasNonMemoryTools && statusText && statusText.length > 1) {
         try {
           statusMessage = await message.reply(statusText)
         } catch {
@@ -681,7 +694,7 @@ export class AiResponderService {
       // Only inject tool results into history when tools were actually used
       if (toolResults.length > 0) {
         const toolSummary = `Used tools: ${extraction.tools.map(t => t.name).join(', ')}. Results:\n${toolResults.join('\n')}`
-        const syntheticMessage = `[Intent: ${extraction.intent}] ${toolSummary}`
+        const syntheticMessage = `[INTERNAL CONTEXT - do not narrate or repeat this to the user] [Intent: ${extraction.intent}] ${toolSummary}`
         conversationBuffer.appendAssistantMessage(
           conversationId,
           syntheticMessage
@@ -1290,6 +1303,7 @@ export class AiResponderService {
 
     let totalTokensUsed = result.tokensUsed
     let totalToolCalls = 0
+    const reactExecutedToolNames = new Set<string>()
 
     const MAX_ITERATIONS = 5
     let iteration = 0
@@ -1358,6 +1372,7 @@ export class AiResponderService {
               nativeContext
             )
             totalToolCalls++
+            reactExecutedToolNames.add(commandName)
             functionResults.push(toolResult)
           } catch (err: any) {
             logger.error(
@@ -1420,6 +1435,7 @@ export class AiResponderService {
             : `Command /${commandName} executed successfully (no text output).`
 
           totalToolCalls++
+          reactExecutedToolNames.add(commandName)
           functionResults.push(resultText)
         } catch (err: any) {
           logger.error(
@@ -1431,8 +1447,11 @@ export class AiResponderService {
         }
       }
 
-      // Show status message only when at least one tool actually executed (first iteration only)
-      if (totalToolCalls > 0 && !statusMessage) {
+      // Skip status message when only memory tools executed
+      const hasNonMemoryReactTools = [...reactExecutedToolNames].some(
+        name => !MEMORY_TOOLS.has(name)
+      )
+      if (hasNonMemoryReactTools && !statusMessage) {
         const toolNames = toolCalls.map(tc => tc.function.name)
         const category = getToolStatusCategory(toolNames)
         const statusText = mina.say(category)

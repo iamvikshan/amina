@@ -8,7 +8,6 @@ let mockDbConfig = {
   extractionModel: 'gemini-3.1-flash-lite-preview',
   maxTokens: 1024,
   timeoutMs: 20000,
-  systemPrompt: 'test prompt',
   temperature: 0.7,
   dmEnabledGlobally: false,
   dedupThreshold: 0.85,
@@ -37,6 +36,10 @@ mock.module('../src/config/config', () => ({
   },
 }))
 
+mock.module('../src/helpers/promptLoader', () => ({
+  loadDefaultPrompt: () => 'test system prompt',
+}))
+
 const { configCache } = await import('../src/config/aiResponder')
 
 describe('ConfigCache', () => {
@@ -50,7 +53,6 @@ describe('ConfigCache', () => {
       extractionModel: 'gemini-3.1-flash-lite-preview',
       maxTokens: 1024,
       timeoutMs: 20000,
-      systemPrompt: 'test prompt',
       temperature: 0.7,
       dmEnabledGlobally: false,
       dedupThreshold: 0.85,
@@ -103,7 +105,6 @@ describe('ConfigCache - DB model pass-through', () => {
       extractionModel: 'gemini-3.1-flash-lite-preview',
       maxTokens: 1024,
       timeoutMs: 20000,
-      systemPrompt: 'test prompt',
       temperature: 0.7,
       dmEnabledGlobally: false,
       dedupThreshold: 0.85,
@@ -123,7 +124,6 @@ describe('ConfigCache - DB model pass-through', () => {
       extractionModel: 'custom-extract',
       maxTokens: 1024,
       timeoutMs: 20000,
-      systemPrompt: 'test prompt',
       temperature: 0.7,
       dmEnabledGlobally: false,
       dedupThreshold: 0.85,

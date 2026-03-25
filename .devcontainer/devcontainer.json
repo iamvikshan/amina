@@ -1,6 +1,6 @@
 {
-  "name": "Ubuntu + Bun + Docker",
-  "image": "vikshan/ubuntu-bun:latest",
+  "name": "Ubuntu + Bun + Node + Docker",
+  "image": "vikshan/ubuntu-bun-node:latest",
 
   // Add Docker-in-Docker feature
   "features": {

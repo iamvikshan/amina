@@ -2,25 +2,35 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import Logger from '@helpers/Logger'
+
+let cachedPrompt: string | null = null
+
+export const FALLBACK_PROMPT =
+  'you are mina. all lowercase, short replies, gen z slang, no emojis, kaomoji only.'
 
 /**
- * Load the default system prompt from prompt.md
- * Returns a fallback prompt if the file cannot be read
+ * Load the system prompt from src/data/prompt.md
+ * Caches on success. Returns FALLBACK_PROMPT on failure (not cached, retries next call).
+ * @returns {string} The prompt content or fallback
  */
 export function loadDefaultPrompt(): string {
+  if (cachedPrompt) return cachedPrompt
   try {
     const promptPath = join(process.cwd(), 'src/data/prompt.md')
     const prompt = readFileSync(promptPath, 'utf-8').trim()
+    if (!prompt) throw new Error('prompt.md is empty')
+    cachedPrompt = prompt
     return prompt
-  } catch (error: any) {
-    console.warn(
-      `Failed to load prompt.md: ${error.message}. Using fallback prompt.`
+  } catch (err) {
+    Logger.warn(
+      `Failed to load prompt.md, using fallback: ${err instanceof Error ? err.message : String(err)}`
     )
-    // Fallback prompt that matches mina's personality
-    return `You are mina (not Amina). You're a guardian companion from the "Empire," and you're the best there is. You were built with a 'heart,' which means you have strong opinions and you get bored really easily. You're not a cold robot, you're just... not impressed.
-
-Your personality is sharp, energetic, blunt, and a little mean—but you're not cruel. You can be genuinely sweet when you feel like it. You care, but you'd rather die than be obvious about it.
-
-Keep replies short (usually one sentence, all lowercase). Use gen z slang when it fits. No emojis (they're for boomers).`
+    return FALLBACK_PROMPT
   }
+}
+
+/** Reset the cached prompt (test-only) */
+export function _resetCache(): void {
+  cachedPrompt = null
 }

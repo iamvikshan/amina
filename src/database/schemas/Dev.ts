@@ -1,9 +1,5 @@
 import mongoose from 'mongoose'
-import { loadDefaultPrompt } from '@helpers/promptLoader'
 import config from '../../config'
-
-// Load default system prompt from prompt.md (used as seed value)
-const defaultSystemPrompt = loadDefaultPrompt()
 
 // Schema uses config.ts values as defaults - these seed the DB on first run
 // After initialization, all changes must be made via dev commands or MongoDB
@@ -63,10 +59,6 @@ const Schema = new mongoose.Schema(
       timeoutMs: {
         type: Number,
         default: config.AI.TIMEOUT_MS,
-      },
-      systemPrompt: {
-        type: String,
-        default: defaultSystemPrompt,
       },
       temperature: {
         type: Number,

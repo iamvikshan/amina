@@ -7,6 +7,7 @@ import { aiResponderService } from '@src/services/ai/aiResponder'
 import { ModelRouter } from '@src/services/ai/modelRouter'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import Logger from '@helpers/Logger'
+import { loadDefaultPrompt } from '@helpers/promptLoader'
 
 export async function aiStatus(interaction: ChatInputCommandInteraction) {
   const config = await getAiConfig()
@@ -90,9 +91,12 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
       },
       {
         name: 'system prompt',
-        value: config.systemPrompt
-          ? `${config.systemPrompt.substring(0, 100)}${config.systemPrompt.length > 100 ? '...' : ''}`
-          : 'not set',
+        value: (() => {
+          const prompt = loadDefaultPrompt()
+          return prompt
+            ? `${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`
+            : 'not set'
+        })(),
         inline: false,
       },
       {
@@ -205,32 +209,6 @@ export async function setTokens(
 
   const embed = MinaEmbed.success().setDescription(
     `max tokens set to ${tokens}`
-  )
-
-  // Use editReply if available (hub context), otherwise followUp (command context)
-  if (
-    'editReply' in interaction &&
-    typeof interaction.editReply === 'function'
-  ) {
-    return interaction.editReply({ embeds: [embed] })
-  } else {
-    return interaction.followUp({ embeds: [embed] })
-  }
-}
-
-export async function setPrompt(
-  interaction: ChatInputCommandInteraction,
-  prompt: string
-) {
-  await updateAiConfig({
-    systemPrompt: prompt,
-    updatedBy: interaction.user.id,
-  })
-  await configCache.forceRefresh()
-  // No re-initialization needed - systemPrompt is passed per-request
-
-  const embed = MinaEmbed.success().setDescription(
-    `system prompt updated!\n\n**new prompt:**\n${prompt.substring(0, 200)}${prompt.length > 200 ? '...' : ''}`
   )
 
   // Use editReply if available (hub context), otherwise followUp (command context)

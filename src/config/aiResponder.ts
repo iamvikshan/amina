@@ -4,6 +4,7 @@
 import { getAiConfig } from '@schemas/Dev'
 import { secret } from './secrets'
 import { config } from './config'
+import { loadDefaultPrompt } from '@helpers/promptLoader'
 
 /** Shape of the raw DB document returned by getAiConfig() */
 interface AiDbConfig {
@@ -13,7 +14,6 @@ interface AiDbConfig {
   extractionModel: string
   maxTokens: number
   timeoutMs: number
-  systemPrompt: string
   temperature: number
   dmEnabledGlobally: boolean
   dedupThreshold: number
@@ -45,7 +45,7 @@ class ConfigCache {
       extractionModel: cache.extractionModel,
       maxTokens: cache.maxTokens,
       timeoutMs: cache.timeoutMs,
-      systemPrompt: cache.systemPrompt,
+      systemPrompt: loadDefaultPrompt(),
       temperature: cache.temperature,
       dmEnabledGlobally: cache.dmEnabledGlobally,
       dedupThreshold: cache.dedupThreshold ?? config.AI.DEDUP_THRESHOLD,
@@ -59,7 +59,6 @@ class ConfigCache {
       if (!geminiApiKey)
         throw new Error('GEMINI API key is required when AI is enabled')
       if (!aiConfig.model) throw new Error('Model name is required')
-      if (!aiConfig.systemPrompt) throw new Error('System prompt is required')
     }
 
     return aiConfig

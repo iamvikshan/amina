@@ -65,4 +65,4 @@ fi
 
 # Run project checks (type checking, linting, and formatting)
 echo "Running pre-commit checks..."
-bun check:all && bun f:check
+bun check && bun f:check

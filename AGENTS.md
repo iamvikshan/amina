@@ -3,8 +3,8 @@
 - Prefer little code that does more. Reach for mature packages instead of reinventing common solutions.
 - Keep modules cohesive, reusable, and easy to share without creating needless file sprawl.
 - Breaking changes are acceptable in this repo. Remove dead code instead of adding backward-compatibility or deprecation layers.
-- node is prohibited, use bun at all times.
-- absolutely no downgrading packages or tools for the sake of compatibility with old code. update old code to be compatible with modern tools and packages.
+- `node/npx/npm run` is prohibited (unless explicitly required for a specific task), use `bun` at all times.
+- Absolutely no downgrading packages or tools for the sake of compatibility with old code. Update old code to be compatible with up-to-date tools and packages.
 
 ---
 

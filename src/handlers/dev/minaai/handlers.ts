@@ -16,7 +16,6 @@ import {
   toggleGlobal,
   setModel,
   setTokens,
-  setPrompt,
   setTemperature,
   toggleDm,
   memoryStats,
@@ -26,6 +25,7 @@ import { configCache } from '@src/config/aiResponder'
 import { ModelRouter } from '@src/services/ai/modelRouter'
 import { postToBin } from '@helpers/HttpUtils'
 import { MinaRows, MinaButtons } from '@helpers/componentHelper'
+import { loadDefaultPrompt } from '@helpers/promptLoader'
 
 /**
  * Show Mina AI operations menu with current settings
@@ -64,18 +64,16 @@ export async function showMinaAiMenu(
   let promptField = 'Not set'
   let promptLinkButton: ActionRowBuilder<any> | null = null
 
-  if (config.systemPrompt) {
+  const currentPrompt = loadDefaultPrompt()
+  if (currentPrompt) {
     const promptPreview =
-      config.systemPrompt.length > 200
-        ? `${config.systemPrompt.substring(0, 200)}...`
-        : config.systemPrompt
+      currentPrompt.length > 200
+        ? `${currentPrompt.substring(0, 200)}...`
+        : currentPrompt
     promptField = promptPreview
 
     // Create pastebin link for full prompt
-    const binResponse = await postToBin(
-      config.systemPrompt,
-      'Amina AI System Prompt'
-    )
+    const binResponse = await postToBin(currentPrompt, 'Amina AI System Prompt')
     if (binResponse) {
       promptLinkButton = MinaRows.single(
         MinaButtons.link(binResponse.url, 'view full prompt')
@@ -169,10 +167,6 @@ export async function showMinaAiMenu(
           .setLabel('set tokens')
           .setDescription('set max tokens (100-4096)')
           .setValue('set-tokens'),
-        new StringSelectMenuOptionBuilder()
-          .setLabel('set prompt')
-          .setDescription('update system prompt')
-          .setValue('set-prompt'),
         new StringSelectMenuOptionBuilder()
           .setLabel('set temperature')
           .setDescription('set temperature (0-2)')
@@ -281,11 +275,6 @@ export async function handleMinaAiOperation(
     case 'set-tokens': {
       // Don't defer - modals must be shown before deferring
       await showTokensModal(interaction)
-      break
-    }
-    case 'set-prompt': {
-      // Don't defer - modals must be shown before deferring
-      await showPromptModal(interaction)
       break
     }
     case 'set-temperature': {
@@ -499,35 +488,6 @@ async function showTokensModal(
 }
 
 /**
- * Show modal for prompt input
- * @param interaction
- */
-async function showPromptModal(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
-): Promise<void> {
-  const promptInput = new TextInputBuilder({
-    customId: 'prompt',
-    label: 'System Prompt',
-    style: TextInputStyle.Paragraph,
-    placeholder: 'Enter the system prompt...',
-    required: true,
-    maxLength: 4000,
-  })
-
-  const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    promptInput
-  )
-
-  const modal = new ModalBuilder({
-    customId: 'dev:modal:minaai_prompt',
-    title: 'Set System Prompt',
-    components: [firstRow],
-  })
-
-  await interaction.showModal(modal)
-}
-
-/**
  * Show modal for temperature input
  * @param interaction
  */
@@ -612,9 +572,6 @@ export async function handleMinaAiModal(
   } else if (customId === 'dev:modal:minaai_tokens') {
     const tokens = parseInt(interaction.fields.getTextInputValue('tokens'), 10)
     await setTokens(mockInteraction, tokens)
-  } else if (customId === 'dev:modal:minaai_prompt') {
-    const prompt = interaction.fields.getTextInputValue('prompt')
-    await setPrompt(mockInteraction, prompt)
   } else if (customId === 'dev:modal:minaai_temperature') {
     const temperature = parseFloat(
       interaction.fields.getTextInputValue('temperature')
