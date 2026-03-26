@@ -138,9 +138,11 @@ export default [
       '**/.wrangler/**',
       'api/**', // API workspace has its own lint pipeline (bun api:check)
       'types/api/**', // API types use a separate tsconfig (api/tsconfig.json)
-      'tests/**', // Tests use bun:test, not eslint
-      'release.config.js', // CJS files
-      'cli/release.config.js',
+      'tests/code-quality.test.ts', // API-coupled tests stay with API workspace backlog
+      'tests/input-validation.test.ts',
+      'tests/security-fixes.test.ts',
+      'release.config.mjs',
+      'cli/release.config.mjs',
     ],
   },
 ]

@@ -49,7 +49,7 @@ jobs:
       script:
         # 1. Run bot-only linting and type checks
         - |
-          set -euo pipefail
+          set -eo pipefail
 
           temp_tsconfig=$(mktemp ./tsconfig.bot-smoke.XXXXXX.json)
           temp_eslint_config=$(mktemp ./eslint.bot-smoke.XXXXXX.mjs)
@@ -171,7 +171,7 @@ jobs:
         - |
           echo "Waiting for amina container to start..."
           for i in {1..30}; do
-            if docker compose exec -T amina wget --no-verbose --tries=1 --spider http://localhost:3000/health 2>/dev/null; then
+            if docker compose exec -T amina bun run src/services/health.ts 2>/dev/null; then
               echo "Amina container is healthy!"
               exit 0
             fi

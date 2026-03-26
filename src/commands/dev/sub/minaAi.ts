@@ -7,7 +7,7 @@ import { aiResponderService } from '@src/services/ai/aiResponder'
 import { ModelRouter } from '@src/services/ai/modelRouter'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import Logger from '@helpers/Logger'
-import { loadDefaultPrompt } from '@helpers/promptLoader'
+import { loadPrompt } from '@helpers/promptLoader'
 
 export async function aiStatus(interaction: ChatInputCommandInteraction) {
   const config = await getAiConfig()
@@ -92,7 +92,7 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
       {
         name: 'system prompt',
         value: (() => {
-          const prompt = loadDefaultPrompt()
+          const prompt = loadPrompt()
           return prompt
             ? `${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`
             : 'not set'

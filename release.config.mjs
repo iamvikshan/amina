@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   branches: ['main'],
   plugins: [
     [
@@ -45,7 +45,7 @@ module.exports = {
       '@semantic-release/exec',
       {
         prepareCmd:
-          "node -e \"const fs=require('node:fs');const file='package.json';const pkg=JSON.parse(fs.readFileSync(file,'utf8'));pkg.version='${nextRelease.version}';fs.writeFileSync(file,JSON.stringify(pkg,null,2)+'\\n');\"",
+          "bun -e \"import{readFileSync,writeFileSync}from'node:fs';const f='package.json';const p=JSON.parse(readFileSync(f,'utf8'));p.version='${nextRelease.version}';writeFileSync(f,JSON.stringify(p,null,2)+'\\n');\"",
       },
     ],
 

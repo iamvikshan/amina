@@ -24,7 +24,7 @@ const mockMistralCreate = mock((): Promise<any> =>
 // Track which instances are created by baseURL
 const openaiInstances: Record<string, { chat: { completions: { create: any } } }> = {}
 
-mock.module('openai', () => ({
+void mock.module('openai', () => ({
   default: class MockOpenAI {
     chat: any
     constructor({ baseURL }: { baseURL: string }) {
@@ -49,7 +49,7 @@ const mockLogger = {
   success: () => {},
 }
 
-mock.module('../src/helpers/Logger', () => ({
+void mock.module('../src/helpers/Logger', () => ({
   default: mockLogger,
   Logger: mockLogger,
   success: mockLogger.success,
@@ -60,6 +60,18 @@ mock.module('../src/helpers/Logger', () => ({
 }))
 
 import { AiClient, AiCircuitBreakerError } from '../src/helpers/aiClient'
+
+const captureRejection = async (
+  operation: () => Promise<unknown>
+): Promise<unknown> => {
+  try {
+    await operation()
+  } catch (error) {
+    return error
+  }
+
+  throw new Error('Expected operation to reject')
+}
 
 describe('AiClient', () => {
   let client: AiClient
@@ -190,9 +202,11 @@ describe('AiClient', () => {
 
     mockGeminiCreate.mockClear()
 
-    await expect(
+    const error = await captureRejection(() =>
       noFallbackClient.generateResponse('System', [], 'Hello', 1000, 0.7)
-    ).rejects.toBeInstanceOf(AiCircuitBreakerError)
+    )
+
+    expect(error).toBeInstanceOf(AiCircuitBreakerError)
 
     expect(mockGeminiCreate).not.toHaveBeenCalled()
     AiClient.resetCircuit()
@@ -293,9 +307,15 @@ describe('AiClient', () => {
       () => new Promise((resolve) => setTimeout(resolve, 5000))
     )
 
-    await expect(
+    const error = await captureRejection(() =>
       shortTimeoutClient.generateResponse('System', [], 'Hello', 1000, 0.7)
-    ).rejects.toThrow('API timeout')
+    )
+
+    expect(error).toBeInstanceOf(Error)
+    if (!(error instanceof Error)) {
+      throw new Error('Expected timeout error')
+    }
+    expect(error.message).toContain('API timeout')
   })
 
   test('image handling uses current model for Gemini vision', async () => {
@@ -479,7 +499,7 @@ describe('AiClient', () => {
     )
 
     try {
-      await expect(
+      const error = await captureRejection(() =>
         client.generateResponse(
           'System',
           [],
@@ -488,7 +508,13 @@ describe('AiClient', () => {
           0.7,
           [{ url: 'https://example.com/img.png', mimeType: 'image/png', isVideo: false, isGif: false }]
         )
-      ).rejects.toThrow('Gemini vision error')
+      )
+
+      expect(error).toBeInstanceOf(Error)
+      if (!(error instanceof Error)) {
+        throw new Error('Expected Gemini vision error')
+      }
+      expect(error.message).toContain('Gemini vision error')
 
       expect(mockMistralCreate).not.toHaveBeenCalled()
     } finally {
@@ -535,7 +561,7 @@ describe('AiClient', () => {
     })
 
     try {
-      await expect(
+      const error = await captureRejection(() =>
         visionClient.generateResponse(
           'System',
           [],
@@ -544,7 +570,9 @@ describe('AiClient', () => {
           0.7,
           [{ url: 'https://example.com/img.png', mimeType: 'image/png', isVideo: false, isGif: false }]
         )
-      ).rejects.toBeInstanceOf(AiCircuitBreakerError)
+      )
+
+      expect(error).toBeInstanceOf(AiCircuitBreakerError)
 
       expect(mockMistralCreate).not.toHaveBeenCalled()
     } finally {
@@ -689,9 +717,11 @@ describe('AiClient', () => {
         })
       )
 
-      await expect(
+      const error = await captureRejection(() =>
         client.extractAnalysis('System', [], 'Hello', '')
-      ).rejects.toThrow()
+      )
+
+      expect(error).toBeInstanceOf(Error)
     })
   })
 })

@@ -58,13 +58,16 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "types/**/*"],
+  "include": ["src/**/*", "types/**/*", "tests/**/*"],
   "exclude": [
     "node_modules",
     "**/node_modules/*",
     "dist",
     "build",
     "logs",
-    "types/api/**/*"
+    "types/api/**/*",
+    "tests/code-quality.test.ts",
+    "tests/input-validation.test.ts",
+    "tests/security-fixes.test.ts"
   ]
 }

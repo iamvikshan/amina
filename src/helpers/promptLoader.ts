@@ -14,7 +14,7 @@ export const FALLBACK_PROMPT =
  * Caches on success. Returns FALLBACK_PROMPT on failure (not cached, retries next call).
  * @returns {string} The prompt content or fallback
  */
-export function loadDefaultPrompt(): string {
+export function loadPrompt(): string {
   if (cachedPrompt) return cachedPrompt
   try {
     const promptPath = join(process.cwd(), 'src/data/prompt.md')

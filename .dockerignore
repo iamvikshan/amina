@@ -14,7 +14,7 @@ astro/
 CHANGELOG.md
 LICENSE
 Procfile
-release.config.js
+release.config.mjs
 TODO.md
 MIGRATION.md
 docker-compose*.yml

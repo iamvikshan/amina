@@ -8,7 +8,7 @@ let getJsonImpl: (url: string) => Promise<any> = async () => ({
   success: false,
 })
 
-mock.module('@helpers/Logger', () => ({
+void mock.module('@helpers/Logger', () => ({
   default: { success: noop, log: noop, warn: noop, error: noop, debug: noop },
   success: (msg: string) => logCalls.push(`success: ${msg}`),
   warn: (msg: string) => logCalls.push(`warn: ${msg}`),
@@ -17,11 +17,11 @@ mock.module('@helpers/Logger', () => ({
   debug: noop,
 }))
 
-mock.module('@root/package.json', () => ({
+void mock.module('@root/package.json', () => ({
   default: { version: '3.2.4' },
 }))
 
-mock.module('@helpers/HttpUtils', () => ({
+void mock.module('@helpers/HttpUtils', () => ({
   default: {
     getJson: async (url: string) => {
       requestedUrls.push(url)

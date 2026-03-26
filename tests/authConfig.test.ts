@@ -13,19 +13,19 @@ let mockDbConfig = {
   dedupThreshold: 0.85,
 }
 
-mock.module('../src/database/schemas/Dev', () => ({
+void mock.module('../src/database/schemas/Dev', () => ({
   getAiConfig: async () => ({ ...mockDbConfig }),
 }))
 
 // Mock secrets - will be overridden per test
 let mockSecrets: Record<string, string | undefined> = {}
-mock.module('../src/config/secrets', () => ({
+void mock.module('../src/config/secrets', () => ({
   secret: new Proxy({} as any, {
     get: (_target: any, prop: string) => mockSecrets[prop],
   }),
 }))
 
-mock.module('../src/config/config', () => ({
+void mock.module('../src/config/config', () => ({
   config: {
     AI: {
       MODEL: 'gemini-flash-latest',
@@ -36,9 +36,21 @@ mock.module('../src/config/config', () => ({
   },
 }))
 
-mock.module('../src/helpers/promptLoader', () => ({
-  loadDefaultPrompt: () => 'test system prompt',
+void mock.module('../src/helpers/promptLoader', () => ({
+  loadPrompt: () => 'test system prompt',
 }))
+
+const captureRejection = async (
+  operation: () => Promise<unknown>
+): Promise<unknown> => {
+  try {
+    await operation()
+  } catch (error) {
+    return error
+  }
+
+  throw new Error('Expected operation to reject')
+}
 
 const { configCache } = await import('../src/config/aiResponder')
 
@@ -68,7 +80,13 @@ describe('ConfigCache', () => {
 
   test('throws when GEMINI key missing and AI enabled', async () => {
     mockSecrets = {}
-    await expect(configCache.getConfig()).rejects.toThrow(/GEMINI/)
+
+    const error = await captureRejection(() => configCache.getConfig())
+    expect(error).toBeInstanceOf(Error)
+    if (!(error instanceof Error)) {
+      throw new Error('Expected config error')
+    }
+    expect(error.message).toMatch(/GEMINI/)
   })
 
   test('MISTRAL key is optional', async () => {

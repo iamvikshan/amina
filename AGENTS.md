@@ -144,6 +144,8 @@ No semicolons, single quotes, 2-space indent, trailing commas (ES5), arrow paren
 - API workspace scripts: `bun api:dev`, `bun api:check`, `bun api:deploy`.
 - Use `bun check:all` to lint/typecheck bot + API + CLI workspaces.
 - Pre-commit hook (`husky`) runs `bun check:all && bun f:check` — ensure these pass before committing.
+- Any planned task scope must include cleanup of at least 15 existing ESLint or TypeScript warnings even if such warnings exist outside the scope.
+- If you modify a file that has ESLint or TypeScript warnings (or ignores comments), resolve all warnings in that file before committing.
 
 ---
 
@@ -166,6 +168,8 @@ No semicolons, single quotes, 2-space indent, trailing commas (ES5), arrow paren
 - **Reset:** Call `mockFn.mockReset()` in `beforeEach` to avoid test pollution.
 - **Run single test:** `bun test tests/aiClient.test.ts`
 - **Run by pattern:** `bun test --grep "circuit breaker"`
+- New test files must comply with all ESLint rules. `eslint-disable` directives are prohibited in new tests.
+- Existing test files may keep narrowly targeted suppressions only when a rule is provably incompatible with the test pattern. Broad file-level suppression is not allowed by default.
 
 | Category         | Approach                                                           |
 | ---------------- | ------------------------------------------------------------------ |

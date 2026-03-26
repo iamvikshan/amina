@@ -4,7 +4,7 @@
 import { getAiConfig } from '@schemas/Dev'
 import { secret } from './secrets'
 import { config } from './config'
-import { loadDefaultPrompt } from '@helpers/promptLoader'
+import { loadPrompt } from '@helpers/promptLoader'
 
 /** Shape of the raw DB document returned by getAiConfig() */
 interface AiDbConfig {
@@ -45,7 +45,7 @@ class ConfigCache {
       extractionModel: cache.extractionModel,
       maxTokens: cache.maxTokens,
       timeoutMs: cache.timeoutMs,
-      systemPrompt: loadDefaultPrompt(),
+      systemPrompt: loadPrompt(),
       temperature: cache.temperature,
       dmEnabledGlobally: cache.dmEnabledGlobally,
       dedupThreshold: cache.dedupThreshold ?? config.AI.DEDUP_THRESHOLD,

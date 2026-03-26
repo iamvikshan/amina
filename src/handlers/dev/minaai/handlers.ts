@@ -25,7 +25,7 @@ import { configCache } from '@src/config/aiResponder'
 import { ModelRouter } from '@src/services/ai/modelRouter'
 import { postToBin } from '@helpers/HttpUtils'
 import { MinaRows, MinaButtons } from '@helpers/componentHelper'
-import { loadDefaultPrompt } from '@helpers/promptLoader'
+import { loadPrompt } from '@helpers/promptLoader'
 
 /**
  * Show Mina AI operations menu with current settings
@@ -64,7 +64,7 @@ export async function showMinaAiMenu(
   let promptField = 'Not set'
   let promptLinkButton: ActionRowBuilder<any> | null = null
 
-  const currentPrompt = loadDefaultPrompt()
+  const currentPrompt = loadPrompt()
   if (currentPrompt) {
     const promptPreview =
       currentPrompt.length > 200

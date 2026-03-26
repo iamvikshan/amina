@@ -9,7 +9,7 @@ const mockLogger = {
   log: () => {},
   success: () => {},
 }
-mock.module('../src/helpers/Logger', () => ({
+void mock.module('../src/helpers/Logger', () => ({
   default: mockLogger,
   Logger: mockLogger,
   success: mockLogger.success,
@@ -20,7 +20,7 @@ mock.module('../src/helpers/Logger', () => ({
 }))
 
 // Also mock @helpers/Logger alias for modules that use path aliases (e.g. AiCommandRegistry)
-mock.module('@helpers/Logger', () => ({
+void mock.module('@helpers/Logger', () => ({
   default: mockLogger,
   Logger: mockLogger,
   success: mockLogger.success,
@@ -39,7 +39,7 @@ const openaiInstances: Record<
   }
 > = {}
 
-mock.module('openai', () => ({
+void mock.module('openai', () => ({
   default: class MockOpenAI {
     chat: any
     embeddings: any
@@ -94,7 +94,7 @@ const mockFindSimilarMemory = mock((): Promise<any> => Promise.resolve(null))
 const mockFindByIdAndUpdate = mock((): Promise<any> => Promise.resolve())
 const mockFindByIdAndDelete = mock((): Promise<any> => Promise.resolve())
 
-mock.module('../src/database/schemas/AiMemory', () => ({
+void mock.module('../src/database/schemas/AiMemory', () => ({
   saveMemory: mockSaveMemory,
   getUserMemories: mock(() => Promise.resolve([])),
   deleteUserMemories: mock(() => Promise.resolve(0)),
@@ -117,6 +117,18 @@ mock.module('../src/database/schemas/AiMemory', () => ({
 
 import { MemoryService } from '../src/services/ai/memoryService'
 import { MemoryManipulator } from '../src/services/ai/memoryManipulator'
+
+const captureRejection = async (
+  operation: () => Promise<unknown>
+): Promise<unknown> => {
+  try {
+    await operation()
+  } catch (error) {
+    return error
+  }
+
+  throw new Error('Expected operation to reject')
+}
 
 // Lightweight test double for AiCommandRegistry
 // Captures registerNativeTools calls and provides isNativeTool/executeNativeTool
@@ -404,13 +416,19 @@ describe('MemoryManipulator', () => {
   })
 
   test('executeNativeTool_throws_for_unknown_tool', async () => {
-    await expect(
+    const error = await captureRejection(() =>
       registry.executeNativeTool(
         'nonexistent_tool',
         {},
         { userId: 'user123', guildId: null }
       )
-    ).rejects.toThrow('not found')
+    )
+
+    expect(error).toBeInstanceOf(Error)
+    if (!(error instanceof Error)) {
+      throw new Error('Expected missing native tool error')
+    }
+    expect(error.message).toContain('not found')
   })
 
   // --- Revision 1: argument validation tests ---

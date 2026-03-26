@@ -1,50 +1,55 @@
 # ============================================
-# Stage 1: Dependencies
+# Stage 1: Dependencies (alpine -- package manager for install)
 # ============================================
-FROM oven/bun:1.3.10-alpine AS dependencies
+FROM oven/bun:alpine AS deps
 
 WORKDIR /app
 
-# Copy lockfile and workspace manifests needed for workspace resolution
-COPY bun.lock ./
-COPY package.json ./
+COPY bun.lock package.json ./
 COPY api/package.json ./api/
 COPY cli/package.json ./cli/
 
-# Install production dependencies only (skip api workspace)
 RUN bun install --frozen-lockfile --production --ignore-scripts --filter 'amina'
 
-# ============================================
-# Stage 2: Final Runtime Image
-# ============================================
-FROM oven/bun:1.3.10-alpine AS runtime
+# Pre-create logs dir owned by distroless nonroot (UID 65532)
+RUN mkdir -p /app/logs && chown 65532:65532 /app/logs
 
-# Install only dumb-init
-RUN apk add --no-cache dumb-init
-
-# Create non-root user
-RUN adduser -D -u 1001 amina
+# ============================================
+# Stage 2: Development (alpine -- shell for dev tooling)
+# ============================================
+FROM oven/bun:alpine AS dev
 
 WORKDIR /app
 
-# Copy dependencies from build stage
-COPY --from=dependencies --chown=amina:amina /app/node_modules ./node_modules
-COPY --from=dependencies --chown=amina:amina /app/package.json ./package.json
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./package.json
+COPY . .
 
-# Copy application code
-COPY --chown=amina:amina src/ ./src/
-COPY --chown=amina:amina tsconfig.json ./
-
-# Create logs directory
-RUN mkdir -p /app/logs && chown -R amina:amina /app
-
-USER amina
+RUN mkdir -p /app/logs
 
 EXPOSE 3000
 
-# Use wget for healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+CMD ["bun", "--watch", "src/index.ts"]
 
-ENTRYPOINT ["dumb-init", "--"]
+# ============================================
+# Stage 3: Production (distroless -- minimal attack surface)
+# ============================================
+FROM oven/bun:distroless AS production
+
+WORKDIR /app
+
+COPY --from=deps --chown=nonroot:nonroot /app/node_modules ./node_modules
+COPY --from=deps --chown=nonroot:nonroot /app/package.json ./package.json
+COPY --from=deps --chown=nonroot:nonroot /app/logs ./logs/
+COPY --chown=nonroot:nonroot src/ ./src/
+COPY --chown=nonroot:nonroot types/ ./types/
+COPY --chown=nonroot:nonroot tsconfig.json ./
+
+USER nonroot
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD ["bun", "run", "src/services/health.ts"]
+
 CMD ["bun", "run", "src/index.ts"]

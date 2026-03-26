@@ -6,15 +6,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/releases.yml"
-      - "eslint.config.mjs"
-      - "release.config.js"
-      - "cli/release.config.js"
-      - "package.json"
-      - "cli/package.json"
-      - "bun.lock"
-      - "tsconfig.json"
       - "src/**"
-      - "types/**"
       - "cli/**"
       - "Dockerfile"
 
@@ -23,15 +15,7 @@ on:
       - main
     paths:
       - ".github/workflows/releases.yml"
-      - "eslint.config.mjs"
-      - "release.config.js"
-      - "cli/release.config.js"
-      - "package.json"
-      - "cli/package.json"
-      - "bun.lock"
-      - "tsconfig.json"
       - "src/**"
-      - "types/**"
       - "cli/**"
       - "Dockerfile"
 
@@ -50,6 +34,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6.0.2
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Setup Node, Bun, and install dependencies
         uses: iamvikshan/.github/.github/actions/setup-node-bun@main
@@ -111,6 +105,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Setup Node, Bun, and install dependencies
         uses: iamvikshan/.github/.github/actions/setup-node-bun@main
 
@@ -156,7 +160,17 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Setup Bun (and node for some reason) and install dependencies
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Setup Node, Bun, and install dependencies
         uses: iamvikshan/.github/.github/actions/setup-node-bun@main
 
       - name: Semantic Release
@@ -168,7 +182,7 @@ jobs:
           GIT_COMMITTER_NAME: ${{ github.actor }}
           GIT_COMMITTER_EMAIL: ${{ github.actor }}@users.noreply.github.com
         run: |
-          node --input-type=module -e "
+          bun -e "
             import semanticRelease from 'semantic-release';
             import { appendFileSync } from 'node:fs';
             try {
@@ -218,6 +232,16 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Setup Bun and Node
         uses: iamvikshan/.github/.github/actions/setup-node-bun@main
 
@@ -231,7 +255,24 @@ jobs:
           GIT_AUTHOR_EMAIL: ${{ github.actor }}@users.noreply.github.com
           GIT_COMMITTER_NAME: ${{ github.actor }}
           GIT_COMMITTER_EMAIL: ${{ github.actor }}@users.noreply.github.com
-        run: npx semantic-release --extends ./cli/release.config.js
+        run: |
+          bun -e "
+            import semanticRelease from 'semantic-release';
+            try {
+              const result = await semanticRelease({
+                extends: './cli/release.config.mjs',
+              });
+              const version = result?.nextRelease?.version;
+              if (version) {
+                console.log('Published CLI release ' + version);
+              } else {
+                console.log('No new CLI release');
+              }
+            } catch (err) {
+              console.error(err);
+              process.exit(1);
+            }
+          "
 
   # ============================================
   # Docker Build & Push (Multi-platform, Multi-registry)

@@ -22,7 +22,7 @@ const config: Config = {
     DEDUP_THRESHOLD: 0.85,
   },
   SERVER: {
-    HEALTH_PORT: 3000,
+    HEALTH_PORT: Number(process.env.HEALTH_PORT) || 3000,
   },
   MONITORING: {
     ENVIRONMENT:

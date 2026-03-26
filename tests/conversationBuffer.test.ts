@@ -2,7 +2,7 @@
 import { describe, test, expect, beforeEach, mock } from 'bun:test'
 
 // Mock DB functions so tests don't hit real MongoDB
-mock.module('../src/database/schemas/Conversation', () => ({
+void mock.module('../src/database/schemas/Conversation', () => ({
   upsertConversation: mock(() => Promise.resolve()),
   loadConversation: mock(() => Promise.resolve(null)),
   deleteConversation: mock(() => Promise.resolve()),

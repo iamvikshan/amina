@@ -17,7 +17,7 @@ const defaultChatResult = {
   choices: [{ message: { content: '[]' } }],
 }
 
-mock.module('openai', () => ({
+void mock.module('openai', () => ({
   default: class MockOpenAI {
     chat: any
     embeddings: any
@@ -51,7 +51,7 @@ const mockLogger = {
   success: () => {},
 }
 
-mock.module('../src/helpers/Logger', () => ({
+void mock.module('../src/helpers/Logger', () => ({
   default: mockLogger,
   Logger: mockLogger,
   success: mockLogger.success,
@@ -61,7 +61,7 @@ mock.module('../src/helpers/Logger', () => ({
   debug: mockLogger.debug,
 }))
 
-mock.module('@helpers/Logger', () => ({
+void mock.module('@helpers/Logger', () => ({
   default: mockLogger,
   Logger: mockLogger,
   success: mockLogger.success,
@@ -102,7 +102,7 @@ const mockUpdateMany = mock((): Promise<any> => Promise.resolve({ modifiedCount:
 const mockFindSimilarMemory = mock((): Promise<any> => Promise.resolve(null))
 const mockFindByIdAndUpdate = mock((): Promise<any> => Promise.resolve())
 
-mock.module('../src/database/schemas/AiMemory', () => ({
+void mock.module('../src/database/schemas/AiMemory', () => ({
   saveMemory: mockSaveMemory,
   getUserMemories: mockGetUserMemories,
   deleteUserMemories: mockDeleteUserMemories,
@@ -125,7 +125,6 @@ import { MemoryService } from '../src/services/ai/memoryService'
 describe('MemoryService (new SDK)', () => {
   let service: MemoryService
 
-  /** Helper to get the mock for a specific provider by baseURL */
   const getMock = (url: string) => openaiInstances[url]
 
   beforeEach(async () => {

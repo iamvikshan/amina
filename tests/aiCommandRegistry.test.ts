@@ -10,7 +10,7 @@ const mockLogger = {
   success: () => {},
 }
 
-mock.module('../src/helpers/Logger', () => ({
+void mock.module('../src/helpers/Logger', () => ({
   default: mockLogger,
   Logger: mockLogger,
   success: mockLogger.success,
@@ -20,7 +20,7 @@ mock.module('../src/helpers/Logger', () => ({
   debug: mockLogger.debug,
 }))
 
-mock.module('@helpers/Logger', () => ({
+void mock.module('@helpers/Logger', () => ({
   default: mockLogger,
   Logger: mockLogger,
   success: mockLogger.success,

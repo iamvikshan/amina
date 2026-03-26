@@ -81,7 +81,7 @@ const mockLoad = mock(
 )
 const mockDelete = mock(() => Promise.resolve())
 
-mock.module('../src/database/schemas/Conversation', () => ({
+void mock.module('../src/database/schemas/Conversation', () => ({
   Model,
   upsertConversation: mockUpsert,
   loadConversation: mockLoad,
