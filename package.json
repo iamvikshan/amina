@@ -40,7 +40,7 @@
   "dependencies": {
     "@honeybadger-io/js": "^6.12.3",
     "@vitalets/google-translate-api": "^9.2.1",
-    "axios": "^1.13.6",
+    "axios": "^1.14.0",
     "common-tags": "^1.8.2",
     "dayjs": "^1.11.20",
     "discord-gamecord": "^4.4.4",
