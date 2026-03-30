@@ -48,7 +48,7 @@
     "discord-together": "^1.4.2",
     "discord.js": "^14.25.1",
     "enhanced-ms": "^4.3.0",
-    "lavalink-client": "^2.9.9",
+    "lavalink-client": "^2.9.11",
     "lru-cache": "^11.2.7",
     "module-alias": "^2.3.4",
     "mongoose": "^9.3.3",
