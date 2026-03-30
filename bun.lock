@@ -15,7 +15,7 @@
         "discord-together": "^1.4.2",
         "discord.js": "^14.25.1",
         "enhanced-ms": "^4.3.0",
-        "lavalink-client": "^2.9.9",
+        "lavalink-client": "^2.9.11",
         "lru-cache": "^11.2.7",
         "module-alias": "^2.3.4",
         "mongoose": "^9.3.3",
@@ -70,11 +70,11 @@
         "amina": "./dist/index.js",
       },
       "dependencies": {
-        "@clack/prompts": "latest",
-        "chalk": "latest",
+        "@clack/prompts": "^1.1.0",
+        "chalk": "^5.6.2",
       },
       "devDependencies": {
-        "@types/node": "latest",
+        "@types/node": "^25.5.0",
       },
     },
   },
@@ -787,7 +787,7 @@
 
     "kleur": ["kleur@4.1.5", "", {}, "sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ=="],
 
-    "lavalink-client": ["lavalink-client@2.9.9", "", { "dependencies": { "tslib": "^2.8.1", "ws": "^8.19.0" } }, "sha512-BWb/ZpHqZHuyNROsX5T3m0vO4tRNGAZ5Esm7gHhkHNO2zYhBqRkc+n0DYoEtwEzSB5zhBQM/sCDCQm6c+xM29g=="],
+    "lavalink-client": ["lavalink-client@2.9.11", "", { "dependencies": { "tslib": "^2.8.1", "ws": "^8.19.0" } }, "sha512-38mB7utJZ/WTdtV065n/mHTm17f1RSLLwvrV3J3Uh+7LRQKMXmuNj3EzyD61Azfu32XtzE62EkD6K7kmzR6/Cg=="],
 
     "levn": ["levn@0.4.1", "", { "dependencies": { "prelude-ls": "^1.2.1", "type-check": "~0.4.0" } }, "sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ=="],
 
