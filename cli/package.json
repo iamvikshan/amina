@@ -33,7 +33,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-    "node": ">=22",
+    "node": ">=25.8.2",
     "bun": ">=1.3.11"
   },
   "scripts": {

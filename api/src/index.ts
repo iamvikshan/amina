@@ -43,7 +43,7 @@ app.get('/', c => {
 app.get('/health', c => {
   return success(c, {
     status: 'healthy',
-    service: 'amina-api',
+    service: 'mina-api',
     timestamp: new Date().toISOString(),
   })
 })

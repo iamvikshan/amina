@@ -4,7 +4,7 @@
 
 language: node_js
 node_js:
-  - 25.8.1
+  - 25.8.2
 os: linux
 dist: jammy
 
@@ -107,15 +107,21 @@ jobs:
         - |
           echo "Starting native Bun runtime test..."
           mkdir -p logs
+          : > logs/app.log
+          tail -n +1 -f logs/app.log &
+          TAIL_PID=$!
           bun . > logs/app.log 2>&1 &
           APP_PID=$!
           echo "App started with PID $APP_PID"
+          echo "Streaming app logs in background with PID $TAIL_PID"
 
           # Wait for health endpoint
           echo "Waiting for app to be healthy..."
           for i in {1..30}; do
             if curl -f -s http://localhost:3000/health > /dev/null 2>&1; then
               echo "Native app is healthy"
+              kill $TAIL_PID 2>/dev/null || true
+              wait $TAIL_PID 2>/dev/null || true
               kill $APP_PID 2>/dev/null || true
               wait $APP_PID 2>/dev/null || true
               exit 0
@@ -124,10 +130,10 @@ jobs:
             sleep 2
           done
 
-          # Health check failed - show logs and exit
+          # Health check failed - stop log streamer and exit
           echo "Native health check failed"
-          echo "=== App logs ==="
-          cat logs/app.log || echo "No logs available"
+          kill $TAIL_PID 2>/dev/null || true
+          wait $TAIL_PID 2>/dev/null || true
           kill $APP_PID 2>/dev/null || true
           wait $APP_PID 2>/dev/null || true
           exit 1

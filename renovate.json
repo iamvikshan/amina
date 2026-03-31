@@ -16,13 +16,14 @@
   "rangeStrategy": "bump",
   "separateMinorPatch": true,
   "separateMajorMinor": true,
-  "minimumReleaseAge": "3 days",
   "packageRules": [
     {
       "description": "Scope API dependency updates so they don't trigger bot releases",
       "matchFileNames": ["api/**"],
       "additionalBranchPrefix": "api-",
       "semanticCommitScope": "api",
+      "automerge": true,
+      "minimumReleaseAge": "1 day",
       "groupName": "api dependencies"
     },
     {
@@ -42,14 +43,14 @@
       "description": "Require approval for major updates",
       "matchUpdateTypes": ["major"],
       "automerge": false,
-      "minimumReleaseAge": "7 days",
+      "minimumReleaseAge": "5 days",
       "labels": ["dependencies", "major-update"]
     },
     {
-      "description": "Require approval for production dependency minor updates",
+      "description": "don't require approval for production dependency minor updates",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["minor"],
-      "automerge": false,
+      "automerge": true,
       "minimumReleaseAge": "3 days"
     },
     {
@@ -59,35 +60,10 @@
       "minimumReleaseAge": "3 days"
     },
     {
-      "groupName": "linters and formatters",
-      "matchPackageNames": [
-        "eslint",
-        "prettier",
-        "husky",
-        "/^eslint/",
-        "/^prettier/",
-        "/^@typescript-eslint/"
-      ]
-    },
-    {
-      "groupName": "semantic-release ecosystem",
-      "automerge": true,
-      "matchPackageNames": [
-        "/^@semantic-release/",
-        "/^semantic-release/",
-        "/^conventional-changelog/"
-      ]
-    },
-    {
       "groupName": "discord.js ecosystem",
       "automerge": false,
       "minimumReleaseAge": "5 days",
       "matchPackageNames": ["/^discord.js/", "/^@discordjs/"]
-    },
-    {
-      "groupName": "TypeScript and types",
-      "matchPackageNames": ["typescript", "/^@types/"],
-      "automerge": true
     },
     {
       "groupName": "Dockerfile base images",
@@ -98,6 +74,7 @@
   ],
   "lockFileMaintenance": {
     "enabled": true,
+    "minimumReleaseAge": "0 days",
     "automerge": true,
     "schedule": ["before 4am on monday"]
   },
