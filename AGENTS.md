@@ -8,6 +8,18 @@
 
 ---
 
+## Tech Debt & Linting Quota (CRITICAL)
+
+This project is actively undergoing strict linting and type-check tightening. Every planned interaction MUST contribute to this cleanup without muddying feature work.
+
+**The 15-Fix Minimum:** Every plan must resolve at least 15 ESLint or TypeScript warnings/errors. Planners MUST include a dedicated "Tech Debt Cleanup" phase to satisfy this quota using the following cascade:
+
+1. **In-Scope (The Boy Scout Rule):** First, resolve ALL warnings/errors in the files you are actively modifying for the primary task. You must not leave any `eslint-disable` or `@ts-ignore` comments behind.
+2. **Adjacent Scope:** If modifying the target files yields fewer than 15 fixes, expand your cleanup to closely related files (e.g., dependencies imported by your target files, or sibling files in the same directory).
+3. **Global Scope:** If still under the 15-fix quota, run `bun check` to identify global warnings, pick an isolated file, and fix it to meet the quota.
+
+---
+
 ## project.tools
 
 ```yaml
@@ -144,8 +156,6 @@ No semicolons, single quotes, 2-space indent, trailing commas (ES5), arrow paren
 - API workspace scripts: `bun api:dev`, `bun api:check`, `bun api:deploy`.
 - Use `bun check:all` to lint/typecheck bot + API + CLI workspaces.
 - Pre-commit hook (`husky`) runs `bun check:all && bun f:check` — ensure these pass before committing.
-- Any planned task scope must include cleanup of at least 15 existing ESLint or TypeScript warnings even if such warnings exist outside the scope.
-- If you modify a file that has ESLint or TypeScript warnings (or ignores comments), resolve all warnings in that file before committing.
 
 ---
 

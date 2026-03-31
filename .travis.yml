@@ -110,6 +110,8 @@ jobs:
           bun . > logs/app.log 2>&1 &
           APP_PID=$!
           echo "App started with PID $APP_PID"
+          echo "=== App logs ==="
+          cat logs/app.log || echo "No logs available"
 
           # Wait for health endpoint
           echo "Waiting for app to be healthy..."

@@ -1,7 +1,6 @@
 {
-  "name": "amina-api",
+  "name": "mina-api",
   "main": "src/index.ts",
-  "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat"],
   "dev": {
     "port": 8787,
@@ -22,21 +21,21 @@
   },
   "env": {
     "production": {
-      "name": "amina-api",
+      "name": "mina-api",
       "kv_namespaces": [
         {
           "binding": "RATE_LIMIT",
-          "id": "aadfc750bf594242bf1dde5f3cc8118d",
+          "id": "d0e9dfb0b9124cc78291e9c947134e95",
           "remote": true
         },
         {
           "binding": "CACHE",
-          "id": "dafc1b7b5e07470f8b9ba0f3af75d852",
+          "id": "d0e9dfb0b9124cc78291e9c947134e95",
           "remote": true
         },
         {
           "binding": "BOTS",
-          "id": "ca59b3551e4442a2a50f092f699ddaaa",
+          "id": "d0e9dfb0b9124cc78291e9c947134e95",
           "remote": true
         }
       ]
@@ -45,15 +44,15 @@
   "kv_namespaces": [
     {
       "binding": "RATE_LIMIT",
-      "id": "fe69971e70af4d2fb0fb5f3205ffdb1a"
+      "id": "d0e9dfb0b9124cc78291e9c947134e95"
     },
     {
       "binding": "CACHE",
-      "id": "d6cfd41bcd6e40688e603212460e358e"
+      "id": "d0e9dfb0b9124cc78291e9c947134e95"
     },
     {
       "binding": "BOTS",
-      "id": "53a87e261e2846d0b69be3b31a3f9201"
+      "id": "d0e9dfb0b9124cc78291e9c947134e95"
     }
   ]
 }
