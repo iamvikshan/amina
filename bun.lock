@@ -70,11 +70,11 @@
         "amina": "./dist/index.js",
       },
       "dependencies": {
-        "@clack/prompts": "latest",
-        "chalk": "latest",
+        "@clack/prompts": "^1.2.0",
+        "chalk": "^5.6.2",
       },
       "devDependencies": {
-        "@types/node": "latest",
+        "@types/node": "^25.5.0",
       },
     },
   },
