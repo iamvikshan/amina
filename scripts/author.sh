@@ -12,7 +12,7 @@
 # Safe to run multiple times (idempotent).
 #
 # Usage:
-#   ./git.sh [--repo <repository-url>] [--force|--yes]
+#   ./author.sh [--repo <repository-url>] [--force|--yes]
 #
 # Options:
 #   --repo <url>       Override the target repository URL (default: https://github.com/iamvikshan/amina)
@@ -22,9 +22,9 @@
 #   TARGET_REPO    Set this to override the default target repository URL
 #
 # Examples:
-#   ./git.sh
-#   ./git.sh --repo https://github.com/myorg/myrepo.git
-#   TARGET_REPO=https://github.com/myorg/myrepo.git ./git.sh
+#   ./author.sh
+#   ./author.sh --repo https://github.com/myorg/myrepo.git
+#   TARGET_REPO=https://github.com/myorg/myrepo.git ./author.sh
 
 set -euo pipefail
 
@@ -261,10 +261,10 @@ check_dev_setup() {
     if [[ -z "$gh_user" || "$gh_user" != "GIT_USER_PLACEHOLDER" ]]; then
         if [[ -n "$GITHUB_TOKEN" ]]; then
             echo "⚠️  GitHub CLI is using existing GITHUB_TOKEN, not GIT_USER_PLACEHOLDER"
-            echo "   Run: ./git.sh to authenticate as GIT_USER_PLACEHOLDER"
+            echo "   Run: ./author.sh to authenticate as GIT_USER_PLACEHOLDER"
         else
             echo "⚠️  GitHub CLI is not authenticated as GIT_USER_PLACEHOLDER"
-            echo "   Run: ./git.sh to authenticate"
+            echo "   Run: ./author.sh to authenticate"
         fi
         return 1
     fi

@@ -208,10 +208,10 @@ jobs:
     needs: [check-cli, release-bot]
     if: >-
       always() &&
-      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
-      github.ref == 'refs/heads/main' &&
       needs['check-cli'].result == 'success' &&
-      contains(fromJSON('["success","failure","skipped"]'), needs['release-bot'].result)
+      contains(fromJSON('["success", "skipped"]'), needs['release-bot'].result) &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/main'
     permissions:
       contents: write
       id-token: write
@@ -235,6 +235,11 @@ jobs:
 
       - name: Setup Bun and Node
         uses: iamvikshan/.github/.github/actions/setup-node-bun@main
+
+      - name: Sync with remote
+        run: |
+          git checkout main
+          git pull --rebase --autostash origin main
 
       - name: CLI Semantic Release
         env:

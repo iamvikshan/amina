@@ -17,7 +17,7 @@ import BotUtils from '@helpers/BotUtils'
 
 /**
  * Client ready event handler
- * @param client - The bot client instance
+ * @param {BotClient} client - The bot client instance
  */
 export default async (client: BotClient): Promise<void> => {
   client.logger.success(
@@ -407,33 +407,33 @@ export default async (client: BotClient): Promise<void> => {
 
     // Cache invites
     if (settings.invite.tracking) {
-      inviteHandler.cacheGuildInvites(guild)
+      inviteHandler.cacheGuildInvites(guild).catch(() => {})
     }
   }
 
   setInterval(
-    () => counterHandler.updateCounterChannels(client),
+    () => void counterHandler.updateCounterChannels(client),
     10 * 60 * 1000
   )
 
   // Run guild cleanup daemon every hour
   // Cleans up guilds that left more than 24 hours ago
-  setInterval(() => cleanupExpiredGuilds(client), 60 * 60 * 1000)
+  setInterval(() => void cleanupExpiredGuilds(client), 60 * 60 * 1000)
 
   // Run initial cleanup on startup (after a short delay to let everything initialize)
-  setTimeout(() => cleanupExpiredGuilds(client), 1 * 60 * 1000) // 1 minute after startup
+  setTimeout(() => void cleanupExpiredGuilds(client), 1 * 60 * 1000) // 1 minute after startup
 
   // Run guild join reminder scheduler every hour
   // Checks for guilds that joined ~24 hours ago to send setup reminder
-  setInterval(() => checkGuildReminders(client), 60 * 60 * 1000)
+  setInterval(() => void checkGuildReminders(client), 60 * 60 * 1000)
 
   // Run initial reminder check after a short delay
-  setTimeout(() => checkGuildReminders(client), 2 * 60 * 1000)
+  setTimeout(() => void checkGuildReminders(client), 2 * 60 * 1000)
 
   // Run user reminder scheduler
   // Checks for due user reminders and sends notifications
-  setInterval(() => checkUserReminders(client), 60000) // 60 seconds
+  setInterval(() => void checkUserReminders(client), 60000) // 60 seconds
 
   // Run initial check after a short delay
-  setTimeout(() => checkUserReminders(client), 5 * 1000) // 5 seconds after startup
+  setTimeout(() => void checkUserReminders(client), 5 * 1000) // 5 seconds after startup
 }

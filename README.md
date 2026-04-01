@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://stuff.4mina.app/amina/logo/headshot-emoji.png" alt="Amina - Your Guardian Companion" width="200" />
+  <img src="assets/logo/headshot-emoji.png" alt="Amina - Your Guardian Companion" width="200" />
   
   <h1> AMINA </h1>
   <h3>Your Guardian Companion in the Digital Empire</h3>

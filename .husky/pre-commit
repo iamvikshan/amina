@@ -8,19 +8,19 @@ fi
 if [ -n "$CODESPACES" ]; then
   # Source GIT_USER and GIT_EMAIL from the single source of truth
   SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-  if [ -f "$SCRIPT_DIR/scripts/git.sh" ]; then
+  if [ -f "$SCRIPT_DIR/scripts/author.sh" ]; then
     # Extract variables using sed to handle single/double/no quotes robustly
     # Pattern: export VAR="value" or export VAR='value' or export VAR=value
-    GIT_USER=$(grep -m1 '^export GIT_USER=' "$SCRIPT_DIR/scripts/git.sh" | sed "s/^export GIT_USER=[\"']\{0,1\}\([^\"']*\)[\"']\{0,1\}$/\1/")
-    GIT_EMAIL=$(grep -m1 '^export GIT_EMAIL=' "$SCRIPT_DIR/scripts/git.sh" | sed "s/^export GIT_EMAIL=[\"']\{0,1\}\([^\"']*\)[\"']\{0,1\}$/\1/")
+    GIT_USER=$(grep -m1 '^export GIT_USER=' "$SCRIPT_DIR/scripts/author.sh" | sed "s/^export GIT_USER=[\"']\{0,1\}\([^\"']*\)[\"']\{0,1\}$/\1/")
+    GIT_EMAIL=$(grep -m1 '^export GIT_EMAIL=' "$SCRIPT_DIR/scripts/author.sh" | sed "s/^export GIT_EMAIL=[\"']\{0,1\}\([^\"']*\)[\"']\{0,1\}$/\1/")
   else
-    echo "Error: scripts/git.sh not found. Cannot determine git identity."
+    echo "Error: scripts/author.sh not found. Cannot determine git identity."
     exit 1
   fi
 
   # Validate that both variables were extracted successfully
   if [ -z "$GIT_USER" ] || [ -z "$GIT_EMAIL" ]; then
-    echo "Error: Failed to extract GIT_USER or GIT_EMAIL from scripts/git.sh"
+    echo "Error: Failed to extract GIT_USER or GIT_EMAIL from scripts/author.sh"
     echo "   GIT_USER='$GIT_USER' GIT_EMAIL='$GIT_EMAIL'"
     echo "   Please ensure the script contains 'export GIT_USER=...' and 'export GIT_EMAIL=...'"
     exit 1
@@ -41,23 +41,23 @@ if [ -n "$CODESPACES" ]; then
       echo "   (GIT_AUTHOR_NAME/EMAIL env vars are overriding git config)"
     fi
     echo ""
-    echo "Running git.sh to fix attribution..."
+    echo "Running author.sh to fix attribution..."
 
-    if [ ! -x "$SCRIPT_DIR/scripts/git.sh" ]; then
+    if [ ! -x "$SCRIPT_DIR/scripts/author.sh" ]; then
       echo ""
-      echo "Error: $SCRIPT_DIR/scripts/git.sh is not executable or does not exist."
-      echo "   Run: chmod +x scripts/git.sh"
+      echo "Error: $SCRIPT_DIR/scripts/author.sh is not executable or does not exist."
+      echo "   Run: chmod +x scripts/author.sh"
       exit 1
     fi
 
-    if "$SCRIPT_DIR/scripts/git.sh"; then
+    if "$SCRIPT_DIR/scripts/author.sh"; then
       echo ""
       echo "Git config updated. Please run 'git commit' again."
       exit 1
     else
       echo ""
-      echo "Error: git.sh failed to update git config."
-      echo "   Please run '$SCRIPT_DIR/scripts/git.sh' manually to debug."
+      echo "Error: author.sh failed to update git config."
+      echo "   Please run '$SCRIPT_DIR/scripts/author.sh' manually to debug."
       exit 1
     fi
   fi

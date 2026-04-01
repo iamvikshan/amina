@@ -131,28 +131,33 @@ const command: CommandData = {
 
     switch (subcommand) {
       case 'truth':
-        sendQuestion(chatInteraction, 'truth', userAge, effectiveRating)
+        await sendQuestion(chatInteraction, 'truth', userAge, effectiveRating)
         break
       case 'dare':
-        sendQuestion(chatInteraction, 'dare', userAge, effectiveRating)
+        await sendQuestion(chatInteraction, 'dare', userAge, effectiveRating)
         break
       case 'paranoia':
-        sendQuestion(chatInteraction, 'paranoia', userAge, effectiveRating)
+        await sendQuestion(
+          chatInteraction,
+          'paranoia',
+          userAge,
+          effectiveRating
+        )
         break
       case 'nhie':
-        sendQuestion(chatInteraction, 'nhie', userAge, effectiveRating)
+        await sendQuestion(chatInteraction, 'nhie', userAge, effectiveRating)
         break
       case 'wyr':
-        sendQuestion(chatInteraction, 'wyr', userAge, effectiveRating)
+        await sendQuestion(chatInteraction, 'wyr', userAge, effectiveRating)
         break
       case 'hye':
-        sendQuestion(chatInteraction, 'hye', userAge, effectiveRating)
+        await sendQuestion(chatInteraction, 'hye', userAge, effectiveRating)
         break
       case 'wwyd':
-        sendQuestion(chatInteraction, 'wwyd', userAge, effectiveRating)
+        await sendQuestion(chatInteraction, 'wwyd', userAge, effectiveRating)
         break
       case 'random':
-        sendRandomQuestion(chatInteraction, userAge, effectiveRating)
+        await sendRandomQuestion(chatInteraction, userAge, effectiveRating)
         break
     }
   },
