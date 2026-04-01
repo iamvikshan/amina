@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/iamvikshan/amina/compare/v3.3.0...v3.3.1) (2026-04-01)
+
+### Bug Fixes
+
+* decouple releases, localize R2 assets, draft API README, fix lint ([2af302f](https://github.com/iamvikshan/amina/commit/2af302f6e72573d1091a8a1475fd2fdddfec1ddd))
+* release isolation, signing keys, memory guards, tool UX ordering ([a1bed49](https://github.com/iamvikshan/amina/commit/a1bed49b7a99c1a73c0c5abe86a33963583c1069))
+
 ## [3.3.0](https://github.com/iamvikshan/amina/compare/v3.2.5...v3.3.0) (2026-03-25)
 
 ### Features
