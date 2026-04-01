@@ -97,7 +97,7 @@ export default async (client: BotClient): Promise<void> => {
       return
     }
 
-    client.logger.log(
+    client.logger.debug(
       `Attempting to register ${commands.length} ${commandType} commands...`
     )
 
@@ -207,7 +207,7 @@ export default async (client: BotClient): Promise<void> => {
     try {
       const existingCommands = await fetchFn()
       if (existingCommands.size !== localCommands.length) {
-        client.logger.log(
+        client.logger.debug(
           `[${commandType}] Count differs: ${existingCommands.size} existing vs ${localCommands.length} local`
         )
         return { needsUpdate: true, changedCommands: ['(count mismatch)'] }
@@ -227,7 +227,7 @@ export default async (client: BotClient): Promise<void> => {
       }
 
       if (changedCommands.length > 0) {
-        client.logger.log(
+        client.logger.debug(
           `[${commandType}] ${changedCommands.length} command(s) changed: ${changedCommands.join(', ')}`
         )
         return { needsUpdate: true, changedCommands }
@@ -306,14 +306,14 @@ export default async (client: BotClient): Promise<void> => {
             )
 
             // Add delay between test guild and global command registration to avoid rate limits
-            client.logger.log(
+            client.logger.debug(
               'Waiting 2 seconds before registering global commands to avoid rate limits...'
             )
             await new Promise(resolve => setTimeout(resolve, 2000))
           } else {
-            // client.logger.success(
-            //   'Test guild commands are up to date. Skipping registration.'
-            // )
+            client.logger.debug(
+              'Test guild commands are up to date. Skipping registration.'
+            )
           }
         } catch (error: any) {
           client.logger.error(
@@ -335,9 +335,9 @@ export default async (client: BotClient): Promise<void> => {
           dm_permission: cmd.dmCommand ?? false, // dmCommand commands are hybrid (available in both guilds and DMs)
         }))
 
-      // client.logger.log(
-      //   `GLOBAL=true: Found ${globalCommands.length} commands to register globally (filtered from ${client.slashCommands.size} total commands)`
-      // )
+      client.logger.debug(
+        `GLOBAL=true: Found ${globalCommands.length} commands to register globally (filtered from ${client.slashCommands.size} total commands)`
+      )
 
       if (globalCommands.length > 0) {
         try {
@@ -370,9 +370,9 @@ export default async (client: BotClient): Promise<void> => {
               `Synced ${globalCommands.length} global commands (${changedCommands.length} changed: ${changedCommands.join(', ')}) (took ${duration}ms)`
             )
           } else {
-            // client.logger.success(
-            //   'Global commands are up to date. Skipping registration.'
-            // )
+            client.logger.success(
+              'Global commands are up to date. Skipping registration.'
+            )
           }
         } catch (error: any) {
           // Log the error but don't fallback to per-guild registration

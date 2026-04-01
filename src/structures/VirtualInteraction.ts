@@ -180,7 +180,8 @@ export class VirtualInteraction {
 
   /**
    * Extract rich output from a message including embeds for AI context
-   * @param msg
+   * @param {Message} msg - Discord message to extract output from
+   * @returns {string} Formatted rich output string
    */
   private extractRichOutput(msg: Message): string {
     const parts: string[] = []

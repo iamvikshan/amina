@@ -27,7 +27,8 @@
     "prepare": "test -d .git && husky || true",
     "cli:check": "cd cli && bun run check",
     "cli:build": "cd cli && bun run build",
-    "cli:test": "cd cli && bun run test"
+    "cli:test": "cd cli && bun run test",
+    "upd": "bun update --latest && cd api && bun update --latest && cd ../cli && bun update --latest && cd .."
   },
   "homepage": "https://github.com/iamvikshan/amina#readme",
   "repository": {
@@ -74,7 +75,7 @@
     "@typescript-eslint/parser": "^8.58.0",
     "conventional-changelog-conventionalcommits": "^9.3.1",
     "eslint": "^10.1.0",
-    "eslint-plugin-jsdoc": "^62.8.1",
+    "eslint-plugin-jsdoc": "^62.9.0",
     "husky": "^9.1.7",
     "prettier": "3.8.1",
     "semantic-release": "^25.0.3",

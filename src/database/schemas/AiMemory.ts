@@ -172,8 +172,8 @@ export async function pruneMemories(options: {
  * Memories lose 1 importance per decay period (default: 30 days).
  * Importance floors at 1 (never auto-deleted by decay alone).
  *
- * @param decayPeriodDays - Number of days of inactivity before decay (default: 30)
- * @returns Number of memories that had their importance reduced
+ * @param {number} decayPeriodDays - Number of days of inactivity before decay (default: 30)
+ * @returns {Promise<number>} Number of memories that had their importance reduced
  */
 export async function applyImportanceDecay(
   decayPeriodDays = 30
@@ -227,10 +227,11 @@ export async function applyImportanceDecay(
  * Used for semantic deduplication before storing new memories.
  * Scoped to the same userId + guildId + memoryType to prevent cross-category merges.
  * Returns the best match with its similarity score, or null if no match found.
- * @param queryVector
- * @param userId
- * @param guildId
- * @param memoryType
+ * @param {number[]} queryVector - Embedding vector to search against
+ * @param {string} userId - User ID to scope the search
+ * @param {string | null} guildId - Guild ID to scope the search
+ * @param {string} memoryType - Memory type category to scope the search
+ * @returns {Promise<object | null>} Best matching memory with similarity score, or null
  */
 export async function findSimilarMemory(
   queryVector: number[],
@@ -381,17 +382,17 @@ export async function vectorSearch(
 }
 
 /** Expected embedding dimensionality (must match Atlas Vector Search index numDimensions) */
-const EMBEDDING_DIMENSIONS = 3072
+const EMBEDDING_DIMENSIONS = 1024
 
 /**
  * Re-embed all existing memories using the provided embedding function.
  * Used when migrating to a new embedding model with different dimensions.
  * Processes memories sequentially within each batch to respect rate limits.
  *
- * @param embedFn - Function that takes text and returns an embedding vector
- * @param batchSize - Number of memories to process per batch (default: 25)
- * @param delayMs - Delay between batches in ms to respect rate limits (default: 1000)
- * @returns Statistics about the re-embedding operation
+ * @param {Function} embedFn - Function that takes text and returns an embedding vector
+ * @param {number} batchSize - Number of memories to process per batch (default: 25)
+ * @param {number} delayMs - Delay between batches in ms to respect rate limits (default: 1000)
+ * @returns {Promise<object>} Statistics about the re-embedding operation
  */
 export async function reEmbedAllMemories(
   embedFn: (text: string) => Promise<number[] | null>,

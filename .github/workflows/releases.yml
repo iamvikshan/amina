@@ -10,15 +10,6 @@ on:
       - "cli/**"
       - "Dockerfile"
 
-  pull_request:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/releases.yml"
-      - "src/**"
-      - "cli/**"
-      - "Dockerfile"
-
 # Cancel in-progress runs for the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -259,9 +250,8 @@ jobs:
           bun -e "
             import semanticRelease from 'semantic-release';
             try {
-              const result = await semanticRelease({
-                extends: './cli/release.config.mjs',
-              });
+              const cliConfig = (await import('./cli/release.config.mjs')).default;
+              const result = await semanticRelease(cliConfig);
               const version = result?.nextRelease?.version;
               if (version) {
                 console.log('Published CLI release ' + version);

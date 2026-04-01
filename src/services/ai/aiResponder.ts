@@ -57,7 +57,8 @@ export class AiResponderService {
 
   /**
    * Check if a guild is the test guild
-   * @param guildId
+   * @param {string | null} guildId - Guild ID to check
+   * @returns {boolean} True if guild matches the test guild ID
    */
   private isTestGuild(guildId: string | null): boolean {
     if (!guildId) return false
@@ -66,7 +67,8 @@ export class AiResponderService {
 
   /**
    * Get free-will channels from guild settings
-   * @param guildSettings
+   * @param {object} guildSettings - Guild settings document
+   * @returns {string[]} Array of channel IDs with free-will enabled
    */
   private getFreeWillChannels(guildSettings: any): string[] {
     if (!guildSettings?.aiResponder) return []
@@ -76,7 +78,8 @@ export class AiResponderService {
   /**
    * Check if a message is a reply to the bot
    * Fetches the referenced message and verifies it's from the bot
-   * @param message
+   * @param {Message} message - Discord message to check
+   * @returns {Promise<boolean>} True if message is a reply to the bot
    */
   private async isReplyToBot(message: Message): Promise<boolean> {
     if (!message.reference?.messageId || !message.client.user) {
@@ -552,7 +555,20 @@ export class AiResponderService {
       let totalToolCalls = 0
       let statusMessage: Message | null = null
       const statusText = extraction.statusText?.trim()
-      const executedToolNames = new Set<string>()
+
+      // Pre-compute whether non-memory tools will run
+      const hasNonMemoryTools = extraction.tools.some(
+        t => !MEMORY_TOOLS.has(t.name)
+      )
+
+      // Send status message BEFORE tool execution for non-memory tools
+      if (hasNonMemoryTools && statusText && statusText.length > 1) {
+        try {
+          statusMessage = await message.reply(statusText)
+        } catch {
+          // If status message fails to send, continue without it
+        }
+      }
 
       // Execute tools from extraction result
       const toolResults: string[] = []
@@ -593,7 +609,6 @@ export class AiResponderService {
               nativeContext
             )
             totalToolCalls++
-            executedToolNames.add(commandName)
             toolResults.push(toolResult)
           } catch (err: any) {
             logger.error(
@@ -657,7 +672,6 @@ export class AiResponderService {
             : `Command /${commandName} executed successfully (no text output).`
 
           totalToolCalls++
-          executedToolNames.add(commandName)
           toolResults.push(resultText)
         } catch (err: any) {
           logger.error(
@@ -666,18 +680,6 @@ export class AiResponderService {
           toolResults.push(
             `Command /${commandName} failed with error: ${err.message}`
           )
-        }
-      }
-
-      // Skip status message when only memory tools executed
-      const hasNonMemoryTools = [...executedToolNames].some(
-        name => !MEMORY_TOOLS.has(name)
-      )
-      if (hasNonMemoryTools && statusText && statusText.length > 1) {
-        try {
-          statusMessage = await message.reply(statusText)
-        } catch {
-          // If status message fails to send, continue without it
         }
       }
 
@@ -718,18 +720,23 @@ export class AiResponderService {
         undefined
       )
 
-      // Send final text reply
-      if (result.text && result.text.trim()) {
+      // Send final text reply -- strip leaked internal markers
+      const sanitizedText = result.text
+        ?.replace(/\[INTERNAL CONTEXT[^\]]*\][^\n]*/gi, '')
+        .replace(/\[Intent:[^\]]*\]/gi, '')
+        .trim()
+
+      if (sanitizedText) {
         if (statusMessage) {
           try {
-            await statusMessage.edit(result.text)
+            await statusMessage.edit(sanitizedText)
           } catch {
-            await message.reply(result.text)
+            await message.reply(sanitizedText)
           }
         } else {
-          await message.reply(result.text)
+          await message.reply(sanitizedText)
         }
-        conversationBuffer.appendAssistantMessage(conversationId, result.text)
+        conversationBuffer.appendAssistantMessage(conversationId, sanitizedText)
       } else if (statusMessage) {
         try {
           await statusMessage.delete()
@@ -774,13 +781,14 @@ export class AiResponderService {
 
   /**
    * Check if AI can execute a command based on permission model
-   * @param message
-   * @param commandName
-   * @param metadata
-   * @param metadata.permissionModel
-   * @param metadata.userPermissions
-   * @param metadata.freeWillAllowed
-   * @param args
+   * @param {Message} message - Discord message triggering the command
+   * @param {string} commandName - Name of the command to check
+   * @param {object} metadata - Permission metadata
+   * @param {string} metadata.permissionModel - Permission model type
+   * @param {any[]} metadata.userPermissions - User's permission flags
+   * @param {boolean} metadata.freeWillAllowed - Whether free-will is allowed
+   * @param {Record<string, any>} args - Command arguments
+   * @returns {Promise<object>} Permission check result with allowed, reason, isFreeWill
    */
   private async checkCommandPermissions(
     message: Message,
@@ -874,7 +882,8 @@ export class AiResponderService {
 
   /**
    * Detect if user message contains prompt injection patterns
-   * @param content
+   * @param {string} content - Message content to scan
+   * @returns {boolean} True if injection pattern detected
    */
   private detectPromptInjection(content: string): boolean {
     const lower = content.toLowerCase()
@@ -885,8 +894,9 @@ export class AiResponderService {
 
   /**
    * Check if user message likely contains explicit request for this command
-   * @param content
-   * @param commandName
+   * @param {string} content - Message content to check
+   * @param {string} commandName - Command name to look for
+   * @returns {boolean} True if message likely requests this command
    */
   private isLikelyUserRequest(content: string, commandName: string): boolean {
     const lower = content.toLowerCase()
@@ -916,8 +926,9 @@ export class AiResponderService {
 
   /**
    * Check if target user has higher/equal role than bot (for free will actions)
-   * @param message
-   * @param args
+   * @param {Message} message - Discord message with guild context
+   * @param {Record<string, any>} args - Command arguments containing target user
+   * @returns {Promise<object>} Hierarchy check result with allowed and reason
    */
   private async checkTargetHierarchy(
     message: Message,
@@ -969,8 +980,9 @@ export class AiResponderService {
 
   /**
    * Apply limits to free will command arguments
-   * @param commandName
-   * @param args
+   * @param {string} commandName - Command name to apply limits for
+   * @param {Record<string, any>} args - Command arguments to constrain
+   * @returns {Record<string, any>} Arguments with limits applied
    */
   private applyFreeWillLimits(
     commandName: string,
@@ -1090,7 +1102,8 @@ export class AiResponderService {
   /**
    * Format conversation history with speaker attribution for AI
    * Adds display names to user messages so AI can track who said what
-   * @param history
+   * @param {BufferMessage[]} history - Raw conversation buffer messages
+   * @returns {ChatMessage[]} Formatted chat messages with attribution
    */
   private formatHistoryForAI(history: BufferMessage[]): ChatMessage[] {
     const sanitized = ConversationBuffer.sanitizeToolPairs(history)
@@ -1193,10 +1206,11 @@ export class AiResponderService {
    * - Users from last N messages (conversation thread context)
    * - Users who spoke within time window (recent activity)
    * This handles both active conversations and prevents stale participants
-   * @param history
-   * @param currentUserId
-   * @param timeWindowMs
-   * @param maxMessageLookback
+   * @param {BufferMessage[]} history - Conversation history buffer
+   * @param {string} currentUserId - Current message author's user ID
+   * @param {number} timeWindowMs - Time window for recent activity in ms
+   * @param {number} maxMessageLookback - Max messages to scan for participants
+   * @returns {Set<string>} Set of active participant user IDs
    */
   private getActiveParticipants(
     history: BufferMessage[],
@@ -1234,7 +1248,8 @@ export class AiResponderService {
   /**
    * Fetch profiles for all participants
    * Respects privacy settings and caches results
-   * @param userIds
+   * @param {string[]} userIds - User IDs to fetch profiles for
+   * @returns {Promise<Map<string, any>>} Map of user ID to profile data
    */
   private async getParticipantProfiles(
     userIds: string[]
@@ -1270,12 +1285,13 @@ export class AiResponderService {
   /**
    * ReAct loop fallback when the 2-call extraction pipeline fails.
    * Contains the full original multi-iteration tool-calling flow.
-   * @param message
-   * @param enhancedPrompt
-   * @param formattedHistory
-   * @param config
-   * @param mediaItems
-   * @param conversationId
+   * @param {Message} message - Discord message being responded to
+   * @param {string} enhancedPrompt - System prompt with context injected
+   * @param {ChatMessage[]} formattedHistory - Formatted conversation history
+   * @param {AiConfig} config - AI configuration settings
+   * @param {MediaItem[]} mediaItems - Attached media items
+   * @param {string} conversationId - Conversation ID for tracking
+   * @returns {Promise<void>} Resolves when response is sent
    */
   private async _reactFallback(
     message: Message,
@@ -1314,10 +1330,43 @@ export class AiResponderService {
       currentHistory.push({ role: 'user', content: message.content })
     }
 
+    // Eagerly check if the first response has non-memory tool calls
+    const initialToolCalls = result.toolCalls ?? []
+    const hasNonMemoryReactTools = initialToolCalls.some(
+      tc => !MEMORY_TOOLS.has(tc.function.name)
+    )
+    if (hasNonMemoryReactTools) {
+      const toolNames = initialToolCalls.map(tc => tc.function.name)
+      const category = getToolStatusCategory(toolNames)
+      const statusText = mina.say(category)
+      try {
+        statusMessage = await message.reply(statusText)
+      } catch {
+        // If status message fails to send, continue without it
+      }
+    }
+
     while (iteration < MAX_ITERATIONS) {
       const toolCalls = result.toolCalls ?? []
       if (toolCalls.length === 0) break
       iteration++
+
+      // Send status message before executing non-memory tools (if not already sent)
+      if (!statusMessage) {
+        const hasNonMemory = toolCalls.some(
+          tc => !MEMORY_TOOLS.has(tc.function.name)
+        )
+        if (hasNonMemory) {
+          const toolNames = toolCalls.map(tc => tc.function.name)
+          const category = getToolStatusCategory(toolNames)
+          const statusText = mina.say(category)
+          try {
+            statusMessage = await message.reply(statusText)
+          } catch {
+            // If status message fails to send, continue without it
+          }
+        }
+      }
 
       const functionResults: string[] = []
 
@@ -1447,21 +1496,6 @@ export class AiResponderService {
         }
       }
 
-      // Skip status message when only memory tools executed
-      const hasNonMemoryReactTools = [...reactExecutedToolNames].some(
-        name => !MEMORY_TOOLS.has(name)
-      )
-      if (hasNonMemoryReactTools && !statusMessage) {
-        const toolNames = toolCalls.map(tc => tc.function.name)
-        const category = getToolStatusCategory(toolNames)
-        const statusText = mina.say(category)
-        try {
-          statusMessage = await message.reply(statusText)
-        } catch {
-          // If status message fails to send, continue without it
-        }
-      }
-
       conversationBuffer.appendAssistantMessage(
         conversationId,
         result.text || '',
@@ -1519,24 +1553,30 @@ export class AiResponderService {
 
     let memoryHistory = [...currentHistory]
 
-    if (result.text && result.text.trim()) {
+    // Strip leaked internal markers before sending
+    const sanitizedText = result.text
+      ?.replace(/\[INTERNAL CONTEXT[^\]]*\][^\n]*/gi, '')
+      .replace(/\[Intent:[^\]]*\]/gi, '')
+      .trim()
+
+    if (sanitizedText) {
       if (statusMessage) {
         try {
-          await statusMessage.edit(result.text)
+          await statusMessage.edit(sanitizedText)
         } catch {
-          await message.reply(result.text)
+          await message.reply(sanitizedText)
         }
       } else {
-        await message.reply(result.text)
+        await message.reply(sanitizedText)
       }
       conversationBuffer.appendAssistantMessage(
         conversationId,
-        result.text,
+        sanitizedText,
         result.toolCalls
       )
       memoryHistory = [
         ...memoryHistory,
-        { role: 'assistant', content: result.text },
+        { role: 'assistant', content: sanitizedText },
       ]
     } else if (statusMessage) {
       try {

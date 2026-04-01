@@ -49,7 +49,7 @@ Follow the interactive prompts to configure and deploy your instance.
 
 ## Requirements
 
-- **Node.js >= 22** or **Bun >= 1.3.11**
+- **Node.js >= 25** or **Bun >= 1.3.11**
 - **Docker** + **Docker Compose** (for deploy mode)
 - **git** (for dev mode)
 

@@ -88,15 +88,26 @@ export class MemoryManipulator {
 
   /**
    * Store a reference to the memory service for handler use.
-   * @param memoryService
+   * @param {MemoryService} memoryService - Memory service instance
    */
   initialize(memoryService: MemoryService) {
     this.memoryService = memoryService
   }
 
+  private containsProhibitedMarkers(text: string): boolean {
+    const markers = [
+      '[INTERNAL CONTEXT',
+      'do not narrate or repeat this',
+      '[SYSTEM:',
+      '[TOOL_RESULT:',
+    ]
+    const lower = text.toLowerCase()
+    return markers.some(m => lower.includes(m.toLowerCase()))
+  }
+
   /**
    * Register the 4 memory tools as native tools with the AI command registry.
-   * @param registry
+   * @param {AiCommandRegistry} registry - Command registry to register tools on
    */
   registerTools(registry: AiCommandRegistry) {
     registry.registerNativeTools([
@@ -129,6 +140,14 @@ export class MemoryManipulator {
     if (typeof fact !== 'string' || !fact.trim()) {
       return 'Error: "fact" is required and must be a non-empty string.'
     }
+
+    if (this.containsProhibitedMarkers(fact)) {
+      Logger.warn(
+        `handleRememberFact rejected: content contains internal markers from user ${context.userId}`
+      )
+      return 'That content cannot be stored as a memory.'
+    }
+
     const factContext = args.context
     if (factContext !== undefined && typeof factContext !== 'string') {
       return 'Error: "context" must be a string if provided.'

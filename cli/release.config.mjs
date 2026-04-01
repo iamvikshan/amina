@@ -36,12 +36,14 @@ export default {
       },
     ],
 
+    ['@semantic-release/changelog', { changelogFile: 'cli/CHANGELOG.md' }],
+
     ['@semantic-release/npm', { pkgRoot: 'cli' }],
 
     [
       '@semantic-release/git',
       {
-        assets: ['cli/package.json'],
+        assets: ['cli/package.json', 'cli/CHANGELOG.md'],
         message:
           'chore(cli-release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },

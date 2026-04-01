@@ -535,7 +535,7 @@ if [[ "$HAS_SIGNING_SCOPE" != "true" ]]; then
 fi
 
 # Use consistent key name for reuse across environments
-SIGNING_KEY_PATH="$HOME/.ssh/id_ed25519_signing"
+SIGNING_KEY_PATH="$HOME/.ssh/amina-id_ed25519_signing"
 SIGNING_KEY_PUB="$SIGNING_KEY_PATH.pub"
 
 # Normalize the public key to the canonical "type base64" form used by GitHub's
@@ -569,7 +569,7 @@ else
   #         where interactive passphrase entry is not practical.
   # Implications:
   #   - The private key is protected only by filesystem permissions
-  #   - Anyone with read access to ~/.ssh/id_ed25519_signing can use it
+  #   - Anyone with read access to ~/.ssh/amina-id_ed25519_signing can use it
   # For production/high-security environments:
   #   - Consider using a passphrase and ssh-agent for key caching
   #   - Or use hardware security keys (e.g., YubiKey)
@@ -601,7 +601,7 @@ else
       # Try to create the key through the documented REST API.
       # NOTE: Defensive '|| ADD_EXIT_CODE=$?' pattern prevents 'set -e' from killing the script.
       ADD_EXIT_CODE=0
-      ADD_OUTPUT=$(gh api -X POST /user/ssh_signing_keys -f key="$NORMALIZED_SIGNING_KEY" -f title="$GIT_USER signing key" 2>&1) || ADD_EXIT_CODE=$?
+      ADD_OUTPUT=$(gh api -X POST /user/ssh_signing_keys -f key="$NORMALIZED_SIGNING_KEY" -f title="amina-$GIT_USER signing key" 2>&1) || ADD_EXIT_CODE=$?
 
       if [[ $ADD_EXIT_CODE -eq 0 ]]; then
         echo "✓ SSH signing key added to GitHub"

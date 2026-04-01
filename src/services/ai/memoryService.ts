@@ -75,8 +75,9 @@ export class MemoryService {
 
   /**
    * Generate an embedding via Voyage AI (dual-key random selection), Gemini, or Mistral (fallback).
-   * @param text
-   * @param inputType
+   * @param {string} text - The text to generate an embedding for
+   * @param {'query' | 'document'} [inputType] - Whether the text is a query or document
+   * @returns {Promise<number[] | null>} The embedding vector, or null if all providers fail
    */
   private async generateVoyageOrFallbackEmbedding(
     text: string,
@@ -154,12 +155,26 @@ export class MemoryService {
     return null
   }
 
+  private containsProhibitedMarkers(text: string): boolean {
+    const markers = [
+      '[INTERNAL CONTEXT',
+      'do not narrate or repeat this',
+      '[SYSTEM:',
+      '[TOOL_RESULT:',
+    ]
+    const lower = text.toLowerCase()
+    return markers.some(m => lower.includes(m.toLowerCase()))
+  }
+
   /**
-   * Store a memory in MongoDB with its embedding vector
-   * @param fact
-   * @param userId
-   * @param guildId
-   * @param context
+   * Store a memory in MongoDB with its embedding vector.
+   * Rejects content containing prohibited internal markers.
+   * Strips prohibited markers from context while still allowing the write.
+   * @param {MemoryFact} fact - The memory fact to store
+   * @param {string} userId - Discord user ID
+   * @param {string | null} guildId - Discord guild ID, or null for DM context
+   * @param {string} context - Conversation snippet for context
+   * @returns {Promise<boolean>} Whether the memory was successfully stored
    */
   async storeMemory(
     fact: MemoryFact,
@@ -177,6 +192,27 @@ export class MemoryService {
         'storeMemory skipped: Memory Service not initialized (AI client missing)'
       )
       return false
+    }
+
+    if (this.containsProhibitedMarkers(fact.value)) {
+      logger.warn(
+        `storeMemory rejected: content contains prohibited internal marker for user ${userId}`
+      )
+      return false
+    }
+
+    if (this.containsProhibitedMarkers(fact.key)) {
+      logger.warn(
+        `storeMemory rejected: key contains prohibited internal marker for user ${userId}`
+      )
+      return false
+    }
+
+    if (context && this.containsProhibitedMarkers(context)) {
+      logger.warn(
+        `storeMemory: stripping context with prohibited markers for user ${userId}`
+      )
+      context = ''
     }
 
     try {
@@ -275,13 +311,14 @@ export class MemoryService {
    * Recall relevant memories for a message.
    * Note: when post-filtering is needed (server context with global memories but not combining DM),
    * the actual number of results may be less than the requested limit due to Atlas filter limitations.
-   * @param userMessage
-   * @param userId
-   * @param guildId
-   * @param limit
-   * @param userPrefs
-   * @param userPrefs.combineDmWithServer
-   * @param userPrefs.globalServerMemories
+   * @param {string} userMessage - The user's message to semantically match against
+   * @param {string} userId - Discord user ID
+   * @param {string | null} guildId - Discord guild ID, or null for DM context
+   * @param {number} [limit=5] - Maximum number of memories to return
+   * @param {object} [userPrefs] - User memory preference overrides
+   * @param {boolean} [userPrefs.combineDmWithServer] - Whether to combine DM and server memories
+   * @param {boolean} [userPrefs.globalServerMemories] - Whether server memories are global across guilds
+   * @returns {Promise<RecalledMemory[]>} Array of recalled memories with relevance scores
    */
   async recallMemories(
     userMessage: string,
@@ -406,8 +443,9 @@ export class MemoryService {
 
   /**
    * Delete all memories for a user
-   * @param userId
-   * @param guildId
+   * @param {string} userId - Discord user ID
+   * @param {string | null} guildId - Discord guild ID, or null for DM context
+   * @returns {Promise<number>} Number of deleted memories
    */
   async forgetUser(userId: string, guildId: string | null): Promise<number> {
     try {
@@ -422,8 +460,9 @@ export class MemoryService {
 
   /**
    * Get all memories for a user (for /memories command)
-   * @param userId
-   * @param guildId
+   * @param {string} userId - Discord user ID
+   * @param {string | null} guildId - Discord guild ID, or null for DM context
+   * @returns {Promise<any[]>} Array of memory documents
    */
   async listUserMemories(
     userId: string,
@@ -434,6 +473,7 @@ export class MemoryService {
 
   /**
    * Get memory statistics
+   * @returns {Promise<object>} Aggregate memory statistics
    */
   async getStats(): Promise<{
     totalMemories: number
@@ -511,6 +551,7 @@ export class MemoryService {
 
   /**
    * Prune old memories
+   * @returns {Promise<number>} Number of pruned memories
    */
   async pruneOldMemories(): Promise<number> {
     try {
@@ -530,7 +571,8 @@ export class MemoryService {
 
   /**
    * Generate an embedding vector for the given text.
-   * @param text
+   * @param {string} text - The text to embed
+   * @returns {Promise<number[] | null>} The embedding vector, or null if unavailable
    */
   async generateEmbedding(text: string): Promise<number[] | null> {
     if (
@@ -549,11 +591,12 @@ export class MemoryService {
 
   /**
    * Find and update an existing memory that semantically matches the description.
-   * @param description
-   * @param newValue
-   * @param userId
-   * @param guildId
-   * @param memoryType
+   * @param {string} description - Description of the memory to find
+   * @param {string} newValue - The new value to replace the old memory with
+   * @param {string} userId - Discord user ID
+   * @param {string | null} guildId - Discord guild ID, or null for DM context
+   * @param {string} [memoryType='user'] - Memory type filter
+   * @returns {Promise<{found: boolean, oldValue?: string, newValue?: string}>} Match result
    */
   async updateMemoryByMatch(
     description: string,
@@ -562,6 +605,20 @@ export class MemoryService {
     guildId: string | null,
     memoryType: string = 'user'
   ): Promise<{ found: boolean; oldValue?: string; newValue?: string }> {
+    if (this.containsProhibitedMarkers(description)) {
+      logger.warn(
+        `updateMemoryByMatch rejected: description contains prohibited internal marker for user ${userId}`
+      )
+      return { found: false }
+    }
+
+    if (this.containsProhibitedMarkers(newValue)) {
+      logger.warn(
+        `updateMemoryByMatch rejected: newValue contains prohibited internal marker for user ${userId}`
+      )
+      return { found: false }
+    }
+
     const embedding = await this.generateEmbedding(description)
     if (!embedding) return { found: false }
 
@@ -601,10 +658,11 @@ export class MemoryService {
 
   /**
    * Find and delete an existing memory that semantically matches the description.
-   * @param description
-   * @param userId
-   * @param guildId
-   * @param memoryType
+   * @param {string} description - Description of the memory to find and delete
+   * @param {string} userId - Discord user ID
+   * @param {string | null} guildId - Discord guild ID, or null for DM context
+   * @param {string} [memoryType='user'] - Memory type filter
+   * @returns {Promise<{found: boolean, deletedValue?: string}>} Deletion result
    */
   async deleteMemoryByMatch(
     description: string,
@@ -612,6 +670,13 @@ export class MemoryService {
     guildId: string | null,
     memoryType: string = 'user'
   ): Promise<{ found: boolean; deletedValue?: string }> {
+    if (this.containsProhibitedMarkers(description)) {
+      logger.warn(
+        `deleteMemoryByMatch rejected: description contains prohibited internal marker for user ${userId}`
+      )
+      return { found: false }
+    }
+
     const embedding = await this.generateEmbedding(description)
     if (!embedding) return { found: false }
 
