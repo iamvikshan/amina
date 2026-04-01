@@ -1,6 +1,6 @@
 {
   "name": "amina",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "CLI tool for deploying, updating, and managing Amina Discord bot instances",
   "keywords": [
     "discord",
