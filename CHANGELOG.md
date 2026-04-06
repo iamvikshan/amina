@@ -1,3 +1,10 @@
+## [3.3.2](https://github.com/iamvikshan/amina/compare/v3.3.1...v3.3.2) (2026-04-06)
+
+### Bug Fixes
+
+* **api:** update dependency hono to ^4.12.10 ([#316](https://github.com/iamvikshan/amina/issues/316)) ([cb26e70](https://github.com/iamvikshan/amina/commit/cb26e70b7c8152abbb649a1f6403c3d38f3f0b1a))
+* update GitHub Actions for CLI release and binary compilation ([567d70f](https://github.com/iamvikshan/amina/commit/567d70f4adaa3b4fe5af47c9ac9360b09a9aa7bf))
+
 ## [3.3.1](https://github.com/iamvikshan/amina/compare/v3.3.0...v3.3.1) (2026-04-01)
 
 ### Bug Fixes
