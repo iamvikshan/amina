@@ -390,7 +390,7 @@ export default async (client: BotClient): Promise<void> => {
         )
       }
     } else {
-      client.logger.log('GLOBAL=false: Skipping global command registration')
+      client.logger.debug('GLOBAL=false: Skipping global command registration')
     }
   }
 

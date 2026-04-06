@@ -1,7 +1,6 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
+import packageJson from '../package.json' with { type: 'json' }
 
 import { runCheck } from './check'
 import { runInstall } from './install'
@@ -39,10 +38,7 @@ export function parseFlags(args: string[]): CliFlags {
   return flags
 }
 
-const require = createRequire(import.meta.url)
-const { version: VERSION } = require('../package.json') as {
-  version: string
-}
+const { version: VERSION } = packageJson
 
 const BANNER = [
   crimson('    _    __  __ ___ _   _    _    '),
@@ -81,7 +77,8 @@ ${SEP}
 
 /**
  * Route to the appropriate subcommand based on argv.
- * @param args - CLI arguments (defaults to process.argv).
+ * @param {string[]} args - CLI arguments (defaults to process.argv).
+ * @returns {Promise<number>} The CLI exit code.
  */
 export async function main(args: string[] = process.argv): Promise<number> {
   const subcommand = args[2] ?? 'help'
@@ -118,7 +115,7 @@ export async function main(args: string[] = process.argv): Promise<number> {
   }
 }
 
-const isMain = process.argv[1] === fileURLToPath(import.meta.url)
+const isMain = import.meta.main
 if (isMain) {
   process.exitCode = await main()
 }

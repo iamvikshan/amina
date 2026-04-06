@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 // src/structures/BotClient.ts
 import {
   Client,
@@ -9,6 +8,7 @@ import {
   ApplicationCommandType,
 } from 'discord.js'
 import type { ClientOptions } from 'discord.js'
+import { setTimeout } from 'node:timers/promises'
 import path from 'path'
 import { table } from 'table'
 import Logger from '@helpers/Logger'
@@ -16,8 +16,8 @@ import Honeybadger from '@helpers/Honeybadger'
 import { validateCommand, validateContext } from '@helpers/Validator'
 import { schemas } from '@src/database/mongoose'
 import CommandCategory from './CommandCategory'
-import Manager from '../handlers/manager'
-import giveawaysHandler from '../handlers/giveaway'
+import Manager from '@handlers/manager'
+import giveawaysHandler from '@handlers/giveaway'
 import { DiscordTogether } from 'discord-together'
 import { config, secret } from '@src/config'
 import Utils from '@helpers/Utils'
@@ -46,6 +46,7 @@ export default class BotClient extends Client {
   public config: any
   public slashCommands: Collection<string, any>
   public contextMenus: Collection<string, any>
+  private _loadedEventNames: Set<string> = new Set()
   public counterUpdateQueue: any[]
   public joinLeaveWebhook?: WebhookClient
   public musicManager?: any
@@ -79,8 +80,7 @@ export default class BotClient extends Client {
       restRequestTimeout: 20000,
     } as ClientOptions)
 
-    // Promisify setTimeout for use with async/await
-    this.wait = require('util').promisify(setTimeout)
+    this.wait = setTimeout
 
     // Load configuration
     this.config = config
@@ -124,7 +124,7 @@ export default class BotClient extends Client {
     // Discord.js error events
     this.on('error', error => {
       this.logger.error('Discord Client Error', error)
-      Honeybadger.notify(error, {
+      void Honeybadger.notify(error, {
         context: {
           event: 'client_error',
         },
@@ -138,7 +138,7 @@ export default class BotClient extends Client {
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (reason, _promise) => {
       this.logger.error('Unhandled Promise Rejection', reason)
-      Honeybadger.notify(reason as any, {
+      void Honeybadger.notify(reason as any, {
         context: {
           event: 'unhandled_rejection',
         },
@@ -146,33 +146,35 @@ export default class BotClient extends Client {
     })
   }
 
-  // Load and register events from a directory
-  loadEvents(directory: string): void {
-    // this.logger.log('Loading events...')
+  async loadEvents(directory: string): Promise<void> {
+    // Clear previously loaded event listeners (preserve error/warn from setupErrorHandlers)
+    for (const name of this._loadedEventNames) {
+      this.removeAllListeners(name)
+    }
+    this._loadedEventNames.clear()
+
     const clientEvents: any[] = []
     let success = 0
     let failed = 0
 
-    // Recursively read all files in the directory
-    Utils.recursiveReadDirSync(directory, ['.js', '.ts']).forEach(filePath => {
+    const files = Utils.recursiveReadDirSync(directory, ['.js', '.ts'])
+    for (const filePath of files) {
       const file = path.basename(filePath)
       try {
         const ext = path.extname(file)
         const eventName = path.basename(file, ext)
-        const event = normalizeImport(require(filePath))
+        const module = await import(`${filePath}?v=${Date.now()}`)
+        const event = normalizeImport(module)
 
-        // Bind the event to the client
         this.on(eventName, event.bind(null, this))
+        this._loadedEventNames.add(eventName)
         clientEvents.push([file, '✓'])
-
-        // Clear the require cache
-        delete require.cache[require.resolve(filePath)]
         success += 1
       } catch (ex) {
         failed += 1
         this.logger.error(`loadEvent - ${file}`, ex)
       }
-    }) // Log the loaded events
+    }
     console.log(
       table(clientEvents, {
         header: { alignment: 'center', content: 'Client Events' },
@@ -222,23 +224,20 @@ export default class BotClient extends Client {
       // If we get here, either GLOBAL=true or it's a special command
       this.slashCommands.set(cmd.name, cmd)
     } else {
-      this.logger.debug(`Skipping slash command ${cmd.name}. Disabled!`)
+      this.logger.debug(`Skipping slash command /${cmd.name}. Disabled!`)
     }
   }
 
-  // Load and register all commands from a directory
-  loadCommands(directory: string): void {
-    // this.logger.log('Loading commands...')
+  async loadCommands(directory: string): Promise<void> {
+    this.slashCommands.clear()
     const files = Utils.recursiveReadDirSync(directory, ['.js', '.ts'])
     for (const file of files) {
       try {
-        const cmd = normalizeImport(require(file))
+        const module = await import(`${file}?v=${Date.now()}`)
+        const cmd = normalizeImport(module)
         if (typeof cmd !== 'object') continue
         ;(validateCommand as any)(cmd)
         this.loadCommand(cmd)
-
-        // Clear the require cache to allow hot reloading
-        delete require.cache[require.resolve(file)]
       } catch (ex: any) {
         this.logger.error(`Failed to load ${file} Reason: ${ex.message}`)
       }
@@ -252,13 +251,13 @@ export default class BotClient extends Client {
     }
   }
 
-  // Load and register all context menus from a directory
-  loadContexts(directory: string): void {
-    // this.logger.log('Loading contexts...')
+  async loadContexts(directory: string): Promise<void> {
+    this.contextMenus.clear()
     const files = Utils.recursiveReadDirSync(directory, ['.js', '.ts'])
     for (const file of files) {
       try {
-        const ctx = normalizeImport(require(file))
+        const module = await import(`${file}?v=${Date.now()}`)
+        const ctx = normalizeImport(module)
         if (typeof ctx !== 'object') continue
         ;(validateContext as any)(ctx)
         if (!ctx.enabled) {
@@ -269,9 +268,6 @@ export default class BotClient extends Client {
           throw new Error(`Context already exists with that name`)
         }
         this.contextMenus.set(ctx.name, ctx)
-
-        // Clear the require cache to allow hot reloading
-        delete require.cache[require.resolve(file)]
       } catch (ex: any) {
         this.logger.error(`Failed to load ${file} Reason: ${ex.message}`)
       }

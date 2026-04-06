@@ -1,6 +1,7 @@
 {
     "deepscan.enable": true,
     "deepscan.ignore": [
-        "tests/**/*"
+        "tests/**/*",
+        "types/**/*"
     ]
 }

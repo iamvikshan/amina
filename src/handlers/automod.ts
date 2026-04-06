@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 import { Message } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
 import { containsLink, containsDiscordInvite } from '@helpers/Utils'
 import { getMember } from '@schemas/Member'
-const ModUtils = require('@helpers/ModUtils')
+import * as ModUtils from '@helpers/ModUtils'
 import { addAutoModLogToDb } from '@schemas/AutomodLogs'
 
 interface AntispamInfo {
@@ -30,7 +29,8 @@ setInterval(
 
 /**
  * Check if the message needs to be moderated and has required permissions
- * @param message
+ * @param {Message} message - The message to check
+ * @returns {boolean} Whether the message should be moderated
  */
 const shouldModerate = (message: Message): boolean => {
   const { member, guild, channel } = message
@@ -53,8 +53,8 @@ const shouldModerate = (message: Message): boolean => {
 
 /**
  * Perform moderation on the message
- * @param message
- * @param settings
+ * @param {Message} message - The message to moderate
+ * @param {any} settings - Guild settings containing automod config
  */
 async function performAutomod(message: Message, settings: any): Promise<void> {
   const { automod } = settings
@@ -251,12 +251,14 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
       memberDb.strikes = 0
 
       // Add Moderation Action
-      await ModUtils.addModAction(
-        guild.members.me,
-        member,
-        'Automod: Max strikes received',
-        automod.action
-      ).catch(() => {})
+      if (guild.members.me) {
+        await ModUtils.addModAction(
+          guild.members.me,
+          member,
+          'Automod: Max strikes received',
+          automod.action
+        ).catch(() => {})
+      }
     }
 
     await memberDb.save()

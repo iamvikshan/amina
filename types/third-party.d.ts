@@ -1,20 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Third-party package type declarations
 
 declare module 'sourcebin_js' {
   interface SourceBinFile {
+    name?: string
     content: string
     language?: string
+    languageId?: string
   }
   interface SourceBinResult {
     url: string
     key: string
+    short: string
   }
-  function create(
-    files: SourceBinFile[],
-    options?: { title?: string; description?: string }
-  ): Promise<SourceBinResult>
-  const sourcebin: { create: typeof create }
+  const sourcebin: {
+    create(
+      files: SourceBinFile[],
+      options?: { title?: string; description?: string }
+    ): Promise<SourceBinResult>
+  }
   export = sourcebin
 }
 
@@ -165,26 +168,4 @@ declare module 'discord-gamecord' {
     startGame(): Promise<void>
     on(event: 'gameOver', listener: (result: any) => void): this
   }
-}
-
-declare module 'sourcebin_js' {
-  export interface CreateOptions {
-    title?: string
-    description?: string
-    files: Array<{
-      name: string
-      content: string
-      languageId?: string | number
-    }>
-  }
-
-  export interface SourceBin {
-    key: string
-    url: string
-    short: string
-    raw: string
-  }
-
-  export function create(options: CreateOptions): Promise<SourceBin>
-  export function get(key: string): Promise<SourceBin>
 }

@@ -13,7 +13,7 @@ import { mina } from '@helpers/mina'
 
 /**
  * Show reload menu
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction to respond to
  */
 export async function showReloadMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
@@ -57,7 +57,7 @@ export async function showReloadMenu(
 
 /**
  * Handle reload type selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The select menu interaction
  */
 export async function handleReloadType(
   interaction: StringSelectMenuInteraction
@@ -123,20 +123,20 @@ export async function handleReloadType(
   try {
     switch (reloadType.toLowerCase()) {
       case 'commands':
-        client.loadCommands('src/commands')
+        await client.loadCommands('src/commands')
         await registerCommands()
         break
       case 'events':
-        client.loadEvents('src/events')
+        await client.loadEvents('src/events')
         break
       case 'contexts':
-        client.loadContexts('src/contexts')
+        await client.loadContexts('src/contexts')
         await registerCommands()
         break
       case 'all':
-        client.loadCommands('src/commands')
-        client.loadContexts('src/contexts')
-        client.loadEvents('src/events')
+        await client.loadCommands('src/commands')
+        await client.loadContexts('src/contexts')
+        await client.loadEvents('src/events')
         await registerCommands()
         break
       default:

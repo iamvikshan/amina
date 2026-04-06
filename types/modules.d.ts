@@ -17,10 +17,10 @@ declare module '@structures/BotClient' {
     giveawaysManager: any
     discordTogether: any
 
-    loadEvents(directory: string): void
+    loadEvents(directory: string): Promise<void>
     loadCommand(cmd: any): void
     loadCommands(directory: string): Promise<void>
-    loadContexts(directory: string): void
+    loadContexts(directory: string): Promise<void>
     registerInteractions(guildId?: string): Promise<void>
     resolveUsers(search: string, exact?: boolean): Promise<any[]>
     getInvite(): string
@@ -191,8 +191,6 @@ declare module '@schemas/Member' {
   // IMember is globally available, just reference it here
   // Functions and Model are exported from the actual module file
 }
-
-declare module 'sourcebin_js';
 
 export {}
 

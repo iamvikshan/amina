@@ -100,9 +100,9 @@ async function initializeBot(): Promise<BotClient> {
     await initializeMongoose()
 
     // Load commands and events
-    client.loadCommands('./src/commands')
-    client.loadContexts('./src/contexts')
-    client.loadEvents('./src/events')
+    await client.loadCommands('./src/commands')
+    await client.loadContexts('./src/contexts')
+    await client.loadEvents('./src/events')
 
     // start the client
     await client.login(secret.BOT_TOKEN)

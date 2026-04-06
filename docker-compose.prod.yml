@@ -4,6 +4,7 @@ services:
     image: vikshan/amina:latest
     container_name: amina
     restart: unless-stopped
+    command: ["run", "src/index.ts"]
     depends_on:
       lavalink:
         condition: service_healthy

@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 // src/helpers/HttpUtils.ts
-const sourcebin = require('sourcebin_js')
+import sourcebin from 'sourcebin_js'
 import { error, debug } from '@helpers/Logger'
 
 /**
@@ -38,8 +37,9 @@ export interface BinResponse {
 export default class HttpUtils {
   /**
    * Returns JSON response from url
-   * @param url - The URL to fetch from
-   * @param options - Optional fetch options
+   * @param {string} url - The URL to fetch from
+   * @param {any} options - Optional fetch options
+   * @returns {Promise<JsonResponse<T>>} The JSON response
    */
   static async getJson<T = any>(
     url: string,
@@ -66,8 +66,9 @@ export default class HttpUtils {
 
   /**
    * Returns buffer from url
-   * @param url - The URL to fetch from
-   * @param options - Optional fetch options
+   * @param {string} url - The URL to fetch from
+   * @param {any} options - Optional fetch options
+   * @returns {Promise<BufferResponse>} The buffer response
    */
   static async getBuffer(url: string, options?: any): Promise<BufferResponse> {
     try {
@@ -93,8 +94,9 @@ export default class HttpUtils {
 
   /**
    * Posts the provided content to Sourcebin
-   * @param content - The content to post
-   * @param title - The title of the bin
+   * @param {string} content - The content to post
+   * @param {string} title - The title of the bin
+   * @returns {Promise<BinResponse | undefined>} The bin response or undefined
    */
   static async postToBin(
     content: string,
