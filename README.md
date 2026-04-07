@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo/headshot-emoji.png" alt="Amina - Your Guardian Companion" width="200" />
+  <img src="https://github.com/iamvikshan/amina/blob/main/assets/logo/headshot-emoji.png" alt="Amina - Your Guardian Companion" width="200" />
   
   <h1> AMINA </h1>
   <h3>Your Guardian Companion in the Digital Empire</h3>
@@ -120,9 +120,32 @@ _Track your rank (and secret achievements) in the [Command Center Dashboard](htt
 
 Want to deploy me on your own infra? Respect. Here's how:
 
+**Standalone binary (Linux/macOS x64 or arm64, no Bun or Node runtime required on the host):**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/iamvikshan/amina/main/scripts/install-cli.sh | sh
+amina install
+```
+
+The installer resolves the latest `cli-v*` GitHub release and installs `amina`
+to `/usr/local/bin` when writable or `~/.local/bin` otherwise.
+
+Windows users should download `amina-windows-x64.exe` from the latest
+`cli-v*` GitHub release and place it somewhere on `PATH`.
+
+**Published CLI package (launcher-specific runtime requirements):**
+
 ```bash
 bunx amina install
+# or
+npx amina install
 ```
+
+- `bunx amina install` requires **Bun >= 1.3.11** on `PATH`.
+- `npx amina install` requires **Node.js + npm** to launch the package and
+  **Bun >= 1.3.11** on `PATH` to execute the published CLI's Bun shebang.
+- If you want a host install with no Bun or Node runtime requirement, use the
+  standalone binary path above instead.
 
 see full **[Self-Hosting Guide](https://docs.4mina.app/wiki/quick-start-self-hosting)** — Complete deployment instructions
 

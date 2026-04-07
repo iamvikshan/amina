@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
+import cliPackageJson from '../package.json' with { type: 'json' }
+
 import { runCheck } from '../src/check'
 import { main } from '../src/index'
 import type { PromptsFn } from '../src/shared'
@@ -28,14 +30,23 @@ type CliRunResult = {
   exitCode: number
   output: string[]
   errors: string[]
+  requests: string[]
 }
 
-function createReleaseResponse(version: string): Response {
+type MockRelease = {
+  htmlUrl?: string
+  tagName: string
+}
+
+function createReleasePageResponse(releases: MockRelease[]): Response {
   return new Response(
-    JSON.stringify({
-      tag_name: `v${version}`,
-      html_url: 'https://github.com/iamvikshan/amina/releases/latest',
-    }),
+    JSON.stringify(
+      releases.map(({ htmlUrl, tagName }) => ({
+        html_url:
+          htmlUrl ?? `https://github.com/iamvikshan/amina/releases/tag/${tagName}`,
+        tag_name: tagName,
+      }))
+    ),
     {
       status: 200,
       headers: { 'content-type': 'application/json' },
@@ -43,65 +54,81 @@ function createReleaseResponse(version: string): Response {
   )
 }
 
+function createNonCliReleases(count: number): MockRelease[] {
+  return Array.from({ length: count }, (_, index) => ({
+    tagName: `v9.${count - index}.0`,
+  }))
+}
+
 async function executeCli(options: {
-  cwd: string
-  files?: Record<string, string>
-  fetchResponse?: Response
+  currentVersion?: string | null
   fetchError?: Error
+  fetchResponses?: Response[]
 }): Promise<CliRunResult> {
   const output: string[] = []
   const errors: string[] = []
-  const files = options.files ?? {}
+  const requests: string[] = []
+  const fetchResponses = [
+    ...(options.fetchResponses ?? [
+      createReleasePageResponse([{ tagName: 'cli-v3.2.5' }]),
+    ]),
+  ]
 
   const exitCode = await runCheck({
-    cwd: options.cwd,
-    fetchImpl: async () => {
+    currentVersion: options.currentVersion,
+    fetchImpl: async input => {
+      requests.push(
+        typeof input === 'string' || input instanceof URL
+          ? input.toString()
+          : input.url
+      )
+
       if (options.fetchError) {
         throw options.fetchError
       }
 
-      return options.fetchResponse ?? createReleaseResponse('3.2.5')
-    },
-    fileExists: (filePath) => filePath in files,
-    readFile: (filePath) => {
-      const file = files[filePath]
-      if (file === undefined) {
-        throw new Error(`Unexpected read: ${filePath}`)
+      const response = fetchResponses.shift()
+      if (response === undefined) {
+        throw new Error('Unexpected fetch request')
       }
 
-      return file
+      return response
     },
     log: (message) => output.push(message),
     error: (message) => errors.push(message),
   })
 
-  return { exitCode, output, errors }
+  return { exitCode, output, errors, requests }
 }
 
 describe('amina check', () => {
-  test('shows up to date when versions match', async () => {
+  test('shows up to date when the installed CLI version matches the latest cli-v release', async () => {
     const result = await executeCli({
-      cwd: '/repo/apps/bot',
-      files: {
-        '/repo/package.json': JSON.stringify({ name: 'amina', version: '3.2.5' }),
-      },
-      fetchResponse: createReleaseResponse('3.2.5'),
+      currentVersion: '3.2.5',
+      fetchResponses: [
+        createReleasePageResponse([
+          { tagName: 'v9.9.0' },
+          { tagName: 'cli-v3.2.5' },
+        ]),
+      ],
     })
 
     expect(result.exitCode).toBe(0)
     expect(result.errors).toHaveLength(0)
-    expect(result.output.join('\n')).toContain('Amina is up to date')
+    expect(result.output.join('\n')).toContain('Amina CLI is up to date')
     expect(result.output.join('\n')).toContain('Current version: 3.2.5')
     expect(result.output.join('\n')).toContain('Latest release: 3.2.5')
+    expect(result.requests).toEqual([
+      'https://api.github.com/repos/iamvikshan/amina/releases?per_page=100&page=1',
+    ])
   })
 
-  test('shows update available with instructions when behind', async () => {
+  test('shows update instructions when the installed CLI version is behind the latest cli-v release', async () => {
     const result = await executeCli({
-      cwd: '/repo',
-      files: {
-        '/repo/package.json': JSON.stringify({ name: 'amina', version: '3.1.0' }),
-      },
-      fetchResponse: createReleaseResponse('3.2.5'),
+      currentVersion: '3.1.0',
+      fetchResponses: [
+        createReleasePageResponse([{ tagName: 'cli-v3.2.5' }]),
+      ],
     })
 
     expect(result.exitCode).toBe(0)
@@ -109,76 +136,105 @@ describe('amina check', () => {
 
     const text = result.output.join('\n')
     expect(text).toContain('Update available: 3.1.0 -> 3.2.5')
-    expect(text).toContain('https://github.com/iamvikshan/amina/releases/latest')
+    expect(result.output[1]).toBe(
+      'curl -fsSL https://raw.githubusercontent.com/iamvikshan/amina/main/scripts/install-cli.sh | sh'
+    )
+    expect(text).toContain(
+      'CLI release notes: https://github.com/iamvikshan/amina/releases/tag/cli-v3.2.5'
+    )
+    expect(text).toContain('https://github.com/iamvikshan/amina/releases')
     expect(text).toContain('https://gitlab.com/vikshan/amina/-/releases')
     expect(text).toContain('ghcr.io/iamvikshan/amina')
     expect(text).toContain('registry.gitlab.com/vikshan/amina')
   })
 
-  test('shows local version is newer when ahead of latest release', async () => {
+  test('paginates through GitHub releases until it finds the latest cli-v tag', async () => {
     const result = await executeCli({
-      cwd: '/repo',
-      files: {
-        '/repo/package.json': JSON.stringify({ name: 'amina', version: '3.3.0' }),
-      },
-      fetchResponse: createReleaseResponse('3.2.5'),
+      currentVersion: '3.1.0',
+      fetchResponses: [
+        createReleasePageResponse(createNonCliReleases(100)),
+        createReleasePageResponse([{ tagName: 'cli-v3.2.5' }]),
+      ],
     })
 
     expect(result.exitCode).toBe(0)
     expect(result.errors).toHaveLength(0)
 
     const text = result.output.join('\n')
-    expect(text).toContain('Local version is newer than the latest published release.')
+    expect(text).toContain('Update available: 3.1.0 -> 3.2.5')
+    expect(result.requests).toEqual([
+      'https://api.github.com/repos/iamvikshan/amina/releases?per_page=100&page=1',
+      'https://api.github.com/repos/iamvikshan/amina/releases?per_page=100&page=2',
+    ])
+  })
+
+  test('shows installed CLI version is newer when ahead of the latest cli-v release', async () => {
+    const result = await executeCli({
+      currentVersion: '3.3.0',
+      fetchResponses: [
+        createReleasePageResponse([{ tagName: 'cli-v3.2.5' }]),
+      ],
+    })
+
+    expect(result.exitCode).toBe(0)
+    expect(result.errors).toHaveLength(0)
+
+    const text = result.output.join('\n')
+    expect(text).toContain(
+      'Installed CLI version is newer than the latest published CLI release.'
+    )
     expect(text).toContain('Current version: 3.3.0')
     expect(text).toContain('Latest release: 3.2.5')
-    expect(text).not.toContain('Amina is up to date.')
+    expect(text).not.toContain('Amina CLI is up to date.')
   })
 
   test('handles fetch failure gracefully', async () => {
     const result = await executeCli({
-      cwd: '/repo',
       fetchError: new Error('network down'),
     })
 
     expect(result.exitCode).toBe(1)
     expect(result.output).toHaveLength(0)
-    expect(result.errors.join('\n')).toContain('Failed to check the latest Amina release')
+    expect(result.errors.join('\n')).toContain(
+      'Failed to check the latest Amina CLI release'
+    )
     expect(result.errors.join('\n')).toContain('network down')
   })
 
-  test('shows latest-only output when local package.json is missing', async () => {
+  test('shows latest-only output when the installed CLI version cannot be determined', async () => {
     const result = await executeCli({
-      cwd: '/repo',
-      fetchResponse: createReleaseResponse('3.2.5'),
+      currentVersion: null,
+      fetchResponses: [
+        createReleasePageResponse([{ tagName: 'cli-v3.2.5' }]),
+      ],
     })
 
     expect(result.exitCode).toBe(0)
     expect(result.errors).toHaveLength(0)
 
     const text = result.output.join('\n')
-    expect(text).toContain('Latest Amina release: 3.2.5')
-    expect(text).toContain('Local Amina version could not be detected')
-    expect(text).toContain('https://github.com/iamvikshan/amina/releases/latest')
+    expect(text).toContain('Latest Amina CLI release: 3.2.5')
+    expect(text).toContain('Installed Amina CLI version could not be determined.')
+    expect(text).toContain('https://github.com/iamvikshan/amina/releases/tag/cli-v3.2.5')
     expect(text).not.toContain('Current version:')
   })
 
-  test('skips malformed parent package.json files while walking upward', async () => {
+  test('uses the bundled CLI package version when no override is provided', async () => {
     const result = await executeCli({
-      cwd: '/repo/apps/bot',
-      files: {
-        '/repo/apps/package.json': '{not json',
-        '/repo/package.json': JSON.stringify({ name: 'amina', version: '3.2.5' }),
-      },
-      fetchResponse: createReleaseResponse('3.2.5'),
+      fetchResponses: [
+        createReleasePageResponse([
+          { tagName: `cli-v${cliPackageJson.version}` },
+        ]),
+      ],
     })
 
     expect(result.exitCode).toBe(0)
     expect(result.errors).toHaveLength(0)
 
     const text = result.output.join('\n')
-    expect(text).toContain('Amina is up to date.')
-    expect(text).toContain('Current version: 3.2.5')
-    expect(text).toContain('Latest release: 3.2.5')
+    expect(text).toContain('Amina CLI is up to date.')
+    expect(text).toContain(`Current version: ${cliPackageJson.version}`)
+    expect(text).toContain(`Latest release: ${cliPackageJson.version}`)
   })
 })
 
@@ -194,8 +250,8 @@ describe('subcommand routing', () => {
 
     console.log = origLog
     expect(code).toBe(0)
-    // eslint-disable-next-line no-control-regex
-    const plain = lines.join('\n').replace(/\u001b\[[0-9;]*m/g, '')
+    const ansiPattern = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g')
+    const plain = lines.join('\n').replace(ansiPattern, '')
     expect(plain).toContain('Usage: amina <command>')
   })
 
