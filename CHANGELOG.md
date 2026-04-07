@@ -1,3 +1,9 @@
+## [3.3.3](https://github.com/iamvikshan/amina/compare/v3.3.2...v3.3.3) (2026-04-07)
+
+### Bug Fixes
+
+* add standalone binary installation method and update CLI installation instructions ([497fff7](https://github.com/iamvikshan/amina/commit/497fff7f2740cac9b7accb4304e9947f296c9856))
+
 ## [3.3.2](https://github.com/iamvikshan/amina/compare/v3.3.1...v3.3.2) (2026-04-06)
 
 ### Bug Fixes
