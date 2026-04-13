@@ -5,7 +5,6 @@ on:
   issue_comment:
 jobs:
   pr_agent_job:
-    if: ${{ github.event.sender.type != 'Bot' }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
