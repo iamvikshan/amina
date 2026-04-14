@@ -351,7 +351,7 @@ jobs:
 
       - name: Build and push
         id: push
-        uses: docker/build-push-action@v7.0.0
+        uses: docker/build-push-action@v7.1.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64
