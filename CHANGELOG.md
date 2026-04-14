@@ -1,3 +1,10 @@
+## [3.3.4](https://github.com/iamvikshan/amina/compare/v3.3.3...v3.3.4) (2026-04-14)
+
+### Bug Fixes
+
+* **api:** update api dependencies ([#320](https://github.com/iamvikshan/amina/issues/320)) ([372241d](https://github.com/iamvikshan/amina/commit/372241d93609d8c13ee837e73e5ec96cf07477fb))
+* **deps:** update dependency lru-cache to ^11.3.3 ([#326](https://github.com/iamvikshan/amina/issues/326)) ([f0697ce](https://github.com/iamvikshan/amina/commit/f0697ce4668517b3f96932bf99083f74e849ae4e))
+
 ## [3.3.3](https://github.com/iamvikshan/amina/compare/v3.3.2...v3.3.3) (2026-04-07)
 
 ### Bug Fixes
