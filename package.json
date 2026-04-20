@@ -80,7 +80,7 @@
     "prettier": "3.8.3",
     "semantic-release": "^25.0.3",
     "semantic-release-gitmoji": "^1.6.9",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "keywords": [
     "discord",
