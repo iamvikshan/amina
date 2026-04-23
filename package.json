@@ -47,7 +47,7 @@
     "discord-gamecord": "^4.4.4",
     "discord-giveaways": "^6.0.1",
     "discord-together": "^1.4.2",
-    "discord.js": "^14.26.2",
+    "discord.js": "^14.26.3",
     "enhanced-ms": "^4.3.0",
     "lavalink-client": "^2.10.1",
     "lru-cache": "^11.3.5",
