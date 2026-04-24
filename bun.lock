@@ -55,11 +55,11 @@
       "dependencies": {
         "@hono/node-server": "^1.19.14",
         "hono": "^4.12.14",
-        "mongodb": "^7.1.1",
+        "mongodb": "^7.2.0",
         "zod": "^4.3.6",
       },
       "devDependencies": {
-        "@cloudflare/workers-types": "^4.20260421.1",
+        "@cloudflare/workers-types": "^4.20260423.1",
         "wrangler": "^4.84.1",
       },
     },
@@ -109,7 +109,7 @@
 
     "@cloudflare/workerd-windows-64": ["@cloudflare/workerd-windows-64@1.20260421.1", "", { "os": "win32", "cpu": "x64" }, "sha512-q1SFgwlNH9lFmw74vh7EJbJtduo92Nx51mNOfd3/u6pux6AldcwRviYzKEEv3FEbtv6OBB7J8D5f8vtZj7Z6Sg=="],
 
-    "@cloudflare/workers-types": ["@cloudflare/workers-types@4.20260422.1", "", {}, "sha512-kI4baXLJloST4J/PxAfhz3azy4TPC7L2wcX6nusOzSNJJD/L5CSsivSJobgkYaMG5yspzRFQUQlCdPza0nTHbQ=="],
+    "@cloudflare/workers-types": ["@cloudflare/workers-types@4.20260424.1", "", {}, "sha512-0DLJ9yEk1KKzPbqop80Gw/P1wkKKzawmipULiJWdBXIBCoMvE0OVWms3IrL/Q/G7tfmPop9yF4XlZ69k9JLYng=="],
 
     "@colors/colors": ["@colors/colors@1.5.0", "", {}, "sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ=="],
 
@@ -863,7 +863,7 @@
 
     "module-alias": ["module-alias@2.3.4", "", {}, "sha512-bOclZt8hkpuGgSSoG07PKmvzTizROilUTvLNyrMqvlC9snhs7y7GzjNWAVbISIOlhCP1T14rH1PDAV9iNyBq/w=="],
 
-    "mongodb": ["mongodb@7.1.1", "", { "dependencies": { "@mongodb-js/saslprep": "^1.3.0", "bson": "^7.1.1", "mongodb-connection-string-url": "^7.0.0" }, "peerDependencies": { "@aws-sdk/credential-providers": "^3.806.0", "@mongodb-js/zstd": "^7.0.0", "gcp-metadata": "^7.0.1", "kerberos": "^7.0.0", "mongodb-client-encryption": ">=7.0.0 <7.1.0", "snappy": "^7.3.2", "socks": "^2.8.6" }, "optionalPeers": ["@aws-sdk/credential-providers", "@mongodb-js/zstd", "gcp-metadata", "kerberos", "mongodb-client-encryption", "snappy", "socks"] }, "sha512-067DXiMjcpYQl6bGjWQoTUEE9UoRViTtKFcoqX7z08I+iDZv/emH1g8XEFiO3qiDfXAheT5ozl1VffDTKhIW/w=="],
+    "mongodb": ["mongodb@7.2.0", "", { "dependencies": { "@mongodb-js/saslprep": "^1.3.0", "bson": "^7.2.0", "mongodb-connection-string-url": "^7.0.0" }, "peerDependencies": { "@aws-sdk/credential-providers": "^3.806.0", "@mongodb-js/zstd": "^7.0.0", "gcp-metadata": "^7.0.1", "kerberos": "^7.0.0", "mongodb-client-encryption": ">=7.0.0 <7.1.0", "snappy": "^7.3.2", "socks": "^2.8.6" }, "optionalPeers": ["@aws-sdk/credential-providers", "@mongodb-js/zstd", "gcp-metadata", "kerberos", "mongodb-client-encryption", "snappy", "socks"] }, "sha512-F/2+BMZtLVhY30ioZp0dAmZ+IRZMBqI+nrv6t5+9/1AIwCa8sMRC3jBf81lpxMhnZgqq8CoUD503Z1oZWq1/sw=="],
 
     "mongodb-connection-string-url": ["mongodb-connection-string-url@7.0.1", "", { "dependencies": { "@types/whatwg-url": "^13.0.0", "whatwg-url": "^14.1.0" } }, "sha512-h0AZ9A7IDVwwHyMxmdMXKy+9oNlF0zFoahHiX3vQ8e3KFcSP3VmsmfvtRSuLPxmyv2vjIDxqty8smTgie/SNRQ=="],
 
@@ -1294,6 +1294,8 @@
     "miniflare/ws": ["ws@8.18.0", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw=="],
 
     "mongodb-connection-string-url/whatwg-url": ["whatwg-url@14.2.0", "", { "dependencies": { "tr46": "^5.1.0", "webidl-conversions": "^7.0.0" } }, "sha512-De72GdQZzNTUBBChsXueQUnPKDkg/5A5zp7pFDuQAj5UFoENpiACU0wlCvzpAGnTkj++ihpKwKyYewn/XNUbKw=="],
+
+    "mongoose/mongodb": ["mongodb@7.1.1", "", { "dependencies": { "@mongodb-js/saslprep": "^1.3.0", "bson": "^7.1.1", "mongodb-connection-string-url": "^7.0.0" }, "peerDependencies": { "@aws-sdk/credential-providers": "^3.806.0", "@mongodb-js/zstd": "^7.0.0", "gcp-metadata": "^7.0.1", "kerberos": "^7.0.0", "mongodb-client-encryption": ">=7.0.0 <7.1.0", "snappy": "^7.3.2", "socks": "^2.8.6" }, "optionalPeers": ["@aws-sdk/credential-providers", "@mongodb-js/zstd", "gcp-metadata", "kerberos", "mongodb-client-encryption", "snappy", "socks"] }, "sha512-067DXiMjcpYQl6bGjWQoTUEE9UoRViTtKFcoqX7z08I+iDZv/emH1g8XEFiO3qiDfXAheT5ozl1VffDTKhIW/w=="],
 
     "normalize-package-data/hosted-git-info": ["hosted-git-info@7.0.2", "", { "dependencies": { "lru-cache": "^10.0.1" } }, "sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w=="],
 
