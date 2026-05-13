@@ -7,7 +7,6 @@ WORKDIR /app
 
 COPY bun.lock package.json ./
 COPY api/package.json ./api/
-COPY cli/package.json ./cli/
 
 RUN bun install --frozen-lockfile --production --ignore-scripts --filter 'amina'
 
