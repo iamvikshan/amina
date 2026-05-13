@@ -120,32 +120,12 @@ _Track your rank (and secret achievements) in the [Command Center Dashboard](htt
 
 Want to deploy me on your own infra? Respect. Here's how:
 
-**Standalone binary (Linux/macOS x64 or arm64, no Bun or Node runtime required on the host):**
-
 ```bash
-curl -fsSL https://raw.githubusercontent.com/iamvikshan/amina/main/scripts/install-cli.sh | sh
-amina install
+curl -sL https://get.4mina.app | sh
 ```
-
-The installer resolves the latest `cli-v*` GitHub release and installs `amina`
-to `/usr/local/bin` when writable or `~/.local/bin` otherwise.
-
-Windows users should download `amina-windows-x64.exe` from the latest
-`cli-v*` GitHub release and place it somewhere on `PATH`.
-
-**Published CLI package (launcher-specific runtime requirements):**
-
-```bash
-bunx amina install
-# or
-npx amina install
-```
-
-- `bunx amina install` requires **Bun >= 1.3.11** on `PATH`.
-- `npx amina install` requires **Node.js + npm** to launch the package and
-  **Bun >= 1.3.11** on `PATH` to execute the published CLI's Bun shebang.
-- If you want a host install with no Bun or Node runtime requirement, use the
-  standalone binary path above instead.
+> [!WARNING]
+>
+> the above command excecutes [scripts/install.sh](./scripts/install.sh) — review the script before running it!
 
 see full **[Self-Hosting Guide](https://docs.4mina.app/wiki/quick-start-self-hosting)** — Complete deployment instructions
 
@@ -171,21 +151,7 @@ Want to join the Night Guard development team? Hell yeah! Here's how:
 
 > 📚 **Developer Guide:** Check out the [Wiki](https://docs.4mina.app) for architecture overviews and coding guides.
 
-1. **[Fork the Repository](https://github.com/iamvikshan/amina/fork)** — Make it yours
-2. **Create Your Feature Branch** — `git checkout -b feature/EpicNewFeature`
-3. **Commit Your Changes** — `git commit -m '⚔️ Add some EpicNewFeature'`
-4. **Push to Your Branch** — `git push origin feature/EpicNewFeature`
-5. **Open a Pull Request** — Show me what you've got!
-
-### 💡 Contribution Ideas:
-
-- **Bug Hunting** — Find and squash issues
-- **New Features** — Got an idea? Build it!
-- **Documentation** — Help others understand the system
-- **Design** — Make the dashboard even more badass
-- **Translations** — Help me speak more languages
-
-Every contribution matters, no matter how small. Together, we make the Digital Empire safer!
+Contributions are welcome! You MUST read the [CONTRIBUTING.md](https://github.com/iamvikshan/amina?tab=contributing-ov-file) for guidelines on how to contribute to this project.
 
 ## Stats for the Night Guard
 
