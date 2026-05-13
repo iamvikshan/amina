@@ -1,7 +1,10 @@
+#!/bin/sh
+set -e
+
 # 1. Enforce global identity (instant execution)
 ./.husky/_/identity-guard.sh
 
 # 2. Run project-specific checks
 echo "Running pre-commit checks..."
-bun check 
+bun check
 bun f:check
