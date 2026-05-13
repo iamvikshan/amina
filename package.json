@@ -49,7 +49,7 @@
     "discord-together": "^1.4.2",
     "discord.js": "^14.26.3",
     "enhanced-ms": "^4.3.0",
-    "lavalink-client": "^2.10.1",
+    "lavalink-client": "^2.10.2",
     "lru-cache": "^11.3.6",
     "module-alias": "^2.3.4",
     "mongoose": "^9.6.2",
