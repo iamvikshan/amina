@@ -1,3 +1,33 @@
+## [3.3.5](https://github.com/iamvikshan/amina/compare/v3.3.4...v3.3.5) (2026-05-13)
+
+### Bug Fixes
+
+* **api:** update api dependencies ([#351](https://github.com/iamvikshan/amina/issues/351)) ([1d7cf29](https://github.com/iamvikshan/amina/commit/1d7cf2978b9308cf18ecaee910b707f02eb861de))
+* **api:** update api dependencies ([#361](https://github.com/iamvikshan/amina/issues/361)) ([c68fa21](https://github.com/iamvikshan/amina/commit/c68fa21799bbad76b97ae3181db62877c099d358))
+* **api:** update api dependencies ([#373](https://github.com/iamvikshan/amina/issues/373)) ([772586c](https://github.com/iamvikshan/amina/commit/772586cd02ca771ab095c0713808b28c33bf6584))
+* **api:** update dependency @hono/node-server to ^1.19.14 ([#333](https://github.com/iamvikshan/amina/issues/333)) ([626c491](https://github.com/iamvikshan/amina/commit/626c491bf7fd685330118e8cdd04711fb361ff3b))
+* **api:** update dependency @hono/node-server to v2 ([#355](https://github.com/iamvikshan/amina/issues/355)) ([e04a1d6](https://github.com/iamvikshan/amina/commit/e04a1d61aa45de56e55623b624a0b031ae21bdf8))
+* **api:** update dependency hono to ^4.12.14 ([#338](https://github.com/iamvikshan/amina/issues/338)) ([e181666](https://github.com/iamvikshan/amina/commit/e1816663fe6e5a95f64318f593589ccb82b599c7))
+* **api:** update dependency hono to ^4.12.16 ([#353](https://github.com/iamvikshan/amina/issues/353)) ([b08399f](https://github.com/iamvikshan/amina/commit/b08399f2fd8ea25fb7060b590b916738996e85a6))
+* **api:** update dependency zod to ^4.4.2 ([#365](https://github.com/iamvikshan/amina/issues/365)) ([0e091fe](https://github.com/iamvikshan/amina/commit/0e091fea659a6a7b1c2077940d9c16dfa4711091))
+* **api:** update dependency zod to ^4.4.3 ([#368](https://github.com/iamvikshan/amina/issues/368)) ([376d642](https://github.com/iamvikshan/amina/commit/376d64268ffa0d772913d30c670e7b3e026eab14))
+* **deps:** update dependency @clack/prompts to ^1.3.0 ([#362](https://github.com/iamvikshan/amina/issues/362)) ([eaf94e8](https://github.com/iamvikshan/amina/commit/eaf94e837438ddb1b292c8b415b6bc60bdf5ccb5))
+* **deps:** update dependency axios to ^1.15.0 ([#330](https://github.com/iamvikshan/amina/issues/330)) ([c36614a](https://github.com/iamvikshan/amina/commit/c36614a13556e1a16ec6c826c48201a8629090a8))
+* **deps:** update dependency axios to ^1.15.1 ([#345](https://github.com/iamvikshan/amina/issues/345)) ([81942f9](https://github.com/iamvikshan/amina/commit/81942f9143dfdaeb8e3175f0166c207aa7e9ad0c))
+* **deps:** update dependency axios to ^1.15.2 ([#349](https://github.com/iamvikshan/amina/issues/349)) ([40145bd](https://github.com/iamvikshan/amina/commit/40145bd6a17dc7f86134c74a6a2465096880e881))
+* **deps:** update dependency axios to ^1.16.0 ([#370](https://github.com/iamvikshan/amina/issues/370)) ([285836a](https://github.com/iamvikshan/amina/commit/285836a1d540ea9a2f60a259b83e3ac8086c3baf))
+* **deps:** update dependency discord.js to ^14.26.3 ([#342](https://github.com/iamvikshan/amina/issues/342)) ([5e538b0](https://github.com/iamvikshan/amina/commit/5e538b077f9af88b9ef5ff8a34f2b69c8aa6c1e3))
+* **deps:** update dependency lavalink-client to ^2.10.0 ([#331](https://github.com/iamvikshan/amina/issues/331)) ([a38d24c](https://github.com/iamvikshan/amina/commit/a38d24c7734c1f2b8d2eb814a85d3f8f266584c7))
+* **deps:** update dependency lavalink-client to ^2.10.1 ([#343](https://github.com/iamvikshan/amina/issues/343)) ([22d5ad3](https://github.com/iamvikshan/amina/commit/22d5ad37a14928fa8eed4451c3d67695fab3d22f))
+* **deps:** update dependency lavalink-client to ^2.10.2 ([#377](https://github.com/iamvikshan/amina/issues/377)) ([4f319e2](https://github.com/iamvikshan/amina/commit/4f319e2eba4fc9123a960bac08ca4d28d519f36a))
+* **deps:** update dependency lru-cache to ^11.3.5 ([#334](https://github.com/iamvikshan/amina/issues/334)) ([4c2d550](https://github.com/iamvikshan/amina/commit/4c2d5503345e8e8718ca882c2c649357b7309d39))
+* **deps:** update dependency lru-cache to ^11.3.6 ([#369](https://github.com/iamvikshan/amina/issues/369)) ([47d3c5e](https://github.com/iamvikshan/amina/commit/47d3c5e30f824c4ae949d317ea9fabdf61bb7ae3))
+* **deps:** update dependency mongoose to ^9.5.0 ([#352](https://github.com/iamvikshan/amina/issues/352)) ([4f856b3](https://github.com/iamvikshan/amina/commit/4f856b399dbdf9f862a9bbfffb07a67b207274dc))
+* **deps:** update dependency mongoose to ^9.6.1 ([#363](https://github.com/iamvikshan/amina/issues/363)) ([1d22dcf](https://github.com/iamvikshan/amina/commit/1d22dcf799d3463367ae5afebddf0f7af7198af3))
+* **deps:** update dependency mongoose to ^9.6.2 ([#375](https://github.com/iamvikshan/amina/issues/375)) ([96b2c16](https://github.com/iamvikshan/amina/commit/96b2c16e5fe84eb9712e1079f9943b74686b3929))
+* **deps:** update dependency openai to ^6.34.0 ([#336](https://github.com/iamvikshan/amina/issues/336)) ([4466111](https://github.com/iamvikshan/amina/commit/4466111cbc810076f9194ca1f50db1e5500f5a59))
+* **deps:** update dependency openai to ^6.35.0 ([#364](https://github.com/iamvikshan/amina/issues/364)) ([5d5e7a8](https://github.com/iamvikshan/amina/commit/5d5e7a8a9d160221b1c66041023ea4081ec32ebc))
+
 ## [3.3.4](https://github.com/iamvikshan/amina/compare/v3.3.3...v3.3.4) (2026-04-14)
 
 ### Bug Fixes
