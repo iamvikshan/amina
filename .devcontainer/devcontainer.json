@@ -4,17 +4,13 @@
 
   // Add Docker-in-Docker feature
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "moby": true,
-      "azureDnsAutoDetection": true,
-      "installDockerBuildx": true,
-      "version": "latest",
-      "dockerDashComposeVersion": "v2"
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      "installDirectlyFromGitHubRelease": true,
-      "version": "latest"
-    },
+    // "ghcr.io/devcontainers/features/docker-in-docker:2": {
+    //   "moby": true,
+    //   "azureDnsAutoDetection": true,
+    //   "installDockerBuildx": true,
+    //   "version": "latest",
+    //   "dockerDashComposeVersion": "v2"
+    // },
     "ghcr.io/devcontainers/features/sshd:1": {
       "version": "latest"
     }
@@ -36,12 +32,10 @@
     }
   },
 
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "chmod +x scripts/dvcntnr.sh && scripts/dvcntnr.sh",
-  // Set `remoteUser` to `root` to connect as root.
-  "remoteUser": "root",
+  // // Mount docker socket and enable privileged mode for Docker-in-Docker
+  // "privileged": true,
+  // "mounts": ["source=dind-var-lib-docker,target=/var/lib/docker,type=volume"],
 
-  // Mount docker socket and enable privileged mode for Docker-in-Docker
-  "privileged": true,
-  "mounts": ["source=dind-var-lib-docker,target=/var/lib/docker,type=volume"]
+  "remoteUser": "root",
+  "postCreateCommand": "apt update && apt upgrade -y && bun upgrade && ln -sf /usr/share/zoneinfo/Africa/Nairobi /etc/localtime && curl -fsSL https://cli.coderabbit.ai/install.sh | sh && mkdir -p scripts && curl -sL https://raw.githubusercontent.com/iamvikshan/.github/main/scripts/bootstrap.sh > scripts/bootstrap.sh && chmod +x scripts/bootstrap.sh && scripts/bootstrap.sh --default"
 }

@@ -16,3 +16,4 @@ plans/
 
 # Wrangler
 .wrangler/
+scripts/bootstrap.sh
