@@ -1,3 +1,10 @@
+## [3.3.6](https://github.com/iamvikshan/amina/compare/v3.3.5...v3.3.6) (2026-05-13)
+
+### Bug Fixes
+
+* **deps:** update dependency @honeybadger-io/js to ^6.14.0 ([#380](https://github.com/iamvikshan/amina/issues/380)) ([eda3561](https://github.com/iamvikshan/amina/commit/eda3561c3f05060c18de87e005c301492044dc89))
+* **deps:** update dependency discord.js to ^14.26.4 ([#374](https://github.com/iamvikshan/amina/issues/374)) ([bf0416d](https://github.com/iamvikshan/amina/commit/bf0416d1fe3f2f452ee77a82ca9668a19198256b))
+
 ## [3.3.5](https://github.com/iamvikshan/amina/compare/v3.3.4...v3.3.5) (2026-05-13)
 
 ### Bug Fixes
