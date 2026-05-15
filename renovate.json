@@ -3,7 +3,10 @@
   "extends": ["config:recommended", ":semanticCommits"],
   "semanticCommitType": "chore",
   "baseBranchPatterns": ["main"],
-  "automerge": false,
+
+  "automerge": true,
+  "minimumReleaseAge": "1 day",
+
   "prConcurrentLimit": 10,
   "prHourlyLimit": 5,
   "labels": ["dependencies"],
@@ -16,71 +19,50 @@
   "rangeStrategy": "bump",
   "separateMinorPatch": true,
   "separateMajorMinor": true,
+
   "packageRules": [
     {
       "description": "Scope API dependency updates so they don't trigger bot releases",
       "matchFileNames": ["api/**"],
       "additionalBranchPrefix": "api-",
       "semanticCommitScope": "api",
-      "automerge": true,
-      "minimumReleaseAge": "1 day",
       "groupName": "api dependencies"
     },
     {
-      "description": "Automerge patch updates and digests (safe bug fixes)",
-      "matchUpdateTypes": ["patch", "digest"],
-      "automerge": true,
-      "minimumReleaseAge": "1 day"
-    },
-    {
-      "description": "Automerge minor updates for devDependencies (safe for lint/types)",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor"],
-      "automerge": true,
-      "minimumReleaseAge": "1 day"
-    },
-    {
-      "description": "Require approval for major updates",
+      "description": "Require manual approval for major updates",
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "minimumReleaseAge": "5 days",
       "labels": ["dependencies", "major-update"]
     },
     {
-      "description": "don't require approval for production dependency minor updates",
+      "description": "Wait a bit longer to automerge production minor updates",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["minor"],
-      "automerge": true,
       "minimumReleaseAge": "3 days"
     },
     {
-      "description": "Automerge GitHub Actions (safe, doesn't affect code)",
-      "matchManagers": ["github-actions"],
-      "automerge": true,
-      "minimumReleaseAge": "3 days"
-    },
-    {
+      "description": "Require manual approval for the discord.js ecosystem",
       "groupName": "discord.js ecosystem",
+      "matchPackageNames": ["/^discord\\.js/", "/^@discordjs/"],
       "automerge": false,
-      "minimumReleaseAge": "5 days",
-      "matchPackageNames": ["/^discord.js/", "/^@discordjs/"]
+      "minimumReleaseAge": "5 days"
     },
     {
+      "description": "Group Dockerfile base images and wait 3 days before automerging",
       "groupName": "Dockerfile base images",
       "matchManagers": ["dockerfile"],
-      "automerge": true,
       "minimumReleaseAge": "3 days"
     }
   ],
+
   "lockFileMaintenance": {
     "enabled": true,
     "minimumReleaseAge": "0 days",
-    "automerge": true,
     "schedule": ["before 4am on monday"]
   },
   "vulnerabilityAlerts": {
     "labels": ["security"],
-    "minimumReleaseAge": "0 days",
-    "automerge": true
+    "minimumReleaseAge": "0 days"
   }
 }
