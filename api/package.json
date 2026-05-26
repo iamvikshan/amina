@@ -12,13 +12,13 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@hono/node-server": "^2.0.3",
-    "hono": "^4.12.21",
+    "@hono/node-server": "^2.0.4",
+    "hono": "^4.12.23",
     "mongodb": "^7.2.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260520.1",
-    "wrangler": "^4.93.0"
+    "wrangler": "^4.93.1"
   }
 }
