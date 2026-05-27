@@ -9,7 +9,7 @@
         "@vitalets/google-translate-api": "^9.2.1",
         "axios": "^1.16.1",
         "common-tags": "^1.8.2",
-        "dayjs": "^1.11.20",
+        "dayjs": "^1.11.21",
         "discord-gamecord": "^4.4.4",
         "discord-giveaways": "^6.0.1",
         "discord-together": "^1.4.2",
