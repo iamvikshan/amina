@@ -1,3 +1,9 @@
+## [3.3.8](https://github.com/iamvikshan/amina/compare/v3.3.7...v3.3.8) (2026-05-27)
+
+### Bug Fixes
+
+* **deps:** update dependency dayjs to ^1.11.21 ([#404](https://github.com/iamvikshan/amina/issues/404)) ([706ca57](https://github.com/iamvikshan/amina/commit/706ca57708a065067c73cf29c5598847ec48e443))
+
 ## [3.3.7](https://github.com/iamvikshan/amina/compare/v3.3.6...v3.3.7) (2026-05-27)
 
 ### Bug Fixes
