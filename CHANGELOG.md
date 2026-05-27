@@ -1,3 +1,15 @@
+## [3.3.7](https://github.com/iamvikshan/amina/compare/v3.3.6...v3.3.7) (2026-05-27)
+
+### Bug Fixes
+
+* **api:** update api dependencies ([#392](https://github.com/iamvikshan/amina/issues/392)) ([1757e9a](https://github.com/iamvikshan/amina/commit/1757e9a356a67f0214411d5527ffea230b55224f))
+* **api:** update dependency @hono/node-server to ^2.0.3 ([#387](https://github.com/iamvikshan/amina/issues/387)) ([129cd8f](https://github.com/iamvikshan/amina/commit/129cd8fb50217b9a732567a8e6cb0174539d5976))
+* **api:** update dependency hono to ^4.12.19 ([#382](https://github.com/iamvikshan/amina/issues/382)) ([98d2d1e](https://github.com/iamvikshan/amina/commit/98d2d1e0906e8f9cbcabe43db2c8edd1f9050d5b))
+* **api:** update dependency hono to ^4.12.21 ([#389](https://github.com/iamvikshan/amina/issues/389)) ([02c94e2](https://github.com/iamvikshan/amina/commit/02c94e28fb9ee2ade652187cd380af045898fc87))
+* **deps:** update dependency axios to ^1.16.1 ([#383](https://github.com/iamvikshan/amina/issues/383)) ([6e155f6](https://github.com/iamvikshan/amina/commit/6e155f6c1776c6110bb372369ed32c8de7eea576))
+* **deps:** update dependency lru-cache to ^11.4.0 ([#391](https://github.com/iamvikshan/amina/issues/391)) ([866d65c](https://github.com/iamvikshan/amina/commit/866d65cd25e69fd13782d9ef30b7ece5d453208c))
+* **deps:** update dependency openai to ^6.38.0 ([#388](https://github.com/iamvikshan/amina/issues/388)) ([601e203](https://github.com/iamvikshan/amina/commit/601e20367aa0b4270a3db2c0c1cc41cf1f23004c))
+
 ## [3.3.6](https://github.com/iamvikshan/amina/compare/v3.3.5...v3.3.6) (2026-05-13)
 
 ### Bug Fixes
