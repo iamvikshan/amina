@@ -1,3 +1,12 @@
+## [3.3.9](https://github.com/iamvikshan/amina/compare/v3.3.8...v3.3.9) (2026-05-29)
+
+### Bug Fixes
+
+* **deps:** update dependency lru-cache to ^11.5.0 ([#398](https://github.com/iamvikshan/amina/issues/398)) ([e4b0a75](https://github.com/iamvikshan/amina/commit/e4b0a75a82443c4bd2a697ffe142c652a99806b9))
+* **deps:** update dependency lru-cache to ^11.5.1 ([#409](https://github.com/iamvikshan/amina/issues/409)) ([8ed07a3](https://github.com/iamvikshan/amina/commit/8ed07a30a5972c2dee16d93a9ee6654c49d74bfe))
+* **deps:** update dependency mongoose to ^9.6.3 ([#410](https://github.com/iamvikshan/amina/issues/410)) ([92a52d0](https://github.com/iamvikshan/amina/commit/92a52d0de5d794af1ea212577c0981565a385c98))
+* **deps:** update dependency openai to ^6.39.0 ([#399](https://github.com/iamvikshan/amina/issues/399)) ([94ccbd9](https://github.com/iamvikshan/amina/commit/94ccbd95feccd7d97ae6b352b581d5755500be7c))
+
 ## [3.3.8](https://github.com/iamvikshan/amina/compare/v3.3.7...v3.3.8) (2026-05-27)
 
 ### Bug Fixes
