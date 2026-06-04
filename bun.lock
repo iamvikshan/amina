@@ -14,7 +14,7 @@
         "discord-giveaways": "^6.0.1",
         "discord-together": "^1.4.2",
         "discord.js": "^14.26.4",
-        "enhanced-ms": "^4.3.0",
+        "enhanced-ms": "^5.0.0",
         "lavalink-client": "^2.10.2",
         "lru-cache": "^11.5.1",
         "module-alias": "^2.3.4",
@@ -541,7 +541,7 @@
 
     "end-of-stream": ["end-of-stream@1.4.5", "", { "dependencies": { "once": "^1.4.0" } }, "sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg=="],
 
-    "enhanced-ms": ["enhanced-ms@4.3.0", "", {}, "sha512-mMl+aCNSDcVf7Q0KKkp600JFoK9eimXgmdrN8wHNyyKeZbOr88XJw1m8qOIAknuAAPfxxVZMwrU77YG8ol9Oxw=="],
+    "enhanced-ms": ["enhanced-ms@5.0.0", "", {}, "sha512-7G13wh93e2KQsJ6SK5m9RjmmDkFynZArSxv+8RSXIl4U9cwn0E5A3ZiLZlRDiUGosHT8mEHXMazFtp5Dt0dLVQ=="],
 
     "env-ci": ["env-ci@11.2.0", "", { "dependencies": { "execa": "^8.0.0", "java-properties": "^1.0.2" } }, "sha512-D5kWfzkmaOQDioPmiviWAVtKmpPT4/iJmMVQxWxMPJTFyTkdc5JQUfc5iXEeWxcOdsYTKSAiA/Age4NUOqKsRA=="],
 
