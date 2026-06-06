@@ -44,7 +44,7 @@
     "discord-giveaways": "^6.0.1",
     "discord-together": "^1.4.2",
     "discord.js": "^14.26.4",
-    "enhanced-ms": "^4.3.0",
+    "enhanced-ms": "^5.0.0",
     "lavalink-client": "^2.10.2",
     "lru-cache": "^11.5.1",
     "module-alias": "^2.3.4",
