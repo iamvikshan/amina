@@ -1,3 +1,14 @@
+## [3.3.10](https://github.com/iamvikshan/amina/compare/v3.3.9...v3.3.10) (2026-06-15)
+
+### Bug Fixes
+
+* **api:** update api dependencies to ^4.12.25 ([#431](https://github.com/iamvikshan/amina/issues/431)) ([f29d71f](https://github.com/iamvikshan/amina/commit/f29d71f2391def844bcde43d75d7c36ccf24f06d))
+* **deps:** update dependency axios to ^1.17.0 ([#427](https://github.com/iamvikshan/amina/issues/427)) ([4b28e4f](https://github.com/iamvikshan/amina/commit/4b28e4f816cb5fb78a2804dfe8901d6aa6dec055))
+* **deps:** update dependency enhanced-ms to v5 ([#424](https://github.com/iamvikshan/amina/issues/424)) ([447ffed](https://github.com/iamvikshan/amina/commit/447ffedcc80dd4085cf96662d502288cf010b6cd))
+* **deps:** update dependency openai to ^6.39.1 ([#413](https://github.com/iamvikshan/amina/issues/413)) ([3ba76a7](https://github.com/iamvikshan/amina/commit/3ba76a76177c3d49438b5f5d1403c336fe66f71b))
+* **deps:** update dependency openai to ^6.41.0 ([#423](https://github.com/iamvikshan/amina/issues/423)) ([badb0f0](https://github.com/iamvikshan/amina/commit/badb0f061131c2911cf90e57825e3fe6d6b279bc))
+* **deps:** update dependency openai to ^6.42.0 ([#428](https://github.com/iamvikshan/amina/issues/428)) ([665d0b1](https://github.com/iamvikshan/amina/commit/665d0b19b9d66e102c8779ed65f4ac4973ea6201))
+
 ## [3.3.9](https://github.com/iamvikshan/amina/compare/v3.3.8...v3.3.9) (2026-05-29)
 
 ### Bug Fixes
