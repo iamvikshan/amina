@@ -123,6 +123,7 @@ Want to deploy me on your own infra? Respect. Here's how:
 ```bash
 curl -sL https://get.4mina.app | sh
 ```
+
 > [!WARNING]
 >
 > the above command excecutes [scripts/install.sh](./scripts/install.sh) — review the script before running it!

@@ -208,7 +208,7 @@ const command: CommandData = {
       let addDurationMs: number | null = null
       if (addDur !== null) {
         const parsed = ems(addDur)
-        if (isNaN(parsed)) {
+        if (parsed === null || Number.isNaN(parsed)) {
           return interaction.followUp(
             mina.say('giveaway.edit.error.invalidDuration')
           )

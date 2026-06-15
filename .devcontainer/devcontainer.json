@@ -1,21 +1,21 @@
 {
-  "name": "Ubuntu + Bun + Node + Docker",
-  "image": "vikshan/ubuntu-bun-node:latest",
-
-  // Add Docker-in-Docker feature
-  "features": {
-    // "ghcr.io/devcontainers/features/docker-in-docker:2": {
-    //   "moby": true,
-    //   "azureDnsAutoDetection": true,
-    //   "installDockerBuildx": true,
-    //   "version": "latest",
-    //   "dockerDashComposeVersion": "v2"
-    // },
-    "ghcr.io/devcontainers/features/sshd:1": {
-      "version": "latest"
+  "name": "Ubuntu + Bun + Docker",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "24.04",
+      "USERNAME": "root"
     }
   },
-
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:3": {
+      "version": "latest",
+      "moby": true
+    }
+  },
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
@@ -32,10 +32,6 @@
     }
   },
 
-  // // Mount docker socket and enable privileged mode for Docker-in-Docker
-  // "privileged": true,
-  // "mounts": ["source=dind-var-lib-docker,target=/var/lib/docker,type=volume"],
-
   "remoteUser": "root",
-  "postCreateCommand": "apt update && apt upgrade -y && bun upgrade && ln -sf /usr/share/zoneinfo/Africa/Nairobi /etc/localtime && curl -fsSL https://cli.coderabbit.ai/install.sh | sh && mkdir -p scripts && curl -sL https://raw.githubusercontent.com/iamvikshan/.github/main/scripts/bootstrap.sh > scripts/bootstrap.sh && chmod +x scripts/bootstrap.sh && scripts/bootstrap.sh --default"
+  "postCreateCommand": "bun i && bun bs --default"
 }
