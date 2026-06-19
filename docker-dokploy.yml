@@ -30,7 +30,7 @@ services:
     env_file:
       - .env
     environment:
-      - _JAVA_OPTIONS=-Xmx512M -Xms256M
+      - _JAVA_OPTIONS=-Xmx384M -Xms256M
       - SERVER_PORT=2333
       - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASS}
     deploy:
