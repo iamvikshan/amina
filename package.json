@@ -18,15 +18,15 @@
     "f:check": "oxfmt --check .",
     "lint:fix": "oxlint --fix .",
     "lint": "oxlint .",
-    "type": "tsgo --noEmit",
-    "check": "type && lint",
+    "type": "bunx tsc --noEmit",
+    "check": "bun run type && bun run lint",
     "api:dev": "bun --filter 'mina-api' dev",
     "api:check": "bun --filter 'mina-api' type",
     "api:deploy": "bun --filter 'mina-api' deploy",
     "check:all": "bun check && bun api:check",
     "prepare": "test -d .git && husky || true",
     "bs": "mkdir -p scripts && curl -sL https://raw.githubusercontent.com/iamvikshan/.github/main/scripts/bootstrap.sh > scripts/bootstrap.sh && chmod +x scripts/bootstrap.sh && scripts/bootstrap.sh",
-    "upd": "apt update && apt upgrade -y && bun upgrade && bun update --latest && bun i && bun f:all"
+    "upd": "apt update && apt upgrade -y && bun upgrade && bun update --latest && bun i"
   },
   "homepage": "https://github.com/iamvikshan/amina#readme",
   "repository": {
