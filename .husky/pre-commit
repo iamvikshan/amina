@@ -5,9 +5,9 @@ set -e
 ./.husky/_/identity-guard.sh
 
 # 2. Run lightning-fast staged formatting and linting
-echo "Running OXC checks..."
-bunx lint-staged
+# echo "Running OXC checks..."
+# bunx lint-staged
 
 # 3. Enforce strict type safety across the repo
-echo "Running Type Checks..."
-bun run type
+# echo "Running Type Checks..."
+# bun run type

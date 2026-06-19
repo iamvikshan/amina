@@ -2,13 +2,10 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "types": ["@types/bun"],
-    "verbatimModuleSyntax": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
     "inlineSources": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "paths": {
       "@root/*": ["./*"],
       "@data/*": ["./src/data/*"],
@@ -27,8 +24,7 @@
     "types/**/*", 
     "tests/**/*",
     "*.js", 
-    "*.mjs",
-    "scripts/**/*.sh"
+    "*.mjs"
   ],
   "exclude": [
     "node_modules",

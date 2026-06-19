@@ -62,13 +62,11 @@
     ],
 
     // ---- JSDoc Strictness (Native) ----
-    "jsdoc/check-alignment": "warn",
-    "jsdoc/check-indentation": "warn",
-    "jsdoc/check-param-names": "warn",
-    "jsdoc/check-syntax": "warn",
+    // Only rules implemented in oxlint 1.70's native jsdoc plugin are listed.
+    // Unsupported rules (check-alignment, check-indentation, check-param-names,
+    // check-syntax, check-types, require-description) were removed — oxlint 1.70
+    // fails config parsing on unknown rule names.
     "jsdoc/check-tag-names": "warn",
-    "jsdoc/check-types": "warn",
-    "jsdoc/require-description": "warn",
     "jsdoc/require-param": "warn",
     "jsdoc/require-param-description": "warn",
     "jsdoc/require-param-type": "warn",

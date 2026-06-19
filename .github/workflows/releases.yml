@@ -40,49 +40,8 @@ jobs:
 
       - name: Run bot checks
         shell: bash
-        run: |
-          set -euo pipefail
-
-          temp_tsconfig=$(mktemp ./tsconfig.bot-check.XXXXXX.json)
-          temp_eslint_config=$(mktemp ./eslint.bot-check.XXXXXX.mjs)
-          trap 'rm -f "$temp_tsconfig" "$temp_eslint_config"' EXIT
-
-          cat <<'EOF' > "$temp_tsconfig"
-          {
-            "extends": "./tsconfig.json",
-            "include": ["src/**/*", "types/**/*"],
-            "exclude": [
-              "tests/**/*",
-              "api/**/*",
-              "node_modules",
-              "**/node_modules/*",
-              "dist",
-              "build",
-              "logs",
-              "types/api/**/*"
-            ]
-          }
-          EOF
-
-          cat <<EOF > "$temp_eslint_config"
-          import baseConfig from './eslint.config.mjs'
-
-          export default [
-            ...baseConfig,
-            {
-              files: ['src/**/*.ts', 'types/**/*.ts'],
-              languageOptions: {
-                parserOptions: {
-                  project: ['$temp_tsconfig'],
-                },
-              },
-            },
-          ]
-          EOF
-
-          bunx eslint --config "$temp_eslint_config" src types
-
-          bunx tsc --noEmit --project "$temp_tsconfig"
+        # Uses the canonical `bun check` (tsc --noEmit + oxlint) defined in package.json
+        run: bun check
 
   # ============================================
   # Bot Semantic Release

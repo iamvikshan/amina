@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":semanticCommits"],
   "semanticCommitType": "chore",
-  "baseBranchPatterns": ["main"],
+  "baseBranches": ["main"],
 
   "automerge": true,
   "minimumReleaseAge": "1 day",
@@ -53,6 +53,15 @@
       "groupName": "Dockerfile base images",
       "matchManagers": ["dockerfile"],
       "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Group Lavalink docker image updates",
+      "groupName": "Lavalink",
+      "matchPackageNames": ["/^ghcr\.io\/lavalink-devs\//", "/^lavalink-server/"],
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "automerge": false,
+      "minimumReleaseAge": "5 days",
+      "labels": ["dependencies", "lavalink"]
     }
   ],
 

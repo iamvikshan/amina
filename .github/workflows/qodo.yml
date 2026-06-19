@@ -3,8 +3,12 @@ on:
   pull_request:
     types: [opened, reopened, ready_for_review]
   issue_comment:
+    types: [created]
+
 jobs:
   pr_agent_job:
+    # Skip bot/machine-generated comments to avoid feedback loops
+    if: ${{ github.actor != 'github-actions[bot]' && !contains(github.actor, '[bot]') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -15,8 +19,8 @@ jobs:
         uses: qodo-ai/pr-agent@main
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          config.model: "gemini/gemini-flash-latest"
-          config.fallback_models: '["gemini/gemini-3.1-flash-lite-preview"]'
+          config.model: "gemini/gemini-2.5-flash"
+          config.fallback_models: '["gemini/gemini-2.0-flash"]'
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI }}
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
