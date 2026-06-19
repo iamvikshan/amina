@@ -1,0 +1,67 @@
+services:
+  amina:
+    image: vikshan/amina:latest
+    container_name: amina
+    restart: unless-stopped
+    command: ["run", "src/index.ts"]
+    depends_on:
+      lavalink:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      LAVALINK_1_HOST: lavalink
+      LAVALINK_1_PORT: 2333
+      HEALTH_PORT: 3000
+    networks:
+      - amina-network
+      - dokploy-network # <-- Added to allow Traefik to route traffic here
+    healthcheck:
+      test: ["CMD", "bun", "run", "src/services/health.ts"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:latest
+    container_name: lavalink
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - _JAVA_OPTIONS=-Xmx512M -Xms256M
+      - SERVER_PORT=2333
+      - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASS}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        wget -qO /tmp/application.yml https://raw.githubusercontent.com/iamvikshan/amina/refs/heads/main/lavalink/application.yml
+        exec java -jar Lavalink.jar --spring.config.additional-location=file:/tmp/application.yml
+    networks:
+      - amina-network
+      - dokploy-network # <-- Added to allow Traefik to route traffic here
+    healthcheck:
+      test: [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+networks:
+  amina-network:
+    driver: bridge
+  dokploy-network: # <-- Declared as an external network managed by Dokploy
+    external: true

@@ -15,11 +15,11 @@
         "discord-together": "^1.4.2",
         "discord.js": "^14.26.4",
         "enhanced-ms": "^5.0.0",
-        "lavalink-client": "^2.10.2",
+        "lavalink-client": "^2.10.3",
         "lru-cache": "^11.5.1",
         "module-alias": "^2.3.4",
         "mongoose": "^9.7.1",
-        "openai": "^6.42.0",
+        "openai": "^6.44.0",
         "pino": "^10.3.1",
         "pino-pretty": "^13.1.3",
         "pretty-ms": "^9.3.0",
@@ -763,7 +763,7 @@
 
     "kleur": ["kleur@4.1.5", "", {}, "sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ=="],
 
-    "lavalink-client": ["lavalink-client@2.10.2", "", { "dependencies": { "tslib": "^2.8.1", "ws": "^8.20.0" } }, "sha512-iqu19lr/HS/Bwv41SGYQZPQS8J992vaRyLeyIf6UXdpBsOmtIAQnNuGiW3oekSMxa+wkKdTXyCzt1EJT2vJZgg=="],
+    "lavalink-client": ["lavalink-client@2.10.3", "", { "dependencies": { "tslib": "^2.8.1", "ws": "^8.20.0" } }, "sha512-tlZe/HwP2FjVaXP87Yc5xwW4ZVSxImkz0jR02qc0HewPJUyLIyaOpvRT0N0kZVtsRnHo2Vs5yF21+uqzSQaw3Q=="],
 
     "levn": ["levn@0.4.1", "", { "dependencies": { "prelude-ls": "^1.2.1", "type-check": "~0.4.0" } }, "sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ=="],
 
@@ -877,7 +877,7 @@
 
     "onetime": ["onetime@5.1.2", "", { "dependencies": { "mimic-fn": "^2.1.0" } }, "sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg=="],
 
-    "openai": ["openai@6.42.0", "", { "peerDependencies": { "ws": "^8.18.0", "zod": "^3.25 || ^4.0" }, "optionalPeers": ["ws", "zod"] }, "sha512-1WFEt/uXMXOLhYRNkgJWo08Y2YNvNwpVU72K7ibrWgWpNOXd4VojXLbe6SQ4bLiUQ3Y8jz4IiyVkylJCL1DtZg=="],
+    "openai": ["openai@6.44.0", "", { "peerDependencies": { "ws": "^8.18.0", "zod": "^3.25 || ^4.0" }, "optionalPeers": ["ws", "zod"] }, "sha512-09/gH+8jH0RgUwsgWHAaxsKGRT5zVZ95IaJUnqAWj6XejIBmnFRwq2WUIF37VtDEsmGrtPmvCs5+yBSeZGWvkA=="],
 
     "optionator": ["optionator@0.9.4", "", { "dependencies": { "deep-is": "^0.1.3", "fast-levenshtein": "^2.0.6", "levn": "^0.4.1", "prelude-ls": "^1.2.1", "type-check": "^0.4.0", "word-wrap": "^1.2.5" } }, "sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g=="],
 
