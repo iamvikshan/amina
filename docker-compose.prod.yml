@@ -17,7 +17,6 @@ services:
       HEALTH_PORT: 3000
     networks:
       - amina-network
-    # Ports accessed via Cloudflare Tunnel (no direct exposure)
     healthcheck:
       test: ["CMD", "bun", "run", "src/services/health.ts"]
       interval: 30s
@@ -30,13 +29,12 @@ services:
     image: ghcr.io/lavalink-devs/lavalink:latest
     container_name: lavalink
     restart: unless-stopped
-    # Run as root initially to fix permissions, then switch to lavalink user in entrypoint
-    user: root
     env_file:
       - .env
     environment:
       - _JAVA_OPTIONS=-Xmx512M -Xms256M
       - SERVER_PORT=2333
+      - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASS}
     deploy:
       resources:
         limits:
@@ -45,31 +43,18 @@ services:
         reservations:
           cpus: "0.25"
           memory: 256M
-    volumes:
-      - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
-      - lavalink-plugins:/opt/Lavalink/plugins
-    # Fix plugin directory permissions then switch to lavalink user
-    # Runs as root only for chown/chmod, then re-execs as lavalink so
-    # Java is PID 1 and receives signals (SIGTERM, SIGINT) properly.
     entrypoint:
       - /bin/sh
       - -c
       - |
-        if [ -d /opt/Lavalink/plugins ]; then
-          chown -R lavalink:lavalink /opt/Lavalink/plugins
-          chmod -R 755 /opt/Lavalink/plugins
-        fi
-        cd /opt/Lavalink
-        exec setpriv --reuid=lavalink --regid=lavalink --init-groups /opt/java/openjdk/bin/java -jar Lavalink.jar
+        wget -qO /tmp/application.yml https://raw.githubusercontent.com/iamvikshan/amina/refs/heads/main/lavalink/application.yml || { echo "Failed to download application.yml"; exit 1; }
+        exec java -jar Lavalink.jar --spring.config.additional-location=file:/tmp/application.yml
     networks:
       - amina-network
-    # Ports accessed via Cloudflare Tunnel (no direct exposure)
     healthcheck:
       test: [
           "CMD-SHELL",
-          "wget --no-verbose --tries=1 --spider --header='Authorization:
-          ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version ||
-          exit 1",
+          "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version || exit 1",
         ]
       interval: 30s
       timeout: 10s
@@ -122,7 +107,3 @@ services:
 networks:
   amina-network:
     driver: bridge
-
-volumes:
-  lavalink-plugins:
-    driver: local

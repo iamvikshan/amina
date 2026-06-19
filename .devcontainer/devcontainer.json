@@ -1,12 +1,6 @@
 {
   "name": "Ubuntu + Bun + Docker",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "args": {
-      "VARIANT": "24.04",
-      "USERNAME": "root"
-    }
-  },
+  "image": "ghcr.io/iamvikshan/devcontainer:latest",
   "features": {
     "ghcr.io/devcontainers/features/sshd:1": {
       "version": "latest"
@@ -16,18 +10,29 @@
       "moby": true
     }
   },
-  // Configure tool-specific properties.
   "customizations": {
     "vscode": {
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "zsh"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      },
       "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
         "oven.bun-vscode",
         "ms-azuretools.vscode-docker",
         "WakaTime.vscode-wakatime",
         "mongodb.mongodb-vscode",
         "coderabbit.coderabbit-vscode",
-        "DeepScan.vscode-deepscan"
+        "aaron-bond.better-comments",
+        "usernamehw.errorlens",
+        "Bito.Bito",
+        "Codium.codium",
+        "TypeScriptTeam.native-preview",
+        "eamodio.gitlens",
+        "oxc.oxc-vscode"
       ]
     }
   },
