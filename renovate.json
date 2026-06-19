@@ -44,7 +44,7 @@
     {
       "description": "Require manual approval for the discord.js ecosystem",
       "groupName": "discord.js ecosystem",
-      "matchPackageNames": ["/^discord\\.js/", "/^@discordjs/"],
+      "matchPackageNames": ["/^discord\\.js/", "/^@discordjs\\/"],
       "automerge": false,
       "minimumReleaseAge": "5 days"
     },
@@ -57,7 +57,7 @@
     {
       "description": "Group Lavalink docker image updates",
       "groupName": "Lavalink",
-      "matchPackageNames": ["/^ghcr\.io\/lavalink-devs\//", "/^lavalink-server/"],
+      "matchPackageNames": ["/^ghcr\\.io\\/lavalink-devs\\/", "/^lavalink-server/"],
       "matchManagers": ["docker-compose", "dockerfile"],
       "automerge": false,
       "minimumReleaseAge": "5 days",

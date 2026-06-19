@@ -73,7 +73,7 @@ jobs:
           # Wait for health endpoint
           echo "Waiting for app to be healthy..."
           for i in {1..30}; do
-            if curl -f -s http://localhost:3000/health > /dev/null 2>&1; then
+            if curl -f -s http://localhost:${HEALTH_PORT:-3000}/health > /dev/null 2>&1; then
               echo "Native app is healthy"
               kill $TAIL_PID 2>/dev/null || true
               wait $TAIL_PID 2>/dev/null || true
@@ -132,7 +132,7 @@ jobs:
         - |
           echo "Waiting for amina container to start..."
           for i in {1..30}; do
-            if docker compose exec -T amina bun run src/services/health.ts 2>/dev/null; then
+            if curl -f -s http://localhost:${HEALTH_PORT:-3000}/health > /dev/null 2>&1; then
               echo "Amina container is healthy!"
               exit 0
             fi

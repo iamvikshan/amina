@@ -184,10 +184,11 @@ async function getStatus(settings: any, guild: Guild): Promise<any> {
     > **anti-ghostping**: ${automod.anti_ghostping ? 'yes' : 'no'}
   `
 
+  const iconURL = guild.iconURL()
   const embed = MinaEmbed.primary()
     .setAuthor({
       name: 'automod configuration',
-      iconURL: guild.iconURL() || undefined,
+      ...(iconURL && { iconURL }),
     })
     .setDescription(desc)
     .addFields(

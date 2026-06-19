@@ -23,7 +23,7 @@ const command: CommandData = {
 
 async function beg(user: User) {
   const celebrities = responses.lists.celebrities
-  const celebrity = celebrities[Math.floor(Math.random() * celebrities.length)]
+  const celebrity = celebrities[Math.floor(Math.random() * celebrities.length)] ?? 'Someone'
 
   const amount = Math.floor(
     Math.random() * (ECONOMY.MAX_BEG_AMOUNT - ECONOMY.MIN_BEG_AMOUNT + 1) +
