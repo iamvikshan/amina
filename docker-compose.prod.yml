@@ -47,7 +47,7 @@ services:
       - /bin/sh
       - -c
       - |
-        wget -qO /tmp/application.yml https://raw.githubusercontent.com/iamvikshan/amina/refs/heads/main/lavalink/application.yml
+        wget -qO /tmp/application.yml https://raw.githubusercontent.com/iamvikshan/amina/refs/heads/main/lavalink/application.yml || { echo "Failed to download application.yml"; exit 1; }
         exec java -jar Lavalink.jar --spring.config.additional-location=file:/tmp/application.yml
     networks:
       - amina-network
