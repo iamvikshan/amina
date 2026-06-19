@@ -1,18 +1,12 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "lib": ["esnext"],
-    "moduleResolution": "bundler",
     "types": ["@types/bun"],
-
-    // Allow JavaScript files to be compiled (for config files)
-    "allowJs": true,
-    "checkJs": true,
-
-    // Emit settings - we don't need to emit since Bun runs TS natively
-    "noEmit": true,
-    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,
+    "inlineSources": true,
     "paths": {
       "@root/*": ["./*"],
       "@data/*": ["./src/data/*"],
@@ -24,47 +18,22 @@
       "@commands/*": ["./src/commands/*"],
       "@types/*": ["./types/*"],
       "@services/*": ["./src/services/*"]
-    },
-
-    // Strict type checking
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-
-    // Additional helpful checks
-    "skipLibCheck": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-
-    // Allow CommonJS interop
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "verbatimModuleSyntax": true,
-
-    // Source map for debugging
-    "sourceMap": true,
-    "inlineSources": true,
-
-    // Experimental decorators (useful for Discord.js)
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    }
   },
-  "include": ["src/**/*", "types/**/*", "tests/**/*"],
+  "include": [
+    "src/**/*", 
+    "types/**/*", 
+    "tests/**/*",
+    "*.js", 
+    "*.mjs",
+    "scripts/**/*.sh"
+  ],
   "exclude": [
     "node_modules",
-    "**/node_modules/*",
     "dist",
     "build",
     "logs",
+    "api", // Completely isolates the API workspace from the root compilation
     "types/api/**/*",
     "tests/code-quality.test.ts",
     "tests/input-validation.test.ts",
