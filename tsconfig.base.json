@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext"],
+
+    // --- Absolute Modern Type Safety ---
+    "strict": true,
+    // Forces you to check if array[0] exists before using it
+    "noUncheckedIndexedAccess": true,
+    // Prevents explicitly setting optional properties to undefined if not typed as such
+    "exactOptionalPropertyTypes": true,
+    // Forces the `override` keyword in class extensions (crucial for Discord.js OOP)
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    // Enforce explicit type-only imports (required for verbatimModuleSyntax)
+    "verbatimModuleSyntax": true,
+    // Disallow unused locals/parameters across all workspaces
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // --- JavaScript Checking ---
+    "allowJs": true,
+    "checkJs": true,
+
+    // --- Modern Ecosystem Standards ---
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  }
+}

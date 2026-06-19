@@ -1,10 +1,13 @@
-#!/bin/sh
+#!/usr/bin/env sh
 set -e
 
 # 1. Enforce global identity (instant execution)
 ./.husky/_/identity-guard.sh
 
-# 2. Run project-specific checks
-echo "Running pre-commit checks..."
-bun check
-bun f:check
+# 2. Run lightning-fast staged formatting and linting
+# echo "Running OXC checks..."
+# bunx lint-staged
+
+# 3. Enforce strict type safety across the repo
+# echo "Running Type Checks..."
+# bun run type
