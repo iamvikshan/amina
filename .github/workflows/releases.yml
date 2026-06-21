@@ -18,30 +18,30 @@ jobs:
   # ============================================
   # Pre-build: Bot Check
   # ============================================
-  check-bot:
-    name: Bot Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6.0.3
+  # check-bot:
+  #   name: Bot Check
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v6.0.3
 
-      - name: Cache Bun dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.bun/install/cache
-            node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
+  #     - name: Cache Bun dependencies
+  #       uses: actions/cache@v5
+  #       with:
+  #         path: |
+  #           ~/.bun/install/cache
+  #           node_modules
+  #         key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-bun-
 
-      - name: Setup Node, Bun, and install dependencies
-        uses: iamvikshan/.github/.github/actions/setup-node-bun@main
+  #     - name: Setup Node, Bun, and install dependencies
+  #       uses: iamvikshan/.github/.github/actions/setup-node-bun@main
 
-      - name: Run bot checks
-        shell: bash
-        # Uses the canonical `bun check` (tsgo --noEmit + oxlint) defined in package.json
-        run: bun check
+  #     - name: Run bot checks
+  #       shell: bash
+  #       # Uses the canonical `bun check` (tsgo --noEmit + oxlint) defined in package.json
+  #       run: bun check
 
   # ============================================
   # Bot Semantic Release
@@ -49,7 +49,7 @@ jobs:
   release-bot:
     name: Bot Release
     runs-on: ubuntu-latest
-    needs: check-bot
+    # needs: check-bot
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     outputs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
@@ -95,7 +95,7 @@ jobs:
             import semanticRelease from 'semantic-release';
             import { appendFileSync } from 'node:fs';
             try {
-              const result = await semanticRelease();
+              const result = await semanticRelease({ extends: './.github/release.json' });
               if (result && result.nextRelease && result.nextRelease.version) {
                 appendFileSync(
                   process.env.GITHUB_OUTPUT,

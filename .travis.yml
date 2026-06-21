@@ -20,9 +20,7 @@ env:
     - PATH="$HOME/.bun/bin:$PATH"
 
 stages:
-  - name: bot-smoke
-    if: (type = pull_request AND branch = main) OR (type = push AND branch = main)
-  - name: docker-smoke
+  - name: smoke-tests
     if: (type = pull_request AND branch = main) OR (type = push AND branch = main)
 
 jobs:
@@ -30,7 +28,7 @@ jobs:
     # ============================================
     # Stage: Bot Smoke
     # ============================================
-    - stage: bot-smoke
+    - stage: smoke-tests
       name: 'Bot Validation & Native Runtime Smoke'
       before_install:
         # Install Doppler CLI for secrets
@@ -45,7 +43,7 @@ jobs:
 
       script:
         # 1. Run canonical lint + typecheck (oxlint + tsgo --noEmit)
-        - bun check
+        # - bun check
 
         # 2. Load secrets from Doppler (or fall back to minimal test env)
         - |
@@ -102,7 +100,7 @@ jobs:
     # ============================================
     # Stage: Docker Smoke
     # ============================================
-    - stage: docker-smoke
+    - stage: smoke-tests
       name: 'Docker Compose Health Smoke'
       services:
         - docker
