@@ -6,7 +6,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function withdraw(
   user: User,
-  coins: number
+  coins: number,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (isNaN(coins) || coins <= 0) return mina.say('error.invalidAmount')
   const userDb = await getUser(user)
@@ -38,7 +38,7 @@ export default async function withdraw(
         name: 'net worth',
         value: `${userDb.coins + userDb.bank}${ECONOMY.CURRENCY}`,
         inline: true,
-      }
+      },
     )
 
   return { embeds: [embed] }

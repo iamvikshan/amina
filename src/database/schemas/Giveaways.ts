@@ -57,7 +57,7 @@ const Schema = new mongoose.Schema(
   {
     id: false,
     autoIndex: false,
-  }
+  },
 )
 
 export const model = mongoose.model('giveaways', Schema)

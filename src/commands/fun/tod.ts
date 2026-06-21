@@ -45,28 +45,28 @@ const command: CommandData = {
       createSubcommandWithRating('truth', 'time to spill some secrets!'),
       createSubcommandWithRating(
         'dare',
-        "feeling brave? let's test your courage!"
+        "feeling brave? let's test your courage!",
       ),
       createSubcommandWithRating(
         'paranoia',
-        "ooh, let's get into your head a bit"
+        "ooh, let's get into your head a bit",
       ),
       createSubcommandWithRating('nhie', 'never have i ever... or have i?'),
       createSubcommandWithRating('wyr', 'tough choices ahead, friend!'),
       createSubcommandWithRating('hye', "let's dig up some stories!"),
       createSubcommandWithRating(
         'wwyd',
-        'what would you do in this wild scenario?'
+        'what would you do in this wild scenario?',
       ),
       createSubcommandWithRating(
         'random',
-        "feeling lucky? let's surprise you!"
+        "feeling lucky? let's surprise you!",
       ),
     ],
   },
 
   async interactionRun(
-    interaction: ChatInputCommandInteraction | ButtonInteraction
+    interaction: ChatInputCommandInteraction | ButtonInteraction,
   ) {
     if (interaction.isButton()) {
       return todHandler.handleTodButtonClick(interaction as ButtonInteraction)
@@ -103,7 +103,7 @@ const command: CommandData = {
               .setDescription(
                 userAge
                   ? mina.say('fun.tod.ageCheck.underage')
-                  : mina.say('fun.tod.ageCheck.unknown')
+                  : mina.say('fun.tod.ageCheck.unknown'),
               ),
           ],
           ephemeral: true,
@@ -141,7 +141,7 @@ const command: CommandData = {
           chatInteraction,
           'paranoia',
           userAge,
-          effectiveRating
+          effectiveRating,
         )
         break
       case 'nhie':
@@ -167,7 +167,7 @@ async function sendQuestion(
   interaction: ChatInputCommandInteraction,
   category: string,
   userAge: number | null,
-  effectiveRating: string
+  effectiveRating: string,
 ) {
   const questions = await getQuestions(1, category, userAge, effectiveRating)
   if (questions.length === 0) {
@@ -190,7 +190,7 @@ async function sendQuestion(
       mina.sayf(`fun.tod.embed.${category}.description`, {
         user: interaction.user.username,
         question: question.question,
-      })
+      }),
     )
     .setFooter({
       text: mina.sayf('fun.tod.footer', {
@@ -204,7 +204,9 @@ async function sendQuestion(
   const buttons = MinaRows.from(
     MinaButtons.truth('truthBtn').setLabel(mina.say('fun.tod.buttons.truth')),
     MinaButtons.dare('dareBtn').setLabel(mina.say('fun.tod.buttons.dare')),
-    MinaButtons.random('randomBtn').setLabel(mina.say('fun.tod.buttons.random'))
+    MinaButtons.random('randomBtn').setLabel(
+      mina.say('fun.tod.buttons.random'),
+    ),
   )
 
   await interaction.followUp({
@@ -216,7 +218,7 @@ async function sendQuestion(
 async function sendRandomQuestion(
   interaction: ChatInputCommandInteraction,
   userAge: number | null,
-  effectiveRating: string
+  effectiveRating: string,
 ) {
   const questions = await getQuestions(1, 'random', userAge, effectiveRating)
   if (questions.length === 0) {
@@ -239,7 +241,7 @@ async function sendRandomQuestion(
     .setDescription(
       mina.sayf('fun.tod.embed.random.description', {
         question: question.question,
-      })
+      }),
     )
     .setFooter({
       text: mina.sayf('fun.tod.footer', {
@@ -253,7 +255,9 @@ async function sendRandomQuestion(
   const buttons = MinaRows.from(
     MinaButtons.truth('truthBtn').setLabel(mina.say('fun.tod.buttons.truth')),
     MinaButtons.dare('dareBtn').setLabel(mina.say('fun.tod.buttons.dare')),
-    MinaButtons.random('randomBtn').setLabel(mina.say('fun.tod.buttons.random'))
+    MinaButtons.random('randomBtn').setLabel(
+      mina.say('fun.tod.buttons.random'),
+    ),
   )
 
   await interaction.followUp({ embeds: [embed], components: [buttons] })

@@ -99,18 +99,18 @@ const command: CommandData = {
     if (sub === 'ghostping') {
       response = await antiGhostPing(
         settings,
-        interaction.options.getString('status', true)
+        interaction.options.getString('status', true),
       )
     } else if (sub === 'spam') {
       response = await antiSpam(
         settings,
-        interaction.options.getString('status', true)
+        interaction.options.getString('status', true),
       )
     } else if (sub === 'massmention') {
       response = await antiMassMention(
         settings,
         interaction.options.getString('status', true),
-        interaction.options.getInteger('threshold', true)
+        interaction.options.getInteger('threshold', true),
       )
     } else {
       response = 'Invalid subcommand!'
@@ -137,7 +137,7 @@ async function antiSpam(settings: any, input: string): Promise<string> {
 async function antiMassMention(
   settings: any,
   input: string,
-  threshold: number
+  threshold: number,
 ): Promise<string> {
   const status = input.toUpperCase() === 'ON'
   if (!status) {

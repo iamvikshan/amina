@@ -16,7 +16,7 @@ const DEFAULT_DURATION_MS = 6 * 60 * 60 * 1000 // 6 hours
  * @param interaction
  */
 export async function handleAddReminder(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   const message = interaction.options.getString('message', true)
   const inOption = interaction.options.getString('in')
@@ -29,7 +29,7 @@ export async function handleAddReminder(
         MinaEmbed.error(
           mina.sayf('utility.reminder.add.error.maxReached', {
             max: MAX_REMINDERS.toString(),
-          })
+          }),
         ),
       ],
     })
@@ -45,7 +45,7 @@ export async function handleAddReminder(
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            mina.say('utility.reminder.add.error.invalidDuration')
+            mina.say('utility.reminder.add.error.invalidDuration'),
           ),
         ],
       })
@@ -61,7 +61,7 @@ export async function handleAddReminder(
         MinaEmbed.error(
           mina.sayf('utility.reminder.add.error.minDuration', {
             minutes: (MIN_DURATION_MS / 1000 / 60).toString(),
-          })
+          }),
         ),
       ],
     })
@@ -75,7 +75,7 @@ export async function handleAddReminder(
         MinaEmbed.error(
           mina.sayf('utility.reminder.add.error.maxDuration', {
             days: MAX_DURATION_DAYS.toString(),
-          })
+          }),
         ),
       ],
     })
@@ -99,7 +99,7 @@ export async function handleAddReminder(
         message,
         timestamp,
         location,
-      })
+      }),
     )
       .setTitle('reminder created')
       .setFooter({ text: 'use `/reminder hub` to manage your reminders' })
@@ -121,7 +121,7 @@ export async function handleAddReminder(
  */
 async function calculateRemindAt(
   durationMs: number,
-  userId: string
+  userId: string,
 ): Promise<Date> {
   const userData = await getUser({ id: userId })
   const timezone = userData.profile?.timezone

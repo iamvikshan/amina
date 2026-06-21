@@ -27,7 +27,7 @@ interface BotClient extends Client {
 const cooldownCache = new Map<string, number>()
 
 export const handleSlashCommand = async (
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> => {
   const client = interaction.client as BotClient
   const cmd = client.slashCommands.get(interaction.commandName) as
@@ -89,7 +89,7 @@ export const handleSlashCommand = async (
       await interaction.reply({
         embeds: [
           MinaEmbed.error(
-            `you need ${Utils.parsePermissions(cmd.userPermissions)} for this`
+            `you need ${Utils.parsePermissions(cmd.userPermissions)} for this`,
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -108,7 +108,7 @@ export const handleSlashCommand = async (
       await interaction.reply({
         embeds: [
           MinaEmbed.error(
-            `i need ${Utils.parsePermissions(cmd.botPermissions)} for this`
+            `i need ${Utils.parsePermissions(cmd.botPermissions)} for this`,
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -124,7 +124,7 @@ export const handleSlashCommand = async (
       await interaction.reply({
         embeds: [
           MinaEmbed.warning(
-            `slow down. try again in \`${Utils.timeformat(remaining)}\``
+            `slow down. try again in \`${Utils.timeformat(remaining)}\``,
           ),
         ],
         flags: MessageFlags.Ephemeral,
@@ -167,7 +167,7 @@ export const handleSlashCommand = async (
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            'something broke. if this keeps happening, use `/report` to let the devs know'
+            'something broke. if this keeps happening, use `/report` to let the devs know',
           ),
         ],
       })
@@ -196,11 +196,11 @@ export const getSlashUsage = (cmd: CommandData): EmbedBuilder => {
 
   if (
     cmd.slashCommand.options?.find(
-      o => o.type === ApplicationCommandOptionType.Subcommand
+      o => o.type === ApplicationCommandOptionType.Subcommand,
     )
   ) {
     const subCmds = cmd.slashCommand.options.filter(
-      opt => opt.type === ApplicationCommandOptionType.Subcommand
+      opt => opt.type === ApplicationCommandOptionType.Subcommand,
     )
     subCmds.forEach(sub => {
       desc += `\`/${cmd.name} ${sub.name}\`\n❯ ${sub.description}\n\n`

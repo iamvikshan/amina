@@ -7,7 +7,7 @@ import { mina } from '@helpers/mina'
 import { Logger } from '@helpers/Logger'
 
 export default async function statusSettings(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   const settings: any = await getSettings(interaction.guild)
 
@@ -128,7 +128,7 @@ export default async function statusSettings(
   const giveawaysManager = (interaction.client as any).giveawaysManager
   if (giveawaysManager) {
     const activeGiveaways = giveawaysManager.giveaways.filter(
-      (g: any) => g.guildId === interaction.guild?.id && !g.ended
+      (g: any) => g.guildId === interaction.guild?.id && !g.ended,
     )
 
     const giveawayInfo = await Promise.all(
@@ -148,7 +148,7 @@ export default async function statusSettings(
         return `prize: ${giveaway.prize}, [message](https://discord.com/channels/${giveaway.guildId}/${giveaway.channelId}/${giveaway.messageId}), channel: ${channel ? `<#${channel.id}>` : 'unknown'}
         ends: ${timeLeft > 0 ? `<t:${Math.floor(giveaway.endAt / 1000)}:R>` : 'ended'}, winners: ${giveaway.winnerCount}
         hosted by: ${giveaway.hostedBy ? `${giveaway.hostedBy}` : 'unknown'}, status: ${status}`
-      })
+      }),
     )
 
     allFields.push({
@@ -173,7 +173,7 @@ export default async function statusSettings(
           .join(', ')
 
         return `[message](https://discord.com/channels/${rr.guild_id}/${rr.channel_id}/${rr.message_id}) in ${channel ? `<#${channel.id}>` : 'unknown channel'}\n   roles: ${rolesMentions}`
-      })
+      }),
     )
 
     allFields.push({
@@ -193,7 +193,7 @@ export default async function statusSettings(
     return MinaEmbed.primary()
       .setTitle("mina's current settings")
       .setDescription(
-        "hey there! let's take a peek at your current settings! i'm so excited to show you what we've got set up!"
+        "hey there! let's take a peek at your current settings! i'm so excited to show you what we've got set up!",
       )
       .addFields(fieldsToShow)
       .setFooter({

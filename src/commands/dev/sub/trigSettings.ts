@@ -2,7 +2,7 @@ import { getSettings } from '@schemas/Guild'
 import type { ChatInputCommandInteraction, Client, Guild } from 'discord.js'
 
 export default async function trigSettings(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   const serverId = interaction.options.getString('serverid')
   const response = await triggerOnboarding(interaction.client, serverId)
@@ -11,7 +11,7 @@ export default async function trigSettings(
 
 async function triggerOnboarding(
   client: Client,
-  serverId: string | null = null
+  serverId: string | null = null,
 ): Promise<string> {
   const guildCreateEvent = client.emit.bind(client, 'guildCreate')
 

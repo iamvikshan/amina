@@ -101,7 +101,7 @@ export async function cacheControl(c: Context<{ Bindings: Env }>, next: Next) {
     // Bot stats: cache for 60s, stale for 5 min
     c.res.headers.set(
       'Cache-Control',
-      'public, s-maxage=60, stale-while-revalidate=300'
+      'public, s-maxage=60, stale-while-revalidate=300',
     )
   } else if (path.startsWith('/guild')) {
     // Guild data: cache for 30s
@@ -128,7 +128,7 @@ export async function errorHandler(c: Context<{ Bindings: Env }>, next: Next) {
       {
         path: c.req.path,
         method: c.req.method,
-      }
+      },
     )
 
     const status = ((error as { status?: number }).status ||
@@ -172,7 +172,7 @@ export async function errorHandler(c: Context<{ Bindings: Env }>, next: Next) {
           generatedAt: new Date().toISOString(),
         },
       },
-      status
+      status,
     )
   }
 }

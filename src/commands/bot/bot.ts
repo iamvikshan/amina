@@ -88,23 +88,23 @@ const command: CommandData = {
         buttons.push(
           MinaButtons.link(
             config.BOT.DONATE_URL,
-            mina.say('botInfo.donate.button.kofi')
-          )
+            mina.say('botInfo.donate.button.kofi'),
+          ),
         )
       }
 
       buttons.push(
         MinaButtons.link(
           'https://github.com/sponsors/iamvikshan',
-          mina.say('botInfo.donate.button.github')
-        )
+          mina.say('botInfo.donate.button.github'),
+        ),
       )
 
       buttons.push(
         MinaButtons.link(
           'https://patreon.com/vikshan',
-          mina.say('botInfo.donate.button.patreon')
-        )
+          mina.say('botInfo.donate.button.patreon'),
+        ),
       )
 
       const buttonsRow = MinaRows.from(...buttons)
@@ -122,7 +122,7 @@ const command: CommandData = {
       return interaction.followUp(
         mina.sayf('botInfo.uptime.result', {
           uptime: timeformat(process.uptime()),
-        })
+        }),
       )
     }
 
@@ -138,8 +138,8 @@ const command: CommandData = {
       const buttonsRow = MinaRows.from(
         MinaButtons.link(
           'https://docs.vikshan.me',
-          mina.say('botInfo.docs.button')
-        )
+          mina.say('botInfo.docs.button'),
+        ),
       )
       return interaction.followUp({ embeds: [embed], components: [buttonsRow] })
     }
@@ -150,14 +150,14 @@ const command: CommandData = {
       return msg.edit(
         mina.sayf('botInfo.ping.result', {
           ping: Math.floor(interaction.client.ws.ping).toString(),
-        })
+        }),
       )
     }
     // Changelog
     else if (sub === 'changelog') {
       try {
         const response = await fetch(
-          'https://raw.githubusercontent.com/iamvikshan/amina/main/CHANGELOG.md'
+          'https://raw.githubusercontent.com/iamvikshan/amina/main/CHANGELOG.md',
         )
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         const changelogContent = await response.text()
@@ -186,7 +186,7 @@ const command: CommandData = {
         const embed = MinaEmbed.primary()
           .setAuthor({ name: mina.say('botInfo.changelog.title') })
           .setDescription(
-            `${latestUpdates}\n\n[**view full changelog**](https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md)`
+            `${latestUpdates}\n\n[**view full changelog**](https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md)`,
           )
           .setFooter({
             text: mina.say('botInfo.changelog.footer'),
@@ -198,7 +198,7 @@ const command: CommandData = {
         return interaction.followUp(
           mina.sayf('botInfo.changelog.error', {
             url: 'https://github.com/iamvikshan/amina/blob/main/CHANGELOG.md',
-          })
+          }),
         )
       }
     }
@@ -218,15 +218,15 @@ function botInvite(client: BotClient) {
   // Buttons
   const buttons = []
   buttons.push(
-    MinaButtons.link(client.getInvite(), mina.say('botInfo.invite.button'))
+    MinaButtons.link(client.getInvite(), mina.say('botInfo.invite.button')),
   )
 
   if (config.BOT.SUPPORT_SERVER) {
     buttons.push(
       MinaButtons.link(
         config.BOT.SUPPORT_SERVER,
-        mina.say('botInfo.invite.support')
-      )
+        mina.say('botInfo.invite.support'),
+      ),
     )
   }
   if (config.BOT.DASHBOARD_URL) {
@@ -235,7 +235,7 @@ function botInvite(client: BotClient) {
       : `https://${config.BOT.DASHBOARD_URL}`
 
     buttons.push(
-      MinaButtons.link(dashboardUrl, mina.say('botInfo.invite.dashboard'))
+      MinaButtons.link(dashboardUrl, mina.say('botInfo.invite.dashboard')),
     )
   }
 

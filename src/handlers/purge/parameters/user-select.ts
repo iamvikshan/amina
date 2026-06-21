@@ -12,7 +12,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showUserSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('select user')
@@ -22,7 +22,7 @@ export async function showUserSelect(
   const menu = new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
     new UserSelectMenuBuilder()
       .setCustomId('purge:user:select')
-      .setPlaceholder('select a user...')
+      .setPlaceholder('select a user...'),
   )
 
   const backRow = MinaRows.backRow('purge:btn:back')
@@ -38,7 +38,7 @@ export async function showUserSelect(
  * @param interaction
  */
 export async function handleUserSelect(
-  interaction: UserSelectMenuInteraction
+  interaction: UserSelectMenuInteraction,
 ): Promise<void> {
   const userId = interaction.values[0]
 

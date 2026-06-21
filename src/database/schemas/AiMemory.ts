@@ -42,7 +42,7 @@ const Schema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 )
 
 // Compound indexes for efficient queries
@@ -56,7 +56,7 @@ export const Model = mongoose.model('ai-memory', Schema)
 export async function getUserMemories(
   userId: string,
   guildId: string | null,
-  limit = 50
+  limit = 50,
 ): Promise<any[]> {
   return await Model.find({ userId, guildId })
     .sort({ importance: -1, lastAccessedAt: -1 })
@@ -67,7 +67,7 @@ export async function getUserMemories(
 // Get all guild-wide memories
 export async function getGuildMemories(
   guildId: string,
-  limit = 50
+  limit = 50,
 ): Promise<any[]> {
   return await Model.find({ guildId, memoryType: 'guild' })
     .sort({ importance: -1, lastAccessedAt: -1 })
@@ -92,7 +92,7 @@ export async function updateMemoryAccess(memoryId: string): Promise<void> {
 // Delete memories for a user
 export async function deleteUserMemories(
   userId: string,
-  guildId: string | null
+  guildId: string | null,
 ): Promise<number> {
   const result = await Model.deleteMany({ userId, guildId })
   return result.deletedCount || 0
@@ -101,7 +101,7 @@ export async function deleteUserMemories(
 // Get count of memories for a user in a context
 export async function getUserMemoryCount(
   userId: string,
-  guildId: string | null
+  guildId: string | null,
 ): Promise<number> {
   return await Model.countDocuments({ userId, guildId })
 }
@@ -110,7 +110,7 @@ export async function getUserMemoryCount(
 export async function pruneLeastImportantMemories(
   userId: string,
   guildId: string | null,
-  keepCount: number
+  keepCount: number,
 ): Promise<{ deletedCount: number }> {
   // Get all memories sorted by importance (desc) then createdAt (asc)
   const allMemories = await Model.find({ userId, guildId })
@@ -176,7 +176,7 @@ export async function pruneMemories(options: {
  * @returns {Promise<number>} Number of memories that had their importance reduced
  */
 export async function applyImportanceDecay(
-  decayPeriodDays = 30
+  decayPeriodDays = 30,
 ): Promise<number> {
   if (decayPeriodDays <= 0) return 0
 
@@ -237,7 +237,7 @@ export async function findSimilarMemory(
   queryVector: number[],
   userId: string,
   guildId: string | null,
-  memoryType: string
+  memoryType: string,
 ): Promise<{
   _id: any
   key: string
@@ -344,7 +344,7 @@ const MAX_NUM_CANDIDATES = 1000
 export async function vectorSearch(
   queryVector: number[],
   filter: Record<string, unknown>,
-  limit: number
+  limit: number,
 ): Promise<
   Array<{
     _id: any
@@ -397,7 +397,7 @@ const EMBEDDING_DIMENSIONS = 1024
 export async function reEmbedAllMemories(
   embedFn: (text: string) => Promise<number[] | null>,
   batchSize = 25,
-  delayMs = 1000
+  delayMs = 1000,
 ): Promise<{
   total: number
   updated: number
@@ -431,7 +431,7 @@ export async function reEmbedAllMemories(
 async function processBatch(
   batch: Array<{ _id: any; key: string; value: string }>,
   embedFn: (text: string) => Promise<number[] | null>,
-  stats: { updated: number; failed: number; skipped: number }
+  stats: { updated: number; failed: number; skipped: number },
 ): Promise<void> {
   for (const doc of batch) {
     try {
@@ -452,7 +452,7 @@ async function processBatch(
       await Model.updateOne(
         { _id: doc._id },
         { $set: { embedding } },
-        { runValidators: true }
+        { runValidators: true },
       )
       stats.updated++
     } catch {

@@ -47,7 +47,7 @@ const command: CommandData = {
 
 async function paste(
   content: string,
-  title: string
+  title: string,
 ): Promise<{ embeds: any[] } | string> {
   const response = await postToBin(content, title)
   if (!response) return mina.say('utility.paste.error.failed')
@@ -58,7 +58,7 @@ async function paste(
       mina.sayf('utility.paste.description', {
         normal: response.url,
         raw: response.raw,
-      })
+      }),
     )
 
   return { embeds: [embed] }

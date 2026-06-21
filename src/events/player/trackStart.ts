@@ -14,7 +14,7 @@ import type { Player, Track } from 'lavalink-client'
 export default async (
   client: BotClient,
   player: Player,
-  track: Track
+  track: Track,
 ): Promise<void> => {
   const guild = client.guilds.cache.get(player.guildId)
   if (!guild) return
@@ -32,7 +32,7 @@ export default async (
     await client.utils.setVoiceStatus(
       client,
       player.voiceChannelId,
-      `Paying: **${track.info.title}**`
+      `Paying: **${track.info.title}**`,
     )
   }
 
@@ -46,7 +46,7 @@ export default async (
         : MinaButtons.custom('pause', 'pause', 2),
       MinaButtons.stop('stop'),
       MinaButtons.next('skip'),
-      MinaButtons.custom('shuffle', 'shuffle', 2)
+      MinaButtons.custom('shuffle', 'shuffle', 2),
     )
 
   const msg: any = await channel.safeSend({
@@ -57,7 +57,7 @@ export default async (
           mina.sayf('music.nowPlaying.description', {
             title: track.info.title,
             uri: track.info.uri,
-          })
+          }),
         )
         .setThumbnail(track.info.artworkUrl)
         .setFooter({
@@ -77,7 +77,7 @@ export default async (
             name: 'author',
             value: track.info.author || 'unknown',
             inline: true,
-          }
+          },
         ),
     ],
     components: [row(player)],

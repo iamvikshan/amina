@@ -8,7 +8,7 @@ const { MUSIC } = config
 export const autoplayFunction = async (
   client: BotClient,
   track: any,
-  player: any
+  player: any,
 ): Promise<void> => {
   if (player.queue.tracks.length > 0) return
   if (!track) return
@@ -44,7 +44,7 @@ export const autoplayFunction = async (
 
   const res = await player.search(
     { query: url, source: source },
-    track.requester
+    track.requester,
   )
 
   if (!res || res.tracks.length === 0) {
@@ -52,7 +52,7 @@ export const autoplayFunction = async (
       {
         embeds: [MinaEmbed.warning(mina.say('error.noResults'))],
       },
-      10
+      10,
     )
     return player.destroy()
   }
@@ -62,10 +62,10 @@ export const autoplayFunction = async (
 
     if (
       !player.queue.previous?.some(
-        (o: any) => o.info.identifier === chosen.info.identifier
+        (o: any) => o.info.identifier === chosen.info.identifier,
       ) &&
       !player.queue.tracks.some(
-        (o: any) => o.info.identifier === chosen.info.identifier
+        (o: any) => o.info.identifier === chosen.info.identifier,
       )
     ) {
       await player.queue.add(chosen)
@@ -78,7 +78,7 @@ export const autoplayFunction = async (
       {
         embeds: [MinaEmbed.warning(mina.say('error.noResults'))],
       },
-      10
+      10,
     )
     return player.destroy()
   }

@@ -54,7 +54,7 @@ const command: CommandData = {
               .setLabel(mina.say('roles.options.add2user.label'))
               .setDescription(mina.say('roles.options.add2user.description'))
               .setValue('add2user'),
-          ])
+          ]),
       )
 
     await interaction.followUp({

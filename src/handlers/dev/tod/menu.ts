@@ -13,7 +13,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showTodMenu(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('truth or dare management')
@@ -22,7 +22,7 @@ export async function showTodMenu(
         '**select an operation:**\n' +
         '**add question** - add a new tod question\n' +
         '**remove question** - delete a question by id\n\n' +
-        'note: question ids follow the format: T1, D2, NHIE3, etc.'
+        'note: question ids follow the format: T1, D2, NHIE3, etc.',
     )
     .setFooter({ text: 'select an operation to begin' })
 
@@ -38,8 +38,8 @@ export async function showTodMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel('remove question')
           .setDescription('delete a question by id')
-          .setValue('remove')
-      )
+          .setValue('remove'),
+      ),
   )
 
   const backRow = MinaRows.backRow('dev:btn:back_tod')
@@ -55,7 +55,7 @@ export async function showTodMenu(
  * @param interaction
  */
 export async function handleTodMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const operation = interaction.values[0]
 

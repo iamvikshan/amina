@@ -33,14 +33,14 @@ const command: CommandData = {
 }
 
 async function weather(
-  place: string
+  place: string,
 ): Promise<{ embeds: MinaEmbed[] } | string> {
   if (!secret.WEATHERSTACK_KEY) {
     return 'Weather API key is not configured.'
   }
 
   const response = await getJson(
-    `http://api.weatherstack.com/current?access_key=${secret.WEATHERSTACK_KEY}&query=${encodeURIComponent(place)}`
+    `http://api.weatherstack.com/current?access_key=${secret.WEATHERSTACK_KEY}&query=${encodeURIComponent(place)}`,
   )
   if (!response.success) {
     return `${MESSAGES.API_ERROR}\n-# error: ${response.error || 'unknown'}`
@@ -138,7 +138,7 @@ async function weather(
       name: 'uv index',
       value: json.current?.uv_index ? json.current.uv_index.toString() : 'NA',
       inline: true,
-    }
+    },
   )
 
   if (json.current?.observation_time) {

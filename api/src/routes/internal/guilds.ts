@@ -59,7 +59,7 @@ guilds.post('/:guildId/settings', async c => {
     // Double check size against MAX_PAYLOAD_BYTES using byte length
     // (string length can undercount multi-byte characters)
     const payloadBytes = new TextEncoder().encode(
-      JSON.stringify(settings)
+      JSON.stringify(settings),
     ).byteLength
     if (payloadBytes > MAX_PAYLOAD_BYTES) {
       return errors.badRequest(c, 'Payload too large')
@@ -95,7 +95,7 @@ guilds.post('/:guildId/settings', async c => {
           createdAt: new Date(),
         },
       },
-      { upsert: true }
+      { upsert: true },
     )
 
     return success(c, { message: 'Settings synced' })
@@ -107,7 +107,7 @@ guilds.post('/:guildId/settings', async c => {
       {
         endpoint: 'POST /internal/guilds/:guildId/settings',
         guildId,
-      }
+      },
     )
     return errors.internal(c, 'Sync failed')
   }
@@ -151,7 +151,7 @@ guilds.get('/:guildId/settings', async c => {
       {
         endpoint: 'GET /internal/guilds/:guildId/settings',
         guildId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to retrieve settings')
   }

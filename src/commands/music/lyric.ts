@@ -40,7 +40,7 @@ const command: CommandData = {
 
 async function getLyric(
   user: any,
-  choice: string
+  choice: string,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const lyric = await getJson(`${BASE_URL}?title=${choice}`)
   if (!lyric.success) {
@@ -63,7 +63,7 @@ async function getLyric(
   const embed = MinaEmbed.info()
     .setTitle(`${author} - ${title}`)
     .setDescription(
-      lyrics.length > 4000 ? lyrics.slice(0, 4000) + '...' : lyrics
+      lyrics.length > 4000 ? lyrics.slice(0, 4000) + '...' : lyrics,
     )
     .setFooter({
       text: mina.sayf('generic.requestedBy', { user: user.username }),

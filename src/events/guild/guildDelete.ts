@@ -18,7 +18,7 @@ const wait = (ms: number): Promise<void> =>
 export default async (client: BotClient, guild: Guild): Promise<void> => {
   if (!guild.available) return
   client.logger.log(
-    `Guild Left: ${guild.name} (${guild.id}) Members: ${guild.memberCount}`
+    `Guild Left: ${guild.name} (${guild.id}) Members: ${guild.memberCount}`,
   )
 
   const settings = await getSettings(guild)
@@ -71,7 +71,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         name: 'members',
         value: `\`\`\`yaml\n${guild.memberCount}\`\`\``,
         inline: true,
-      }
+      },
     )
     .setFooter({
       text: `server #${client.guilds.cache.size}`,
@@ -96,20 +96,20 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   if (owner) {
     const row = MinaRows.from(
       MinaButtons.invite(client.getInvite()).setLabel(
-        mina.say('greetings.leaveDM.buttons.invite')
+        mina.say('greetings.leaveDM.buttons.invite'),
       ),
       MinaButtons.support(config.BOT.SUPPORT_SERVER as string),
       MinaButtons.link(
         'https://github.com/iamvikshan/amina/issues/new/choose',
-        mina.say('greetings.leaveDM.buttons.feedback')
-      )
+        mina.say('greetings.leaveDM.buttons.feedback'),
+      ),
     )
 
     // Create a new embed for the DM
     const dmEmbed = MinaEmbed.error()
       .setTitle(mina.sayf('greetings.leaveDM.title', { user: owner.username }))
       .setDescription(
-        mina.sayf('greetings.leaveDM.description', { server: guild.name })
+        mina.sayf('greetings.leaveDM.description', { server: guild.name }),
       )
       .setThumbnail(client.user?.displayAvatarURL() || '')
       .setFooter({ text: mina.say('greetings.leaveDM.footer') })
@@ -124,7 +124,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
       client.logger.error(`Error sending DM: ${err.message}`)
       if (err.code === 50007) {
         client.logger.warn(
-          'Cannot send messages to this user. They may have DMs disabled or blocked the bot.'
+          'Cannot send messages to this user. They may have DMs disabled or blocked the bot.',
         )
       }
     }

@@ -21,7 +21,7 @@ import BotUtils from '@helpers/BotUtils'
  */
 export default async (client: BotClient): Promise<void> => {
   client.logger.success(
-    `Logged in as ${client.user?.tag}!` /* (${client.user?.id}) */
+    `Logged in as ${client.user?.tag}!` /* (${client.user?.id}) */,
   )
 
   // Initialize AI Responder Service
@@ -51,7 +51,7 @@ export default async (client: BotClient): Promise<void> => {
     memoryManipulator.registerTools(aiCommandRegistry)
   } catch (error: any) {
     client.logger.warn(
-      `Memory Service disabled - configuration error: ${error.message || error}`
+      `Memory Service disabled - configuration error: ${error.message || error}`,
     )
   }
 
@@ -65,7 +65,7 @@ export default async (client: BotClient): Promise<void> => {
       client.logger.success('Music Manager initialized')
     } else {
       client.logger.warn(
-        'Music Manager initialization skipped - client user not available'
+        'Music Manager initialization skipped - client user not available',
       )
     }
   }
@@ -90,7 +90,7 @@ export default async (client: BotClient): Promise<void> => {
     commands: any[],
     registerFn: () => Promise<any>,
     commandType: string,
-    maxRetries = 3
+    maxRetries = 3,
   ): Promise<void> => {
     if (commands.length === 0) {
       client.logger.log(`No ${commandType} commands to register`)
@@ -98,7 +98,7 @@ export default async (client: BotClient): Promise<void> => {
     }
 
     client.logger.debug(
-      `Attempting to register ${commands.length} ${commandType} commands...`
+      `Attempting to register ${commands.length} ${commandType} commands...`,
     )
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -110,8 +110,8 @@ export default async (client: BotClient): Promise<void> => {
           setTimeout(() => {
             reject(
               new Error(
-                'Command registration timeout after 30 seconds - likely rate limited'
-              )
+                'Command registration timeout after 30 seconds - likely rate limited',
+              ),
             )
           }, 30000)
         })
@@ -121,14 +121,14 @@ export default async (client: BotClient): Promise<void> => {
 
         // Log success with timing
         client.logger.success(
-          `Registered ${commands.length} ${commandType} commands (took ${duration}ms)`
+          `Registered ${commands.length} ${commandType} commands (took ${duration}ms)`,
         )
 
         // Check if result contains rate limit info
         if (result && typeof result === 'object') {
           if (result.rateLimitData) {
             client.logger.log(
-              `Rate limit status: Limit=${result.rateLimitData.limit}, Remaining=${result.rateLimitData.remaining}`
+              `Rate limit status: Limit=${result.rateLimitData.limit}, Remaining=${result.rateLimitData.remaining}`,
             )
           }
         }
@@ -151,10 +151,10 @@ export default async (client: BotClient): Promise<void> => {
         if (isRateLimit || isTimeout) {
           if (isTimeout) {
             client.logger.error(
-              `⏱️ TIMEOUT: Command registration hung for 30+ seconds (attempt ${attempt}/${maxRetries})`
+              `⏱️ TIMEOUT: Command registration hung for 30+ seconds (attempt ${attempt}/${maxRetries})`,
             )
             client.logger.error(
-              `This usually means Discord.js is internally queuing due to rate limits.`
+              `This usually means Discord.js is internally queuing due to rate limits.`,
             )
           }
 
@@ -167,27 +167,27 @@ export default async (client: BotClient): Promise<void> => {
           const retryAfterMinutes = Math.ceil(retryAfterSeconds / 60)
 
           client.logger.warn(
-            `⚠️ RATE LIMITED when registering ${commandType} commands (attempt ${attempt}/${maxRetries})`
+            `⚠️ RATE LIMITED when registering ${commandType} commands (attempt ${attempt}/${maxRetries})`,
           )
           client.logger.warn(
-            `Rate limit info: Retry after ${retryAfterSeconds}s (${retryAfterMinutes} minutes)`
+            `Rate limit info: Retry after ${retryAfterSeconds}s (${retryAfterMinutes} minutes)`,
           )
 
           if (attempt < maxRetries) {
             client.logger.log(
-              `Waiting ${Math.ceil(retryAfter / 1000)}s before retry...`
+              `Waiting ${Math.ceil(retryAfter / 1000)}s before retry...`,
             )
             await new Promise(resolve => setTimeout(resolve, retryAfter))
           } else {
             client.logger.error(
-              `❌ Failed to register ${commandType} commands after ${maxRetries} attempts due to rate limiting`
+              `❌ Failed to register ${commandType} commands after ${maxRetries} attempts due to rate limiting`,
             )
             throw error
           }
         } else {
           // Not a rate limit error, log and throw
           client.logger.error(
-            `❌ Failed to register ${commandType} commands: ${error.message || error}`
+            `❌ Failed to register ${commandType} commands: ${error.message || error}`,
           )
           throw error
         }
@@ -200,7 +200,7 @@ export default async (client: BotClient): Promise<void> => {
   const shouldUpdateCommands = async (
     localCommands: any[],
     fetchFn: () => Promise<any>,
-    commandType = 'commands'
+    commandType = 'commands',
   ): Promise<{ needsUpdate: boolean; changedCommands: string[] }> => {
     const changedCommands: string[] = []
 
@@ -208,14 +208,14 @@ export default async (client: BotClient): Promise<void> => {
       const existingCommands = await fetchFn()
       if (existingCommands.size !== localCommands.length) {
         client.logger.debug(
-          `[${commandType}] Count differs: ${existingCommands.size} existing vs ${localCommands.length} local`
+          `[${commandType}] Count differs: ${existingCommands.size} existing vs ${localCommands.length} local`,
         )
         return { needsUpdate: true, changedCommands: ['(count mismatch)'] }
       }
 
       for (const localCmd of localCommands) {
         const existingCmd = existingCommands.find(
-          (c: any) => c.name === localCmd.name
+          (c: any) => c.name === localCmd.name,
         )
         if (!existingCmd) {
           changedCommands.push(`+${localCmd.name}`)
@@ -228,7 +228,7 @@ export default async (client: BotClient): Promise<void> => {
 
       if (changedCommands.length > 0) {
         client.logger.debug(
-          `[${commandType}] ${changedCommands.length} command(s) changed: ${changedCommands.join(', ')}`
+          `[${commandType}] ${changedCommands.length} command(s) changed: ${changedCommands.join(', ')}`,
         )
         return { needsUpdate: true, changedCommands }
       }
@@ -236,7 +236,7 @@ export default async (client: BotClient): Promise<void> => {
       return { needsUpdate: false, changedCommands: [] }
     } catch (error) {
       client.logger.warn(
-        `Failed to fetch existing commands for diffing: ${error}`
+        `Failed to fetch existing commands for diffing: ${error}`,
       )
       return { needsUpdate: true, changedCommands: ['(fetch error)'] } // Force update on error
     }
@@ -262,11 +262,11 @@ export default async (client: BotClient): Promise<void> => {
             error.retry_after ||
             (error.rateLimitData?.retryAfter ?? 0)
           client.logger.warn(
-            `Rate limited when clearing global commands. Retry after ${Math.ceil(retryAfter / 1000)}s`
+            `Rate limited when clearing global commands. Retry after ${Math.ceil(retryAfter / 1000)}s`,
           )
         } else {
           client.logger.error(
-            `Failed to clear global commands: ${error.message || error}`
+            `Failed to clear global commands: ${error.message || error}`,
           )
         }
       }
@@ -280,7 +280,7 @@ export default async (client: BotClient): Promise<void> => {
         .filter(
           cmd =>
             // Only dev and test commands - regular commands come from global registration
-            cmd.testGuildOnly || (cmd.devOnly && devConfig.ENABLED)
+            cmd.testGuildOnly || (cmd.devOnly && devConfig.ENABLED),
         )
         .map(cmd => ({
           name: cmd.name,
@@ -295,29 +295,29 @@ export default async (client: BotClient): Promise<void> => {
           const { needsUpdate, changedCommands } = await shouldUpdateCommands(
             testGuildCommands,
             () => testGuild.commands.fetch(),
-            'test guild'
+            'test guild',
           )
 
           if (needsUpdate) {
             await registerCommandsWithRetry(
               testGuildCommands,
               () => testGuild.commands.set(testGuildCommands),
-              `test guild (${changedCommands.length} changed: ${changedCommands.join(', ')})`
+              `test guild (${changedCommands.length} changed: ${changedCommands.join(', ')})`,
             )
 
             // Add delay between test guild and global command registration to avoid rate limits
             client.logger.debug(
-              'Waiting 2 seconds before registering global commands to avoid rate limits...'
+              'Waiting 2 seconds before registering global commands to avoid rate limits...',
             )
             await new Promise(resolve => setTimeout(resolve, 2000))
           } else {
             client.logger.debug(
-              'Test guild commands are up to date. Skipping registration.'
+              'Test guild commands are up to date. Skipping registration.',
             )
           }
         } catch (error: any) {
           client.logger.error(
-            `Failed to register test guild commands: ${error.message}`
+            `Failed to register test guild commands: ${error.message}`,
           )
         }
       }
@@ -336,7 +336,7 @@ export default async (client: BotClient): Promise<void> => {
         }))
 
       client.logger.debug(
-        `GLOBAL=true: Found ${globalCommands.length} commands to register globally (filtered from ${client.slashCommands.size} total commands)`
+        `GLOBAL=true: Found ${globalCommands.length} commands to register globally (filtered from ${client.slashCommands.size} total commands)`,
       )
 
       if (globalCommands.length > 0) {
@@ -346,7 +346,7 @@ export default async (client: BotClient): Promise<void> => {
             () =>
               client.application?.commands.fetch() ??
               Promise.resolve(new Map()),
-            'global'
+            'global',
           )
 
           if (needsUpdate) {
@@ -354,8 +354,8 @@ export default async (client: BotClient): Promise<void> => {
               setTimeout(() => {
                 reject(
                   new Error(
-                    'Global command registration timeout after 30 seconds'
-                  )
+                    'Global command registration timeout after 30 seconds',
+                  ),
                 )
               }, 30000)
             })
@@ -367,26 +367,26 @@ export default async (client: BotClient): Promise<void> => {
             ])
             const duration = Date.now() - startTime
             client.logger.success(
-              `Synced ${globalCommands.length} global commands (${changedCommands.length} changed: ${changedCommands.join(', ')}) (took ${duration}ms)`
+              `Synced ${globalCommands.length} global commands (${changedCommands.length} changed: ${changedCommands.join(', ')}) (took ${duration}ms)`,
             )
           } else {
             client.logger.success(
-              'Global commands are up to date. Skipping registration.'
+              'Global commands are up to date. Skipping registration.',
             )
           }
         } catch (error: any) {
           // Log the error but don't fallback to per-guild registration
           // Per-guild registration causes duplicates when global commands eventually propagate
           client.logger.error(
-            `Failed to register global commands: ${error.message || error}`
+            `Failed to register global commands: ${error.message || error}`,
           )
           client.logger.warn(
-            'Global commands may take up to 1 hour to propagate. Do not use per-guild fallback to avoid duplicates.'
+            'Global commands may take up to 1 hour to propagate. Do not use per-guild fallback to avoid duplicates.',
           )
         }
       } else {
         client.logger.warn(
-          'GLOBAL=true but no global commands to register (all commands are testGuildOnly or devOnly)'
+          'GLOBAL=true but no global commands to register (all commands are testGuildOnly or devOnly)',
         )
       }
     } else {
@@ -413,7 +413,7 @@ export default async (client: BotClient): Promise<void> => {
 
   setInterval(
     () => void counterHandler.updateCounterChannels(client),
-    10 * 60 * 1000
+    10 * 60 * 1000,
   )
 
   // Run guild cleanup daemon every hour

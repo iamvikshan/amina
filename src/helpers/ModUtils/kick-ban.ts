@@ -11,7 +11,7 @@ import { memberInteract, logModeration } from './core'
 export async function kickTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -36,7 +36,7 @@ export async function kickTarget(
 export async function softbanTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -62,7 +62,7 @@ export async function softbanTarget(
 export async function banTarget(
   issuer: GuildMember,
   target: User,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   const targetMem = await issuer.guild.members.fetch(target.id).catch(() => {})
 
@@ -92,7 +92,7 @@ export async function banTarget(
 export async function unBanTarget(
   issuer: GuildMember,
   target: User,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   try {
     await issuer.guild.bans.remove(target, reason)

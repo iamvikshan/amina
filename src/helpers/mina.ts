@@ -40,7 +40,7 @@ async function fetchQuotes(): Promise<Quote[]> {
   try {
     // Fetch 50 random quotes to populate cache
     const response = await fetch(
-      'https://yurippe.vercel.app/api/quotes?random=50'
+      'https://yurippe.vercel.app/api/quotes?random=50',
     )
 
     if (!response.ok) {

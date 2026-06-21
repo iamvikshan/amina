@@ -75,10 +75,10 @@ const firstEmbed = (user: User): MinaEmbed => {
   return MinaEmbed.primary()
     .setTitle(randomIntro)
     .setDescription(
-      mina.sayf('fun.flip.embed.description', { user: user.username })
+      mina.sayf('fun.flip.embed.description', { user: user.username }),
     )
     .setImage(
-      'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW4ydjNmdWprcmJmbXEyZnhrN3piZHRscGNtaXVhaGlpMTFyeGwxMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZR8teuiCs3AkSkzjnG/giphy.gif'
+      'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW4ydjNmdWprcmJmbXEyZnhrN3piZHRscGNtaXVhaGlpMTFyeGwxMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZR8teuiCs3AkSkzjnG/giphy.gif',
     )
 }
 
@@ -89,7 +89,7 @@ const secondEmbed = (): MinaEmbed => {
   return MinaEmbed.loading()
     .setDescription(randomWait)
     .setImage(
-      'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW4ydjNmdWprcmJmbXEyZnhrN3piZHRscGNtaXVhaGlpMTFyeGwxMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZR8teuiCs3AkSkzjnG/giphy.gif'
+      'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW4ydjNmdWprcmJmbXEyZnhrN3piZHRscGNtaXVhaGlpMTFyeGwxMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZR8teuiCs3AkSkzjnG/giphy.gif',
     )
 }
 
@@ -102,7 +102,7 @@ const resultEmbed = (toss: string): MinaEmbed => {
     .setImage(
       toss === 'HEAD'
         ? 'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTh5ZXg3d3h1dWVnY2RsdXRjamp1ZnYwZHdmejQxcXFvZ213NXBvMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9uorwgUW3jFsY/giphy.gif'
-        : 'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMXhpaXljMnFhcnRtOGVjZXM0OG9xZG10bWdudGl2OWk0MDdwdXFlZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/ixeyDqK6aao6WSdvpL/giphy.gif'
+        : 'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMXhpaXljMnFhcnRtOGVjZXM0OG9xZG10bWdudGl2OWk0MDdwdXFlZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dg/ixeyDqK6aao6WSdvpL/giphy.gif',
     )
 }
 

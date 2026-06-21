@@ -75,7 +75,7 @@ export function clampDimension(
   value: number,
   min = 1,
   max = 2048,
-  fallback = 512
+  fallback = 512,
 ): number {
   if (!Number.isFinite(value)) return fallback
   return Math.min(max, Math.max(min, value))
@@ -94,7 +94,7 @@ export function parseNumberOrDefault(
   value: string | undefined,
   defaultValue: number,
   min?: number,
-  max?: number
+  max?: number,
 ): number {
   if (value === undefined || value.trim() === '') return defaultValue
   const parsed = Number(value)
@@ -115,7 +115,7 @@ export function parseNumberOrDefault(
 export function svgResponse(
   svg: string,
   maxAge = 3600,
-  staleWhileRevalidate?: number
+  staleWhileRevalidate?: number,
 ): Response {
   const cacheControl =
     staleWhileRevalidate !== undefined
@@ -136,6 +136,6 @@ export function svgResponse(
  */
 export function validateHexColor(color: string): boolean {
   return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(
-    color
+    color,
   )
 }

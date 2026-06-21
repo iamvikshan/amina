@@ -23,11 +23,12 @@ const command: CommandData = {
 
 async function beg(user: User) {
   const celebrities = responses.lists.celebrities
-  const celebrity = celebrities[Math.floor(Math.random() * celebrities.length)] ?? 'Someone'
+  const celebrity =
+    celebrities[Math.floor(Math.random() * celebrities.length)] ?? 'Someone'
 
   const amount = Math.floor(
     Math.random() * (ECONOMY.MAX_BEG_AMOUNT - ECONOMY.MIN_BEG_AMOUNT + 1) +
-      ECONOMY.MIN_BEG_AMOUNT
+      ECONOMY.MIN_BEG_AMOUNT,
   )
   const userDb = await getUser(user)
   userDb.coins += amount
@@ -37,7 +38,7 @@ async function beg(user: User) {
     .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
     .setDescription(
       `${mina.sayf('economy.beg.success', { celebrity, amount: `${amount}${ECONOMY.CURRENCY}` })}\n` +
-        `${mina.sayf('economy.updatedBalance', { amount: `${userDb.coins}${ECONOMY.CURRENCY}` })}`
+        `${mina.sayf('economy.updatedBalance', { amount: `${userDb.coins}${ECONOMY.CURRENCY}` })}`,
     )
 
   return { embeds: [embed] }

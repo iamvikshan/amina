@@ -48,14 +48,14 @@ const command: CommandData = {
 
       if (user.afk?.enabled) {
         return interaction.followUp(
-          'You are already AFK! Just send a message to remove AFK status.'
+          'You are already AFK! Just send a message to remove AFK status.',
         )
       }
 
       await setAfk(member.id, reason, duration || null)
 
       const embed = MinaEmbed.primary().setDescription(
-        `you are now afk${reason ? `: ${reason}` : ''}${duration ? `\nduration: ${duration} minutes` : ''}\n\nnote: your afk status will be removed when you send a message.`
+        `you are now afk${reason ? `: ${reason}` : ''}${duration ? `\nduration: ${duration} minutes` : ''}\n\nnote: your afk status will be removed when you send a message.`,
       )
 
       const reply = await interaction.followUp({ embeds: [embed] })
@@ -71,12 +71,12 @@ const command: CommandData = {
               if (channel && interaction.guild) {
                 try {
                   await channel.send(
-                    `${member.toString()}, your AFK status has been removed after ${duration} minutes.`
+                    `${member.toString()}, your AFK status has been removed after ${duration} minutes.`,
                   )
                 } catch (_ex) {
                   // Channel might be inaccessible
                   Logger.debug(
-                    `Failed to send AFK removal message to channel ${channel.id}`
+                    `Failed to send AFK removal message to channel ${channel.id}`,
                   )
                 }
               }
@@ -91,7 +91,7 @@ const command: CommandData = {
     } catch (ex) {
       Logger.error('AFK command', ex)
       return interaction.followUp(
-        'An error occurred while setting your AFK status. Please try again.'
+        'An error occurred while setting your AFK status. Please try again.',
       )
     }
   },

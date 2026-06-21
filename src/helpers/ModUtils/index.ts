@@ -38,7 +38,7 @@ export async function addModAction(
   issuer: GuildMember,
   target: GuildMember,
   reason: string,
-  action: 'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN'
+  action: 'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN',
 ): Promise<string | boolean> {
   switch (action) {
     case 'TIMEOUT':
@@ -46,7 +46,7 @@ export async function addModAction(
         issuer,
         target,
         DEFAULT_TIMEOUT_HOURS * 60 * 60 * 1000,
-        reason
+        reason,
       )
 
     case 'KICK':
@@ -88,7 +88,7 @@ export default class ModUtils {
     issuer: GuildMember,
     target: GuildMember,
     reason: string,
-    action: 'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN'
+    action: 'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN',
   ): Promise<string | boolean> {
     return addModAction(issuer, target, reason, action)
   }
@@ -106,7 +106,7 @@ export default class ModUtils {
     channel: BaseGuildTextChannel,
     type: 'ATTACHMENT' | 'BOT' | 'LINK' | 'TOKEN' | 'USER' | 'ALL',
     amount: number,
-    argument?: any
+    argument?: any,
   ): Promise<string | number> {
     return purgeMessages(issuer, channel, type, amount, argument)
   }
@@ -120,7 +120,7 @@ export default class ModUtils {
   static async warnTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return warnTarget(issuer, target, reason)
   }
@@ -136,7 +136,7 @@ export default class ModUtils {
     issuer: GuildMember,
     target: GuildMember,
     ms: number,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return timeoutTarget(issuer, target, ms, reason)
   }
@@ -150,7 +150,7 @@ export default class ModUtils {
   static async unTimeoutTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return unTimeoutTarget(issuer, target, reason)
   }
@@ -164,7 +164,7 @@ export default class ModUtils {
   static async kickTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return kickTarget(issuer, target, reason)
   }
@@ -178,7 +178,7 @@ export default class ModUtils {
   static async softbanTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return softbanTarget(issuer, target, reason)
   }
@@ -192,7 +192,7 @@ export default class ModUtils {
   static async banTarget(
     issuer: GuildMember,
     target: User,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return banTarget(issuer, target, reason)
   }
@@ -206,7 +206,7 @@ export default class ModUtils {
   static async unBanTarget(
     issuer: GuildMember,
     target: User,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return unBanTarget(issuer, target, reason)
   }
@@ -220,7 +220,7 @@ export default class ModUtils {
   static async vMuteTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return vMuteTarget(issuer, target, reason)
   }
@@ -234,7 +234,7 @@ export default class ModUtils {
   static async vUnmuteTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return vUnmuteTarget(issuer, target, reason)
   }
@@ -248,7 +248,7 @@ export default class ModUtils {
   static async deafenTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return deafenTarget(issuer, target, reason)
   }
@@ -262,7 +262,7 @@ export default class ModUtils {
   static async unDeafenTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return unDeafenTarget(issuer, target, reason)
   }
@@ -276,7 +276,7 @@ export default class ModUtils {
   static async disconnectTarget(
     issuer: GuildMember,
     target: GuildMember,
-    reason: string
+    reason: string,
   ): Promise<string | boolean> {
     return disconnectTarget(issuer, target, reason)
   }
@@ -292,7 +292,7 @@ export default class ModUtils {
     issuer: GuildMember,
     target: GuildMember,
     reason: string,
-    channel: VoiceChannel | StageChannel
+    channel: VoiceChannel | StageChannel,
   ): Promise<string | boolean> {
     return moveTarget(issuer, target, reason, channel)
   }

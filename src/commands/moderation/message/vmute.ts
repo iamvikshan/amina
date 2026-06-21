@@ -6,19 +6,19 @@ import { mina } from '@helpers/mina'
 export default async (
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> => {
   const { member } = interaction
   const response = await vMuteTarget(
     member as GuildMember,
     target,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
       embeds: [
         MinaEmbed.success(
-          mina.sayf('moderation.voice.muted', { target: target.user.username })
+          mina.sayf('moderation.voice.muted', { target: target.user.username }),
         ),
       ],
     }
@@ -39,7 +39,7 @@ export default async (
         MinaEmbed.error(
           mina.sayf('moderation.voice.notInVoice', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -50,7 +50,7 @@ export default async (
         MinaEmbed.error(
           mina.sayf('moderation.voice.alreadyMuted', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -61,7 +61,7 @@ export default async (
         mina.sayf('error.failed', {
           action: 'voice mute',
           target: target.user.username,
-        })
+        }),
       ),
     ],
   }

@@ -8,7 +8,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function handlePurgeConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -40,7 +40,7 @@ export async function handlePurgeConfirm(
   } catch (error) {
     ;(interaction.client as any).logger.error(
       'Failed to decode purge state:',
-      error
+      error,
     )
     await interaction.editReply({
       content:
@@ -99,7 +99,7 @@ export async function handlePurgeConfirm(
 
   // Show loading embed
   const loadingEmbed = MinaEmbed.primary().setDescription(
-    'purging messages... this may take a moment.'
+    'purging messages... this may take a moment.',
   )
 
   await interaction.editReply({
@@ -129,7 +129,7 @@ export async function handlePurgeConfirm(
     channel,
     purgeType,
     amount,
-    argument
+    argument,
   )
 
   // Handle result
@@ -146,7 +146,7 @@ export async function handlePurgeConfirm(
           `**deleted:** ${result} messages\n\n` +
           (result < amount
             ? 'some messages may have been older than 14 days or not deletable.'
-            : '')
+            : ''),
       )
       .setFooter({ text: 'purge operation completed' })
   } else {
@@ -178,7 +178,7 @@ export async function handlePurgeConfirm(
  * @param interaction
  */
 export async function handlePurgeCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 

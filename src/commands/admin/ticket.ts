@@ -16,7 +16,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    _data: any
+    _data: any,
   ): Promise<void> {
     // Command handler already defers the reply, so we can use editReply
     // Show main ticket hub

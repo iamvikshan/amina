@@ -6,7 +6,7 @@ import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
 
 async function handleTodButtonClick(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<any> {
   if (!interaction.member || !interaction.guild) return
 
@@ -41,7 +41,7 @@ async function handleTodButtonClick(
             .setDescription(
               userAge
                 ? mina.say('tod.ageCheck.underage18')
-                : mina.say('tod.ageCheck.unknown')
+                : mina.say('tod.ageCheck.unknown'),
             ),
         ],
         ephemeral: true,
@@ -79,13 +79,13 @@ async function sendQuestion(
   interaction: ButtonInteraction,
   category: string,
   userAge: number | null,
-  effectiveRating: string
+  effectiveRating: string,
 ): Promise<any> {
   const questions = (await getQuestions(
     1,
     category,
     userAge,
-    effectiveRating
+    effectiveRating,
   )) as any[]
   if (questions.length === 0) {
     return interaction.reply({
@@ -118,7 +118,7 @@ async function sendQuestion(
       mina.sayf(descKey, {
         user: interaction.user.username,
         question: question.question,
-      })
+      }),
     )
     .setFooter({
       text: mina.sayf('tod.footer', {
@@ -132,7 +132,7 @@ async function sendQuestion(
   const buttons = MinaRows.from(
     MinaButtons.custom('truthBtn', 'truth!', 1),
     MinaButtons.custom('dareBtn', 'dare!', 3),
-    MinaButtons.custom('randomBtn', 'surprise me!', 4)
+    MinaButtons.custom('randomBtn', 'surprise me!', 4),
   )
 
   await interaction.reply({
@@ -144,13 +144,13 @@ async function sendQuestion(
 async function sendRandomQuestion(
   interaction: ButtonInteraction,
   userAge: number | null,
-  effectiveRating: string
+  effectiveRating: string,
 ): Promise<any> {
   const questions = (await getQuestions(
     1,
     'random',
     userAge,
-    effectiveRating
+    effectiveRating,
   )) as any[]
   if (questions.length === 0) {
     return interaction.reply({
@@ -171,7 +171,7 @@ async function sendRandomQuestion(
     .setDescription(
       mina.sayf('tod.embed.random.description', {
         question: question.question,
-      })
+      }),
     )
     .setFooter({
       text: mina.sayf('tod.footer', {
@@ -185,7 +185,7 @@ async function sendRandomQuestion(
   const buttons = MinaRows.from(
     MinaButtons.custom('truthBtn', 'truth!', 1),
     MinaButtons.custom('dareBtn', 'dare!', 3),
-    MinaButtons.custom('randomBtn', 'surprise me!', 4)
+    MinaButtons.custom('randomBtn', 'surprise me!', 4),
   )
 
   await interaction.reply({ embeds: [embed], components: [buttons] })

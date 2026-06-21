@@ -57,7 +57,7 @@ const command: CommandData = {
     const response = await warn(
       interaction.member as GuildMember,
       target,
-      reason
+      reason,
     )
     await interaction.followUp(response)
     return
@@ -67,18 +67,18 @@ const command: CommandData = {
 async function warn(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await warnTarget(
     issuer,
     target,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
       embeds: [
         MinaEmbed.mod('warn').setDescription(
-          mina.sayf('moderation.warn', { target: target.user.username })
+          mina.sayf('moderation.warn', { target: target.user.username }),
         ),
       ],
     }
@@ -98,7 +98,7 @@ async function warn(
           mina.sayf('error.failed', {
             action: 'warn',
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }

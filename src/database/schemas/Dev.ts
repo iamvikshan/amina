@@ -135,7 +135,7 @@ const Schema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 )
 
 export const Model = mongoose.model('dev-config', Schema)
@@ -198,7 +198,7 @@ export async function updateBotStats(stats: {
         'BOT_STATS.lastUpdated': new Date(),
       },
     },
-    { upsert: true, returnDocument: 'after' }
+    { upsert: true, returnDocument: 'after' },
   )
   return result?.BOT_STATS
 }

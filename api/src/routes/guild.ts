@@ -61,7 +61,7 @@ guild.get('/:id', requireApiKey, async c => {
       {
         endpoint: '/guild/:id',
         guildId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to fetch guild data')
   }
@@ -99,7 +99,7 @@ guild.patch('/:id', requireApiKey, async c => {
 
     return errors.notImplemented(
       c,
-      'Guild update not implemented - database not configured'
+      'Guild update not implemented - database not configured',
     )
   } catch (error) {
     const logger = createLogger(c)
@@ -109,7 +109,7 @@ guild.patch('/:id', requireApiKey, async c => {
       {
         endpoint: 'PATCH /guild/:id',
         guildId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to update guild data')
   }
@@ -143,7 +143,7 @@ guild.post('/:id/refresh', requireApiKey, async c => {
       {
         endpoint: 'POST /guild/:id/refresh',
         guildId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to refresh guild data')
   }

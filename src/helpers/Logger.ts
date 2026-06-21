@@ -38,7 +38,7 @@ const pinoLogger = pino(
         mkdir: true,
       }),
     },
-  ])
+  ]),
 )
 
 function sendWebhook(content?: string, err?: Error | any): void {
@@ -53,7 +53,7 @@ function sendWebhook(content?: string, err?: Error | any): void {
         (errString.length > 4096
           ? `${errString.substr(0, 4000)}...`
           : errString) +
-        '\n```'
+        '\n```',
     )
 
   embed.addFields({

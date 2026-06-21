@@ -56,7 +56,7 @@ export async function hashApiKey(key: string): Promise<string> {
  */
 export async function findUserByApiKey(
   db: MongoDB,
-  apiKey: string
+  apiKey: string,
 ): Promise<{ user: UserWithApiKeys; apiKey: ApiKey } | null> {
   const hash = await hashApiKey(apiKey)
 
@@ -90,7 +90,7 @@ export async function findUserByApiKey(
 export async function updateApiKeyUsage(
   db: MongoDB,
   userId: string,
-  keyId: string
+  keyId: string,
 ): Promise<void> {
   await db.updateOne(
     'users',
@@ -98,6 +98,6 @@ export async function updateApiKeyUsage(
     {
       $inc: { 'apiKeys.$.usage.total': 1 },
       $set: { 'apiKeys.$.usage.lastUsed': new Date() },
-    }
+    },
   )
 }

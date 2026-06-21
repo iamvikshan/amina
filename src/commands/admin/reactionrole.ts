@@ -75,7 +75,7 @@ const command: CommandData = {
     const action = interaction.options.getString('action', true)
     const targetChannel = interaction.options.getChannel(
       'channel',
-      true
+      true,
     ) as TextChannel
     const messageId = interaction.options.getString('message_id', true)
 
@@ -93,14 +93,14 @@ const command: CommandData = {
         targetChannel,
         messageId,
         reaction,
-        role
+        role,
       )
       await interaction.followUp(response)
     } else if (action === 'remove') {
       const response = await removeRR(
         interaction.guild,
         targetChannel,
-        messageId
+        messageId,
       )
       await interaction.followUp(response)
     }
@@ -112,7 +112,7 @@ async function addRR(
   channel: TextChannel,
   messageId: string,
   reaction: string | null,
-  role: Role
+  role: Role,
 ): Promise<string> {
   if (!channel.permissionsFor(guild.members.me as any)?.has(channelPerms)) {
     return `Oh no! I need the following permissions in ${channel.toString()} to set up the reaction role:\n${parsePermissions(channelPerms)}`
@@ -169,7 +169,7 @@ async function addRR(
     channel.id,
     targetMessage.id,
     emoji as string,
-    role.id
+    role.id,
   )
   return reply + 'Done! Configuration saved successfully!'
 }
@@ -177,7 +177,7 @@ async function addRR(
 async function removeRR(
   guild: Guild,
   channel: TextChannel,
-  messageId: string
+  messageId: string,
 ): Promise<string> {
   if (!channel.permissionsFor(guild.members.me as any)?.has(channelPerms)) {
     return `Oh no! I need the following permissions in ${channel.toString()} to remove the reaction role:\n${parsePermissions(channelPerms)}`

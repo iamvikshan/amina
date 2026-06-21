@@ -80,7 +80,7 @@ async function getPronouns(user: User): Promise<PronounInfo> {
 
     // If not in our database, try pronoundb
     const response = await axios.get(
-      `https://pronoundb.org/api/v2/lookup?platform=discord&ids=${user.id}`
+      `https://pronoundb.org/api/v2/lookup?platform=discord&ids=${user.id}`,
     )
     if (response.data?.pronouns) {
       return {
@@ -126,7 +126,7 @@ function generateReactionMessage(
   reaction: string,
   author: User,
   target: User | null,
-  pronounInfo: PronounInfo
+  pronounInfo: PronounInfo,
 ): string {
   if (!target) return `${author.username}'s feeling ${reaction}-y!`
 
@@ -162,7 +162,7 @@ function generateReactionMessage(
 async function genReaction(
   reaction: string,
   author: User,
-  target: User | null
+  target: User | null,
 ) {
   try {
     const [response, pronounInfo] = await Promise.all([
@@ -176,7 +176,7 @@ async function genReaction(
       reaction,
       author,
       target,
-      pronounInfo
+      pronounInfo,
     )
 
     return MinaEmbed.primary()

@@ -10,7 +10,7 @@ import { showReminderHub } from './main-hub'
  * @param interaction
  */
 export async function showClearConfirmation(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   if (!interaction.deferred && !interaction.replied) {
     await interaction.deferUpdate()
@@ -31,14 +31,14 @@ export async function showClearConfirmation(
     mina.sayf('utility.reminder.clear.description', {
       count: count.toString(),
       plural: count === 1 ? '' : 's',
-    })
+    }),
   )
     .setTitle(mina.say('utility.reminder.clear.title'))
     .setFooter({ text: mina.say('utility.reminder.clear.footer') })
 
   const confirmRow = MinaRows.from(
     MinaButtons.yeah('reminder:btn:clear_confirm'),
-    MinaButtons.nah('reminder:btn:clear_cancel')
+    MinaButtons.nah('reminder:btn:clear_cancel'),
   )
 
   await interaction.editReply({
@@ -52,7 +52,7 @@ export async function showClearConfirmation(
  * @param interaction
  */
 export async function handleClearConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -62,7 +62,7 @@ export async function handleClearConfirm(
     mina.sayf('utility.reminder.clear.success', {
       count: deleted.toString(),
       plural: deleted === 1 ? '' : 's',
-    })
+    }),
   )
     .setTitle('reminders cleared')
     .withFooter(mina.say('utility.reminder.clear.footerAfterClear'))
@@ -79,7 +79,7 @@ export async function handleClearConfirm(
  * @param interaction
  */
 export async function handleClearCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showReminderHub(interaction)

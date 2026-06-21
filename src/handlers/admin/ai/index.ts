@@ -17,7 +17,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showMinaAIMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const settings = await getSettings(interaction.guild)
   const globalConfig = await getAiConfig()
@@ -49,7 +49,7 @@ export async function showMinaAIMenu(
         `**global status:** ${globalStatus}\n` +
         `**mode:** ${mode}\n` +
         `**free-will channels:** ${freeWillChannelList} ${isTestGuild ? '(test guild - unlimited)' : `(${channelLimit})`}\n\n` +
-        `note: dm support is now controlled by users via \`/mina-ai\` -> settings.`
+        `note: dm support is now controlled by users via \`/mina-ai\` -> settings.`,
     )
     .setFooter({ text: 'select an action from the menu below' })
 
@@ -74,7 +74,7 @@ export async function showMinaAIMenu(
           .setLabel('manage free-will channels')
           .setDescription('view and remove free-will channels')
           .setValue('manage_channels'),
-      ])
+      ]),
   )
 
   await interaction.editReply({
@@ -88,7 +88,7 @@ export async function showMinaAIMenu(
  * @param interaction
  */
 export async function handleRemoveFreeWillChannel(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   const channelId = interaction.values[0]
@@ -108,7 +108,7 @@ export async function handleRemoveFreeWillChannel(
 
   if (!currentChannels.includes(channelId)) {
     const embed = MinaEmbed.error(
-      `${channel} is not in your free-will channels list`
+      `${channel} is not in your free-will channels list`,
     )
     await interaction.editReply({
       embeds: [embed],
@@ -137,7 +137,7 @@ export async function handleRemoveFreeWillChannel(
 
   const embed = MinaEmbed.success(
     `removed ${channel} from free-will channels\n` +
-      `**remaining channels:** ${channelList}`
+      `**remaining channels:** ${channelList}`,
   )
   await interaction.editReply({
     embeds: [embed],
@@ -150,7 +150,7 @@ export async function handleRemoveFreeWillChannel(
  * @param interaction
  */
 export async function handleMinaAIMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const action = interaction.values[0]
   const guildId = interaction.guild?.id
@@ -166,7 +166,7 @@ export async function handleMinaAIMenu(
 
       if (newState && !globalConfig.globallyEnabled) {
         const embed = MinaEmbed.error(
-          'ai is currently disabled globally by the bot owner... please try again later!'
+          'ai is currently disabled globally by the bot owner... please try again later!',
         )
         await interaction.editReply({
           embeds: [embed],
@@ -195,7 +195,7 @@ export async function handleMinaAIMenu(
     }
     case 'freewill': {
       const embed = MinaEmbed.primary().setDescription(
-        "select a channel for free-will ai chat... i'll respond to all messages there without needing @mentions!"
+        "select a channel for free-will ai chat... i'll respond to all messages there without needing @mentions!",
       )
 
       const channelSelect =
@@ -206,7 +206,7 @@ export async function handleMinaAIMenu(
             .setChannelTypes([
               ChannelType.GuildText,
               ChannelType.GuildAnnouncement,
-            ])
+            ]),
         )
 
       await interaction.editReply({
@@ -228,10 +228,10 @@ export async function handleMinaAIMenu(
 
       const embed = newState
         ? MinaEmbed.warning(
-            "mention-only mode enabled! i'll only respond when @mentioned"
+            "mention-only mode enabled! i'll only respond when @mentioned",
           )
         : MinaEmbed.success(
-            "free-will mode enabled! i'll respond to all messages in the configured channel"
+            "free-will mode enabled! i'll respond to all messages in the configured channel",
           )
       await interaction.editReply({
         embeds: [embed],
@@ -251,7 +251,7 @@ export async function handleMinaAIMenu(
         .setTitle('manage free-will channels')
         .setDescription(
           `**current channels:** ${allChannels.length > 0 ? allChannels.map(id => `<#${id}>`).join(', ') : 'none'}\n\n` +
-            `use the dropdowns below to add or remove channels${!isTestGuild ? ` (max ${maxChannels})` : ''}`
+            `use the dropdowns below to add or remove channels${!isTestGuild ? ` (max ${maxChannels})` : ''}`,
         )
 
       const components: ActionRowBuilder<any>[] = []
@@ -266,7 +266,7 @@ export async function handleMinaAIMenu(
               .setChannelTypes([
                 ChannelType.GuildText,
                 ChannelType.GuildAnnouncement,
-              ])
+              ]),
           )
         components.push(addChannelSelect)
       }
@@ -288,18 +288,18 @@ export async function handleMinaAIMenu(
                       .setLabel(
                         channel.name.length > 100
                           ? channel.name.substring(0, 97) + '...'
-                          : channel.name
+                          : channel.name,
                       )
                       .setDescription(
-                        `remove ${channel.name} from free-will channels`
+                        `remove ${channel.name} from free-will channels`,
                       )
                       .setValue(channelId)
                   })
                   .filter(
                     (option): option is StringSelectMenuOptionBuilder =>
-                      option !== null
-                  )
-              )
+                      option !== null,
+                  ),
+              ),
           )
         components.push(removeChannelSelect)
       }

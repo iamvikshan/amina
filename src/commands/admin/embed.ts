@@ -41,11 +41,11 @@ const command: CommandData = {
       return interaction.followUp(mina.say('embed.setup.cannotSend'))
     }
     interaction.followUp(
-      mina.sayf('embed.setup.started', { channel: channel.toString() })
+      mina.sayf('embed.setup.started', { channel: channel.toString() }),
     )
     await embedSetup(
       channel as TextBasedChannel,
-      interaction.member as GuildMember
+      interaction.member as GuildMember,
     )
     return
   },
@@ -53,15 +53,15 @@ const command: CommandData = {
 
 async function embedSetup(
   channel: TextBasedChannel,
-  member: GuildMember
+  member: GuildMember,
 ): Promise<void> {
   const sentMsg = await (channel as any).send({
     content: mina.say('embed.setup.getStarted'),
     components: [
       MinaRows.from(
         MinaButtons.go('EMBED_ADD').setLabel(
-          mina.say('embed.setup.createButton')
-        )
+          mina.say('embed.setup.createButton'),
+        ),
       ),
     ],
   })
@@ -95,38 +95,38 @@ async function embedSetup(
             .setCustomId('title')
             .setPlaceholder(mina.say('embed.modal.embedTitle'))
             .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+            .setRequired(false),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('author')
             .setPlaceholder(mina.say('embed.modal.embedAuthor'))
             .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+            .setRequired(false),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('description')
             .setPlaceholder(mina.say('embed.modal.embedDescription'))
             .setStyle(TextInputStyle.Paragraph)
-            .setRequired(false)
+            .setRequired(false),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('color')
             .setPlaceholder(mina.say('embed.modal.embedColor'))
             .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+            .setRequired(false),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('footer')
             .setPlaceholder(mina.say('embed.modal.embedFooter'))
             .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+            .setRequired(false),
         ),
       ],
-    })
+    }),
   )
 
   // Receive modal input
@@ -177,12 +177,12 @@ async function embedSetup(
   // Add/remove field button
   const buttonRow = MinaRows.from(
     MinaButtons.go('EMBED_FIELD_ADD').setLabel(
-      mina.say('embed.buttons.addField')
+      mina.say('embed.buttons.addField'),
     ),
     MinaButtons.delete('EMBED_FIELD_REM').setLabel(
-      mina.say('embed.buttons.removeField')
+      mina.say('embed.buttons.removeField'),
     ),
-    MinaButtons.done('EMBED_FIELD_DONE')
+    MinaButtons.done('EMBED_FIELD_DONE'),
   )
 
   await sentMsg.edit({
@@ -210,14 +210,14 @@ async function embedSetup(
                 .setCustomId('name')
                 .setPlaceholder(mina.say('embed.modal.fieldName'))
                 .setStyle(TextInputStyle.Short)
-                .setRequired(true)
+                .setRequired(true),
             ),
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
                 .setCustomId('value')
                 .setPlaceholder(mina.say('embed.modal.fieldValue'))
                 .setStyle(TextInputStyle.Paragraph)
-                .setRequired(true)
+                .setRequired(true),
             ),
             new ActionRowBuilder<TextInputBuilder>().addComponents(
               new TextInputBuilder()
@@ -225,10 +225,10 @@ async function embedSetup(
                 .setPlaceholder(mina.say('embed.modal.fieldInline'))
                 .setStyle(TextInputStyle.Short)
                 .setValue('true')
-                .setRequired(true)
+                .setRequired(true),
             ),
           ],
-        })
+        }),
       )
 
       // Receive modal input

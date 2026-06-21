@@ -43,7 +43,7 @@ export default class HttpUtils {
    */
   static async getJson<T = any>(
     url: string,
-    options?: any
+    options?: any,
   ): Promise<JsonResponse<T>> {
     try {
       const response = options ? await fetch(url, options) : await fetch(url)
@@ -100,7 +100,7 @@ export default class HttpUtils {
    */
   static async postToBin(
     content: string,
-    title: string
+    title: string,
   ): Promise<BinResponse | undefined> {
     // Validate content before posting
     if (!content || content.trim().length === 0) {
@@ -120,7 +120,7 @@ export default class HttpUtils {
         {
           title,
           description: ' ',
-        }
+        },
       )
       return {
         url: response.url,

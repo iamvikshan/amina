@@ -37,7 +37,7 @@ function getFreeWillChannels(settings: any): string[] {
 function toggleFreeWillChannel(
   currentChannels: string[],
   channelId: string,
-  guildId: string
+  guildId: string,
 ): { channels: string[]; action: 'added' | 'removed' | 'limit_reached' } {
   const isTest = isTestGuild(guildId)
   const maxChannels = isTest ? Infinity : 2
@@ -69,7 +69,7 @@ function toggleFreeWillChannel(
  * @param interaction
  */
 export async function handleChannelSelect(
-  interaction: ChannelSelectMenuInteraction
+  interaction: ChannelSelectMenuInteraction,
 ): Promise<void> {
   const [, , action] = interaction.customId.split(':')
   const channel = interaction.channels.first()
@@ -106,7 +106,7 @@ export async function handleChannelSelect(
 
       if (currentChannels.includes(channel.id)) {
         const embed = MinaEmbed.warning(
-          `${channel} is already in your free-will channels list`
+          `${channel} is already in your free-will channels list`,
         )
         await interaction.editReply({
           embeds: [embed],
@@ -119,7 +119,7 @@ export async function handleChannelSelect(
         const embed = MinaEmbed.error(
           `you can only have up to ${maxChannels} free-will channels\n` +
             `current channels: ${currentChannels.map(id => `<#${id}>`).join(', ')}\n\n` +
-            `remove a channel first to add a new one`
+            `remove a channel first to add a new one`,
         )
         await interaction.editReply({
           embeds: [embed],
@@ -144,7 +144,7 @@ export async function handleChannelSelect(
       const embed = MinaEmbed.success(
         `added ${channel} to free-will channels\n` +
           `**current channels:** ${channelList}\n\n` +
-          `i'll respond to all messages in these channels without needing @mentions!`
+          `i'll respond to all messages in these channels without needing @mentions!`,
       )
       await interaction.editReply({
         embeds: [embed],
@@ -157,7 +157,7 @@ export async function handleChannelSelect(
 
       if (!currentChannels.includes(channel.id)) {
         const embed = MinaEmbed.error(
-          `${channel} is not in your free-will channels list`
+          `${channel} is not in your free-will channels list`,
         )
         await interaction.editReply({
           embeds: [embed],
@@ -184,7 +184,7 @@ export async function handleChannelSelect(
 
       const embed = MinaEmbed.success(
         `removed ${channel} from free-will channels\n` +
-          `**remaining channels:** ${channelList}`
+          `**remaining channels:** ${channelList}`,
       )
       await interaction.editReply({
         embeds: [embed],
@@ -197,14 +197,14 @@ export async function handleChannelSelect(
       const { channels: newChannels, action } = toggleFreeWillChannel(
         currentChannels,
         channel.id,
-        interaction.guild.id
+        interaction.guild.id,
       )
 
       if (action === 'limit_reached') {
         const embed = MinaEmbed.error(
           `you can only have up to 2 free-will channels\n` +
             `current channels: ${newChannels.map(id => `<#${id}>`).join(', ')}\n\n` +
-            `remove a channel first to add a new one`
+            `remove a channel first to add a new one`,
         )
         await interaction.editReply({
           embeds: [embed],
@@ -230,11 +230,11 @@ export async function handleChannelSelect(
           ? MinaEmbed.success(
               `added ${channel} to free-will channels\n` +
                 `current channels: ${channelList}\n\n` +
-                `i'll respond to all messages in these channels without needing @mentions!`
+                `i'll respond to all messages in these channels without needing @mentions!`,
             )
           : MinaEmbed.warning(
               `removed ${channel} from free-will channels\n` +
-                `current channels: ${channelList || 'none'}`
+                `current channels: ${channelList || 'none'}`,
             )
       await interaction.editReply({
         embeds: [embed],
@@ -257,7 +257,7 @@ export async function handleChannelSelect(
           ])
       ) {
         const embed = MinaEmbed.error(
-          `i don't have permission to send messages and embeds in ${textChannel}. please give me those permissions.`
+          `i don't have permission to send messages and embeds in ${textChannel}. please give me those permissions.`,
         )
         await interaction.editReply({
           embeds: [embed],
@@ -292,7 +292,7 @@ export async function handleChannelSelect(
       })
 
       const embed = MinaEmbed.success(
-        `log channel has been set to ${textChannel}`
+        `log channel has been set to ${textChannel}`,
       )
       await interaction.editReply({
         embeds: [embed],

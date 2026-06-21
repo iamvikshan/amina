@@ -38,7 +38,7 @@ interface GreetingConfig {
 const parse = async (
   content: string,
   member: GuildMember,
-  inviterData: InviterData = {}
+  inviterData: InviterData = {},
 ): Promise<string> => {
   const inviteData: { name?: string; tag?: string } = {}
 
@@ -53,14 +53,14 @@ const parse = async (
     if (inviterId !== 'VANITY' && inviterId !== 'NA') {
       try {
         const inviter = await (member.client as BotClient).users.fetch(
-          inviterId
+          inviterId,
         )
         inviteData.name = inviter.username
         inviteData.tag = inviter.tag
       } catch (ex) {
         ;(member.client as BotClient).logger.error(
           `Parsing inviterId: ${inviterId}`,
-          ex
+          ex,
         )
         inviteData.name = 'NA'
         inviteData.tag = 'NA'
@@ -87,7 +87,7 @@ const parse = async (
     .replaceAll(/{inviter:tag}/g, inviteData.tag || '')
     .replaceAll(
       /{invites}/g,
-      getEffectiveInvites(inviterData.invite_data).toString()
+      getEffectiveInvites(inviterData.invite_data).toString(),
     )
 }
 
@@ -102,7 +102,7 @@ const buildGreeting = async (
   member: GuildMember,
   type: 'WELCOME' | 'FAREWELL',
   config: GreetingConfig,
-  inviterData?: InviterData
+  inviterData?: InviterData,
 ): Promise<{ content?: string; embeds?: EmbedBuilder[] } | undefined> => {
   if (!config) return
   let content: string | undefined
@@ -152,7 +152,7 @@ const buildGreeting = async (
  */
 async function sendWelcome(
   member: GuildMember,
-  inviterData: InviterData = {}
+  inviterData: InviterData = {},
 ): Promise<void> {
   const settings = await getSettings(member.guild)
   const config = (settings as any)?.welcome as GreetingConfig | undefined
@@ -175,7 +175,7 @@ async function sendWelcome(
  */
 async function sendFarewell(
   member: GuildMember,
-  inviterData: InviterData = {}
+  inviterData: InviterData = {},
 ): Promise<void> {
   const settings = await getSettings(member.guild)
   const config = (settings as any)?.farewell as GreetingConfig | undefined

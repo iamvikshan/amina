@@ -16,7 +16,7 @@ export async function purgeMessages(
   channel: BaseGuildTextChannel,
   type: 'ATTACHMENT' | 'BOT' | 'LINK' | 'TOKEN' | 'USER' | 'ALL',
   amount: number,
-  argument?: any
+  argument?: any,
 ): Promise<string | number> {
   if (
     !channel
@@ -68,7 +68,7 @@ export async function purgeMessages(
         messages = await channel.messages.fetch({ cache: false })
         messages = messages
           .filter((message: any) =>
-            message.content.toLowerCase().includes(tokenLower)
+            message.content.toLowerCase().includes(tokenLower),
           )
           .first(amount)
         break

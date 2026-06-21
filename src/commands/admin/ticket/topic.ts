@@ -9,7 +9,7 @@ export async function addTopic(data: any, topic: string): Promise<string> {
   // check if topic already exists
   if (
     data.settings.ticket.topics.find(
-      (t: any) => t.name.toLowerCase() === lowercaseTopic
+      (t: any) => t.name.toLowerCase() === lowercaseTopic,
     )
   ) {
     return `uh-oh! the topic \`${topic}\` is already on our list. no need to add it again, silly!`
@@ -36,7 +36,7 @@ export async function removeTopic(data: any, topic: string): Promise<string> {
   }
 
   data.settings.ticket.topics = topics.filter(
-    (t: any) => t.name.toLowerCase() !== lowercaseTopic
+    (t: any) => t.name.toLowerCase() !== lowercaseTopic,
   )
   await data.settings.save()
 
@@ -56,7 +56,7 @@ export function listTopics(data: any) {
     embed.setDescription(
       "oh no! we don't have any ticket topics yet. " +
         "let's add some to make our ticketing system super awesome!\n\n" +
-        'use `/ticket topic add` to add new topics.'
+        'use `/ticket topic add` to add new topics.',
     )
     return { embeds: [embed] }
   }
@@ -71,7 +71,7 @@ export function listTopics(data: any) {
     'here are all our current ticket topics!\n' +
       'remember, you can always add more or remove them as needed.\n\n' +
       'to add a new topic, use `/ticket topic add`.\n' +
-      'to remove a topic, use `/ticket topic remove`.'
+      'to remove a topic, use `/ticket topic remove`.',
   )
 
   return { embeds: [embed] }

@@ -8,7 +8,7 @@ import type { MessageReaction, User } from 'discord.js'
  */
 export async function handleReactionAdd(
   reaction: MessageReaction,
-  user: User
+  user: User,
 ): Promise<void> {
   const role = await getRole(reaction)
   if (!role) return
@@ -27,7 +27,7 @@ export async function handleReactionAdd(
  */
 export async function handleReactionRemove(
   reaction: MessageReaction,
-  user: User
+  user: User,
 ): Promise<void> {
   const role = await getRole(reaction)
   if (!role) return
@@ -51,7 +51,7 @@ async function getRole(reaction: MessageReaction): Promise<any> {
   const rr = getReactionRoles(
     message.guildId ?? '',
     message.channelId,
-    message.id
+    message.id,
   )
   const emote = emoji.id ? emoji.id : emoji.toString()
   const found = rr.find(doc => doc.emote === emote)

@@ -18,7 +18,7 @@ export async function showMinaAiHub(
   interaction:
     | StringSelectMenuInteraction
     | ButtonInteraction
-    | ChatInputCommandInteraction
+    | ChatInputCommandInteraction,
 ): Promise<void> {
   const isDM = !interaction.guild
   const contextName = isDM ? 'DM' : 'Server'
@@ -35,7 +35,7 @@ export async function showMinaAiHub(
         `**settings** - configure your preferences (including forget me)\n\n` +
         (isDM
           ? `tip: to view server memories, use this command in a server.`
-          : `tip: to view dm memories, use this command in dms.`)
+          : `tip: to view dm memories, use this command in dms.`),
     )
     .setFooter({ text: 'privacy first! your memories are yours to control' })
 
@@ -43,7 +43,7 @@ export async function showMinaAiHub(
     new StringSelectMenuOptionBuilder()
       .setLabel(isDM ? 'show dm memories' : 'show server memories')
       .setDescription(
-        isDM ? 'view memories from dms' : 'view memories from this server'
+        isDM ? 'view memories from dms' : 'view memories from this server',
       )
       .setValue(isDM ? 'memories_dm' : 'memories_server'),
     new StringSelectMenuOptionBuilder()
@@ -56,7 +56,7 @@ export async function showMinaAiHub(
     new StringSelectMenuBuilder()
       .setCustomId('minaai:menu:operation')
       .setPlaceholder('select an operation...')
-      .addOptions(menuOptions)
+      .addOptions(menuOptions),
   )
 
   await interaction.editReply({
@@ -70,7 +70,7 @@ export async function showMinaAiHub(
  * @param interaction
  */
 export async function handleMinaAiOperationMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const operation = interaction.values[0]
 
@@ -99,7 +99,7 @@ export async function handleMinaAiOperationMenu(
  * @param interaction
  */
 export async function handleMinaAiBackButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showMinaAiHub(interaction)

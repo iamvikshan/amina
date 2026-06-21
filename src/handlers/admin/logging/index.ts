@@ -62,7 +62,7 @@ function buildPage1Embed(settings: any) {
         `**message deletes** → ${status(settings.logs?.member?.message_delete)}\n` +
         `**role changes** → ${status(settings.logs?.member?.role_changes)}\n\n` +
         `### automod\n` +
-        `**ghost ping detection** → ${status(settings.automod?.anti_ghostping)}`
+        `**ghost ping detection** → ${status(settings.automod?.anti_ghostping)}`,
     )
     .setFooter({ text: 'page 1/2 · general & member settings' })
 }
@@ -97,7 +97,7 @@ function buildPage1Menu() {
           .setLabel('ghost ping detection')
           .setDescription('log deleted messages with mentions')
           .setValue('toggle:automod.anti_ghostping'),
-      ])
+      ]),
   )
 }
 
@@ -117,7 +117,7 @@ function buildPage2Embed(settings: any) {
         `**role created** → ${status(settings.logs?.role?.create)}\n` +
         `**role updated** → ${status(settings.logs?.role?.edit)}\n` +
         `**role deleted** → ${status(settings.logs?.role?.delete)}\n\n` +
-        `> use "all channel/role logs" to toggle entire categories`
+        `> use "all channel/role logs" to toggle entire categories`,
     )
     .setFooter({ text: 'page 2/2 · channel & role settings' })
 }
@@ -160,7 +160,7 @@ function buildPage2Menu() {
           .setLabel('role deleted')
           .setDescription('log when roles are deleted')
           .setValue('toggle:logs.role.delete'),
-      ])
+      ]),
   )
 }
 
@@ -174,12 +174,12 @@ function buildButtonRow(page: number, showHub: boolean): MinaRow {
     return MinaRow.of(
       MinaButton.prev(`admin:btn:logs_prev${contextSuffix}`, page === 1),
       MinaButton.hub(`admin:btn:back${contextSuffix}`),
-      MinaButton.next(`admin:btn:logs_next${contextSuffix}`, page === 2)
+      MinaButton.next(`admin:btn:logs_next${contextSuffix}`, page === 2),
     )
   }
   return MinaRow.of(
     MinaButton.prev(`admin:btn:logs_prev${contextSuffix}`, page === 1),
-    MinaButton.next(`admin:btn:logs_next${contextSuffix}`, page === 2)
+    MinaButton.next(`admin:btn:logs_next${contextSuffix}`, page === 2),
   )
 }
 
@@ -194,7 +194,7 @@ function buildButtonRow(page: number, showHub: boolean): MinaRow {
  */
 export async function showLoggingMenu(
   interaction: StringSelectMenuInteraction,
-  page: number = 1
+  page: number = 1,
 ): Promise<void> {
   const settings = await getSettings(interaction.guild)
 
@@ -216,7 +216,7 @@ export async function showLoggingMenu(
  */
 export async function showLoggingMenuDirect(
   interaction: ChatInputCommandInteraction,
-  page: number = 1
+  page: number = 1,
 ): Promise<void> {
   const settings = await getSettings(interaction.guild)
 
@@ -244,7 +244,7 @@ export async function showLoggingMenuDirect(
  * @param interaction
  */
 export async function handleLoggingPageButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -273,7 +273,7 @@ export async function handleLoggingPageButton(
  * @param interaction
  */
 export async function handleLoggingMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const action = interaction.values[0]
 
@@ -286,7 +286,7 @@ export async function handleLoggingMenu(
         .setTitle('set log channel')
         .setDescription(
           `select a channel where i'll send all log events.\n\n` +
-            `> make sure i have **send messages** and **embed links** permissions in the channel`
+            `> make sure i have **send messages** and **embed links** permissions in the channel`,
         )
 
       const channelSelect =
@@ -297,7 +297,7 @@ export async function handleLoggingMenu(
             .setChannelTypes([
               ChannelType.GuildText,
               ChannelType.GuildAnnouncement,
-            ])
+            ]),
         )
 
       const buttonRow = MinaRow.backRow('admin:btn:back_logs')
@@ -337,11 +337,11 @@ export async function handleLoggingMenu(
       const embed = newState
         ? MinaEmbed.success(
             `### logging enabled\n` +
-              `all configured log events will now be recorded.`
+              `all configured log events will now be recorded.`,
           )
         : MinaEmbed.warning(
             `### logging disabled\n` +
-              `no events will be logged until you re-enable this.`
+              `no events will be logged until you re-enable this.`,
           )
 
       await interaction.editReply({
@@ -382,11 +382,11 @@ export async function handleLoggingMenu(
           const embed = newValue
             ? MinaEmbed.success(
                 `### ${categoryName} logs enabled\n` +
-                  `all ${categoryName} events will now be logged.`
+                  `all ${categoryName} events will now be logged.`,
               )
             : MinaEmbed.warning(
                 `### ${categoryName} logs disabled\n` +
-                  `${categoryName} events will no longer be logged.`
+                  `${categoryName} events will no longer be logged.`,
               )
 
           await interaction.editReply({
@@ -420,7 +420,7 @@ export async function handleLoggingMenu(
  * @param interaction
  */
 export async function handleBackToLogs(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   const settings = await getSettings(interaction.guild)

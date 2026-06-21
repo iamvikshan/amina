@@ -24,7 +24,7 @@ const HEALTH_CHECK_INTERVAL_MS = 30_000 // 30 seconds
  * @param config
  */
 export async function getMongoClient(
-  config: MongoDBConfig
+  config: MongoDBConfig,
 ): Promise<MongoClient> {
   if (cachedClient) {
     const now = Date.now()
@@ -77,7 +77,7 @@ export async function getDatabase(config: MongoDBConfig): Promise<Db> {
  */
 export async function getCollection<T extends Document>(
   config: MongoDBConfig,
-  collectionName: string
+  collectionName: string,
 ): Promise<Collection<T>> {
   const db = await getDatabase(config)
   return db.collection<T>(collectionName)
@@ -100,12 +100,12 @@ export class MongoDB {
   async findOne<T extends Document>(
     collectionName: string,
     filter: Record<string, unknown>,
-    options?: { projection?: Record<string, 0 | 1> }
+    options?: { projection?: Record<string, 0 | 1> },
   ): Promise<T | null> {
     const collection = await this.collection<T>(collectionName)
     return collection.findOne(
       filter as any,
-      options as any
+      options as any,
     ) as Promise<T | null>
   }
 
@@ -117,12 +117,12 @@ export class MongoDB {
       skip?: number
       sort?: Record<string, 1 | -1>
       projection?: Record<string, 0 | 1>
-    }
+    },
   ): Promise<T[]> {
     const collection = await this.collection<T>(collectionName)
     let cursor = collection.find(
       filter as any,
-      { projection: options?.projection } as any
+      { projection: options?.projection } as any,
     )
 
     if (options?.sort) {
@@ -140,7 +140,7 @@ export class MongoDB {
 
   async insertOne<T extends Document>(
     collectionName: string,
-    document: T
+    document: T,
   ): Promise<{ insertedId: ObjectId }> {
     const collection = await this.collection<T>(collectionName)
     const result = await collection.insertOne(document as any)
@@ -151,7 +151,7 @@ export class MongoDB {
     collectionName: string,
     filter: Record<string, unknown>,
     update: Record<string, unknown>,
-    options?: { upsert?: boolean }
+    options?: { upsert?: boolean },
   ): Promise<{
     matchedCount: number
     modifiedCount: number
@@ -164,7 +164,7 @@ export class MongoDB {
     const result = await collection.updateOne(
       filter as any,
       updateDoc as any,
-      options
+      options,
     )
     return {
       matchedCount: result.matchedCount,
@@ -175,7 +175,7 @@ export class MongoDB {
 
   async deleteOne(
     collectionName: string,
-    filter: Record<string, unknown>
+    filter: Record<string, unknown>,
   ): Promise<{ deletedCount: number }> {
     const collection = await this.collection(collectionName)
     const result = await collection.deleteOne(filter as any)
@@ -184,7 +184,7 @@ export class MongoDB {
 
   async aggregate<T extends Document>(
     collectionName: string,
-    pipeline: Record<string, unknown>[]
+    pipeline: Record<string, unknown>[],
   ): Promise<T[]> {
     const collection = await this.collection<T>(collectionName)
     return collection.aggregate(pipeline as any).toArray() as Promise<T[]>
@@ -207,7 +207,7 @@ export function createMongoClient(env: {
 
   // Extract database name from URI path (e.g., mongodb+srv://...mongodb.net/amina?...)
   const dbMatch = env.MONGO_CONNECTION.match(
-    /mongodb(?:\+srv)?:\/\/[^/]+\/([^?]+)/
+    /mongodb(?:\+srv)?:\/\/[^/]+\/([^?]+)/,
   )
   const database = dbMatch?.[1] ? decodeURIComponent(dbMatch[1]) : 'amina'
 

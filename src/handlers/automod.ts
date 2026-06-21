@@ -24,7 +24,7 @@ setInterval(
       }
     })
   },
-  10 * 60 * 1000
+  10 * 60 * 1000,
 )
 
 /**
@@ -190,7 +190,7 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
     message
       .delete()
       .then(() =>
-        (channel as any).safeSend(mina.say('automod.messageDeleted'), 5)
+        (channel as any).safeSend(mina.say('automod.messageDeleted'), 5),
       )
       .catch(() => {})
   }
@@ -216,7 +216,7 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
           mina.sayf('automod.log.description', {
             channel: channel.toString(),
             content,
-          })
+          }),
         )
         .setFooter({
           text: mina.sayf('automod.log.footer', {
@@ -240,7 +240,7 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
           guild: guild.name,
           total: memberDb.strikes.toString(),
           max: automod.strikes.toString(),
-        })
+        }),
       )
 
     author.send({ embeds: [strikeEmbed] }).catch(() => {})
@@ -256,7 +256,7 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
           guild.members.me,
           member,
           'Automod: Max strikes received',
-          automod.action
+          automod.action,
         ).catch(() => {})
       }
     }

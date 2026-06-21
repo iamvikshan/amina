@@ -5,7 +5,7 @@ export const ALLOWED_PROVIDERS = ['doppler']
 
 export const validateWebhookParams = async (
   c: Context<{ Bindings: Env }>,
-  next: Next
+  next: Next,
 ) => {
   const { id, token, provider } = c.req.param()
 

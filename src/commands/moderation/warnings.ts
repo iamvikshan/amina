@@ -93,7 +93,7 @@ const command: CommandData = {
 
 async function listWarnings(
   target: GuildMember,
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (!target) {
     return {
@@ -108,7 +108,7 @@ async function listWarnings(
 
   const warnings = await getWarningLogs(
     interaction.guildId as string,
-    target.id
+    target.id,
   )
   if (!warnings.length) {
     return {
@@ -116,7 +116,7 @@ async function listWarnings(
         MinaEmbed.info(
           mina.sayf('moderation.warnings.none', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -125,7 +125,7 @@ async function listWarnings(
   const acc = warnings
     .map(
       (warning, i) =>
-        `${i + 1}. ${warning.reason} [${mina.say('generic.requestedByLabel')} ${warning.admin.username}]`
+        `${i + 1}. ${warning.reason} [${mina.say('generic.requestedByLabel')} ${warning.admin.username}]`,
     )
     .join('\n')
   const embed = MinaEmbed.info()
@@ -141,7 +141,7 @@ async function listWarnings(
 
 async function clearWarnings(
   target: GuildMember,
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (!target) {
     return {
@@ -164,7 +164,7 @@ async function clearWarnings(
       MinaEmbed.success(
         mina.sayf('moderation.warnings.cleared', {
           target: target.user.username,
-        })
+        }),
       ),
     ],
   }

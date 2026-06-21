@@ -18,7 +18,7 @@ export const autocompleteProviders = new Map<
 export function registerAutocomplete(
   commandName: string,
   optionName: string,
-  handler: (interaction: AutocompleteInteraction) => Promise<void>
+  handler: (interaction: AutocompleteInteraction) => Promise<void>,
 ): void {
   const key = `${commandName}:${optionName}`
   autocompleteProviders.set(key, handler)
@@ -30,7 +30,7 @@ export function registerAutocomplete(
  * @param interaction
  */
 export async function handleAutocomplete(
-  interaction: AutocompleteInteraction
+  interaction: AutocompleteInteraction,
 ): Promise<void> {
   const commandName = interaction.commandName
   const focused = interaction.options.getFocused(true)

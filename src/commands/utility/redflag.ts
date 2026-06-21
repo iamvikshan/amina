@@ -82,7 +82,7 @@ async function handleRedFlag(
   interaction: ChatInputCommandInteraction,
   action: string,
   user: User,
-  member: GuildMember
+  member: GuildMember,
 ): Promise<string | { embeds: any[] }> {
   try {
     let userDb = await getUser(user)
@@ -97,7 +97,7 @@ async function handleRedFlag(
         // Get flags from this server only
         const serverFlags =
           userDb.flags?.filter(
-            flag => flag.serverId === interaction.guild?.id
+            flag => flag.serverId === interaction.guild?.id,
           ) || []
 
         if (serverFlags.length === 0) {
@@ -118,7 +118,7 @@ async function handleRedFlag(
           userDb.flags.map(async (flag, index) => {
             try {
               const flagger = await interaction.client.users.fetch(
-                flag.flaggedBy
+                flag.flaggedBy,
               )
               const actionTypeLabel = flag.actionType
                 ? `[${flag.actionType}] `
@@ -153,7 +153,7 @@ async function handleRedFlag(
                 inline: false,
               }
             }
-          })
+          }),
         )
 
         const rating = DANGER_RATINGS[userDb.flags.length] || DANGER_RATINGS[5] // Default to max if over 5

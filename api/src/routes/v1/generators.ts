@@ -221,11 +221,11 @@ generators.get('/distracted', async c => {
   const boyfriend = (c.req.query('boyfriend') || 'Me').slice(0, 500)
   const girlfriend = (c.req.query('girlfriend') || 'My responsibilities').slice(
     0,
-    500
+    500,
   )
   const other = (c.req.query('other') || 'Literally anything else').slice(
     0,
-    500
+    500,
   )
 
   const svg = `<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
@@ -276,7 +276,7 @@ generators.get('/facts', async c => {
   const lineElements = cappedLines
     .map(
       (line, i) =>
-        `<text x="300" y="${160 + i * 30}" text-anchor="middle" fill="#333" font-size="20" font-weight="bold" font-family="Arial, sans-serif">${escapeXml(line)}</text>`
+        `<text x="300" y="${160 + i * 30}" text-anchor="middle" fill="#333" font-size="20" font-weight="bold" font-family="Arial, sans-serif">${escapeXml(line)}</text>`,
     )
     .join('\n')
 

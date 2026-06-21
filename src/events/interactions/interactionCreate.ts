@@ -20,7 +20,7 @@ import type { BotClient } from '@src/structures'
 
 export default async (
   client: BotClient,
-  interaction: BaseInteraction
+  interaction: BaseInteraction,
 ): Promise<void> => {
   // Check ignoreMe preference for /mina-ai command (works in both DMs and guilds)
   if (
@@ -307,7 +307,7 @@ export default async (
           purgeType,
           amount,
           { token, userId },
-          false
+          false,
         ) // isManualSelection = false (default flow)
         return
       }

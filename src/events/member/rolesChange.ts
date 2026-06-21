@@ -13,7 +13,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 export default async (
   _client: BotClient,
   oldMember: GuildMember,
-  newMember: GuildMember
+  newMember: GuildMember,
 ): Promise<void> => {
   // Ignore if the guild is unavailable
   if (!newMember.guild.available) return
@@ -27,7 +27,7 @@ export default async (
   if (!settings.logs.member.role_changes) return
 
   const logChannel: any = newMember.guild.channels.cache.get(
-    settings.logs_channel
+    settings.logs_channel,
   )
   if (!logChannel) return
 
@@ -76,7 +76,7 @@ export default async (
             ? removedRoles.map(r => r.name).join(', ')
             : 'none',
         inline: false,
-      }
+      },
     )
     .setTimestamp()
 

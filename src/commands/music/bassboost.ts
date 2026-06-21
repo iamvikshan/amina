@@ -51,7 +51,7 @@ async function setBassBoost(
     client: any
     guildId: string
   },
-  level: string
+  level: string,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 

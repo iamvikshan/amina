@@ -10,7 +10,7 @@ import {
  * @param interaction
  */
 export async function handleRoleSelect(
-  interaction: RoleSelectMenuInteraction
+  interaction: RoleSelectMenuInteraction,
 ): Promise<void> {
   const [, , action] = interaction.customId.split(':')
   const role = interaction.roles.first()

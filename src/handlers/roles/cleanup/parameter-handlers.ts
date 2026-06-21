@@ -23,7 +23,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  */
 export async function showParameterInputForMethod(
   interaction: StringSelectMenuInteraction,
-  method: RoleCleanupMethod
+  method: RoleCleanupMethod,
 ): Promise<void> {
   switch (method) {
     case 'empty':
@@ -47,7 +47,7 @@ export async function showParameterInputForMethod(
  * @param interaction
  */
 async function showPrefixModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const prefixInput = new TextInputBuilder({
     customId: 'prefix',
@@ -59,7 +59,7 @@ async function showPrefixModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    prefixInput
+    prefixInput,
   )
 
   const modal = new ModalBuilder({
@@ -76,7 +76,7 @@ async function showPrefixModal(
  * @param interaction
  */
 async function showPositionModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const positionInput = new TextInputBuilder({
     customId: 'position',
@@ -88,7 +88,7 @@ async function showPositionModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    positionInput
+    positionInput,
   )
 
   const modal = new ModalBuilder({
@@ -105,7 +105,7 @@ async function showPositionModal(
  * @param interaction
  */
 async function showOlderModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const daysInput = new TextInputBuilder({
     customId: 'days',
@@ -117,7 +117,7 @@ async function showOlderModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    daysInput
+    daysInput,
   )
 
   const modal = new ModalBuilder({
@@ -134,7 +134,7 @@ async function showOlderModal(
  * @param interaction
  */
 export async function handleCleanupModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   const [, , modalType] = interaction.customId.split(':')
 
@@ -190,13 +190,13 @@ export async function handleCleanupModal(
 async function showRoleKeepSelect(
   interaction: StringSelectMenuInteraction | ModalSubmitInteraction,
   method: RoleCleanupMethod,
-  params?: any
+  params?: any,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('role cleanup - select roles to keep')
     .setDescription(
       'optionally select roles you want to **keep** (exclude from deletion).\n\n' +
-        'if you don\'t want to exclude any roles, click "continue without exclusions".'
+        'if you don\'t want to exclude any roles, click "continue without exclusions".',
     )
     .setFooter({ text: 'select roles to exclude from cleanup' })
 
@@ -210,16 +210,16 @@ async function showRoleKeepSelect(
         .setCustomId(customId.substring(0, 100)) // Discord limit
         .setPlaceholder('select roles to keep (optional)')
         .setMinValues(0)
-        .setMaxValues(25)
+        .setMaxValues(25),
     )
 
   const continueBtn = MinaButtons.custom(
     `roles:btn:continue|method:${method}|params:${Buffer.from(stateParams).toString('base64')}`.substring(
       0,
-      100
+      100,
     ),
     'continue without exclusions',
-    ButtonStyle.Secondary
+    ButtonStyle.Secondary,
   )
 
   const backBtn = MinaButtons.back('roles:btn:back_cleanup')
@@ -238,7 +238,7 @@ async function showRoleKeepSelect(
  * @param interaction
  */
 export async function handleRoleKeepSelect(
-  interaction: RoleSelectMenuInteraction
+  interaction: RoleSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 

@@ -20,7 +20,7 @@ interface AiToolMetadata {
 // Native tool types (for tools not backed by slash commands)
 export type NativeToolHandler = (
   args: Record<string, unknown>,
-  context: NativeToolContext
+  context: NativeToolContext,
 ) => Promise<string>
 
 export interface NativeToolContext {
@@ -110,14 +110,14 @@ export class AiCommandRegistry {
       declaration: FunctionDeclaration
       handler: NativeToolHandler
       permissionModel?: PermissionModel
-    }>
+    }>,
   ) {
     for (const tool of tools) {
       const name = tool.declaration.name
 
       // Remove existing native tool definition with same name (idempotent)
       const existingIdx = this.nativeToolDefinitions.findIndex(
-        d => d.name === name
+        d => d.name === name,
       )
       if (existingIdx !== -1) {
         this.nativeToolDefinitions.splice(existingIdx, 1)
@@ -161,7 +161,7 @@ export class AiCommandRegistry {
   async executeNativeTool(
     name: string,
     args: Record<string, unknown>,
-    context: NativeToolContext
+    context: NativeToolContext,
   ): Promise<string> {
     const handler = this.nativeToolHandlers.get(name)
     if (!handler) throw new Error(`Native tool ${name} not found`)
@@ -241,7 +241,7 @@ export class AiCommandRegistry {
       const hasSubcommands = options.some(
         o =>
           o.type === ApplicationCommandOptionType.Subcommand ||
-          o.type === ApplicationCommandOptionType.SubcommandGroup
+          o.type === ApplicationCommandOptionType.SubcommandGroup,
       )
 
       if (!hasSubcommands) {
@@ -277,7 +277,7 @@ export class AiCommandRegistry {
                 description:
                   `${cmd.description} - ${option.name} ${subOption.name}`.substring(
                     0,
-                    1024
+                    1024,
                   ),
                 parameters: {
                   type: 'object',
@@ -303,7 +303,7 @@ export class AiCommandRegistry {
             name: compoundName,
             description: `${cmd.description} - ${option.name}`.substring(
               0,
-              1024
+              1024,
             ),
             parameters: {
               type: 'object',
@@ -328,7 +328,7 @@ export class AiCommandRegistry {
   private mapOption(
     option: any,
     properties: Record<string, any>,
-    required: string[]
+    required: string[],
   ) {
     const typeMap: Record<number, string> = {
       [ApplicationCommandOptionType.String]: 'string',

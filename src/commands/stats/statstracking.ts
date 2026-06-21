@@ -36,7 +36,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    data: { settings: any }
+    data: { settings: any },
   ) {
     const status = interaction.options.getString('status', true)
     const settings = data?.settings || {}

@@ -57,12 +57,13 @@ export class ConversationBuffer {
       return m
     }
     if (msg.role === 'tool') {
-      return {
+      const res: ChatMessage = {
         role: 'tool',
         content: msg.content,
-        tool_call_id: msg.tool_call_id,
-        name: msg.name,
       }
+      if (msg.tool_call_id !== undefined) res.tool_call_id = msg.tool_call_id
+      if (msg.name !== undefined) res.name = msg.name
+      return res
     }
     if (msg.role === 'system') {
       return { role: 'system', content: msg.content }
@@ -92,6 +93,9 @@ export class ConversationBuffer {
     const preserved: Message[] = []
     while (start < messages.length) {
       const m = messages[start]
+      if (!m) {
+        break
+      }
       if (m.role === 'tool') {
         start++
       } else if (
@@ -101,9 +105,18 @@ export class ConversationBuffer {
       ) {
         // Skip trailing tool responses, but keep assistant text (stripped)
         let j = start + 1
-        while (j < messages.length && messages[j].role === 'tool') j++
+        while (j < messages.length) {
+          const nextMsg = messages[j]
+          if (nextMsg && nextMsg.role === 'tool') {
+            j++
+          } else {
+            break
+          }
+        }
         if (m.content && m.content.trim()) {
-          preserved.push({ ...m, tool_calls: undefined })
+          const clone = { ...m }
+          delete clone.tool_calls
+          preserved.push(clone)
         }
         start = j
       } else {
@@ -116,6 +129,9 @@ export class ConversationBuffer {
     let i = 0
     while (i < trimmed.length) {
       const msg = trimmed[i]
+      if (!msg) {
+        break
+      }
 
       if (
         msg.role === 'assistant' &&
@@ -127,13 +143,18 @@ export class ConversationBuffer {
         const matchedIds = new Set<string>()
         const toolResponses: Message[] = []
         let j = i + 1
-        while (j < trimmed.length && trimmed[j].role === 'tool') {
-          const tcId = trimmed[j].tool_call_id
-          if (tcId && expectedIds.has(tcId) && !matchedIds.has(tcId)) {
-            matchedIds.add(tcId)
-            toolResponses.push(trimmed[j])
+        while (j < trimmed.length) {
+          const nextMsg = trimmed[j]
+          if (nextMsg && nextMsg.role === 'tool') {
+            const tcId = nextMsg.tool_call_id
+            if (tcId && expectedIds.has(tcId) && !matchedIds.has(tcId)) {
+              matchedIds.add(tcId)
+              toolResponses.push(nextMsg)
+            }
+            j++
+          } else {
+            break
           }
-          j++
         }
 
         if (matchedIds.size === expectedIds.size) {
@@ -142,10 +163,9 @@ export class ConversationBuffer {
           result.push(...toolResponses)
         } else {
           // Incomplete -- keep assistant text only, strip tool_calls
-          result.push({
-            ...msg,
-            tool_calls: undefined,
-          })
+          const clone = { ...msg }
+          delete clone.tool_calls
+          result.push(clone)
         }
         i = j // Skip past the tool messages
       } else {
@@ -165,35 +185,43 @@ export class ConversationBuffer {
     content: string,
     userId?: string,
     username?: string,
-    displayName?: string
+    displayName?: string,
   ) {
     if (!content || !content.trim()) return
-    this.appendMessage(conversationId, {
+    const msg: Message = {
       role,
       content,
       timestamp: Date.now(),
-      ...(role === 'user' && userId ? { userId, username, displayName } : {}),
-    })
+    }
+    if (role === 'user' && userId) {
+      msg.userId = userId
+      if (username !== undefined) msg.username = username
+      if (displayName !== undefined) msg.displayName = displayName
+    }
+    this.appendMessage(conversationId, msg)
   }
 
   appendAssistantMessage(
     conversationId: string,
     content: string,
-    toolCalls?: ToolCall[]
+    toolCalls?: ToolCall[],
   ) {
-    this.appendMessage(conversationId, {
+    const msg: Message = {
       role: 'assistant',
       content,
       timestamp: Date.now(),
-      tool_calls: toolCalls,
-    })
+    }
+    if (toolCalls !== undefined) {
+      msg.tool_calls = toolCalls
+    }
+    this.appendMessage(conversationId, msg)
   }
 
   appendToolResult(
     conversationId: string,
     toolCallId: string,
     name: string,
-    content: string
+    content: string,
   ) {
     this.appendMessage(conversationId, {
       role: 'tool',
@@ -223,19 +251,19 @@ export class ConversationBuffer {
     this.cache.set(conversationId, entry)
 
     Logger.debug(
-      `Message appended - ConvID: ${conversationId}, Role: ${message.role}, Count: ${entry.messages.length}`
+      `Message appended - ConvID: ${conversationId}, Role: ${message.role}, Count: ${entry.messages.length}`,
     )
 
     this.persistToDb(conversationId, entry.messages).catch((err: any) =>
       Logger.warn(
-        `Failed to persist conversation ${conversationId}: ${err.message}`
-      )
+        `Failed to persist conversation ${conversationId}: ${err.message}`,
+      ),
     )
   }
 
   async getHistory(
     conversationId: string,
-    maxMessages = 9
+    maxMessages = 9,
   ): Promise<Message[]> {
     const entry = this.cache.get(conversationId)
 
@@ -250,7 +278,7 @@ export class ConversationBuffer {
       const messages =
         maxMessages <= 0 ? [] : entry.messages.slice(-maxMessages)
       Logger.debug(
-        `Retrieved conversation history - ConvID: ${conversationId}, Count: ${messages.length}`
+        `Retrieved conversation history - ConvID: ${conversationId}, Count: ${messages.length}`,
       )
       return messages
     }
@@ -299,7 +327,7 @@ export class ConversationBuffer {
         }
         this.cache.set(conversationId, restoredEntry)
         Logger.debug(
-          `Restored conversation from DB - ConvID: ${conversationId}, Count: ${validatedMessages.length}`
+          `Restored conversation from DB - ConvID: ${conversationId}, Count: ${validatedMessages.length}`,
         )
         return validatedMessages
       }
@@ -364,7 +392,7 @@ export class ConversationBuffer {
 
     if (prunedCount > 0) {
       Logger.debug(
-        `Pruned expired conversations/tombstones - Removed: ${prunedCount}, Remaining: ${this.cache.size}`
+        `Pruned expired conversations/tombstones - Removed: ${prunedCount}, Remaining: ${this.cache.size}`,
       )
     }
   }
@@ -374,7 +402,7 @@ export class ConversationBuffer {
       () => {
         this.pruneExpired()
       },
-      5 * 60 * 1000
+      5 * 60 * 1000,
     ) // Every 5 minutes
   }
 
@@ -387,7 +415,7 @@ export class ConversationBuffer {
    */
   private persistToDb(
     conversationId: string,
-    _messages: Message[]
+    _messages: Message[],
   ): Promise<void> {
     const existing = this.pendingPersistPromises.get(conversationId)
 
@@ -458,7 +486,7 @@ export class ConversationBuffer {
     }
     this.pendingPersistPromises.delete(conversationId)
     deleteConversation(conversationId).catch((err: any) =>
-      Logger.warn(`Failed to delete conversation from DB: ${err.message}`)
+      Logger.warn(`Failed to delete conversation from DB: ${err.message}`),
     )
   }
 

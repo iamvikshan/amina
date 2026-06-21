@@ -12,7 +12,7 @@ if (import.meta.main) {
   } catch (err) {
     console.error(
       `Health check failed (port ${port}):`,
-      err instanceof Error ? err.message : err
+      err instanceof Error ? err.message : err,
     )
     process.exit(1)
   }

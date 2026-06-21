@@ -521,7 +521,7 @@ export class MinaEmbed extends EmbedBuilder {
       | 'unban'
       | 'softban'
       | 'warn',
-    description?: string
+    description?: string,
   ): MinaEmbed {
     const color = mina.modColors[action] || mina.color.error
     return new MinaEmbed()

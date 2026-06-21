@@ -51,7 +51,7 @@ async function play(
     guild: any
     channel: any
   },
-  searchQuery: string
+  searchQuery: string,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (!member.voice.channel) {
     return { embeds: [MinaEmbed.error(mina.say('error.notInVoice'))] }
@@ -94,7 +94,7 @@ async function play(
       return {
         embeds: [
           MinaEmbed.error(
-            mina.sayf('music.error.noResults', { query: searchQuery })
+            mina.sayf('music.error.noResults', { query: searchQuery }),
           ),
         ],
       }
@@ -125,11 +125,11 @@ async function play(
                 guild.client.utils.formatTime(
                   res.tracks
                     .map((t: any) => t.info.duration)
-                    .reduce((a: number, b: number) => a + b, 0)
+                    .reduce((a: number, b: number) => a + b, 0),
                 ) +
                 '`',
               inline: true,
-            }
+            },
           )
           .setFooter({
             text: mina.sayf('generic.requestedBy', {

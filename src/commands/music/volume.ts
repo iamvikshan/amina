@@ -36,7 +36,7 @@ const command: CommandData = {
         client: interaction.client,
         guildId: interaction.guildId,
       },
-      amount
+      amount,
     )
     await interaction.followUp(response)
   },
@@ -50,7 +50,7 @@ async function getVolume(
     client: any
     guildId: string
   },
-  amount: number | null
+  amount: number | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 

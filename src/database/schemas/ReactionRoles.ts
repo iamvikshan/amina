@@ -24,7 +24,7 @@ const Schema = new mongoose.Schema(
       createdAt: 'created_at',
       updatedAt: false,
     },
-  }
+  },
 )
 
 export const model = mongoose.model('reaction-roles', Schema)
@@ -34,7 +34,7 @@ const rrCache = new Map<string, any[]>()
 const getKey = (
   guildId: string,
   channelId: string,
-  messageId: string
+  messageId: string,
 ): string => `${guildId}|${channelId}|${messageId}`
 
 export async function cacheReactionRoles(client: BotClient): Promise<void> {
@@ -63,7 +63,7 @@ export async function cacheReactionRoles(client: BotClient): Promise<void> {
 export function getReactionRoles(
   guildId: string,
   channelId: string,
-  messageId: string
+  messageId: string,
 ): any[] {
   return rrCache.get(getKey(guildId, channelId, messageId)) || []
 }
@@ -73,7 +73,7 @@ export async function addReactionRole(
   channelId: string,
   messageId: string,
   emote: string,
-  roleId: string
+  roleId: string,
 ): Promise<void> {
   const filter = {
     guild_id: guildId,
@@ -92,7 +92,7 @@ export async function addReactionRole(
           roles: { emote, role_id: roleId },
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     )
     .lean()
 
@@ -104,7 +104,7 @@ export async function addReactionRole(
 export async function removeReactionRole(
   guildId: string,
   channelId: string,
-  messageId: string
+  messageId: string,
 ): Promise<void> {
   await model.deleteOne({
     guild_id: guildId,

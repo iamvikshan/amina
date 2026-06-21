@@ -16,7 +16,7 @@ import type { Client, Guild } from 'discord.js'
  * @param interaction
  */
 export async function showTrigSettings(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('trigger settings')
@@ -24,7 +24,7 @@ export async function showTrigSettings(
       'trigger server onboarding for servers\n\n' +
         '**select a server (optional):**\n' +
         "if no server is selected, onboarding will be triggered for all servers that haven't completed setup.\n\n" +
-        '**note:** this will trigger the `guildCreate` event for the selected server(s).'
+        '**note:** this will trigger the `guildCreate` event for the selected server(s).',
     )
     .setFooter({ text: 'select a server channel (optional)' })
 
@@ -35,13 +35,15 @@ export async function showTrigSettings(
         .setPlaceholder('select a server channel (optional)')
         .setChannelTypes(ChannelType.GuildText)
         .setMinValues(0)
-        .setMaxValues(1)
+        .setMaxValues(1),
     )
 
   const backRow = MinaRows.backRow('dev:btn:back_trig')
 
   const confirmRow = MinaRows.single(
-    MinaButtons.yeah('dev:btn:trig_confirm').setLabel('trigger for all servers')
+    MinaButtons.yeah('dev:btn:trig_confirm').setLabel(
+      'trigger for all servers',
+    ),
   )
 
   await interaction.editReply({
@@ -55,7 +57,7 @@ export async function showTrigSettings(
  * @param interaction
  */
 export async function handleTrigSettingsChannelSelect(
-  interaction: ChannelSelectMenuInteraction
+  interaction: ChannelSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -73,7 +75,7 @@ export async function handleTrigSettingsChannelSelect(
  * @param interaction
  */
 export async function handleTrigSettingsConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -89,7 +91,7 @@ export async function handleTrigSettingsConfirm(
 async function triggerOnboarding(
   client: Client,
   serverId: string | null,
-  interaction: ChannelSelectMenuInteraction | ButtonInteraction
+  interaction: ChannelSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const guildCreateEvent = client.emit.bind(client, 'guildCreate')
 
@@ -108,7 +110,7 @@ async function triggerOnboarding(
     const settings = await getSettings(guild)
     if (settings.server.setup_completed) {
       const errorEmbed = MinaEmbed.warning().setDescription(
-        `guild ${guild.name} already set up`
+        `guild ${guild.name} already set up`,
       )
 
       await interaction.editReply({
@@ -121,7 +123,7 @@ async function triggerOnboarding(
     guildCreateEvent(guild)
 
     const successEmbed = MinaEmbed.success().setDescription(
-      `triggered settings for ${guild.name}`
+      `triggered settings for ${guild.name}`,
     )
 
     await interaction.editReply({
@@ -142,7 +144,7 @@ async function triggerOnboarding(
   }
 
   const successEmbed = MinaEmbed.success().setDescription(
-    `triggered settings for ${count} guild${count !== 1 ? 's' : ''}`
+    `triggered settings for ${count} guild${count !== 1 ? 's' : ''}`,
   )
 
   await interaction.editReply({

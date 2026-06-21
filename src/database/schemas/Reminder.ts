@@ -28,7 +28,7 @@ const Schema = new mongoose.Schema<IReminderDocument>(
       createdAt: 'created_at',
       updatedAt: 'updated_at',
     },
-  }
+  },
 )
 
 // Compound index for scheduler queries
@@ -63,7 +63,7 @@ export async function createReminder(
   message: string,
   remindAt: Date,
   channelId: string,
-  guildId: string | null = null
+  guildId: string | null = null,
 ): Promise<IReminderDocument> {
   const reminderId = await getNextReminderId(userId)
   const _id = `${userId}:${reminderId}`
@@ -91,7 +91,7 @@ export async function createReminder(
  */
 export async function getUserReminders(
   userId: string,
-  includeNotified: boolean = false
+  includeNotified: boolean = false,
 ): Promise<IReminderDocument[]> {
   const query: { user_id: string; notified?: boolean } = { user_id: userId }
   if (!includeNotified) {
@@ -110,14 +110,14 @@ export async function getUserReminders(
  */
 export async function getReminder(
   userId: string,
-  reminderId: number
+  reminderId: number,
 ): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
   const cached = cache.get(_id)
   if (cached) return cached
 
   const reminder = (await Model.findById(
-    _id
+    _id,
   ).lean()) as IReminderDocument | null
   if (reminder) cache.set(_id, reminder)
   return reminder
@@ -132,13 +132,13 @@ export async function getReminder(
 export async function updateReminderMessage(
   userId: string,
   reminderId: number,
-  newMessage: string
+  newMessage: string,
 ): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
   const reminder = (await Model.findByIdAndUpdate(
     _id,
     { $set: { message: newMessage } },
-    { new: true }
+    { new: true },
   ).lean()) as IReminderDocument | null
 
   if (reminder) cache.set(_id, reminder)
@@ -154,13 +154,13 @@ export async function updateReminderMessage(
 export async function updateReminderTime(
   userId: string,
   reminderId: number,
-  newRemindAt: Date
+  newRemindAt: Date,
 ): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
   const reminder = (await Model.findByIdAndUpdate(
     _id,
     { $set: { remind_at: newRemindAt } },
-    { new: true }
+    { new: true },
   ).lean()) as IReminderDocument | null
 
   if (reminder) cache.set(_id, reminder)
@@ -174,13 +174,13 @@ export async function updateReminderTime(
  */
 export async function markReminderNotified(
   userId: string,
-  reminderId: number
+  reminderId: number,
 ): Promise<IReminderDocument | null> {
   const _id = `${userId}:${reminderId}`
   const reminder = (await Model.findByIdAndUpdate(
     _id,
     { $set: { notified: true } },
-    { new: true }
+    { new: true },
   ).lean()) as IReminderDocument | null
 
   if (reminder) cache.set(_id, reminder)
@@ -194,7 +194,7 @@ export async function markReminderNotified(
  */
 export async function deleteReminder(
   userId: string,
-  reminderId: number
+  reminderId: number,
 ): Promise<boolean> {
   const _id = `${userId}:${reminderId}`
   const result = await Model.findByIdAndDelete(_id)
@@ -236,7 +236,7 @@ export async function getDueReminders(): Promise<IReminderDocument[]> {
  */
 export async function getUserReminderCount(
   userId: string,
-  includeNotified: boolean = false
+  includeNotified: boolean = false,
 ): Promise<number> {
   const query: { user_id: string; notified?: boolean } = { user_id: userId }
   if (!includeNotified) {

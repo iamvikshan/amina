@@ -2,7 +2,7 @@ import { addQuestion, deleteQuestion } from '@schemas/TruthOrDare'
 import type { ChatInputCommandInteraction } from 'discord.js'
 
 export async function addTod(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   const category = interaction.options.getString('category', true)
   const question = interaction.options.getString('question', true)
@@ -16,7 +16,7 @@ export async function addTod(
 }
 
 export async function delTod(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   const questionId = interaction.options
     .getString('question_id', true)

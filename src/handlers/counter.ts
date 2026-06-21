@@ -33,13 +33,13 @@ export async function updateCounterChannels(client: BotClient): Promise<void> {
 
         if (vc.manageable && channelName)
           vc.setName(channelName).catch(err =>
-            (vc.client as BotClient).logger.log('Set Name error: ', err)
+            (vc.client as BotClient).logger.log('Set Name error: ', err),
           )
       }
     } catch (ex) {
       client.logger.error(
         `Error updating counter channels for guildId: ${guildId}`,
-        ex
+        ex,
       )
     } finally {
       // remove guildId from cache
@@ -57,7 +57,7 @@ export async function updateCounterChannels(client: BotClient): Promise<void> {
 export async function init(guild: Guild, settings: any): Promise<boolean> {
   if (
     settings.counters.find((doc: any) =>
-      ['MEMBERS', 'BOTS'].includes(doc.counter_type.toUpperCase())
+      ['MEMBERS', 'BOTS'].includes(doc.counter_type.toUpperCase()),
     )
   ) {
     const stats = await (guild as any).fetchMemberStats()

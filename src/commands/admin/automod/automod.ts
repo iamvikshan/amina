@@ -138,18 +138,18 @@ const command: CommandData = {
     else if (sub === 'strikes')
       response = await setStrikes(
         settings,
-        interaction.options.getInteger('amount', true)
+        interaction.options.getInteger('amount', true),
       )
     else if (sub === 'action')
       response = await setAction(
         settings,
         interaction.guild,
-        interaction.options.getString('action', true)
+        interaction.options.getString('action', true),
       )
     else if (sub === 'debug')
       response = await setDebug(
         settings,
-        interaction.options.getString('status', true)
+        interaction.options.getString('status', true),
       )
     else if (sub === 'whitelist') {
       response = getWhitelist(interaction.guild, settings)
@@ -211,7 +211,7 @@ async function getStatus(settings: any, guild: Guild): Promise<any> {
         name: 'debug',
         value: automod.debug ? 'yes' : 'no',
         inline: true,
-      }
+      },
     )
 
   return { embeds: [embed] }
@@ -226,7 +226,7 @@ async function setStrikes(settings: any, strikes: number): Promise<string> {
 async function setAction(
   settings: any,
   guild: Guild,
-  action: string
+  action: string,
 ): Promise<string> {
   if (action === 'TIMEOUT') {
     if (!guild.members.me?.permissions.has('ModerateMembers')) {
@@ -282,13 +282,13 @@ async function whiteListAdd(settings: any, channelId: string): Promise<string> {
 
 async function whiteListRemove(
   settings: any,
-  channelId: string
+  channelId: string,
 ): Promise<string> {
   if (!settings.automod.wh_channels.includes(channelId))
     return 'Channel is not whitelisted'
   settings.automod.wh_channels.splice(
     settings.automod.wh_channels.indexOf(channelId),
-    1
+    1,
   )
   await settings.save()
   return `Channel removed from whitelist!`

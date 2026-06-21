@@ -15,7 +15,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
  * @param interaction
  */
 export async function showAutoroleMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const guild = interaction.guild
   if (!guild) {
@@ -38,7 +38,7 @@ export async function showAutoroleMenu(
         '**current status:** ' +
         (currentRole ? `enabled - ${currentRole}` : 'disabled') +
         '\n\n' +
-        'use the buttons below to enable or disable autorole.'
+        'use the buttons below to enable or disable autorole.',
     )
     .setFooter({ text: 'automatically assign roles to new members' })
 
@@ -53,13 +53,13 @@ export async function showAutoroleMenu(
   const enableBtn = MinaButtons.custom(
     'roles:btn:autorole_enable',
     currentRole ? 'change autorole' : 'enable autorole',
-    ButtonStyle.Success
+    ButtonStyle.Success,
   )
 
   const disableBtn = MinaButtons.custom(
     'roles:btn:autorole_disable',
     'disable autorole',
-    ButtonStyle.Danger
+    ButtonStyle.Danger,
   ).setDisabled(!currentRole)
 
   const backBtn = MinaButtons.back('roles:btn:back')
@@ -78,7 +78,7 @@ export async function showAutoroleMenu(
  * @param interaction
  */
 export async function handleAutoroleEnableButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -89,7 +89,7 @@ export async function handleAutoroleEnableButton(
         '**requirements:**\n' +
         '- role must be below my highest role\n' +
         '- role cannot be managed by an integration\n' +
-        '- role cannot be @everyone'
+        '- role cannot be @everyone',
     )
     .setFooter({ text: 'select a role from the menu below' })
 
@@ -99,7 +99,7 @@ export async function handleAutoroleEnableButton(
         .setCustomId('roles:role:autorole_select')
         .setPlaceholder('select a role for autorole')
         .setMinValues(1)
-        .setMaxValues(1)
+        .setMaxValues(1),
     )
 
   const cancelBtn = MinaButtons.nah('roles:btn:autorole_cancel')
@@ -115,7 +115,7 @@ export async function handleAutoroleEnableButton(
  * @param interaction
  */
 export async function handleAutoroleRoleSelect(
-  interaction: RoleSelectMenuInteraction
+  interaction: RoleSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -144,7 +144,7 @@ export async function handleAutoroleRoleSelect(
     const embed = MinaEmbed.error()
       .setTitle('invalid role')
       .setDescription(
-        validation.reason || 'this role cannot be used as autorole.'
+        validation.reason || 'this role cannot be used as autorole.',
       )
 
     await interaction.editReply({
@@ -154,9 +154,9 @@ export async function handleAutoroleRoleSelect(
           MinaButtons.custom(
             'roles:btn:autorole_enable',
             'try again',
-            ButtonStyle.Secondary
+            ButtonStyle.Secondary,
           ),
-          MinaButtons.back('roles:btn:back')
+          MinaButtons.back('roles:btn:back'),
         ),
       ],
     })
@@ -170,7 +170,7 @@ export async function handleAutoroleRoleSelect(
     .setTitle('autorole enabled')
     .setDescription(
       `successfully set ${role} as the autorole\n\n` +
-        `new members will automatically receive this role when they join the server.`
+        `new members will automatically receive this role when they join the server.`,
     )
     .addFields({
       name: 'autorole',
@@ -194,7 +194,7 @@ export async function handleAutoroleRoleSelect(
  * @param interaction
  */
 export async function handleAutoroleDisableButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -217,13 +217,13 @@ export async function handleAutoroleDisableButton(
         (currentRole
           ? `**current role:** ${currentRole}\n\n`
           : 'autorole is currently disabled.\n\n') +
-        'new members will no longer automatically receive a role.'
+        'new members will no longer automatically receive a role.',
     )
 
   const confirmBtn = MinaButtons.custom(
     'roles:btn:autorole_disable_confirm',
     'confirm disable',
-    ButtonStyle.Danger
+    ButtonStyle.Danger,
   )
 
   const cancelBtn = MinaButtons.nah('roles:btn:autorole_cancel')
@@ -241,7 +241,7 @@ export async function handleAutoroleDisableButton(
  * @param interaction
  */
 export async function handleAutoroleDisableConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -258,7 +258,7 @@ export async function handleAutoroleDisableConfirm(
     .setTitle('autorole disabled')
     .setDescription(
       'autorole has been disabled successfully.\n\n' +
-        'new members will no longer automatically receive a role.'
+        'new members will no longer automatically receive a role.',
     )
     .setFooter({
       text: `disabled by ${interaction.user.tag}`,
@@ -277,7 +277,7 @@ export async function handleAutoroleDisableConfirm(
  * @param interaction
  */
 export async function handleAutoroleCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showAutoroleMenu(interaction as any)
@@ -290,7 +290,7 @@ export async function handleAutoroleCancel(
  */
 function validateAutorole(
   guild: any,
-  role: Role
+  role: Role,
 ): { valid: boolean; reason?: string } {
   if (role.id === guild.roles.everyone.id) {
     return {

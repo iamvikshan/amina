@@ -7,7 +7,7 @@ import { secret } from '@src/config'
 const environment = config.MONITORING.ENVIRONMENT
 
 const isDevelopment = ['development', 'dev', 'test'].includes(
-  environment.toLowerCase()
+  environment.toLowerCase(),
 )
 
 // Configure Honeybadger

@@ -47,7 +47,7 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
   static navigation(
     hasPrev = true,
     hasNext = true,
-    customIds?: { prev?: string; hub?: string; next?: string }
+    customIds?: { prev?: string; hub?: string; next?: string },
   ): MinaRow {
     const buttons: MinaButton[] = []
 
@@ -73,11 +73,11 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
    */
   static prevNext(
     customIds?: { prev?: string; next?: string },
-    disabledStates?: { prev?: boolean; next?: boolean }
+    disabledStates?: { prev?: boolean; next?: boolean },
   ): MinaRow {
     return new MinaRow().addComponents(
       MinaButton.prev(customIds?.prev || 'prev', disabledStates?.prev ?? false),
-      MinaButton.next(customIds?.next || 'next', disabledStates?.next ?? false)
+      MinaButton.next(customIds?.next || 'next', disabledStates?.next ?? false),
     )
   }
 
@@ -92,14 +92,14 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
   static pagination(
     currentPage: number,
     totalPages: number,
-    customIds?: { prev?: string; next?: string }
+    customIds?: { prev?: string; next?: string },
   ): MinaRow {
     return new MinaRow().addComponents(
       MinaButton.prev(customIds?.prev || 'previousBtn', currentPage === 0),
       MinaButton.next(
         customIds?.next || 'nextBtn',
-        currentPage >= totalPages - 1
-      )
+        currentPage >= totalPages - 1,
+      ),
     )
   }
 
@@ -112,7 +112,7 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
   static backHub(customIds?: { back?: string; hub?: string }): MinaRow {
     return new MinaRow().addComponents(
       MinaButton.back(customIds?.back || 'back'),
-      MinaButton.hub(customIds?.hub || 'hub')
+      MinaButton.hub(customIds?.hub || 'hub'),
     )
   }
 
@@ -135,7 +135,7 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
     return new MinaRow().addComponents(
       MinaButton.truth(customIds?.truth || 'tod:truth'),
       MinaButton.dare(customIds?.dare || 'tod:dare'),
-      MinaButton.random(customIds?.random || 'tod:random')
+      MinaButton.random(customIds?.random || 'tod:random'),
     )
   }
 
@@ -145,7 +145,7 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
       MinaButton.prev('music:prev'),
       MinaButton.custom('music:playpause', 'play/pause', ButtonStyle.Primary),
       MinaButton.next('music:next'),
-      MinaButton.stop('music:stop')
+      MinaButton.stop('music:stop'),
     )
   }
 
@@ -158,7 +158,7 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
       isOpen
         ? MinaButton.close('ticket:close')
         : MinaButton.open('ticket:open'),
-      MinaButton.claim('ticket:claim')
+      MinaButton.claim('ticket:claim'),
     )
   }
 
@@ -188,7 +188,7 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
    */
   static links(links: Array<{ url: string; label: string }>): MinaRow {
     return new MinaRow().addComponents(
-      ...links.map(l => MinaButton.link(l.url, l.label))
+      ...links.map(l => MinaButton.link(l.url, l.label)),
     )
   }
 

@@ -30,7 +30,7 @@ export async function showChannelSelect(
   purgeType: PurgeType,
   amount: number,
   additionalData?: { token?: string; userId?: string },
-  isManualSelection?: boolean // true if user manually selected amount (not default flow)
+  isManualSelection?: boolean, // true if user manually selected amount (not default flow)
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('channel selection')
@@ -41,7 +41,7 @@ export async function showChannelSelect(
         (additionalData?.token ? `**token:** ${additionalData.token}\n` : '') +
         (additionalData?.userId
           ? `**user:** <@${additionalData.userId}>\n`
-          : '')
+          : ''),
     )
     .setFooter({ text: 'select a channel or use current channel' })
 
@@ -52,10 +52,10 @@ export async function showChannelSelect(
           additionalData?.token
             ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
             : ''
-        }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`
+        }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
       )
       .setPlaceholder('select a channel (optional)')
-      .setChannelTypes([ChannelType.GuildText])
+      .setChannelTypes([ChannelType.GuildText]),
   )
 
   const components: any[] = [menu]
@@ -72,8 +72,8 @@ export async function showChannelSelect(
             : ''
         }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
         'use current channel',
-        ButtonStyle.Primary
-      )
+        ButtonStyle.Primary,
+      ),
     )
     components.push(useCurrentRow)
   } else {
@@ -86,8 +86,8 @@ export async function showChannelSelect(
             : ''
         }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
         'proceed',
-        ButtonStyle.Primary
-      )
+        ButtonStyle.Primary,
+      ),
     )
     components.push(proceedRow)
   }
@@ -106,7 +106,7 @@ export async function showChannelSelect(
  * @param interaction
  */
 export async function handleChannelSelect(
-  interaction: ChannelSelectMenuInteraction
+  interaction: ChannelSelectMenuInteraction,
 ): Promise<void> {
   const channelId = interaction.values[0]
   const channel = interaction.guild?.channels.cache.get(channelId)
@@ -149,7 +149,7 @@ export async function handleChannelSelect(
  * @param interaction
  */
 export async function handleUseCurrentChannel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const channelId = interaction.channelId
 
@@ -191,7 +191,7 @@ export async function handleUseCurrentChannel(
  * @param interaction
  */
 export async function handleProceedChannel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const channelId = interaction.channelId
 

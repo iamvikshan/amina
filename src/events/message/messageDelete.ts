@@ -11,7 +11,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  */
 export default async (
   _client: BotClient,
-  message: Message | PartialMessage
+  message: Message | PartialMessage,
 ): Promise<void> => {
   if (message.partial) return
   if (!message.guild) return
@@ -20,7 +20,7 @@ export default async (
   if (!settings.logs.enabled || !settings.logs_channel) return
 
   const logChannel: any = message.guild.channels.cache.get(
-    settings.logs_channel
+    settings.logs_channel,
   )
   if (!logChannel) return
 
@@ -41,7 +41,7 @@ export default async (
         {
           name: 'content',
           value: message.content || 'none (possibly an embed or attachment)',
-        }
+        },
       )
       .setTimestamp()
 
@@ -66,7 +66,7 @@ export default async (
         .setDescription(
           `**message:**\n${message.content}\n\n` +
             `**author:** ${message.author.tag} \`${message.author.id}\`\n` +
-            `**channel:** ${message.channel.toString()}`
+            `**channel:** ${message.channel.toString()}`,
         )
         .addFields(
           {
@@ -75,7 +75,7 @@ export default async (
             inline: true,
           },
           { name: 'roles', value: (roles?.size ?? 0).toString(), inline: true },
-          { name: 'everyone?', value: everyone ? 'yes' : 'no', inline: true }
+          { name: 'everyone?', value: everyone ? 'yes' : 'no', inline: true },
         )
         .setFooter({ text: `sent at: ${message.createdAt}` })
 

@@ -11,7 +11,7 @@ import type { VoiceState } from 'discord.js'
 export default async (
   client: BotClient,
   oldState: VoiceState,
-  newState: VoiceState
+  newState: VoiceState,
 ): Promise<void> => {
   // Track voice stats
   statsHandler.trackVoiceStats(oldState, newState)

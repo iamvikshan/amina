@@ -57,7 +57,7 @@ const command: CommandData = {
       interaction.guild,
       type.toUpperCase(),
       name,
-      data.settings
+      data.settings,
     )
     return interaction.followUp(response)
   },
@@ -67,7 +67,7 @@ async function setupCounter(
   guild: Guild,
   type: string,
   name: string,
-  settings: any
+  settings: any,
 ): Promise<string> {
   let channelName = name
 
@@ -92,7 +92,7 @@ async function setupCounter(
   })
 
   const exists = settings.counters.find(
-    (v: any) => v.counter_type.toUpperCase() === type
+    (v: any) => v.counter_type.toUpperCase() === type,
   )
   if (exists) {
     exists.name = name

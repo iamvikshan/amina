@@ -12,7 +12,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showCleanupMethodMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('role cleanup')
@@ -21,7 +21,7 @@ export async function showCleanupMethodMenu(
         '**empty roles** - remove roles with no members\n' +
         '**name prefix** - remove roles starting with a specific prefix\n' +
         '**below position** - remove roles below a hierarchy position\n' +
-        '**older than** - remove roles created before a specific date'
+        '**older than** - remove roles created before a specific date',
     )
     .setFooter({ text: 'select a cleanup method from the menu below' })
 
@@ -46,7 +46,7 @@ export async function showCleanupMethodMenu(
           .setLabel('older than')
           .setDescription('delete roles older than N days')
           .setValue('older'),
-      ])
+      ]),
   )
 
   await interaction.editReply({
@@ -60,7 +60,7 @@ export async function showCleanupMethodMenu(
  * @param interaction
  */
 export async function handleCleanupMethodMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const method = interaction.values[0] as 'empty' | 'prefix' | 'below' | 'older'
 

@@ -19,13 +19,7 @@
       "@services/*": ["./src/services/*"]
     }
   },
-  "include": [
-    "src/**/*", 
-    "types/**/*", 
-    "tests/**/*",
-    "*.js", 
-    "*.mjs"
-  ],
+  "include": ["src/**/*", "types/**/*", "tests/**/*", "*.js", "*.mjs"],
   "exclude": [
     "node_modules",
     "dist",

@@ -82,7 +82,7 @@ const command: CommandData = {
 async function nickname(
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
-  name: string | null
+  name: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const { member, guild } = interaction
 
@@ -92,7 +92,7 @@ async function nickname(
         MinaEmbed.error(
           mina.sayf('moderation.nick.cannotManage', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -103,7 +103,7 @@ async function nickname(
         MinaEmbed.error(
           mina.sayf('moderation.nick.botCannotManage', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -116,8 +116,8 @@ async function nickname(
         MinaEmbed.success(
           mina.sayf(
             name ? 'moderation.nick.changed' : 'moderation.nick.reset',
-            { target: target.user.username }
-          )
+            { target: target.user.username },
+          ),
         ),
       ],
     }
@@ -129,8 +129,8 @@ async function nickname(
             name
               ? 'moderation.nick.failedChange'
               : 'moderation.nick.failedReset',
-            { target: target.displayName }
-          )
+            { target: target.displayName },
+          ),
         ),
       ],
     }

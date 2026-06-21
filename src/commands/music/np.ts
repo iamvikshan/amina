@@ -61,12 +61,12 @@ function nowPlaying({
               ? player.position
               : track.info.duration,
             player.position,
-            15
+            15,
           )[0] +
           '] ' +
           end,
         inline: false,
-      }
+      },
     )
 
   return { embeds: [embed] }

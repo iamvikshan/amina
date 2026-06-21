@@ -38,7 +38,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    data: { settings: any }
+    data: { settings: any },
   ) {
     const type = interaction.options.getString('type', true)
     const settings = data?.settings || {}
@@ -77,7 +77,7 @@ const command: CommandData = {
 async function getXpLeaderboard(
   guild: Guild,
   author: User,
-  settings: any = {}
+  settings: any = {},
 ): Promise<any> {
   // Create a cache key using the guild ID and the type of leaderboard
   const cacheKey = `${guild.id}:xp`
@@ -118,7 +118,7 @@ async function getXpLeaderboard(
 async function getInviteLeaderboard(
   guild: Guild,
   author: User,
-  settings: any = {}
+  settings: any = {},
 ): Promise<any> {
   // Create a cache key using the guild ID and the type of leaderboard
   const cacheKey = `${guild.id}:invite`

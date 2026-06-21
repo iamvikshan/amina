@@ -19,14 +19,14 @@ import { Logger } from '@helpers/Logger'
  * @param interaction
  */
 export async function showEditMenu(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('edit profile')
     .setDescription(
       'choose what you want to edit:\n\n' +
         '**basic info** - pronouns, birthdate, region, languages, timezone\n' +
-        '**misc info** - bio, interests, socials, favorites, goals'
+        '**misc info** - bio, interests, socials, favorites, goals',
     )
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -42,7 +42,7 @@ export async function showEditMenu(
           .setLabel('misc info')
           .setDescription('bio, interests, socials, favorites, goals')
           .setValue('misc'),
-      ])
+      ]),
   )
 
   const backRow = MinaRows.backRow('profile:btn:back')
@@ -66,7 +66,7 @@ export async function showEditMenu(
  * @param interaction
  */
 export async function handleEditMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const category = interaction.values[0]
 
@@ -95,7 +95,7 @@ export async function handleEditMenu(
  * @param interaction
  */
 export async function handleProfileModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   try {
     const customId = interaction.customId

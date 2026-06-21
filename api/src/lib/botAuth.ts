@@ -36,7 +36,7 @@ async function pbkdf2Derive(
   password: string,
   salt: Uint8Array,
   iterations: number,
-  keyLength: number
+  keyLength: number,
 ): Promise<ArrayBuffer> {
   const encoder = new TextEncoder()
   const keyMaterial = await crypto.subtle.importKey(
@@ -44,7 +44,7 @@ async function pbkdf2Derive(
     encoder.encode(password),
     'PBKDF2',
     false,
-    ['deriveBits']
+    ['deriveBits'],
   )
 
   return crypto.subtle.deriveBits(
@@ -55,7 +55,7 @@ async function pbkdf2Derive(
       hash: 'SHA-256',
     },
     keyMaterial,
-    keyLength * 8 // bits
+    keyLength * 8, // bits
   )
 }
 
@@ -78,7 +78,7 @@ export async function hashSecret(secret: string): Promise<string> {
     secret,
     salt,
     PBKDF2_ITERATIONS,
-    PBKDF2_KEYLEN
+    PBKDF2_KEYLEN,
   )
 
   // Return salt.hash format (both hex-encoded)
@@ -93,7 +93,7 @@ export async function hashSecret(secret: string): Promise<string> {
  */
 export async function verifySecretHash(
   secret: string,
-  storedValue: string
+  storedValue: string,
 ): Promise<boolean> {
   try {
     // Parse stored value to extract salt and hash
@@ -120,7 +120,7 @@ export async function verifySecretHash(
       secret,
       new Uint8Array(salt),
       PBKDF2_ITERATIONS,
-      PBKDF2_KEYLEN
+      PBKDF2_KEYLEN,
     )
     const derivedHash = Buffer.from(derivedBuffer)
 
@@ -146,7 +146,7 @@ export async function verifySecretHash(
 export async function verifyWithDiscord(
   clientId: string,
   clientSecret: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<{ valid: boolean; error?: string }> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
@@ -191,7 +191,7 @@ export async function verifyWithDiscord(
       } else {
         console.warn(
           '[botAuth] Discord API timeout during verification for client:',
-          clientId
+          clientId,
         )
       }
       return { valid: false, error: 'Discord API timeout' }
@@ -204,7 +204,7 @@ export async function verifyWithDiscord(
         err instanceof Error ? err : undefined,
         {
           clientId,
-        }
+        },
       )
     } else {
       console.error('[botAuth] Discord verification failed:', err)
@@ -222,7 +222,7 @@ export async function verifyWithDiscord(
 export async function fetchBotInfo(
   clientId: string,
   clientSecret: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<{
   success: boolean
   data?: { name: string; icon: string | null }
@@ -251,7 +251,7 @@ export async function fetchBotInfo(
           scope: 'identify applications.commands.update',
         }),
         signal: tokenController.signal,
-      }
+      },
     )
 
     clearTimeout(tokenTimeoutId)
@@ -309,7 +309,7 @@ export async function fetchBotInfo(
       } else {
         console.warn(
           '[botAuth] Discord API timeout during bot info fetch for client:',
-          clientId
+          clientId,
         )
       }
       return { success: false, error: 'Discord API timeout' }
@@ -322,7 +322,7 @@ export async function fetchBotInfo(
         err instanceof Error ? err : undefined,
         {
           clientId,
-        }
+        },
       )
     } else {
       console.error('[botAuth] Failed to fetch bot info:', err)
@@ -342,7 +342,7 @@ export async function fetchBotInfo(
  */
 export async function registerBot(
   kv: KVNamespace,
-  payload: BotRegisterPayload
+  payload: BotRegisterPayload,
 ): Promise<{ success: boolean; error?: string }> {
   const { clientId, clientSecret, ownerId, ...metadata } = payload
 
@@ -361,7 +361,7 @@ export async function registerBot(
   // Step 3: Store auth data (hashed secret)
   const now = new Date().toISOString()
   const verificationExpires = new Date(
-    Date.now() + VERIFICATION_TTL_MS
+    Date.now() + VERIFICATION_TTL_MS,
   ).toISOString()
 
   const authData: BotAuthData = {
@@ -413,7 +413,7 @@ export async function validateBotRequest(
   kv: KVNamespace,
   clientId: string,
   clientSecret: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<{ valid: boolean; error?: string; needsReVerification?: boolean }> {
   // Step 1: Get auth data from KV
   const authDataRaw = await kv.get(`bot:${clientId}:auth`)
@@ -448,7 +448,7 @@ export async function validateBotRequest(
       authData.secretHash = await hashSecret(clientSecret)
       authData.lastVerified = new Date().toISOString()
       authData.verificationExpires = new Date(
-        Date.now() + VERIFICATION_TTL_MS
+        Date.now() + VERIFICATION_TTL_MS,
       ).toISOString()
       await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData))
 
@@ -483,7 +483,7 @@ export async function validateBotRequest(
     // Update verification timestamp
     authData.lastVerified = now.toISOString()
     authData.verificationExpires = new Date(
-      Date.now() + VERIFICATION_TTL_MS
+      Date.now() + VERIFICATION_TTL_MS,
     ).toISOString()
     await kv.put(`bot:${clientId}:auth`, JSON.stringify(authData))
 
@@ -512,14 +512,14 @@ export async function deregisterBot(
   kv: KVNamespace,
   clientId: string,
   clientSecret: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<{ success: boolean; error?: string }> {
   // Validate credentials first
   const validation = await validateBotRequest(
     kv,
     clientId,
     clientSecret,
-    logger
+    logger,
   )
 
   if (!validation.valid) {
@@ -536,7 +536,7 @@ export async function deregisterBot(
 
   // Use Promise.allSettled to ensure all deletions are attempted
   const deletionResults = await Promise.allSettled(
-    keysToDelete.map(key => kv.delete(key))
+    keysToDelete.map(key => kv.delete(key)),
   )
 
   // Collect failed deletions for retry and monitoring
@@ -572,12 +572,12 @@ export async function deregisterBot(
       })
     } else {
       console.warn(
-        `[botAuth] Retrying ${failedDeletions.length} failed deletions for bot ${clientId}`
+        `[botAuth] Retrying ${failedDeletions.length} failed deletions for bot ${clientId}`,
       )
     }
 
     const retryResults = await Promise.allSettled(
-      failedDeletions.map(({ key }) => kv.delete(key))
+      failedDeletions.map(({ key }) => kv.delete(key)),
     )
 
     const stillFailed: string[] = []
@@ -614,7 +614,7 @@ export async function deregisterBot(
       } else {
         console.error(
           `[botAuth] Bot deregistration incomplete for ${clientId}. Failed keys:`,
-          stillFailed
+          stillFailed,
         )
       }
       return {
@@ -644,7 +644,7 @@ export async function verifyBotOwnership(
   kv: KVNamespace,
   clientId: string,
   userId: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<boolean> {
   const authDataRaw = await kv.get(`bot:${clientId}:auth`)
 

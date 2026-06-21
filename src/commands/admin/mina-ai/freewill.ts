@@ -16,7 +16,7 @@ function getFreeWillChannels(settings: any): string[] {
 function toggleFreeWillChannel(
   currentChannels: string[],
   channelId: string,
-  guildId: string
+  guildId: string,
 ): { channels: string[]; action: 'added' | 'removed' | 'limit_reached' } {
   const isTest = isTestGuild(guildId)
   const maxChannels = isTest ? Infinity : 2
@@ -43,12 +43,12 @@ function toggleFreeWillChannel(
 
 export default async function freewillHandler(
   interaction: ChatInputCommandInteraction,
-  settings: any
+  settings: any,
 ) {
   const guild = interaction.guild
   if (!guild) {
     const errorEmbed = MinaEmbed.error().setDescription(
-      'This command must be used in a server (guild).'
+      'This command must be used in a server (guild).',
     )
     if (interaction.deferred || interaction.replied) {
       await interaction.followUp({ embeds: [errorEmbed], ephemeral: true })
@@ -63,7 +63,7 @@ export default async function freewillHandler(
   const { channels: newChannels, action } = toggleFreeWillChannel(
     currentChannels,
     channel.id,
-    guild.id
+    guild.id,
   )
 
   if (action === 'limit_reached') {
@@ -71,7 +71,7 @@ export default async function freewillHandler(
       `**limit reached!**\n\n` +
         `you can only have up to 2 free-will channels. current channels:\n` +
         newChannels.map(id => `<#${id}>`).join(', ') +
-        `\n\nremove a channel first to add a new one.`
+        `\n\nremove a channel first to add a new one.`,
     )
     await interaction.followUp({ embeds: [embed] })
     return
@@ -98,7 +98,7 @@ export default async function freewillHandler(
           `i'll respond to all messages in these channels without needing @mentions!`
       : `**free-will channel removed!**\n\n` +
           `removed ${channel} from free-will channels.\n` +
-          `current channels: ${channelList || 'none'}`
+          `current channels: ${channelList || 'none'}`,
   )
 
   await interaction.followUp({ embeds: [embed] })

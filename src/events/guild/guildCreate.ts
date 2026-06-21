@@ -44,7 +44,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
       const botMember = guild.members.me
       if (!botMember) {
         client.logger.warn(
-          `Bot member not found in guild ${guild.id}, cannot create invite`
+          `Bot member not found in guild ${guild.id}, cannot create invite`,
         )
         inviteLink = 'Unable to create invite link'
       } else {
@@ -53,7 +53,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
             channel.type === ChannelType.GuildText &&
             channel
               .permissionsFor(botMember)
-              .has(PermissionFlagsBits.CreateInstantInvite)
+              .has(PermissionFlagsBits.CreateInstantInvite),
         )
 
         if (targetChannel) {
@@ -75,7 +75,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
 
   // Create the buttons
   const row = MinaRows.from(
-    MinaButtons.support(config.BOT.SUPPORT_SERVER as string)
+    MinaButtons.support(config.BOT.SUPPORT_SERVER as string),
   )
 
   // Only proceed if setup is not completed
@@ -88,7 +88,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
             channel.type === ChannelType.GuildText &&
             channel
               .permissionsFor(botMember)
-              .has(PermissionFlagsBits.SendMessages)
+              .has(PermissionFlagsBits.SendMessages),
         )
       : null
 
@@ -100,7 +100,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
           mina.sayf('greetings.joinServer.description', {
             server: guild.name,
           }) +
-            `\n\n[${mina.say('botInfo.invite.support')}](${config.BOT.SUPPORT_SERVER})`
+            `\n\n[${mina.say('botInfo.invite.support')}](${config.BOT.SUPPORT_SERVER})`,
         )
         .setFooter({
           text: mina.say('greetings.joinServer.footer'),
@@ -124,11 +124,11 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
       if (owner) {
         const dmEmbed = MinaEmbed.success()
           .setTitle(
-            mina.sayf('greetings.joinDM.title', { user: owner.user.username })
+            mina.sayf('greetings.joinDM.title', { user: owner.user.username }),
           )
           .setDescription(
             mina.sayf('greetings.joinDM.description', { server: guild.name }) +
-              `\n\n[${mina.say('botInfo.invite.support')}](${config.BOT.SUPPORT_SERVER})`
+              `\n\n[${mina.say('botInfo.invite.support')}](${config.BOT.SUPPORT_SERVER})`,
           )
           .setFooter({ text: mina.say('greetings.joinDM.footer') })
 
@@ -175,7 +175,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
             name: 'invite link',
             value: inviteLink,
             inline: false,
-          }
+          },
         )
         .setFooter({ text: `guild #${client.guilds.cache.size}` })
 
@@ -185,7 +185,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
         embeds: [embed],
       })
       client.logger.success(
-        'Successfully sent webhook message for guild join event.'
+        'Successfully sent webhook message for guild join event.',
       )
     } catch (err: any) {
       client.logger.error(`Failed to send join webhook message: ${err.message}`)

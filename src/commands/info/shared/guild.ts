@@ -22,20 +22,20 @@ export default async function guildInfo(guild: Guild) {
 
   const totalChannels = channels.cache.size
   const categories = channels.cache.filter(
-    c => c.type === ChannelType.GuildCategory
+    c => c.type === ChannelType.GuildCategory,
   ).size
   const textChannels = channels.cache.filter(
-    c => c.type === ChannelType.GuildText
+    c => c.type === ChannelType.GuildText,
   ).size
   const voiceChannels = channels.cache.filter(
     c =>
       c.type === ChannelType.GuildVoice ||
-      c.type === ChannelType.GuildStageVoice
+      c.type === ChannelType.GuildStageVoice,
   ).size
   const threadChannels = channels.cache.filter(
     c =>
       c.type === ChannelType.PrivateThread ||
-      c.type === ChannelType.PublicThread
+      c.type === ChannelType.PublicThread,
   ).size
 
   const memberCache = guild.members.cache
@@ -43,10 +43,10 @@ export default async function guildInfo(guild: Guild) {
   const bots = memberCache.filter(m => m.user.bot).size
   const users = all - bots
   const onlineUsers = memberCache.filter(
-    m => !m.user.bot && m.presence?.status === 'online'
+    m => !m.user.bot && m.presence?.status === 'online',
   ).size
   const onlineBots = memberCache.filter(
-    m => m.user.bot && m.presence?.status === 'online'
+    m => m.user.bot && m.presence?.status === 'online',
   ).size
   const onlineAll = onlineUsers + onlineBots
   const rolesCount = roles.cache.size
@@ -132,7 +132,7 @@ export default async function guildInfo(guild: Guild) {
         }),
         value: `\`\`\`${createdAt.format('dddd, Do MMMM YYYY')}\`\`\``,
         inline: false,
-      }
+      },
     )
 
   if (guild.splashURL())

@@ -17,7 +17,7 @@ export function success<T>(
     status?: ContentfulStatusCode
     cached?: boolean
     cacheAge?: number
-  }
+  },
 ): Response {
   const meta: Extract<ApiResponse<T>, { success: true }>['meta'] = {
     generatedAt: new Date().toISOString(),
@@ -50,7 +50,7 @@ export function error(
     status?: ContentfulStatusCode
     code?: string
     details?: unknown
-  }
+  },
 ): Response {
   const errorObj: Extract<ApiResponse, { success: false }>['error'] = {
     message,

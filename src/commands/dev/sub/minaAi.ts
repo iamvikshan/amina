@@ -30,7 +30,7 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
     routingDisplay = router.getRoutingSummary()
   } catch (err) {
     Logger.warn(
-      `Failed to load AI config cache for status display: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to load AI config cache for status display: ${err instanceof Error ? err.message : String(err)}`,
     )
     authModeDisplay = '`error loading config`'
     routingDisplay = {
@@ -110,7 +110,7 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
         name: 'updated by',
         value: config.updatedBy ? `<@${config.updatedBy}>` : 'n/a',
         inline: true,
-      }
+      },
     )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
@@ -126,7 +126,7 @@ export async function aiStatus(interaction: ChatInputCommandInteraction) {
 
 export async function toggleGlobal(
   interaction: ChatInputCommandInteraction,
-  enabled: boolean
+  enabled: boolean,
 ) {
   await updateAiConfig({
     globallyEnabled: enabled,
@@ -139,7 +139,7 @@ export async function toggleGlobal(
 
   const embed = enabled ? MinaEmbed.success() : MinaEmbed.warning()
   embed.setDescription(
-    `ai has been globally **${enabled ? 'enabled' : 'disabled'}**${enabled ? '!' : ''}`
+    `ai has been globally **${enabled ? 'enabled' : 'disabled'}**${enabled ? '!' : ''}`,
   )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
@@ -155,7 +155,7 @@ export async function toggleGlobal(
 
 export async function setModel(
   interaction: ChatInputCommandInteraction,
-  model: string
+  model: string,
 ) {
   await updateAiConfig({
     model,
@@ -167,7 +167,7 @@ export async function setModel(
   await aiResponderService.initialize()
 
   const embed = MinaEmbed.success().setDescription(
-    `model updated to \`${model}\``
+    `model updated to \`${model}\``,
   )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
@@ -183,11 +183,11 @@ export async function setModel(
 
 export async function setTokens(
   interaction: ChatInputCommandInteraction,
-  tokens: number
+  tokens: number,
 ) {
   if (tokens < 100 || tokens > 4096) {
     const embed = MinaEmbed.error().setDescription(
-      'tokens must be between 100 and 4096'
+      'tokens must be between 100 and 4096',
     )
     // Use editReply if available (hub context), otherwise followUp (command context)
     if (
@@ -208,7 +208,7 @@ export async function setTokens(
   // No re-initialization needed - maxTokens is used per-request
 
   const embed = MinaEmbed.success().setDescription(
-    `max tokens set to ${tokens}`
+    `max tokens set to ${tokens}`,
   )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
@@ -224,11 +224,11 @@ export async function setTokens(
 
 export async function setTemperature(
   interaction: ChatInputCommandInteraction,
-  temperature: number
+  temperature: number,
 ) {
   if (temperature < 0 || temperature > 2) {
     const embed = MinaEmbed.error().setDescription(
-      'temperature must be between 0 and 2'
+      'temperature must be between 0 and 2',
     )
     // Use editReply if available (hub context), otherwise followUp (command context)
     if (
@@ -249,7 +249,7 @@ export async function setTemperature(
   // No re-initialization needed - temperature is used per-request
 
   const embed = MinaEmbed.success().setDescription(
-    `temperature set to ${temperature}`
+    `temperature set to ${temperature}`,
   )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
@@ -265,7 +265,7 @@ export async function setTemperature(
 
 export async function toggleDm(
   interaction: ChatInputCommandInteraction,
-  enabled: boolean
+  enabled: boolean,
 ) {
   await updateAiConfig({
     dmEnabledGlobally: enabled,
@@ -276,7 +276,7 @@ export async function toggleDm(
 
   const embed = enabled ? MinaEmbed.success() : MinaEmbed.warning()
   embed.setDescription(
-    `global dm support **${enabled ? 'enabled' : 'disabled'}**`
+    `global dm support **${enabled ? 'enabled' : 'disabled'}**`,
   )
 
   // Use editReply if available (hub context), otherwise followUp (command context)
@@ -327,7 +327,7 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
             stats.topUsers.length > 0
               ? stats.topUsers
                   .map(
-                    (u, i) => `${i + 1}. <@${u.userId}> - ${u.count} memories`
+                    (u, i) => `${i + 1}. <@${u.userId}> - ${u.count} memories`,
                   )
                   .join('\n')
               : 'no users yet',
@@ -342,7 +342,7 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
           name: 'total access count',
           value: `${stats.totalAccessCount.toLocaleString()} recalls`,
           inline: true,
-        }
+        },
       )
       .setFooter({
         text: 'memory system powered by mongodb atlas vector search',
@@ -361,10 +361,10 @@ export async function memoryStats(interaction: ChatInputCommandInteraction) {
   } catch (error) {
     Logger.error(
       'Failed to fetch memory statistics:',
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     )
     const errorEmbed = MinaEmbed.error().setDescription(
-      'failed to fetch memory statistics. check logs for details.'
+      'failed to fetch memory statistics. check logs for details.',
     )
 
     // Use editReply if available (hub context), otherwise followUp (command context)

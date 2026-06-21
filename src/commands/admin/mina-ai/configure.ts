@@ -5,14 +5,14 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function configureHandler(
   interaction: ChatInputCommandInteraction,
-  settings: any
+  settings: any,
 ) {
   const enabled = interaction.options.getBoolean('enabled', true)
   const globalConfig = await getAiConfig()
 
   if (enabled && !globalConfig.globallyEnabled) {
     const embed = MinaEmbed.error().setDescription(
-      'ai is currently disabled globally by the bot owner. please try again later!'
+      'ai is currently disabled globally by the bot owner. please try again later!',
     )
     return interaction.followUp({ embeds: [embed] })
   }
@@ -36,7 +36,7 @@ export default async function configureHandler(
 
   const embed = enabled ? MinaEmbed.success() : MinaEmbed.warning()
   embed.setDescription(
-    `ai has been **${enabled ? 'enabled' : 'disabled'}** for this server!`
+    `ai has been **${enabled ? 'enabled' : 'disabled'}** for this server!`,
   )
 
   await interaction.followUp({ embeds: [embed] })

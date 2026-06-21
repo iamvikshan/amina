@@ -22,7 +22,7 @@ export const model = mongoose.model('tod', Schema)
 export async function addQuestion(
   category: string,
   question: string,
-  rating: string
+  rating: string,
 ): Promise<string> {
   const latestQuestion = await model.findOne({ category }).sort({
     questionId: -1,
@@ -64,7 +64,7 @@ export async function getQuestions(
   limit: number = 10,
   category: string = 'random',
   age: number | null = null,
-  requestedRating: string | null = null
+  requestedRating: string | null = null,
 ): Promise<any[]> {
   // Get allowed ratings based on age
   const allowedRatings = getAllowedRatings(age)

@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     container_name: amina
-    restart: "no"
+    restart: 'no'
     depends_on:
       lavalink:
         condition: service_healthy
@@ -14,14 +14,14 @@ services:
     networks:
       - amina-network
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - .:/app
       - /app/node_modules
     stdin_open: true
     tty: true
     healthcheck:
-      test: ["CMD", "bun", "run", "src/services/health.ts"]
+      test: ['CMD', 'bun', 'run', 'src/services/health.ts']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -30,7 +30,7 @@ services:
   lavalink:
     image: ghcr.io/lavalink-devs/lavalink:latest
     container_name: lavalink
-    restart: "no"
+    restart: 'no'
     env_file:
       - .env
     environment:
@@ -40,10 +40,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: '1.0'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
     volumes:
       # Directly mount the local dev config file - no root scripts required
@@ -51,11 +51,11 @@ services:
     networks:
       - amina-network
     ports:
-      - "2333:2333"
+      - '2333:2333'
     healthcheck:
       test:
         [
-          "CMD-SHELL",
+          'CMD-SHELL',
           "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version || exit 1",
         ]
       interval: 30s

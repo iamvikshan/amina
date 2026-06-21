@@ -30,7 +30,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    data: { settings: any }
+    data: { settings: any },
   ) {
     if (!interaction.guild) {
       return interaction.followUp('This command can only be used in a server.')
@@ -42,7 +42,7 @@ const command: CommandData = {
       member = await interaction.guild.members.fetch(user.id)
     } catch (_ex) {
       return interaction.followUp(
-        'Failed to fetch member information. The user might not be in this server.'
+        'Failed to fetch member information. The user might not be in this server.',
       )
     }
 
@@ -77,7 +77,7 @@ async function getRank(guild: any, member: GuildMember, settings: any) {
     url.searchParams.append('discriminator', user.discriminator)
   url.searchParams.append(
     'avatar',
-    user.displayAvatarURL({ extension: 'png', size: 128 })
+    user.displayAvatarURL({ extension: 'png', size: 128 }),
   )
   url.searchParams.append('currentxp', memberStats.xp.toString())
   url.searchParams.append('reqxp', xpNeeded.toString())
@@ -85,7 +85,7 @@ async function getRank(guild: any, member: GuildMember, settings: any) {
   url.searchParams.append('barcolor', mina.color.primary.toString())
   url.searchParams.append(
     'status',
-    member?.presence?.status?.toString() || 'idle'
+    member?.presence?.status?.toString() || 'idle',
   )
   url.searchParams.append('rank', rank.toString())
 

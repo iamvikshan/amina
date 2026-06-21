@@ -13,7 +13,7 @@ import { memberInteract, logModeration } from './core'
 export async function warnTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -33,7 +33,7 @@ export async function warnTarget(
         issuer.guild.members.me as GuildMember,
         target,
         'Max warnings reached',
-        settings.max_warn.action
+        settings.max_warn.action,
       )
       memberDb.warnings = 0 // reset warnings
     }

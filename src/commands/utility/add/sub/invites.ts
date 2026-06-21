@@ -11,7 +11,7 @@ const { getEffectiveInvites, checkInviteRewards } = inviteHandler
  * @param interaction
  */
 export async function handleAddInvites(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   // Guild check
   if (!interaction.guild) {
@@ -61,7 +61,7 @@ export async function handleAddInvites(
       .setAuthor({ name: `added invites to ${user.username}` })
       .setThumbnail(user.displayAvatarURL())
       .setDescription(
-        `${user.username} now has ${getEffectiveInvites(memberDb.invite_data)} invites`
+        `${user.username} now has ${getEffectiveInvites(memberDb.invite_data)} invites`,
       )
 
     checkInviteRewards(interaction.guild, memberDb, true)

@@ -22,7 +22,7 @@ import { createLogger } from '@lib/logger'
  * @returns Bot client secret if authenticated, null otherwise
  */
 export function getBotClientSecret(
-  c: Context<{ Bindings: Env; Variables: BotAuthContext }>
+  c: Context<{ Bindings: Env; Variables: BotAuthContext }>,
 ): string | null {
   return c.get('botClientSecret') || null
 }
@@ -35,7 +35,7 @@ export function getBotClientSecret(
  */
 export async function botAuthMiddleware(
   c: Context<{ Bindings: Env; Variables: BotAuthContext }>,
-  next: Next
+  next: Next,
 ) {
   const clientId = c.req.header('X-Client-Id')
   const clientSecret = c.req.header('X-Client-Secret')
@@ -76,7 +76,7 @@ export async function botAuthMiddleware(
         path: c.req.path,
         method: c.req.method,
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Bot authentication failed')
   }
@@ -85,7 +85,7 @@ export async function botAuthMiddleware(
     if (validation.needsReVerification) {
       return errors.unauthorized(
         c,
-        'Bot credentials expired. Please re-register.'
+        'Bot credentials expired. Please re-register.',
       )
     }
     return errors.unauthorized(c, validation.error || 'Invalid bot credentials')
@@ -107,7 +107,7 @@ export async function botAuthMiddleware(
  */
 export async function optionalBotAuthMiddleware(
   c: Context<{ Bindings: Env; Variables: Partial<BotAuthContext> }>,
-  next: Next
+  next: Next,
 ) {
   const clientId = c.req.header('X-Client-Id')
   const clientSecret = c.req.header('X-Client-Secret')
@@ -124,7 +124,7 @@ export async function optionalBotAuthMiddleware(
         c.env.BOTS,
         clientId,
         clientSecret,
-        logger
+        logger,
       )
     } catch (err) {
       logger.error(
@@ -134,7 +134,7 @@ export async function optionalBotAuthMiddleware(
           path: c.req.path,
           method: c.req.method,
           clientId,
-        }
+        },
       )
       // Don't fail the request for optional auth
       await next()

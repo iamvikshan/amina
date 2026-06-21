@@ -5,7 +5,7 @@ export default async function edit(
   messageId: string,
   addDuration: number | null,
   newPrize: string | null,
-  newWinnerCount: number | null
+  newWinnerCount: number | null,
 ): Promise<string> {
   if (!messageId) return 'You must provide a valid message id.'
 
@@ -16,7 +16,7 @@ export default async function edit(
 
   // Search with messageId
   const giveaway = (member.client as any).giveawaysManager.giveaways.find(
-    (g: any) => g.messageId === messageId && g.guildId === member.guild.id
+    (g: any) => g.messageId === messageId && g.guildId === member.guild.id,
   )
 
   // If no giveaway was found

@@ -8,7 +8,7 @@ const { buildGreeting } = greetingHandler
 export async function sendPreview(
   settings: any,
   member: GuildMember,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
   const greetingSettings = settings[greetingKey]
@@ -17,7 +17,7 @@ export async function sendPreview(
     return `the ${greetingKey} message is not enabled in this server.`
 
   const targetChannel = member.guild.channels.cache.get(
-    greetingSettings.channel
+    greetingSettings.channel,
   ) as TextChannel
   if (!targetChannel)
     return `no channel is configured to send the ${greetingKey} message.`
@@ -34,7 +34,7 @@ export async function sendPreview(
 export async function setStatus(
   settings: any,
   status: string,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
 
@@ -47,7 +47,7 @@ export async function setStatus(
 export async function setChannel(
   settings: any,
   channel: TextChannel,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
 
@@ -68,7 +68,7 @@ export async function setChannel(
 export async function setDescription(
   settings: any,
   desc: string,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
 
@@ -81,7 +81,7 @@ export async function setDescription(
 export async function setThumbnail(
   settings: any,
   status: string,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
 
@@ -94,7 +94,7 @@ export async function setThumbnail(
 export async function setColor(
   settings: any,
   color: string,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
 
@@ -107,7 +107,7 @@ export async function setColor(
 export async function setFooter(
   settings: any,
   content: string,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
 
@@ -120,7 +120,7 @@ export async function setFooter(
 export async function setImage(
   settings: any,
   url: string,
-  greetingType: GreetingType
+  greetingType: GreetingType,
 ): Promise<string> {
   const greetingKey = greetingType.toLowerCase()
 

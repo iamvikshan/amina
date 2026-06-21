@@ -53,7 +53,7 @@ const command: CommandData = {
       .setDescription(mina.sayf('utility.qrcode.description', { url: text }))
       .setImage(encodedURL)
       .setThumbnail(
-        'https://img.freepik.com/vector-premium/personaje-dibujos-animados-codigo-qr-buscando-lupa-diseno-lindo_152558-13614.jpg?w=826'
+        'https://img.freepik.com/vector-premium/personaje-dibujos-animados-codigo-qr-buscando-lupa-diseno-lindo_152558-13614.jpg?w=826',
       )
       .setFooter({ text: interaction.guild?.name || 'qr code generator' })
       .setTimestamp()

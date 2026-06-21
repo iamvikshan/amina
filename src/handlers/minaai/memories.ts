@@ -30,7 +30,7 @@ const MAX_CATEGORY_PAGES = 2 // Maximum pages in category view before showing DM
  */
 export async function showMemoriesView(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
-  memoryTypeParam?: 'server' | 'dm'
+  memoryTypeParam?: 'server' | 'dm',
 ): Promise<void> {
   try {
     const userId = interaction.user.id
@@ -68,14 +68,14 @@ export async function showMemoriesView(
         .setTitle(
           mina.sayf('minaai.memories.empty.title', {
             type: memoryType === 'dm' ? 'dm' : 'server',
-          })
+          }),
         )
         .setDescription(
           mina.sayf('minaai.memories.empty.description', {
             type: memoryType === 'dm' ? 'dm' : 'server',
           }) +
             '\n\n' +
-            mina.say('minaai.memories.empty.note')
+            mina.say('minaai.memories.empty.note'),
         )
         .setFooter({
           text: mina.say('minaai.memories.empty.footer'),
@@ -103,11 +103,11 @@ export async function showMemoriesView(
     const memoryTypes = Object.keys(byType).sort((a, b) => {
       const aTotal = byType[a].reduce(
         (sum, m) => sum + m.importance + m.accessCount,
-        0
+        0,
       )
       const bTotal = byType[b].reduce(
         (sum, m) => sum + m.importance + m.accessCount,
-        0
+        0,
       )
       return bTotal - aTotal
     })
@@ -118,14 +118,14 @@ export async function showMemoriesView(
         mina.sayf('minaai.memories.view.title', {
           type: memoryType === 'dm' ? 'dm' : 'server',
           count: memories.length.toString(),
-        })
+        }),
       )
       .setDescription(
         mina.sayf('minaai.memories.view.description', {
           type: memoryType === 'dm' ? 'dm' : 'server',
         }) +
           '\n\n' +
-          mina.say('minaai.memories.view.note')
+          mina.say('minaai.memories.view.note'),
       )
       .setFooter({
         text: mina.say('minaai.memories.view.footer'),
@@ -147,7 +147,7 @@ export async function showMemoriesView(
       const remaining = mems.length - MEMORIES_PER_TYPE_PREVIEW
       if (remaining > 0) {
         lines.push(
-          `_${mina.sayf('minaai.memories.more', { count: remaining.toString(), type })}_`
+          `_${mina.sayf('minaai.memories.more', { count: remaining.toString(), type })}_`,
         )
       }
 
@@ -162,8 +162,8 @@ export async function showMemoriesView(
         MinaButtons.custom(
           `minaai:btn:category|type:${type}|mem_type:${memoryType}|page:1`,
           `${capitalizeFirst(type)} (${mems.length})`,
-          1
-        )
+          1,
+        ),
       )
       categoryButtons.push(categoryBtn)
     }
@@ -190,8 +190,8 @@ export async function showMemoriesView(
       MinaButtons.custom(
         buildCustomId('dm_me', currentPage),
         mina.say('minaai.memories.buttons.dmMe'),
-        2
-      )
+        2,
+      ),
     )
 
     // Back button
@@ -209,12 +209,12 @@ export async function showMemoriesView(
     })
 
     logger.log(
-      `User ${userId} viewed ${memoryType} memories (${memories.length} total) in guild ${guildId}`
+      `User ${userId} viewed ${memoryType} memories (${memories.length} total) in guild ${guildId}`,
     )
   } catch (error) {
     logger.error(
       `Error fetching user memories: ${(error as Error).message}`,
-      error as Error
+      error as Error,
     )
 
     const errorEmbed = MinaEmbed.error()
@@ -235,7 +235,7 @@ export async function showMemoriesView(
  * @param interaction
  */
 export async function showCategoryDetailView(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   try {
     await interaction.deferUpdate()
@@ -268,13 +268,13 @@ export async function showCategoryDetailView(
           mina.sayf('minaai.memories.category.title', {
             category: capitalizeFirst(categoryType),
             count: '0',
-          })
+          }),
         )
         .setDescription(mina.say('minaai.memories.category.empty'))
         .setFooter({ text: mina.say('minaai.memories.category.emptyFooter') })
 
       const backButton = MinaRows.backRow(
-        `minaai:btn:back_memories|type:${memType}|page:1`
+        `minaai:btn:back_memories|type:${memType}|page:1`,
       )
 
       await interaction.editReply({
@@ -287,7 +287,7 @@ export async function showCategoryDetailView(
     // Calculate pagination (max 2 pages)
     const totalPages = Math.min(
       Math.ceil(memories.length / MEMORIES_PER_CATEGORY_PAGE),
-      MAX_CATEGORY_PAGES
+      MAX_CATEGORY_PAGES,
     )
     const startIndex = (currentPage - 1) * MEMORIES_PER_CATEGORY_PAGE
     const endIndex = startIndex + MEMORIES_PER_CATEGORY_PAGE
@@ -299,14 +299,14 @@ export async function showCategoryDetailView(
         mina.sayf('minaai.memories.category.title', {
           category: capitalizeFirst(categoryType),
           count: memories.length.toString(),
-        })
+        }),
       )
       .setDescription(
         mina.sayf('minaai.memories.category.description', {
           category: categoryType,
         }) +
           '\n\n' +
-          mina.say('minaai.memories.category.note')
+          mina.say('minaai.memories.category.note'),
       )
       .setFooter({
         text: mina.sayf('minaai.memories.category.footer', {
@@ -349,20 +349,20 @@ export async function showCategoryDetailView(
       // Update custom IDs
       if (hasPrev) {
         navRow.components[0].setCustomId(
-          buildCustomId('category_page', currentPage - 1)
+          buildCustomId('category_page', currentPage - 1),
         )
       }
       if (hasNext) {
         const nextIndex = hasPrev ? 1 : 0
         navRow.components[nextIndex].setCustomId(
-          buildCustomId('category_page', currentPage + 1)
+          buildCustomId('category_page', currentPage + 1),
         )
       }
     }
 
     // Back button
     const backButton = MinaRows.backRow(
-      `minaai:btn:back_memories|type:${memType}|page:1`
+      `minaai:btn:back_memories|type:${memType}|page:1`,
     )
 
     // Combine components
@@ -377,8 +377,8 @@ export async function showCategoryDetailView(
         MinaButtons.custom(
           buildCustomId('dm_me_category', currentPage),
           mina.say('minaai.memories.buttons.dmMe'),
-          2
-        )
+          2,
+        ),
       )
       components.push(dmMeButton)
     }
@@ -391,12 +391,12 @@ export async function showCategoryDetailView(
     })
 
     logger.log(
-      `User ${userId} viewed category ${categoryType} (page ${currentPage}/${totalPages}) in guild ${guildId}`
+      `User ${userId} viewed category ${categoryType} (page ${currentPage}/${totalPages}) in guild ${guildId}`,
     )
   } catch (error) {
     logger.error(
       `Error showing category detail: ${(error as Error).message}`,
-      error as Error
+      error as Error,
     )
 
     const errorEmbed = MinaEmbed.error()
@@ -417,7 +417,7 @@ export async function showCategoryDetailView(
  * @param interaction
  */
 export async function handleDmMe(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   try {
     await interaction.deferUpdate()
@@ -531,18 +531,18 @@ export async function handleDmMe(
         mina.sayf('minaai.memories.view.title', {
           type: memoryTypeLabel,
           count: memories.length.toString(),
-        })
+        }),
       )
       .setDescription(
         `here are your memories!\n\n` +
           `**total:** ${memories.length} memories\n\n` +
-          `click the button below to view all memories.`
+          `click the button below to view all memories.`,
       )
       .setFooter({ text: 'privacy first!' })
       .setTimestamp()
 
     const viewButton = MinaRows.from(
-      MinaButtons.link(binUrl.short, 'view all memories')
+      MinaButtons.link(binUrl.short, 'view all memories'),
     )
 
     // Try to DM user
@@ -567,12 +567,12 @@ export async function handleDmMe(
     }
 
     logger.log(
-      `User ${userId} requested DM with ${memories.length} memories (type: ${memType}, category: ${isCategoryView && categoryType ? categoryType : 'all'})`
+      `User ${userId} requested DM with ${memories.length} memories (type: ${memType}, category: ${isCategoryView && categoryType ? categoryType : 'all'})`,
     )
   } catch (error) {
     logger.error(
       `Error handling DM Me: ${(error as Error).message}`,
-      error as Error
+      error as Error,
     )
 
     await interaction.followUp({
@@ -587,7 +587,7 @@ export async function handleDmMe(
  * @param interaction
  */
 export async function handleCategoryPage(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await showCategoryDetailView(interaction)
 }
@@ -597,7 +597,7 @@ export async function handleCategoryPage(
  * @param interaction
  */
 export async function handleBackToMemories(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   // Parse state to preserve memory type
   const { state } = parseCustomIdState(interaction.customId)

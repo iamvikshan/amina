@@ -14,7 +14,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showRemoveTodModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const questionIdInput = new TextInputBuilder({
     customId: 'question_id',
@@ -26,7 +26,7 @@ export async function showRemoveTodModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    questionIdInput
+    questionIdInput,
   )
 
   const modal = new ModalBuilder({
@@ -43,7 +43,7 @@ export async function showRemoveTodModal(
  * @param interaction
  */
 export async function handleRemoveTodModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferReply({ ephemeral: true })
 
@@ -59,7 +59,7 @@ export async function handleRemoveTodModal(
         `**id**: \`${deletedQuestion.questionId}\`\n` +
         `**category**: ${deletedQuestion.category}\n` +
         `**question**: "${deletedQuestion.question}"\n` +
-        `**rating**: ${deletedQuestion.rating}`
+        `**rating**: ${deletedQuestion.rating}`,
     )
 
     await interaction.editReply({ embeds: [embed] })

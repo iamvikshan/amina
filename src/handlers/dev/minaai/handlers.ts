@@ -32,7 +32,7 @@ import { loadPrompt } from '@helpers/promptLoader'
  * @param interaction
  */
 export async function showMinaAiMenu(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const config = await getAiConfig()
 
@@ -76,7 +76,7 @@ export async function showMinaAiMenu(
     const binResponse = await postToBin(currentPrompt, 'Amina AI System Prompt')
     if (binResponse) {
       promptLinkButton = MinaRows.single(
-        MinaButtons.link(binResponse.url, 'view full prompt')
+        MinaButtons.link(binResponse.url, 'view full prompt'),
       )
     }
   }
@@ -146,7 +146,7 @@ export async function showMinaAiMenu(
         name: 'updated by',
         value: config.updatedBy ? `<@${config.updatedBy}>` : 'n/a',
         inline: true,
-      }
+      },
     )
     .setFooter({ text: 'select an operation below to edit settings' })
 
@@ -178,8 +178,8 @@ export async function showMinaAiMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel('memory stats')
           .setDescription('view memory system statistics')
-          .setValue('memory-stats')
-      )
+          .setValue('memory-stats'),
+      ),
   )
 
   const backRow = MinaRows.backRow('dev:btn:back_minaai')
@@ -200,7 +200,7 @@ export async function showMinaAiMenu(
  * @param interaction
  */
 export async function handleMinaAiMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const operation = interaction.values[0]
 
@@ -214,7 +214,7 @@ export async function handleMinaAiMenu(
  */
 export async function handleMinaAiOperation(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
-  operation: string
+  operation: string,
 ): Promise<void> {
   // Define a partial interface for what we need from the interaction
   interface MockInteraction extends Pick<
@@ -263,7 +263,7 @@ export async function handleMinaAiOperation(
       await showBooleanSelect(
         interaction,
         'toggle-global',
-        'Enable/Disable AI Globally'
+        'Enable/Disable AI Globally',
       )
       break
     }
@@ -291,7 +291,7 @@ export async function handleMinaAiOperation(
       await showBooleanSelect(
         interaction,
         'toggle-dm',
-        'Enable/Disable Global DM Support'
+        'Enable/Disable Global DM Support',
       )
       break
     }
@@ -312,8 +312,9 @@ export async function handleMinaAiOperation(
           if (
             !components.some((row: any) =>
               row.components?.some(
-                (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu'
-              )
+                (btn: any) =>
+                  btn.data?.custom_id === 'dev:btn:back_minaai_menu',
+              ),
             )
           ) {
             components.push(backRow)
@@ -350,7 +351,7 @@ export async function handleMinaAiOperation(
 async function showBooleanSelect(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
   operation: string,
-  title: string
+  title: string,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle(`${title}`)
@@ -368,8 +369,8 @@ async function showBooleanSelect(
         new StringSelectMenuOptionBuilder()
           .setLabel('disable')
           .setDescription('disable this feature')
-          .setValue('false')
-      )
+          .setValue('false'),
+      ),
   )
 
   const backRow = MinaRows.backRow('dev:btn:back_minaai_menu')
@@ -387,7 +388,7 @@ async function showBooleanSelect(
  */
 export async function handleMinaAiToggle(
   interaction: StringSelectMenuInteraction,
-  operation: string
+  operation: string,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -407,8 +408,8 @@ export async function handleMinaAiToggle(
       if (
         !components.some((row: any) =>
           row.components?.some(
-            (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu'
-          )
+            (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu',
+          ),
         )
       ) {
         components.push(backRow)
@@ -434,7 +435,7 @@ export async function handleMinaAiToggle(
  * @param interaction
  */
 async function showModelModal(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const modelInput = new TextInputBuilder({
     customId: 'model',
@@ -446,7 +447,7 @@ async function showModelModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    modelInput
+    modelInput,
   )
 
   const modal = new ModalBuilder({
@@ -463,7 +464,7 @@ async function showModelModal(
  * @param interaction
  */
 async function showTokensModal(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const tokensInput = new TextInputBuilder({
     customId: 'tokens',
@@ -475,7 +476,7 @@ async function showTokensModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    tokensInput
+    tokensInput,
   )
 
   const modal = new ModalBuilder({
@@ -492,7 +493,7 @@ async function showTokensModal(
  * @param interaction
  */
 async function showTemperatureModal(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const temperatureInput = new TextInputBuilder({
     customId: 'temperature',
@@ -504,7 +505,7 @@ async function showTemperatureModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    temperatureInput
+    temperatureInput,
   )
 
   const modal = new ModalBuilder({
@@ -521,7 +522,7 @@ async function showTemperatureModal(
  * @param interaction
  */
 export async function handleMinaAiModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferReply({ ephemeral: true })
 
@@ -551,8 +552,8 @@ export async function handleMinaAiModal(
       if (
         !components.some((row: any) =>
           row.components?.some(
-            (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu'
-          )
+            (btn: any) => btn.data?.custom_id === 'dev:btn:back_minaai_menu',
+          ),
         )
       ) {
         components.push(backRow)
@@ -574,7 +575,7 @@ export async function handleMinaAiModal(
     await setTokens(mockInteraction, tokens)
   } else if (customId === 'dev:modal:minaai_temperature') {
     const temperature = parseFloat(
-      interaction.fields.getTextInputValue('temperature')
+      interaction.fields.getTextInputValue('temperature'),
     )
     await setTemperature(mockInteraction, temperature)
   }

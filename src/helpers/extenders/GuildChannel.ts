@@ -26,7 +26,7 @@ GuildChannel.prototype.canSendEmbeds = function (this: GuildChannel): boolean {
 GuildChannel.prototype.safeSend = async function (
   this: GuildChannel,
   content: string | MessagePayload | MessageCreateOptions,
-  seconds?: number
+  seconds?: number,
 ): Promise<any> {
   if (!content) return
   if (this.type !== ChannelType.GuildText && (this as any).type !== 0) return
@@ -43,7 +43,7 @@ GuildChannel.prototype.safeSend = async function (
     const reply = await (this as any).send(content)
     setTimeout(
       () => reply.deletable && reply.delete().catch((_ex: any) => {}),
-      seconds * 1000
+      seconds * 1000,
     )
   } catch (ex) {
     ;(this.client as any).logger.error(`safeSend`, ex)

@@ -13,7 +13,7 @@ export async function timeoutTarget(
   issuer: GuildMember,
   target: GuildMember,
   ms: number,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -40,7 +40,7 @@ export async function timeoutTarget(
 export async function unTimeoutTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))

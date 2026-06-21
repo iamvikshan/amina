@@ -38,7 +38,7 @@ export class VirtualInteraction {
     client: Client,
     originalMessage: Message,
     commandName: string,
-    args: Record<string, any>
+    args: Record<string, any>,
   ) {
     this.client = client
     this.originalMessage = originalMessage
@@ -112,7 +112,7 @@ export class VirtualInteraction {
   }
 
   async reply(
-    options: string | MessagePayload | InteractionReplyOptions
+    options: string | MessagePayload | InteractionReplyOptions,
   ): Promise<InteractionResponse | Message> {
     if (this.replied) throw new Error('Already replied')
     this.replied = true
@@ -134,7 +134,7 @@ export class VirtualInteraction {
   }
 
   async editReply(
-    options: string | MessagePayload | InteractionEditReplyOptions
+    options: string | MessagePayload | InteractionEditReplyOptions,
   ): Promise<Message> {
     if (!this.replyMessage) {
       // If we haven't replied yet (e.g. deferred), send a new message
@@ -147,7 +147,7 @@ export class VirtualInteraction {
   }
 
   async followUp(
-    options: string | MessagePayload | InteractionReplyOptions
+    options: string | MessagePayload | InteractionReplyOptions,
   ): Promise<Message> {
     if (this.channel) {
       const msg = await (this.channel as any).send(options)
@@ -278,7 +278,7 @@ class VirtualOptionResolver {
           m.user.username.toLowerCase() === input.toLowerCase() ||
           m.user.tag.toLowerCase() === input.toLowerCase() ||
           m.displayName.toLowerCase() === input.toLowerCase() ||
-          m.id === input.replace(/[<@!>]/g, '') // Handle raw mentions
+          m.id === input.replace(/[<@!>]/g, ''), // Handle raw mentions
       )
       if (target) return target.user
     }
@@ -302,7 +302,7 @@ class VirtualOptionResolver {
           m.user.username.toLowerCase() === input.toLowerCase() ||
           m.user.tag.toLowerCase() === input.toLowerCase() ||
           m.displayName.toLowerCase() === input.toLowerCase() ||
-          m.id === input.replace(/[<@!>]/g, '')
+          m.id === input.replace(/[<@!>]/g, ''),
       ) || null
     )
   }

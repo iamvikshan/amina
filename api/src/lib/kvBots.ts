@@ -15,7 +15,7 @@
  */
 export async function getBotMeta(
   kv: KVNamespace,
-  clientId: string
+  clientId: string,
 ): Promise<BotMeta | null> {
   const key = `bot:${clientId}:meta`
   const data = await kv.get(key)
@@ -27,7 +27,7 @@ export async function getBotMeta(
   } catch (err) {
     console.error(
       `Error parsing bot meta for clientId ${clientId} (key: ${key}):`,
-      err
+      err,
     )
     return null
   }
@@ -42,7 +42,7 @@ export async function getBotMeta(
 export async function updateBotMeta(
   kv: KVNamespace,
   clientId: string,
-  updates: Partial<BotMeta>
+  updates: Partial<BotMeta>,
 ): Promise<void> {
   const existing = await getBotMeta(kv, clientId)
 
@@ -68,7 +68,7 @@ export async function updateBotMeta(
  */
 export async function updateBotHeartbeat(
   kv: KVNamespace,
-  clientId: string
+  clientId: string,
 ): Promise<void> {
   await updateBotMeta(kv, clientId, {
     lastSeen: new Date().toISOString(),
@@ -95,7 +95,7 @@ export async function listBots(
     ownerId?: string
     limit?: number
     page?: number
-  } = {}
+  } = {},
 ): Promise<BotMeta[]> {
   // Collect all meta keys across KV pages
   const metaKeys: { name: string }[] = []
@@ -143,7 +143,7 @@ export async function listBots(
           console.error(`Failed to fetch key ${key.name}:`, err)
           return null
         }
-      })
+      }),
     )
     results.push(...batchResults)
   }
@@ -189,7 +189,7 @@ export async function listBots(
  */
 async function getBotStats(
   kv: KVNamespace,
-  clientId: string
+  clientId: string,
 ): Promise<BotStatsData | null> {
   const key = `bot:${clientId}:stats`
   const data = await kv.get(key)
@@ -201,7 +201,7 @@ async function getBotStats(
   } catch (err) {
     console.error(
       `Error parsing bot stats for clientId ${clientId} (key: ${key}):`,
-      err
+      err,
     )
     return null
   }
@@ -216,7 +216,7 @@ async function getBotStats(
 export async function pushBotStats(
   kv: KVNamespace,
   clientId: string,
-  stats: BotStatsPushPayload
+  stats: BotStatsPushPayload,
 ): Promise<void> {
   const statsData: BotStatsData = {
     ...stats,
@@ -245,7 +245,7 @@ export async function pushBotStats(
  */
 export async function getBotInfo(
   kv: KVNamespace,
-  clientId: string
+  clientId: string,
 ): Promise<{ meta: BotMeta; stats: BotStatsData | null } | null> {
   const [meta, stats] = await Promise.all([
     getBotMeta(kv, clientId),
@@ -270,7 +270,7 @@ export async function getBotInfo(
  */
 export async function getBotCommands(
   kv: KVNamespace,
-  clientId: string
+  clientId: string,
 ): Promise<BotCommandsData | null> {
   const key = `bot:${clientId}:commands`
   const data = await kv.get(key)
@@ -282,7 +282,7 @@ export async function getBotCommands(
   } catch (err) {
     console.error(
       `Error parsing bot commands for clientId ${clientId} (key: ${key}):`,
-      err
+      err,
     )
     return null
   }
@@ -297,7 +297,7 @@ export async function getBotCommands(
 export async function updateBotCommands(
   kv: KVNamespace,
   clientId: string,
-  commands: BotCommand[]
+  commands: BotCommand[],
 ): Promise<void> {
   const categories = [...new Set(commands.map(c => c.category))]
 
@@ -324,7 +324,7 @@ export async function updateBotCommands(
 export async function isBotOnline(
   kv: KVNamespace,
   clientId: string,
-  maxAgeMs: number = 120000 // 2 minutes
+  maxAgeMs: number = 120000, // 2 minutes
 ): Promise<boolean> {
   const meta = await getBotMeta(kv, clientId)
 
@@ -351,7 +351,7 @@ export async function isBotOnline(
  */
 export function getBotAvatarUrl(
   clientId: string,
-  avatarHash: string | null
+  avatarHash: string | null,
 ): string {
   if (!avatarHash) {
     // Default Discord avatar — use BigInt to avoid precision loss with snowflakes

@@ -14,7 +14,7 @@ const logger = Logger
  * @param interaction
  */
 export async function showForgetMeConfirmation(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.warning()
     .setTitle(mina.say('minaai.forget.confirm.title'))
@@ -23,14 +23,14 @@ export async function showForgetMeConfirmation(
 
   const confirmButton = MinaRows.from(
     MinaButtons.delete('minaai:btn:forget_confirm').setLabel(
-      mina.say('minaai.forget.confirm.button')
-    )
+      mina.say('minaai.forget.confirm.button'),
+    ),
   )
 
   const cancelButton = MinaRows.from(
     MinaButtons.stop('minaai:btn:forget_cancel').setLabel(
-      mina.say('minaai.forget.confirm.cancel')
-    )
+      mina.say('minaai.forget.confirm.cancel'),
+    ),
   )
 
   await interaction.editReply({
@@ -44,7 +44,7 @@ export async function showForgetMeConfirmation(
  * @param interaction
  */
 export async function handleForgetMeConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   try {
     await interaction.deferUpdate()
@@ -84,7 +84,7 @@ export async function handleForgetMeConfirm(
           mina.sayf('minaai.forget.success.deleted', {
             count: deleted.toString(),
             plural: deleted === 1 ? 'memory' : 'memories',
-          })
+          }),
         )
         .setFooter({ text: mina.say('minaai.forget.success.footer') })
         .setTimestamp()
@@ -104,12 +104,12 @@ export async function handleForgetMeConfirm(
     })
 
     logger.log(
-      `User ${userId} requested memory deletion in guild ${guildId}: ${deleted} deleted`
+      `User ${userId} requested memory deletion in guild ${guildId}: ${deleted} deleted`,
     )
   } catch (error) {
     logger.error(
       `Error deleting user memories: ${(error as Error).message}`,
-      error as Error
+      error as Error,
     )
 
     const errorEmbed = MinaEmbed.error()
@@ -130,7 +130,7 @@ export async function handleForgetMeConfirm(
  * @param interaction
  */
 export async function handleForgetMeCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showMinaAiHub(interaction)

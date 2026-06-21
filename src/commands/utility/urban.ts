@@ -37,7 +37,7 @@ const command: CommandData = {
 
 async function urban(word: string): Promise<{ embeds: MinaEmbed[] } | string> {
   const response = await getJson(
-    `http://api.urbandictionary.com/v0/define?term=${encodeURIComponent(word)}`
+    `http://api.urbandictionary.com/v0/define?term=${encodeURIComponent(word)}`,
   )
   if (!response.success) {
     return `${MESSAGES.API_ERROR}\n-# error: ${response.error || 'unknown'}`
@@ -85,7 +85,7 @@ async function urban(word: string): Promise<{ embeds: MinaEmbed[] } | string> {
         name: 'example',
         value: example || 'No example provided',
         inline: false,
-      }
+      },
     )
 
   if (data.written_on) {

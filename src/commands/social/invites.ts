@@ -170,7 +170,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    data: { settings: any }
+    data: { settings: any },
   ) {
     const sub = interaction.options.getSubcommand()
     const group = interaction.options.getSubcommandGroup()
@@ -191,7 +191,7 @@ const command: CommandData = {
 
     if (isAdminCommand && !member.permissions.has('ManageGuild')) {
       return interaction.followUp(
-        "You need 'Manage Server' permission to use this command."
+        "You need 'Manage Server' permission to use this command.",
       )
     }
 
@@ -257,20 +257,20 @@ const command: CommandData = {
             const invites = interaction.options.getInteger('invites')
             if (!invites) {
               return interaction.followUp(
-                'Please specify the number of invites.'
+                'Please specify the number of invites.',
               )
             }
             response = await addInviteRank(
               interaction.guild,
               role as Role,
               invites,
-              settings
+              settings,
             )
           } else if (sub === 'remove') {
             response = await removeInviteRank(
               interaction.guild,
               role as Role,
-              settings
+              settings,
             )
           }
         }
@@ -296,7 +296,7 @@ async function getInvites(guild: Guild, user: User, settings: any) {
     .setAuthor({ name: `invites for ${user.username}` })
     .setThumbnail(user.displayAvatarURL())
     .setDescription(
-      `${user.toString()} has ${getEffectiveInvites(inviteData)} invites`
+      `${user.toString()} has ${getEffectiveInvites(inviteData)} invites`,
     )
     .addFields(
       {
@@ -313,7 +313,7 @@ async function getInvites(guild: Guild, user: User, settings: any) {
         name: 'left invites',
         value: `**${inviteData?.left || 0}**`,
         inline: true,
-      }
+      },
     )
 
   return { embeds: [embed] }
@@ -359,7 +359,7 @@ async function getInviter(guild: Guild, user: User, settings: any) {
 
   const inviterDb = (await getMember(
     guild.id,
-    inviteData.inviter
+    inviteData.inviter,
   )) as any as IMember
   const inviterData = inviterDb.invite_data
 
@@ -371,7 +371,7 @@ async function getInviter(guild: Guild, user: User, settings: any) {
       inviter id: \`${inviteData.inviter}\`
       invite code: \`${inviteData.code || 'N/A'}\`
       inviter invites: \`${getEffectiveInvites(inviterData)}\`
-      `
+      `,
     )
 
   return { embeds: [embed] }
@@ -453,7 +453,7 @@ async function addInviteRank(
   guild: Guild,
   role: Role,
   invites: number,
-  settings: any
+  settings: any,
 ) {
   if (!settings.invite?.tracking)
     return `Invite tracking is disabled in this server`
@@ -528,13 +528,13 @@ async function setStatus(guild: Guild, input: string, settings: any) {
       .filter(
         ch =>
           ch.type === ChannelType.GuildText &&
-          !ch.permissionsFor(me).has('ManageChannels')
+          !ch.permissionsFor(me).has('ManageChannels'),
       )
       .map(ch => ch.name)
 
     if (channelMissing.length > 1) {
       return `I may not be able to track invites properly\nI am missing \`Manage Channel\` permission in the following channels \`\`\`${channelMissing.join(
-        ', '
+        ', ',
       )}\`\`\``
     }
 

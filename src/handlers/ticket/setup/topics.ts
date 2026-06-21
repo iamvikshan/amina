@@ -21,7 +21,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
  * @param interaction
  */
 export async function showTopicsMenu(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   if (!interaction.guild) {
     await interaction.editReply({
@@ -42,7 +42,7 @@ export async function showTopicsMenu(
         '**list topics** - view all current topics\n' +
         '**add topic** - add a new topic\n' +
         '**remove topic** - remove an existing topic\n\n' +
-        'select an option below:'
+        'select an option below:',
     )
     .setFooter({ text: 'topics help categorize tickets' })
 
@@ -63,8 +63,8 @@ export async function showTopicsMenu(
           .setLabel('remove topic')
           .setDescription('remove an existing topic')
           .setValue('remove')
-          .setDefault(false) // Never auto-select this option
-      )
+          .setDefault(false), // Never auto-select this option
+      ),
   )
 
   // Disable remove if no topics
@@ -85,7 +85,7 @@ export async function showTopicsMenu(
  * @param interaction
  */
 export async function handleTopicsMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const option = interaction.values[0]
 
@@ -114,7 +114,7 @@ export async function handleTopicsMenu(
  * @param interaction
  */
 async function showTopicsList(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   if (!interaction.guild) {
     await interaction.editReply({
@@ -134,7 +134,7 @@ async function showTopicsList(
     embed.setDescription(
       "there aren't any ticket topics yet.\n\n" +
         "let's add some to make the ticketing system organized.\n\n" +
-        'use the **add topic** option to get started.'
+        'use the **add topic** option to get started.',
     )
   } else {
     const topicList = topics
@@ -144,7 +144,7 @@ async function showTopicsList(
       `here are all the current ticket topics.\n\n` +
         `**total topics:** ${topics.length}\n\n` +
         `${topicList}\n\n` +
-        'you can add more or remove them using the menu below.'
+        'you can add more or remove them using the menu below.',
     )
   }
 
@@ -161,7 +161,7 @@ async function showTopicsList(
  * @param interaction
  */
 async function showAddTopicModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const modal = new ModalBuilder({
     customId: 'ticket:modal:topic_add',
@@ -175,7 +175,7 @@ async function showAddTopicModal(
           placeholder: 'e.g., technical support, billing, general',
           required: true,
           maxLength: 50,
-        })
+        }),
       ),
     ],
   })
@@ -188,7 +188,7 @@ async function showAddTopicModal(
  * @param interaction
  */
 export async function handleAddTopicModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
@@ -213,14 +213,14 @@ export async function handleAddTopicModal(
 
   // Check if topic already exists (case-insensitive)
   const topicExists = topics.some(
-    (t: any) => t.name.toLowerCase() === topicName.toLowerCase()
+    (t: any) => t.name.toLowerCase() === topicName.toLowerCase(),
   )
 
   if (topicExists) {
     await interaction.editReply({
       embeds: [
         MinaEmbed.error(
-          `the topic \`${topicName}\` is already on the list. no need to add it again.`
+          `the topic \`${topicName}\` is already on the list. no need to add it again.`,
         ),
       ],
     })
@@ -295,7 +295,7 @@ export async function handleAddTopicModal(
   const successEmbed = MinaEmbed.success(
     `added the topic \`${topicName}\` to the list.\n\n` +
       'a discord category has been created for this topic.\n' +
-      'users can now select this topic when creating tickets.'
+      'users can now select this topic when creating tickets.',
   )
 
   const backRow = MinaRows.backRow('ticket:btn:back_topics')
@@ -311,7 +311,7 @@ export async function handleAddTopicModal(
  * @param interaction
  */
 async function showRemoveTopicSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   if (!interaction.guild) {
     await interaction.editReply({
@@ -339,21 +339,21 @@ async function showRemoveTopicSelect(
     .setAuthor({ name: 'remove ticket topic' })
     .setDescription(
       'select the topic you want to remove from the list below.\n\n' +
-        '**warning:** this action cannot be undone.'
+        '**warning:** this action cannot be undone.',
     )
     .setFooter({ text: 'choose carefully' })
 
   const options = topics
     .slice(0, 25)
     .map((t: any) =>
-      new StringSelectMenuOptionBuilder().setLabel(t.name).setValue(t.name)
+      new StringSelectMenuOptionBuilder().setLabel(t.name).setValue(t.name),
     )
 
   const menu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('ticket:menu:topic_remove')
       .setPlaceholder('select a topic to remove...')
-      .addOptions(options)
+      .addOptions(options),
   )
 
   const backRow = MinaRows.backRow('ticket:btn:back_topics')
@@ -369,7 +369,7 @@ async function showRemoveTopicSelect(
  * @param interaction
  */
 export async function handleRemoveTopicSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const topicName = interaction.values[0]
 
@@ -380,16 +380,16 @@ export async function handleRemoveTopicSelect(
     .setAuthor({ name: 'confirm topic removal' })
     .setDescription(
       `are you sure you want to remove the topic **${topicName}**?\n\n` +
-        'this action cannot be undone.'
+        'this action cannot be undone.',
     )
 
   const confirmRow = MinaRows.from(
     MinaButtons.custom(
       `ticket:btn:topic_remove_confirm|topic:${topicName}`,
       'confirm remove',
-      ButtonStyle.Danger
+      ButtonStyle.Danger,
     ),
-    MinaButtons.nah('ticket:btn:topic_remove_cancel')
+    MinaButtons.nah('ticket:btn:topic_remove_cancel'),
   )
 
   await interaction.editReply({
@@ -403,7 +403,7 @@ export async function handleRemoveTopicSelect(
  * @param interaction
  */
 export async function handleRemoveTopicConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -432,14 +432,14 @@ export async function handleRemoveTopicConfirm(
 
   // Check if topic exists
   const topicExists = topics.some(
-    (t: any) => t.name.toLowerCase() === topicName.toLowerCase()
+    (t: any) => t.name.toLowerCase() === topicName.toLowerCase(),
   )
 
   if (!topicExists) {
     await interaction.editReply({
       embeds: [
         MinaEmbed.error(
-          `couldn't find the topic \`${topicName}\`. are you sure it's on the list?`
+          `couldn't find the topic \`${topicName}\`. are you sure it's on the list?`,
         ),
       ],
       components: [],
@@ -449,21 +449,21 @@ export async function handleRemoveTopicConfirm(
 
   // Remove topic from database
   settings.ticket.topics = topics.filter(
-    (t: any) => t.name.toLowerCase() !== topicName.toLowerCase()
+    (t: any) => t.name.toLowerCase() !== topicName.toLowerCase(),
   )
   await updateSettings(interaction.guild.id, settings)
 
   // Delete Discord category if it exists
   const guild = interaction.guild
   let category = guild.channels.cache.find(
-    ch => ch?.type === ChannelType.GuildCategory && ch?.name === topicName
+    ch => ch?.type === ChannelType.GuildCategory && ch?.name === topicName,
   )
 
   // If not in cache, try to find it by searching all channels
   if (!category) {
     const allChannels = await guild.channels.fetch()
     category = allChannels.find(
-      ch => ch?.type === ChannelType.GuildCategory && ch?.name === topicName
+      ch => ch?.type === ChannelType.GuildCategory && ch?.name === topicName,
     ) as any
   }
 
@@ -484,7 +484,7 @@ export async function handleRemoveTopicConfirm(
         ? 'the discord category has also been deleted.'
         : category
           ? "the topic was removed, but i couldn't delete the category (it may have been deleted already or i lack permissions)."
-          : 'the topic was removed. no discord category was found (it may have been deleted already).')
+          : 'the topic was removed. no discord category was found (it may have been deleted already).'),
   )
 
   const backRow = MinaRows.backRow('ticket:btn:back_topics')
@@ -500,7 +500,7 @@ export async function handleRemoveTopicConfirm(
  * @param interaction
  */
 export async function handleRemoveTopicCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showRemoveTopicSelect(interaction as any)
@@ -511,7 +511,7 @@ export async function handleRemoveTopicCancel(
  * @param interaction
  */
 export async function handleBackToTopics(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showTopicsMenu(interaction)

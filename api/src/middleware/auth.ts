@@ -37,7 +37,7 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
   if (!authHeader.startsWith('Bearer ')) {
     return errors.unauthorized(
       c,
-      'Invalid Authorization format. Use: Bearer <api_key>'
+      'Invalid Authorization format. Use: Bearer <api_key>',
     )
   }
 
@@ -83,7 +83,7 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
     const rateLimit = await checkRateLimit(
       c.env.RATE_LIMIT,
       rateLimitKey,
-      key.rateLimit
+      key.rateLimit,
     )
 
     // Add rate limit headers
@@ -95,7 +95,7 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
     if (!rateLimit.allowed) {
       return errors.rateLimit(
         c,
-        `Rate limit exceeded. Try again in ${headers['Retry-After']} seconds`
+        `Rate limit exceeded. Try again in ${headers['Retry-After']} seconds`,
       )
     }
 
@@ -109,8 +109,8 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
     // Update usage stats after successful request (non-blocking)
     c.executionCtx.waitUntil(
       updateApiKeyUsage(db, user._id, key.id).catch(err =>
-        console.error('Failed to update API key usage:', err)
-      )
+        console.error('Failed to update API key usage:', err),
+      ),
     )
   } catch (error) {
     const logger = createLogger(c)
@@ -120,7 +120,7 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
       {
         path: c.req.path,
         method: c.req.method,
-      }
+      },
     )
     return errors.internal(c, 'Authentication failed')
   }
@@ -133,7 +133,7 @@ export async function requireApiKey(c: Context<{ Bindings: Env }>, next: Next) {
  */
 export async function optionalApiKey(
   c: Context<{ Bindings: Env }>,
-  next: Next
+  next: Next,
 ) {
   const authHeader = c.req.header('Authorization')
 
@@ -178,7 +178,7 @@ export async function optionalApiKey(
  */
 export function hasPermission(
   c: Context<{ Bindings: Env }>,
-  permission: string
+  permission: string,
 ): boolean {
   const apiKey = c.get('apiKey')
   if (!apiKey) return false

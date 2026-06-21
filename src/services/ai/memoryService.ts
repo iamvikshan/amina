@@ -68,7 +68,7 @@ export class MemoryService {
     } catch (error: any) {
       logger.error(
         `Failed to initialize Memory Service: ${error.message}`,
-        error
+        error,
       )
     }
   }
@@ -81,7 +81,7 @@ export class MemoryService {
    */
   private async generateVoyageOrFallbackEmbedding(
     text: string,
-    inputType?: 'query' | 'document'
+    inputType?: 'query' | 'document',
   ): Promise<number[] | null> {
     // Build ordered Voyage client list with random primary selection
     const voyageClients: { client: OpenAI; label: string }[] = []
@@ -106,7 +106,7 @@ export class MemoryService {
         const embedding = result.data?.[0]?.embedding
         if (embedding?.length) {
           logger.debug(
-            `Embedding generated via ${label} (${embedding.length}d)`
+            `Embedding generated via ${label} (${embedding.length}d)`,
           )
           return embedding
         }
@@ -125,7 +125,7 @@ export class MemoryService {
         const embedding = result.data?.[0]?.embedding
         if (embedding?.length) {
           logger.debug(
-            `Embedding generated via Gemini fallback (${embedding.length}d)`
+            `Embedding generated via Gemini fallback (${embedding.length}d)`,
           )
           return embedding
         }
@@ -143,7 +143,7 @@ export class MemoryService {
         const embedding = result.data?.[0]?.embedding
         if (embedding?.length) {
           logger.debug(
-            `Embedding generated via Mistral fallback (${embedding.length}d)`
+            `Embedding generated via Mistral fallback (${embedding.length}d)`,
           )
           return embedding
         }
@@ -180,7 +180,7 @@ export class MemoryService {
     fact: MemoryFact,
     userId: string,
     guildId: string | null,
-    context: string
+    context: string,
   ): Promise<boolean> {
     if (
       !this.voyageNative &&
@@ -189,28 +189,28 @@ export class MemoryService {
       !this.mistral
     ) {
       logger.warn(
-        'storeMemory skipped: Memory Service not initialized (AI client missing)'
+        'storeMemory skipped: Memory Service not initialized (AI client missing)',
       )
       return false
     }
 
     if (this.containsProhibitedMarkers(fact.value)) {
       logger.warn(
-        `storeMemory rejected: content contains prohibited internal marker for user ${userId}`
+        `storeMemory rejected: content contains prohibited internal marker for user ${userId}`,
       )
       return false
     }
 
     if (this.containsProhibitedMarkers(fact.key)) {
       logger.warn(
-        `storeMemory rejected: key contains prohibited internal marker for user ${userId}`
+        `storeMemory rejected: key contains prohibited internal marker for user ${userId}`,
       )
       return false
     }
 
     if (context && this.containsProhibitedMarkers(context)) {
       logger.warn(
-        `storeMemory: stripping context with prohibited markers for user ${userId}`
+        `storeMemory: stripping context with prohibited markers for user ${userId}`,
       )
       context = ''
     }
@@ -219,7 +219,7 @@ export class MemoryService {
       const embeddingText = `${fact.key}: ${fact.value}`
       const embedding = await this.generateVoyageOrFallbackEmbedding(
         embeddingText,
-        'document'
+        'document',
       )
       if (!embedding) {
         logger.warn('Failed to generate embedding: no provider returned values')
@@ -234,7 +234,7 @@ export class MemoryService {
             embedding,
             userId,
             guildId,
-            memoryType
+            memoryType,
           )
           if (existing && existing.score >= this.dedupThreshold) {
             // Merge: update existing memory with newest value, average importance, update context
@@ -242,8 +242,8 @@ export class MemoryService {
               1,
               Math.min(
                 10,
-                Math.round((existing.importance + fact.importance) / 2)
-              )
+                Math.round((existing.importance + fact.importance) / 2),
+              ),
             )
             await Model.findByIdAndUpdate(
               existing._id,
@@ -257,17 +257,17 @@ export class MemoryService {
                 },
                 $inc: { accessCount: 1 },
               },
-              { runValidators: true }
+              { runValidators: true },
             )
             logger.debug(
-              `Merged memory "${fact.key}" (score: ${existing.score.toFixed(3)}) for user ${userId}`
+              `Merged memory "${fact.key}" (score: ${existing.score.toFixed(3)}) for user ${userId}`,
             )
             return true
           }
         } catch (dedupError: any) {
           // Dedup is best-effort — if vector search fails, fall through to normal insert
           logger.debug(
-            `Dedup check failed, proceeding with insert: ${dedupError.message}`
+            `Dedup check failed, proceeding with insert: ${dedupError.message}`,
           )
         }
       }
@@ -290,11 +290,11 @@ export class MemoryService {
         const { deletedCount } = await pruneLeastImportantMemories(
           userId,
           guildId,
-          this.MAX_MEMORIES_PER_USER
+          this.MAX_MEMORIES_PER_USER,
         )
         if (deletedCount > 0) {
           logger.debug(
-            `Pruned ${deletedCount} least-important memories for user ${userId} (context: ${guildId || 'DM'})`
+            `Pruned ${deletedCount} least-important memories for user ${userId} (context: ${guildId || 'DM'})`,
           )
         }
       }
@@ -328,7 +328,7 @@ export class MemoryService {
     userPrefs?: {
       combineDmWithServer?: boolean
       globalServerMemories?: boolean
-    }
+    },
   ): Promise<RecalledMemory[]> {
     if (
       !this.voyageNative &&
@@ -337,7 +337,7 @@ export class MemoryService {
       !this.mistral
     ) {
       logger.warn(
-        'recallMemories skipped: Memory Service not initialized (AI client missing)'
+        'recallMemories skipped: Memory Service not initialized (AI client missing)',
       )
       return []
     }
@@ -345,11 +345,11 @@ export class MemoryService {
     try {
       const queryVector = await this.generateVoyageOrFallbackEmbedding(
         userMessage,
-        'query'
+        'query',
       )
       if (!queryVector) {
         logger.warn(
-          'Failed to generate query embedding: no provider returned values'
+          'Failed to generate query embedding: no provider returned values',
         )
         return []
       }
@@ -405,7 +405,7 @@ export class MemoryService {
         const finalCount = results.length
         if (finalCount < limit) {
           logger.debug(
-            `Post-filtering reduced results: limit=${limit}, fetchSize=${fetchSize}, finalCount=${finalCount}`
+            `Post-filtering reduced results: limit=${limit}, fetchSize=${fetchSize}, finalCount=${finalCount}`,
           )
         }
       }
@@ -429,7 +429,7 @@ export class MemoryService {
           {
             $set: { lastAccessedAt: new Date() },
             $inc: { accessCount: 1 },
-          }
+          },
         )
       }
 
@@ -466,7 +466,7 @@ export class MemoryService {
    */
   async listUserMemories(
     userId: string,
-    guildId: string | null
+    guildId: string | null,
   ): Promise<any[]> {
     return await getUserMemories(userId, guildId, 50)
   }
@@ -509,7 +509,7 @@ export class MemoryService {
       // Get additional stats
       const uniqueUsersResult = await Model.distinct('userId')
       const uniqueGuildsResult = await Model.distinct('guildId').then(guilds =>
-        guilds.filter(g => g !== null)
+        guilds.filter(g => g !== null),
       )
 
       // Get average importance and total access count
@@ -582,7 +582,7 @@ export class MemoryService {
       !this.mistral
     ) {
       logger.warn(
-        'generateEmbedding skipped: Memory Service not initialized (AI client missing)'
+        'generateEmbedding skipped: Memory Service not initialized (AI client missing)',
       )
       return null
     }
@@ -603,18 +603,18 @@ export class MemoryService {
     newValue: string,
     userId: string,
     guildId: string | null,
-    memoryType: string = 'user'
+    memoryType: string = 'user',
   ): Promise<{ found: boolean; oldValue?: string; newValue?: string }> {
     if (this.containsProhibitedMarkers(description)) {
       logger.warn(
-        `updateMemoryByMatch rejected: description contains prohibited internal marker for user ${userId}`
+        `updateMemoryByMatch rejected: description contains prohibited internal marker for user ${userId}`,
       )
       return { found: false }
     }
 
     if (this.containsProhibitedMarkers(newValue)) {
       logger.warn(
-        `updateMemoryByMatch rejected: newValue contains prohibited internal marker for user ${userId}`
+        `updateMemoryByMatch rejected: newValue contains prohibited internal marker for user ${userId}`,
       )
       return { found: false }
     }
@@ -627,7 +627,7 @@ export class MemoryService {
         embedding,
         userId,
         guildId,
-        memoryType
+        memoryType,
       )
       if (!existing || existing.score < this.dedupThreshold) {
         return { found: false }
@@ -643,11 +643,11 @@ export class MemoryService {
           },
           $inc: { accessCount: 1 },
         },
-        { runValidators: true }
+        { runValidators: true },
       )
 
       logger.debug(
-        `Updated memory "${existing.key}" for user ${userId} (score: ${existing.score.toFixed(3)})`
+        `Updated memory "${existing.key}" for user ${userId} (score: ${existing.score.toFixed(3)})`,
       )
       return { found: true, oldValue, newValue }
     } catch (error: any) {
@@ -668,11 +668,11 @@ export class MemoryService {
     description: string,
     userId: string,
     guildId: string | null,
-    memoryType: string = 'user'
+    memoryType: string = 'user',
   ): Promise<{ found: boolean; deletedValue?: string }> {
     if (this.containsProhibitedMarkers(description)) {
       logger.warn(
-        `deleteMemoryByMatch rejected: description contains prohibited internal marker for user ${userId}`
+        `deleteMemoryByMatch rejected: description contains prohibited internal marker for user ${userId}`,
       )
       return { found: false }
     }
@@ -685,7 +685,7 @@ export class MemoryService {
         embedding,
         userId,
         guildId,
-        memoryType
+        memoryType,
       )
       if (!existing || existing.score < this.dedupThreshold) {
         return { found: false }
@@ -695,7 +695,7 @@ export class MemoryService {
       await Model.findByIdAndDelete(existing._id)
 
       logger.debug(
-        `Deleted memory "${existing.key}" for user ${userId} (score: ${existing.score.toFixed(3)})`
+        `Deleted memory "${existing.key}" for user ${userId} (score: ${existing.score.toFixed(3)})`,
       )
       return { found: true, deletedValue }
     } catch (error: any) {

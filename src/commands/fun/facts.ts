@@ -66,7 +66,7 @@ const command: CommandData = {
 
 async function getFact(
   user: User,
-  choice: string
+  choice: string,
 ): Promise<{ content?: string; embeds?: MinaEmbed[] }> {
   const response = await getJson(`${BASE_URL}/${choice}`)
   if (!response.success) {
@@ -86,7 +86,7 @@ async function getFact(
       mina.sayf('fun.facts.embed.title', {
         emoji: animalEmojis[choice] || '✨',
         animal: choice.toUpperCase(),
-      })
+      }),
     )
     .setImage(imageUrl)
     .setDescription(
@@ -94,7 +94,7 @@ async function getFact(
         intro: randomIntro,
         animal: choice,
         fact: fact,
-      })
+      }),
     )
     .setFooter({
       text: mina.sayf('fun.facts.embed.footer', { user: user.tag }),

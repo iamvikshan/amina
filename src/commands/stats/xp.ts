@@ -48,7 +48,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    data: { settings: any }
+    data: { settings: any },
   ) {
     const sub = interaction.options.getSubcommand()
     const settings = data?.settings || {}
@@ -60,7 +60,7 @@ const command: CommandData = {
     } else if (sub === 'channel') {
       const channel = interaction.options.getChannel(
         'channel',
-        true
+        true,
       ) as TextChannel
       response = await setChannel(channel, settings)
     } else {

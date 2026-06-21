@@ -28,7 +28,7 @@ export async function showAmountSelect(
     | ModalSubmitInteraction,
   purgeType: PurgeType,
   additionalData?: { token?: string; userId?: string },
-  isDefault?: boolean
+  isDefault?: boolean,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('select amount')
@@ -40,7 +40,7 @@ export async function showAmountSelect(
         '- 50 messages\n' +
         '- 100 messages (discord max per operation)\n' +
         '- custom (1-100)\n\n' +
-        'note: maximum 500 messages per command execution.'
+        'note: maximum 500 messages per command execution.',
     )
     .setFooter({ text: 'select an amount or choose custom' })
 
@@ -51,7 +51,7 @@ export async function showAmountSelect(
           additionalData?.token
             ? `|token:${Buffer.from(additionalData.token).toString('base64')}`
             : ''
-        }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}${isDefault ? '|default:true' : ''}`
+        }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}${isDefault ? '|default:true' : ''}`,
       )
       .setPlaceholder('select amount...')
       .addOptions([
@@ -76,7 +76,7 @@ export async function showAmountSelect(
           .setLabel('custom amount')
           .setDescription('enter a custom amount (1-100)')
           .setValue('custom'),
-      ])
+      ]),
   )
 
   const components: any[] = [menu]
@@ -91,8 +91,8 @@ export async function showAmountSelect(
             : ''
         }${additionalData?.userId ? `|user:${additionalData.userId}` : ''}`,
         'proceed',
-        ButtonStyle.Primary
-      )
+        ButtonStyle.Primary,
+      ),
     )
     components.push(proceedRow)
   }
@@ -111,7 +111,7 @@ export async function showAmountSelect(
  * @param interaction
  */
 export async function handleAmountSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const selected = interaction.values[0]
   const customId = interaction.customId
@@ -157,6 +157,6 @@ export async function handleAmountSelect(
     purgeType,
     amount,
     { token, userId },
-    !isDefault
+    !isDefault,
   )
 }

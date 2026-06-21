@@ -26,7 +26,7 @@ This project is actively undergoing strict linting and type-check tightening. Ev
 language: typescript
 pm: bun
 format: bun run f # formats changed files only — NEVER use bun f:all
-lint: bun check # combined lint + typecheck (eslint + tsc --noEmit)
+lint: bun check # combined lint + typecheck (eslint + tsgo --noEmit)
 test: bun test # run all tests
 ```
 

@@ -24,7 +24,7 @@ bot.get('/stats', async c => {
       error instanceof Error ? error : undefined,
       {
         endpoint: '/bot/stats',
-      }
+      },
     )
     return errors.internal(c, 'Failed to load bot statistics')
   }

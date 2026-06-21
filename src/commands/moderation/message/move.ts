@@ -12,14 +12,14 @@ export default async (
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
   reason: string | null,
-  channel: VoiceChannel | StageChannel
+  channel: VoiceChannel | StageChannel,
 ): Promise<string | { embeds: MinaEmbed[] }> => {
   const { member } = interaction
   const response = await moveTarget(
     member as GuildMember,
     target,
     reason || mina.say('error.noReason'),
-    channel
+    channel,
   )
 
   if (typeof response === 'boolean') {
@@ -29,7 +29,7 @@ export default async (
           mina.sayf('moderation.voice.moved', {
             target: target.user.username,
             channel: channel.name,
-          })
+          }),
         ),
       ],
     }
@@ -50,7 +50,7 @@ export default async (
         MinaEmbed.error(
           mina.sayf('moderation.voice.notInVoice', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -61,7 +61,7 @@ export default async (
         MinaEmbed.error(
           mina.sayf('moderation.voice.sameChannel', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -72,7 +72,7 @@ export default async (
         mina.sayf('error.failed', {
           action: 'move',
           target: target.user.username,
-        })
+        }),
       ),
     ],
   }

@@ -15,7 +15,7 @@ function filterRoles(
   guild: any,
   method: RoleCleanupMethod,
   params: any,
-  botTopPos: number
+  botTopPos: number,
 ): RoleCleanupStats {
   const keepIds = params.keepIds || new Set()
   let matched: Role[] = []
@@ -89,7 +89,7 @@ function filterRoles(
 export async function executeCleanup(
   interaction: ButtonInteraction,
   method: RoleCleanupMethod,
-  params: any
+  params: any,
 ): Promise<void> {
   const guild = interaction.guild
   if (!guild) {
@@ -113,7 +113,7 @@ export async function executeCleanup(
     const embed = MinaEmbed.error()
       .setTitle('cleanup failed')
       .setDescription(
-        `safety limit exceeded! cannot delete more than ${MAX_DELETE} roles in one operation.`
+        `safety limit exceeded! cannot delete more than ${MAX_DELETE} roles in one operation.`,
       )
     await interaction.editReply({
       embeds: [embed],
@@ -126,7 +126,7 @@ export async function executeCleanup(
     const embed = MinaEmbed.warning()
       .setTitle('no roles to delete')
       .setDescription(
-        'no roles match your criteria or all matched roles are protected.'
+        'no roles match your criteria or all matched roles are protected.',
       )
     await interaction.editReply({
       embeds: [embed],
@@ -142,7 +142,7 @@ export async function executeCleanup(
   for (const role of stats.deletable) {
     try {
       await role.delete(
-        `Bulk cleanup by ${interaction.user.tag} (${interaction.user.id})`
+        `Bulk cleanup by ${interaction.user.tag} (${interaction.user.id})`,
       )
       deleted += 1
     } catch (err) {
@@ -158,12 +158,12 @@ export async function executeCleanup(
       `successfully deleted **${deleted}** role${deleted !== 1 ? 's' : ''}.` +
         (errors.length > 0
           ? `\n\nfailed to delete ${errors.length} role(s).`
-          : '')
+          : ''),
     )
     .addFields(
       { name: 'deleted', value: String(deleted), inline: true },
       { name: 'failed', value: String(errors.length), inline: true },
-      { name: 'skipped', value: String(stats.skipped.length), inline: true }
+      { name: 'skipped', value: String(stats.skipped.length), inline: true },
     )
     .setFooter({
       text: `cleanup executed by ${interaction.user.tag}`,
@@ -193,7 +193,7 @@ export async function executeCleanup(
  * @param interaction
  */
 export async function handleCleanupConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const customIdParts = interaction.customId.split('|')
   const methodPart = customIdParts.find(p => p.startsWith('method:'))
@@ -227,14 +227,14 @@ export async function handleCleanupConfirm(
  * @param interaction
  */
 export async function handleCleanupCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
   const embed = MinaEmbed.primary()
     .setTitle('cleanup cancelled')
     .setDescription(
-      'role cleanup operation has been cancelled. no roles were deleted.'
+      'role cleanup operation has been cancelled. no roles were deleted.',
     )
 
   await interaction.editReply({

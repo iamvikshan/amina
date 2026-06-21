@@ -5,12 +5,12 @@
     "typeCheck": true
   },
   "plugins": [
-    "eslint", 
-    "typescript", 
-    "jsdoc", 
-    "unicorn", 
-    "import", 
-    "node", 
+    "eslint",
+    "typescript",
+    "jsdoc",
+    "unicorn",
+    "import",
+    "node",
     "promise"
   ],
   "env": {
@@ -43,7 +43,7 @@
     "typescript/no-non-null-assertion": "warn",
     "typescript/ban-ts-comment": "warn",
     "typescript/explicit-module-boundary-types": "warn",
-    
+
     // Type-Aware Rules (Powered by tsgo)
     "typescript/no-floating-promises": "warn",
     "typescript/no-misused-promises": "warn",

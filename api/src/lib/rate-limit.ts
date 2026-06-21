@@ -19,7 +19,7 @@ const memoryStore = new Map<string, { count: number; resetAt: number }>()
 export async function checkRateLimit(
   kv: KVNamespace | undefined,
   key: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): Promise<RateLimitResult> {
   const now = Math.floor(Date.now() / 1000)
   const windowStart = now - (now % config.window)
@@ -50,7 +50,7 @@ async function checkRateLimitKV(
   kv: KVNamespace,
   key: string,
   config: RateLimitConfig,
-  resetAt: number
+  resetAt: number,
 ): Promise<RateLimitResult> {
   // Get current count (guard against NaN from corrupted KV data)
   const current = await kv.get(key)
@@ -90,7 +90,7 @@ function checkRateLimitMemory(
   key: string,
   config: RateLimitConfig,
   now: number,
-  resetAt: number
+  resetAt: number,
 ): RateLimitResult {
   const entry = memoryStore.get(key)
 
@@ -146,7 +146,7 @@ function checkRateLimitMemory(
  * @param result
  */
 export function rateLimitHeaders(
-  result: RateLimitResult
+  result: RateLimitResult,
 ): Record<string, string> {
   const headers: Record<string, string> = {
     'X-RateLimit-Limit': String(result.limit),
@@ -157,7 +157,7 @@ export function rateLimitHeaders(
   if (!result.allowed) {
     const retrySeconds = Math.max(
       0,
-      result.reset - Math.floor(Date.now() / 1000)
+      result.reset - Math.floor(Date.now() / 1000),
     )
     headers['Retry-After'] = String(retrySeconds)
   }

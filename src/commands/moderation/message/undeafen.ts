@@ -6,13 +6,13 @@ import { mina } from '@helpers/mina'
 export default async (
   interaction: ChatInputCommandInteraction,
   target: GuildMember,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> => {
   const { member } = interaction
   const response = await unDeafenTarget(
     member as GuildMember,
     target,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
@@ -20,7 +20,7 @@ export default async (
         MinaEmbed.success(
           mina.sayf('moderation.voice.undeafened', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -41,7 +41,7 @@ export default async (
         MinaEmbed.error(
           mina.sayf('moderation.voice.notInVoice', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -52,7 +52,7 @@ export default async (
         MinaEmbed.error(
           mina.sayf('moderation.voice.notDeafened', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -63,7 +63,7 @@ export default async (
         mina.sayf('error.failed', {
           action: 'undeafen',
           target: target.user.username,
-        })
+        }),
       ),
     ],
   }

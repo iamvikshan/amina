@@ -14,7 +14,7 @@ import { Logger } from '@helpers/Logger'
  * @param interaction
  */
 export async function handleProfileClear(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const selected = interaction.values[0]
 
@@ -31,7 +31,7 @@ export async function handleProfileClear(
     await clearProfile(interaction.user.id)
 
     const embed = MinaEmbed.success(
-      'fresh start achieved! your canvas is clean and ready for a new masterpiece!'
+      'fresh start achieved! your canvas is clean and ready for a new masterpiece!',
     )
 
     await interaction.update({
@@ -53,7 +53,7 @@ export async function handleProfileClear(
  * @param interaction
  */
 export async function showClearConfirmation(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.warning()
     .setTitle('clear profile')
@@ -64,23 +64,23 @@ export async function showClearConfirmation(
         '- bio and interests\n' +
         '- social links and favorites\n' +
         '- goals\n\n' +
-        '**this action cannot be undone!**'
+        '**this action cannot be undone!**',
     )
 
   const confirmRow = MinaRows.single(
     MinaButtons.custom(
       'profile:btn:clear_confirm',
       'yes, clear my profile',
-      ButtonStyle.Danger
-    )
+      ButtonStyle.Danger,
+    ),
   )
 
   const cancelRow = MinaRows.single(
     MinaButtons.custom(
       'profile:btn:clear_cancel',
       'no, keep my profile',
-      ButtonStyle.Secondary
-    )
+      ButtonStyle.Secondary,
+    ),
   )
 
   const backRow = MinaRows.backRow('profile:btn:back')
@@ -104,13 +104,13 @@ export async function showClearConfirmation(
  * @param interaction
  */
 export async function handleClearConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   try {
     await clearProfile(interaction.user.id)
 
     const embed = MinaEmbed.success(
-      'fresh start achieved! your canvas is clean and ready for a new masterpiece!'
+      'fresh start achieved! your canvas is clean and ready for a new masterpiece!',
     )
 
     await interaction.deferUpdate()
@@ -133,7 +133,7 @@ export async function handleClearConfirm(
  * @param interaction
  */
 export async function handleClearCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await interaction.editReply({

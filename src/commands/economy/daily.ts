@@ -29,7 +29,7 @@ async function daily(user: User) {
     const difference = diffHours(new Date(), lastUpdated)
     if (difference < 24) {
       const nextUsage = new Date(
-        lastUpdated.setHours(lastUpdated.getHours() + 24)
+        lastUpdated.setHours(lastUpdated.getHours() + 24),
       )
       return mina.sayf('economy.cooldown.daily', {
         time: getRemainingTime(nextUsage),
@@ -52,7 +52,7 @@ async function daily(user: User) {
         `${mina.sayf('economy.updatedBalance', { amount: `${userDb.coins}${ECONOMY.CURRENCY}` })}` +
         (streak > 0
           ? `\n${mina.sayf('economy.streak', { count: streak.toString() })}`
-          : '')
+          : ''),
     )
 
   return { embeds: [embed] }

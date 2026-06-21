@@ -13,7 +13,7 @@ import { Logger } from '@helpers/Logger'
  * @returns {Promise<Map<string, string>>} Returns map of userId -> pronouns
  */
 async function fetchPronounsBatch(
-  userIds: string[]
+  userIds: string[],
 ): Promise<Map<string, string>> {
   const pronounsMap = new Map<string, string>()
   if (userIds.length === 0) return pronounsMap
@@ -21,7 +21,7 @@ async function fetchPronounsBatch(
   try {
     const idsParam = userIds.join(',')
     const response = await fetch(
-      `https://pronoundb.org/api/v2/lookup?platform=discord&ids=${idsParam}`
+      `https://pronoundb.org/api/v2/lookup?platform=discord&ids=${idsParam}`,
     )
     if (!response.ok) {
       // Fallback: set all to default
@@ -141,7 +141,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
     await removeAfk(message.author.id)
     const embed = MinaEmbed.success().setDescription(
       `*bounces excitedly* welcome back ${message.author.toString()}!\n` +
-        `${Subject}${verb} faster than a shooting star!`
+        `${Subject}${verb} faster than a shooting star!`,
     )
     const response: any = await (message.channel as any).send({
       embeds: [embed],
@@ -164,7 +164,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
   // Check for mentioned users who are AFK
   if (message.mentions.users.size > 0) {
     const mentions = [...message.mentions.users.values()].filter(
-      u => u.id !== message.author.id
+      u => u.id !== message.author.id,
     )
 
     if (mentions.length > 0) {
@@ -184,7 +184,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
         if (userData.afk?.enabled) {
           const minutes = userData.afk.since
             ? Math.round(
-                (Date.now() - userData.afk.since.getTime()) / 1000 / 60
+                (Date.now() - userData.afk.since.getTime()) / 1000 / 60,
               )
             : 0
 
@@ -203,7 +203,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
             const minutesLeft = Math.round(
               (userData.afk.endTime.getTime() - new Date().getTime()) /
                 1000 /
-                60
+                60,
             )
             const [subject] = userPronouns.split('/')
             const verb = getVerbConjugation(subject)
@@ -228,9 +228,9 @@ export default async (client: BotClient, message: Message): Promise<void> => {
             afkMentions
               .map(
                 (mention: any) =>
-                  `${mention.intro}\n${mention.user} is away: ${mention.reason}${mention.timePassed}${mention.endTime}`
+                  `${mention.intro}\n${mention.user} is away: ${mention.reason}${mention.timePassed}${mention.endTime}`,
               )
-              .join('\n\n')
+              .join('\n\n'),
           )
 
         const response: any = await (message.channel as any).send({

@@ -39,7 +39,7 @@ export class MinaSelect extends StringSelectMenuBuilder {
   static create(
     customId: string,
     placeholder: string,
-    options: MinaSelectOption[]
+    options: MinaSelectOption[],
   ): MinaSelect {
     if (!Array.isArray(options) || options.length === 0) {
       throw new Error('MinaSelect.create requires at least one option')
@@ -71,10 +71,10 @@ export class MinaSelect extends StringSelectMenuBuilder {
   static row(
     customId: string,
     placeholder: string,
-    options: MinaSelectOption[]
+    options: MinaSelectOption[],
   ): ActionRowBuilder<MinaSelect> {
     return new ActionRowBuilder<MinaSelect>().addComponents(
-      MinaSelect.create(customId, placeholder, options)
+      MinaSelect.create(customId, placeholder, options),
     )
   }
 

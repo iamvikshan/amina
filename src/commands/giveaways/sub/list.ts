@@ -3,7 +3,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
 
 export default async function list(
-  member: GuildMember
+  member: GuildMember,
 ): Promise<string | { embeds: any[] }> {
   // Permissions
   if (!member.permissions.has('ManageMessages')) {
@@ -12,7 +12,7 @@ export default async function list(
 
   // Search with all giveaways
   const giveaways = (member.client as any).giveawaysManager.giveaways.filter(
-    (g: any) => g.guildId === member.guild.id && g.ended === false
+    (g: any) => g.guildId === member.guild.id && g.ended === false,
   )
 
   // No giveaways

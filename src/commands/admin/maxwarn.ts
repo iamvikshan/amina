@@ -65,7 +65,7 @@ const command: CommandData = {
     if (sub === 'limit') {
       response = await setLimit(
         interaction.options.getInteger('amount', true),
-        data.settings
+        data.settings,
       )
     } else if (sub === 'action') {
       if (!interaction.guild) {
@@ -75,7 +75,7 @@ const command: CommandData = {
       response = await setAction(
         interaction.guild,
         interaction.options.getString('action', true),
-        data.settings
+        data.settings,
       )
     } else {
       response = mina.say('error.invalidSubcommand')
@@ -94,7 +94,7 @@ async function setLimit(limit: number, settings: any): Promise<string> {
 async function setAction(
   guild: Guild,
   action: string,
-  settings: any
+  settings: any,
 ): Promise<string> {
   const actionLower = action.toLowerCase()
 

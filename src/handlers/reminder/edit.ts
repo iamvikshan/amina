@@ -32,7 +32,7 @@ const MAX_DURATION_DAYS = 365
  */
 export async function showEditReminder(
   interaction: ButtonInteraction | StringSelectMenuInteraction,
-  reminderId: number
+  reminderId: number,
 ): Promise<void> {
   if (!interaction.deferred && !interaction.replied) {
     await interaction.deferUpdate()
@@ -57,13 +57,13 @@ export async function showEditReminder(
     .setTitle(
       mina.sayf('utility.reminder.edit.title', {
         id: reminderId.toString(),
-      })
+      }),
     )
     .setDescription(
       mina.sayf('utility.reminder.edit.description', {
         message: reminder.message,
         timestamp,
-      })
+      }),
     )
 
   const menu = MinaSelects.string(
@@ -80,7 +80,7 @@ export async function showEditReminder(
         description: 'change when to remind',
         value: `edit_time_${reminderId}`,
       },
-    ]
+    ],
   )
 
   await interaction.editReply({
@@ -94,7 +94,7 @@ export async function showEditReminder(
  * @param interaction
  */
 export async function handleEditActionMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -136,7 +136,7 @@ export async function handleEditActionMenu(
     })
 
     const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-      messageInput
+      messageInput,
     )
 
     const modal = new ModalBuilder({
@@ -172,7 +172,7 @@ export async function handleEditActionMenu(
     })
 
     const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-      durationInput
+      durationInput,
     )
 
     const modal = new ModalBuilder({
@@ -190,7 +190,7 @@ export async function handleEditActionMenu(
  * @param interaction
  */
 export async function handleEditMessageModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -232,14 +232,14 @@ export async function handleEditMessageModal(
   const updated = await updateReminderMessage(
     interaction.user.id,
     reminderId,
-    newMessage.trim()
+    newMessage.trim(),
   )
 
   if (updated) {
     const embed = MinaEmbed.success(
       mina.sayf('utility.reminder.edit.success.message', {
         message: newMessage.trim(),
-      })
+      }),
     ).setTitle('reminder edited')
 
     await interaction.editReply({
@@ -268,7 +268,7 @@ export async function handleEditMessageModal(
  * @param interaction
  */
 export async function handleEditTimeModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -292,7 +292,7 @@ export async function handleEditTimeModal(
     await interaction.followUp({
       embeds: [
         MinaEmbed.error(
-          mina.say('utility.reminder.edit.error.invalidDuration')
+          mina.say('utility.reminder.edit.error.invalidDuration'),
         ),
       ],
       ephemeral: true,
@@ -307,7 +307,7 @@ export async function handleEditTimeModal(
         MinaEmbed.error(
           mina.sayf('utility.reminder.edit.error.minDuration', {
             minutes: (MIN_DURATION_MS / 1000 / 60).toString(),
-          })
+          }),
         ),
       ],
       ephemeral: true,
@@ -322,7 +322,7 @@ export async function handleEditTimeModal(
         MinaEmbed.error(
           mina.sayf('utility.reminder.edit.error.maxDuration', {
             days: MAX_DURATION_DAYS.toString(),
-          })
+          }),
         ),
       ],
       ephemeral: true,
@@ -336,7 +336,7 @@ export async function handleEditTimeModal(
   const updated = await updateReminderTime(
     interaction.user.id,
     reminderId,
-    newRemindAt
+    newRemindAt,
   )
 
   if (updated) {
@@ -345,7 +345,7 @@ export async function handleEditTimeModal(
     const embed = MinaEmbed.success(
       mina.sayf('utility.reminder.edit.success.time', {
         timestamp,
-      })
+      }),
     ).setTitle('reminder edited')
 
     await interaction.editReply({

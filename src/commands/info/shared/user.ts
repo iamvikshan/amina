@@ -45,7 +45,7 @@ export default function user(member: GuildMember) {
       {
         name: mina.say('infoCmd.user.fields.avatarUrl'),
         value: member.user.displayAvatarURL({ extension: 'png' }),
-      }
+      },
     )
     .setTimestamp(Date.now())
 

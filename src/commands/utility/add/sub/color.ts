@@ -8,7 +8,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function handleAddColor(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   // Guild check
   if (!interaction.guild) {
@@ -85,7 +85,7 @@ export async function handleAddColor(
     await updateSettings(interaction.guild.id, { colors })
 
     const embed = MinaEmbed.success().setDescription(
-      `successfully added color **${name}** (${hex}) and created role ${role.toString()}`
+      `successfully added color **${name}** (${hex}) and created role ${role.toString()}`,
     )
 
     await interaction.editReply({ embeds: [embed] })

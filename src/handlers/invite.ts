@@ -20,13 +20,13 @@ interface InviteData {
 const inviteCache = new Collection<string, Collection<string, CachedInvite>>()
 
 const getInviteCache = (
-  guild: Guild
+  guild: Guild,
 ): Collection<string, CachedInvite> | undefined => inviteCache.get(guild.id)
 
 const resetInviteCache = (guild: Guild): boolean => inviteCache.delete(guild.id)
 
 const getEffectiveInvites = (
-  inviteData: InviteData = { tracked: 0, added: 0, fake: 0, left: 0 }
+  inviteData: InviteData = { tracked: 0, added: 0, fake: 0, left: 0 },
 ): number =>
   inviteData.tracked + inviteData.added - inviteData.fake - inviteData.left || 0
 
@@ -42,7 +42,7 @@ const cacheInvite = (invite: Invite | any, isVanity = false): CachedInvite => ({
  * @param guild
  */
 async function cacheGuildInvites(
-  guild: Guild
+  guild: Guild,
 ): Promise<Collection<string, CachedInvite>> {
   if (!guild.members.me?.permissions.has('ManageGuild')) return new Collection()
   const invites = await guild.invites.fetch()
@@ -52,7 +52,7 @@ async function cacheGuildInvites(
   if (guild.vanityURLCode) {
     tempMap.set(
       guild.vanityURLCode,
-      cacheInvite(await guild.fetchVanityData(), true)
+      cacheInvite(await guild.fetchVanityData(), true),
     )
   }
 
@@ -69,7 +69,7 @@ async function cacheGuildInvites(
 const checkInviteRewards = async (
   guild: Guild,
   inviterData: any = {},
-  isAdded: boolean
+  isAdded: boolean,
 ): Promise<void> => {
   const settings = await getSettings(guild)
   if ((settings as any).invite.ranks.length > 0 && inviterData?.member_id) {
@@ -123,7 +123,7 @@ async function trackJoinedMember(member: GuildMember): Promise<any> {
       .sort((a, b) =>
         a.deletedTimestamp && b.deletedTimestamp
           ? b.deletedTimestamp - a.deletedTimestamp
-          : 0
+          : 0,
       )
       .forEach(invite => {
         if (

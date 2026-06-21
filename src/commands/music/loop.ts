@@ -37,7 +37,7 @@ const command: CommandData = {
     const type = interaction.options.getString('type') || 'track'
     const response = await toggleLoop(
       { client: interaction.client, guildId: interaction.guildId },
-      type
+      type,
     )
     return await interaction.followUp(response)
   },
@@ -51,7 +51,7 @@ async function toggleLoop(
     client: any
     guildId: string
   },
-  type: string
+  type: string,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 
@@ -65,7 +65,7 @@ async function toggleLoop(
       return {
         embeds: [
           MinaEmbed.success(
-            mina.sayf('music.success.looped', { mode: 'track' })
+            mina.sayf('music.success.looped', { mode: 'track' }),
           ),
         ],
       }
@@ -76,7 +76,7 @@ async function toggleLoop(
         return {
           embeds: [
             MinaEmbed.success(
-              mina.sayf('music.success.looped', { mode: 'queue' })
+              mina.sayf('music.success.looped', { mode: 'queue' }),
             ),
           ],
         }

@@ -56,7 +56,7 @@ export function getExistingTicketChannel(guild: Guild, userId: string): any {
  * @param channel
  */
 export async function parseTicketDetails(
-  channel: BaseGuildTextChannel
+  channel: BaseGuildTextChannel,
 ): Promise<{ user?: User; catName: string } | undefined> {
   if (!channel.topic) return
   const split = channel.topic?.split('|')
@@ -77,7 +77,7 @@ export async function parseTicketDetails(
 export async function closeTicket(
   channel: BaseGuildTextChannel,
   closedBy: User,
-  reason?: string
+  reason?: string,
 ): Promise<string> {
   if (
     !channel.deletable ||
@@ -125,12 +125,12 @@ export async function closeTicket(
               channel: channel.name,
               server: channel.guild.name,
               topic: ticketDetails.catName,
-            })
+            }),
           )
           .setThumbnail(channel.guild.iconURL())
 
         const transcriptButton = MinaRows.from(
-          MinaButtons.link(logsUrl.short, mina.say('ticket.closeEmbed.button'))
+          MinaButtons.link(logsUrl.short, mina.say('ticket.closeEmbed.button')),
         )
 
         await ticketDetails.user.send({
@@ -202,7 +202,7 @@ export async function closeTicket(
         name: 'closed by',
         value: closedBy ? closedBy.username : 'unknown',
         inline: true,
-      }
+      },
     )
 
     embed.setFields(fields)
@@ -213,17 +213,17 @@ export async function closeTicket(
     components.push(
       MinaRows.from(
         MinaButtons.delete(`ticket:btn:delete|ch:${channel.id}`).setLabel(
-          'delete channel'
-        )
-      )
+          'delete channel',
+        ),
+      ),
     )
 
     // Add transcript link if available
     if (logsUrl) {
       components.push(
         MinaRows.from(
-          MinaButtons.link(logsUrl.short, mina.say('ticket.closeEmbed.button'))
-        )
+          MinaButtons.link(logsUrl.short, mina.say('ticket.closeEmbed.button')),
+        ),
       )
     }
 
@@ -237,7 +237,7 @@ export async function closeTicket(
     // Send embed to log channel
     if ((config as any).ticket.log_channel) {
       const logChannel = channel.guild.channels.cache.get(
-        (config as any).ticket.log_channel
+        (config as any).ticket.log_channel,
       )
       const logEmbed = MinaEmbed.plain()
         .setColor(mina.color.muted as any)
@@ -247,7 +247,7 @@ export async function closeTicket(
       const logComponents: any[] = []
       if (logsUrl) {
         logComponents.push(
-          MinaRows.from(MinaButtons.link(logsUrl.short, 'transcript'))
+          MinaRows.from(MinaButtons.link(logsUrl.short, 'transcript')),
         )
       }
       ;(logChannel as any)?.safeSend({
@@ -269,8 +269,8 @@ export async function closeTicket(
             })
             .replace(
               'click the button below to view the transcript.',
-              'your ticket has been closed.'
-            )
+              'your ticket has been closed.',
+            ),
         )
         .setThumbnail(channel.guild.iconURL())
         .setFields(fields.filter(f => f.name !== 'Reason')) // Don't show reason to user
@@ -278,7 +278,7 @@ export async function closeTicket(
       const dmComponents: ActionRowBuilder<ButtonBuilder>[] = []
       if (logsUrl) {
         dmComponents.push(
-          MinaRows.single(MinaButtons.link(logsUrl.short, 'view transcript'))
+          MinaRows.single(MinaButtons.link(logsUrl.short, 'view transcript')),
         )
       }
       ticketDetails.user
@@ -300,7 +300,7 @@ export async function closeTicket(
  */
 export async function closeAllTickets(
   guild: Guild,
-  author: User
+  author: User,
 ): Promise<[number, number]> {
   const channels = getTicketChannels(guild)
   let success = 0
@@ -310,7 +310,7 @@ export async function closeAllTickets(
     const status = await closeTicket(
       ch[1],
       author,
-      'Force close all open tickets'
+      'Force close all open tickets',
     )
     if (status === 'SUCCESS') success += 1
     else failed += 1

@@ -13,5 +13,5 @@ serve(
   },
   () => {
     console.log(`Amina API running at http://localhost:${port}`)
-  }
+  },
 )

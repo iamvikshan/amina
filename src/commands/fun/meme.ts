@@ -29,8 +29,8 @@ const command: CommandData = {
       MinaButtons.custom(
         'regenMemeBtn',
         mina.say('fun.meme.button.regenerate'),
-        ButtonStyle.Secondary
-      )
+        ButtonStyle.Secondary,
+      ),
     )
 
     const embed = await getRandomEmbed('dank')
@@ -61,7 +61,7 @@ async function getRandomEmbed(category: string) {
     // Call the Meme API, category is always 'dank'
     const response = await HttpUtils.getJson(
       `https://meme-api.com/gimme/${category}`,
-      undefined
+      undefined,
     )
 
     if (!response.success) {

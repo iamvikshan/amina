@@ -18,7 +18,7 @@ export async function showPurgeHub(
   interaction:
     | StringSelectMenuInteraction
     | ButtonInteraction
-    | ChatInputCommandInteraction
+    | ChatInputCommandInteraction,
 ): Promise<void> {
   // Command handler already defers ChatInputCommandInteraction, so we use editReply
   // For other interactions, they should already be in a state where editReply works
@@ -32,7 +32,7 @@ export async function showPurgeHub(
         '**links** - delete messages containing links\n' +
         '**token** - delete messages containing a keyword/token\n' +
         '**user** - delete messages from a specific user\n\n' +
-        'note: messages older than 14 days cannot be bulk deleted.'
+        'note: messages older than 14 days cannot be bulk deleted.',
     )
     .setFooter({ text: 'select a purge type to begin' })
 
@@ -69,7 +69,7 @@ export async function showPurgeHub(
           .setLabel('user messages')
           .setDescription('delete messages from a specific user')
           .setValue('user'),
-      ])
+      ]),
   )
 
   const components: any[] = [menu]
@@ -80,8 +80,8 @@ export async function showPurgeHub(
       MinaButtons.custom(
         'purge:btn:proceed_type|default:true',
         'proceed',
-        ButtonStyle.Primary
-      )
+        ButtonStyle.Primary,
+      ),
     )
     components.push(proceedRow)
   }
@@ -98,7 +98,7 @@ export async function showPurgeHub(
  * @param interaction
  */
 export async function handlePurgeTypeMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const purgeType = interaction.values[0]
 
@@ -140,7 +140,7 @@ export async function handlePurgeTypeMenu(
  * @param interaction
  */
 export async function handleProceedType(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -154,7 +154,7 @@ export async function handleProceedType(
  * @param interaction
  */
 export async function handlePurgeBackButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showPurgeHub(interaction)

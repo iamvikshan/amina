@@ -9,7 +9,7 @@ import { Logger } from '@helpers/Logger'
  * @param interaction
  */
 export async function showCloseAllConfirmation(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.warning()
     .setAuthor({ name: 'confirm close all tickets' })
@@ -18,15 +18,15 @@ export async function showCloseAllConfirmation(
         'this is a destructive operation that cannot be undone.\n' +
         'all ticket channels will be archived and deleted.\n' +
         'transcripts will be saved to the log channel if configured.\n\n' +
-        'are you sure you want to proceed?'
+        'are you sure you want to proceed?',
     )
     .setFooter({ text: 'this action affects all open tickets' })
 
   const buttonRow = MinaRows.from(
     MinaButtons.stop('ticket:btn:closeall_confirm').setLabel(
-      'confirm close all'
+      'confirm close all',
     ),
-    MinaButtons.nah('ticket:btn:closeall_cancel')
+    MinaButtons.nah('ticket:btn:closeall_cancel'),
   )
 
   await interaction.editReply({
@@ -40,12 +40,12 @@ export async function showCloseAllConfirmation(
  * @param interaction
  */
 export async function handleCloseAllConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
   const loadingEmbed = MinaEmbed.primary(
-    'closing all tickets... this may take a moment.'
+    'closing all tickets... this may take a moment.',
   )
 
   await interaction.editReply({
@@ -71,7 +71,7 @@ export async function handleCloseAllConfirm(
     await interaction.editReply({
       embeds: [
         MinaEmbed.error(
-          'Failed to close tickets: an unexpected error occurred.'
+          'Failed to close tickets: an unexpected error occurred.',
         ),
       ],
       components: [],
@@ -90,7 +90,7 @@ export async function handleCloseAllConfirm(
         `**failed:** ${failedCount}\n\n` +
         (successCount > 0
           ? 'all tickets have been archived and deleted.'
-          : 'no tickets were found or all closures failed.')
+          : 'no tickets were found or all closures failed.'),
     )
 
   const backRow = MinaRows.backRow('ticket:btn:back_manage')
@@ -106,7 +106,7 @@ export async function handleCloseAllConfirm(
  * @param interaction
  */
 export async function handleCloseAllCancel(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 

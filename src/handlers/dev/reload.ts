@@ -16,7 +16,7 @@ import { mina } from '@helpers/mina'
  * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction to respond to
  */
 export async function showReloadMenu(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle(mina.say('dev.reload.title'))
@@ -43,8 +43,8 @@ export async function showReloadMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel(mina.say('dev.reload.option.all.label'))
           .setDescription(mina.say('dev.reload.option.all.description'))
-          .setValue('all')
-      )
+          .setValue('all'),
+      ),
   )
 
   const backButton = MinaRows.backRow('dev:btn:back_reload')
@@ -60,7 +60,7 @@ export async function showReloadMenu(
  * @param {StringSelectMenuInteraction} interaction - The select menu interaction
  */
 export async function handleReloadType(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const reloadType = interaction.values[0]
 
@@ -71,19 +71,19 @@ export async function handleReloadType(
   // Helper to register commands
   const registerCommands = async () => {
     const devConfig = await import('@schemas/Dev').then(m =>
-      m.getDevCommandsConfig()
+      m.getDevCommandsConfig(),
     )
 
     // Register devOnly and testGuildOnly commands to test guild
     const testGuild = client.guilds.cache.get(
-      config.BOT.TEST_GUILD_ID as string
+      config.BOT.TEST_GUILD_ID as string,
     )
     if (testGuild) {
       const testGuildCommands = client.slashCommands
         .filter(
           cmd =>
             // Only dev and test commands - regular commands come from global registration
-            cmd.testGuildOnly || (cmd.devOnly && devConfig.ENABLED)
+            cmd.testGuildOnly || (cmd.devOnly && devConfig.ENABLED),
         )
         .map(cmd => ({
           name: cmd.name,
@@ -95,7 +95,7 @@ export async function handleReloadType(
 
       await testGuild.commands.set(testGuildCommands)
       client.logger.success(
-        `Registered ${testGuildCommands.length} test guild commands`
+        `Registered ${testGuildCommands.length} test guild commands`,
       )
     }
 
@@ -114,7 +114,7 @@ export async function handleReloadType(
       if (globalCommands.length > 0) {
         await client.application?.commands.set(globalCommands)
         client.logger.success(
-          `Registered ${globalCommands.length} global commands (may take up to 1 hour to propagate)`
+          `Registered ${globalCommands.length} global commands (may take up to 1 hour to propagate)`,
         )
       }
     }
@@ -150,7 +150,7 @@ export async function handleReloadType(
     const embed = MinaEmbed.success()
       .setTitle(mina.say('dev.reload.success.title'))
       .setDescription(
-        mina.sayf('dev.reload.success.description', { type: reloadType })
+        mina.sayf('dev.reload.success.description', { type: reloadType }),
       )
 
     const backButton = MinaRows.backRow('dev:btn:back_reload')
@@ -166,7 +166,7 @@ export async function handleReloadType(
         mina.sayf('dev.reload.error.description', {
           type: reloadType,
           error: error.message,
-        })
+        }),
       )
 
     const backButton = MinaRows.backRow('dev:btn:back_reload')

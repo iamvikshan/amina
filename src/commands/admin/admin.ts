@@ -26,7 +26,7 @@ const command: CommandData = {
           '**server settings** - manage updates channel and staff roles\n' +
           '**mina ai** - configure ai responses and behavior\n' +
           '**logging** - set up moderation logs\n' +
-          '**status** - view current configuration'
+          '**status** - view current configuration',
       )
       .setFooter({ text: 'select a category from the menu below' })
 
@@ -52,7 +52,7 @@ const command: CommandData = {
               .setLabel('view status')
               .setDescription('see all current settings')
               .setValue('status'),
-          ])
+          ]),
       )
 
     await interaction.followUp({

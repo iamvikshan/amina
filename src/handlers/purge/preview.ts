@@ -22,7 +22,7 @@ export async function showPurgePreview(
   purgeType: PurgeType,
   amount: number,
   channelId: string,
-  additionalData?: { token?: string; userId?: string }
+  additionalData?: { token?: string; userId?: string },
 ): Promise<void> {
   const channel = interaction.guild?.channels.cache.get(channelId)
   const channelMention = channel ? `<#${channelId}>` : `Channel ${channelId}`
@@ -51,7 +51,7 @@ export async function showPurgePreview(
           : '') +
         '\n**warning:** this action cannot be undone!\n' +
         'messages older than 14 days cannot be bulk deleted.\n' +
-        'you must have manage messages permission in the target channel.'
+        'you must have manage messages permission in the target channel.',
     )
     .setFooter({
       text: 'click confirm to proceed or cancel to abort',
@@ -73,9 +73,9 @@ export async function showPurgePreview(
     MinaButtons.custom(
       confirmCustomId,
       `confirm (${amount})`,
-      ButtonStyle.Danger
+      ButtonStyle.Danger,
     ),
-    MinaButtons.nah('purge:btn:cancel')
+    MinaButtons.nah('purge:btn:cancel'),
   )
 
   await interaction.editReply({

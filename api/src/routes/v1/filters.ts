@@ -28,7 +28,7 @@ function createFilteredImage(
   filterId: string,
   filterDef: string,
   width = 512,
-  height = 512
+  height = 512,
 ): string {
   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -50,10 +50,10 @@ filters.get('/greyscale', async c => {
 
   const intensity = parseNumberOrDefault(c.req.query('intensity'), 1, 0, 1)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const filter = `
@@ -79,10 +79,10 @@ filters.get('/blur', async c => {
 
   const radius = parseNumberOrDefault(c.req.query('radius'), 5, 0, 50)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const filter = `
@@ -108,10 +108,10 @@ filters.get('/sepia', async c => {
 
   const intensity = parseNumberOrDefault(c.req.query('intensity'), 1, 0, 1)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   // Sepia color matrix
@@ -142,10 +142,10 @@ filters.get('/invert', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const filter = `
@@ -176,10 +176,10 @@ filters.get('/brighten', async c => {
 
   const amount = parseNumberOrDefault(c.req.query('amount'), 1.3, 0, 2)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const filter = `
@@ -209,10 +209,10 @@ filters.get('/darken', async c => {
 
   const amount = parseNumberOrDefault(c.req.query('amount'), 0.7, 0, 1)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const filter = `
@@ -242,10 +242,10 @@ filters.get('/contrast', async c => {
 
   const amount = parseNumberOrDefault(c.req.query('amount'), 1.5, 0, 3)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const intercept = 0.5 * (1 - amount)
@@ -277,10 +277,10 @@ filters.get('/pixelate', async c => {
 
   const pixels = parseNumberOrDefault(c.req.query('pixels'), 10, 2, 50)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   // Use a small image and scale up with no smoothing
@@ -310,10 +310,10 @@ filters.get('/saturate', async c => {
 
   const amount = parseNumberOrDefault(c.req.query('amount'), 1.5, 0, 3)
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const filter = `
@@ -343,10 +343,10 @@ filters.get('/hue-rotate', async c => {
       360) %
     360
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const filter = `

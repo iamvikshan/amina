@@ -13,7 +13,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
 
 async function handleReportModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<any> {
   const type = interaction.customId.split('_')[2]
   const title = interaction.fields.getTextInputValue('title')
@@ -32,7 +32,7 @@ async function handleReportModal(
               '**how to find it:**\n' +
               '1. enable developer mode in settings > advanced\n' +
               '2. right-click the server icon and copy id\n\n' +
-              "i can only report on servers i'm in."
+              "i can only report on servers i'm in.",
           )
 
         await interaction.reply({
@@ -56,7 +56,7 @@ async function handleReportModal(
                 channel.type === ChannelType.GuildText &&
                 (channel as any)
                   .permissionsFor(guild.members.me)
-                  ?.has(PermissionFlagsBits.CreateInstantInvite)
+                  ?.has(PermissionFlagsBits.CreateInstantInvite),
             )
 
             if (targetChannel) {
@@ -81,7 +81,7 @@ async function handleReportModal(
         description,
         additionalInfo,
         interaction.user,
-        inviteLink
+        inviteLink,
       )
 
       if (success) {
@@ -97,7 +97,7 @@ async function handleReportModal(
               name: mina.say('report.fields.description'),
               value: description,
               inline: false,
-            }
+            },
           )
           .setTimestamp()
 
@@ -141,7 +141,7 @@ async function handleReportModal(
             '**how to find it:**\n' +
             '1. enable developer mode in settings > advanced\n' +
             "2. right-click the user's name and copy id\n\n" +
-            "the user might not be in any server i'm in."
+            "the user might not be in any server i'm in.",
         )
 
       await interaction.reply({
@@ -165,7 +165,7 @@ async function handleReportModal(
           'check the question id.\n\n' +
             '**where to find it:**\n' +
             'look in the footer of the question after **qid:**\n' +
-            'example: if it says "qid: T123", enter "T123"'
+            'example: if it says "qid: T123", enter "T123"',
         )
 
       await interaction.reply({
@@ -188,7 +188,7 @@ async function handleReportModal(
       title,
       description,
       additionalInfo,
-      interaction.user
+      interaction.user,
     )
 
     if (success) {
@@ -211,13 +211,13 @@ async function handleReportModal(
             name: mina.say('report.fields.description'),
             value: description,
             inline: false,
-          }
+          },
         )
         .setTimestamp()
 
       if (type === 'bug') {
         confirmationEmbed.setDescription(
-          `you can also check [github issues](https://github.com/iamvikshan/amina/issues/new/choose).`
+          `you can also check [github issues](https://github.com/iamvikshan/amina/issues/new/choose).`,
         )
       }
 
@@ -255,7 +255,7 @@ async function sendWebhook(
   description: string,
   additionalInfo: string,
   user: User,
-  inviteLink?: string
+  inviteLink?: string,
 ): Promise<boolean> {
   if (!FEEDBACK.URL) {
     return false

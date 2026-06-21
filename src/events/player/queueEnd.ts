@@ -16,7 +16,7 @@ export default async (client: BotClient, player: Player): Promise<void> => {
     await client.utils.setVoiceStatus(
       client,
       player.voiceChannelId,
-      'Silence? Use /play to start the beat!'
+      'Silence? Use /play to start the beat!',
     )
   }
 
@@ -39,11 +39,11 @@ export default async (client: BotClient, player: Player): Promise<void> => {
           MinaEmbed.primary()
             .setTitle('queue concluded')
             .setDescription(
-              `enjoying music with me? consider [voting](https://top.gg/bot/${client.user?.id}/vote) for me!`
+              `enjoying music with me? consider [voting](https://top.gg/bot/${client.user?.id}/vote) for me!`,
             ),
         ],
       },
-      10
+      10,
     )
   }
 }

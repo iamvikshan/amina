@@ -79,7 +79,7 @@ export default async function botstats(client: BotClient) {
         name: mina.say('botInfo.stats.fields.uptime'),
         value: '```' + timeformat(process.uptime()) + '```',
         inline: false,
-      }
+      },
     )
 
   // Fetch AI stats for display
@@ -114,31 +114,31 @@ export default async function botstats(client: BotClient) {
     updateBotStats(stats)
       .then(() =>
         client.logger.log(
-          `Bot stats updated via /bot stats: ${guilds} guilds, ${users} users, ${channels} channels, ${wsPing}ms ping`
-        )
+          `Bot stats updated via /bot stats: ${guilds} guilds, ${users} users, ${channels} channels, ${wsPing}ms ping`,
+        ),
       )
       .catch(err =>
-        client.logger.error('Failed to update bot stats via /bot stats:', err)
+        client.logger.error('Failed to update bot stats via /bot stats:', err),
       )
   } catch (err) {
     client.logger.error(
       'Unexpected error updating bot stats via /bot stats:',
-      err
+      err,
     )
   }
 
   // Buttons
   const buttons = []
   buttons.push(
-    MinaButtons.link(client.getInvite(), mina.say('botInfo.invite.button'))
+    MinaButtons.link(client.getInvite(), mina.say('botInfo.invite.button')),
   )
 
   if (config.BOT.SUPPORT_SERVER) {
     buttons.push(
       MinaButtons.link(
         config.BOT.SUPPORT_SERVER,
-        mina.say('botInfo.invite.support')
-      )
+        mina.say('botInfo.invite.support'),
+      ),
     )
   }
 
@@ -148,7 +148,7 @@ export default async function botstats(client: BotClient) {
       : `https://${config.BOT.DASHBOARD_URL}`
 
     buttons.push(
-      MinaButtons.link(dashboardUrl, mina.say('botInfo.invite.dashboard'))
+      MinaButtons.link(dashboardUrl, mina.say('botInfo.invite.dashboard')),
     )
   }
 

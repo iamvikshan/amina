@@ -16,7 +16,7 @@ import { MinaRows } from '@helpers/componentHelper'
  * @param interaction
  */
 export async function showLeaveServerModal(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const serverIdInput = new TextInputBuilder({
     customId: 'server_id',
@@ -28,7 +28,7 @@ export async function showLeaveServerModal(
   })
 
   const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    serverIdInput
+    serverIdInput,
   )
 
   const modal = new ModalBuilder({
@@ -45,7 +45,7 @@ export async function showLeaveServerModal(
  * @param interaction
  */
 export async function handleLeaveServerModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 

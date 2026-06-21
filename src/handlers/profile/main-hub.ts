@@ -19,7 +19,7 @@ export async function showProfileHub(
   interaction:
     | StringSelectMenuInteraction
     | ButtonInteraction
-    | ChatInputCommandInteraction
+    | ChatInputCommandInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('profile hub')
@@ -28,7 +28,7 @@ export async function showProfileHub(
         '**edit profile** - update your profile information\n' +
         '**privacy settings** - control what others can see\n' +
         '**clear profile** - start fresh with a blank canvas\n\n' +
-        "tip: use `/info profile` to see your profile or `/info profile user:@someone` to see someone else's"
+        "tip: use `/info profile` to see your profile or `/info profile user:@someone` to see someone else's",
     )
     .setFooter({ text: 'select an option from the menu below' })
 
@@ -49,7 +49,7 @@ export async function showProfileHub(
           .setLabel('clear profile')
           .setDescription('start fresh with a blank canvas')
           .setValue('clear'),
-      ])
+      ]),
   )
 
   if (interaction.deferred || interaction.replied) {
@@ -71,7 +71,7 @@ export async function showProfileHub(
  * @param interaction
  */
 export async function handleProfileOperationMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const operation = interaction.values[0]
 
@@ -100,7 +100,7 @@ export async function handleProfileOperationMenu(
  * @param interaction
  */
 export async function handleProfileBackButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showProfileHub(interaction)

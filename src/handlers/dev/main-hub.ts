@@ -16,7 +16,7 @@ export async function showDevHub(
   interaction:
     | StringSelectMenuInteraction
     | ButtonInteraction
-    | ChatInputCommandInteraction
+    | ChatInputCommandInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('developer hub')
@@ -30,7 +30,7 @@ export async function showDevHub(
         '**list servers** - view all servers the bot is in\n' +
         '**leave server** - leave a server by id\n' +
         '**mina ai** - configure amina ai settings\n\n' +
-        '**note:** all operations are developer-only.'
+        '**note:** all operations are developer-only.',
     )
     .setFooter({ text: 'select a category to begin' })
 
@@ -66,8 +66,8 @@ export async function showDevHub(
         new StringSelectMenuOptionBuilder()
           .setLabel('mina ai')
           .setDescription('configure amina ai settings')
-          .setValue('minaai')
-      )
+          .setValue('minaai'),
+      ),
   )
 
   await interaction.editReply({
@@ -81,7 +81,7 @@ export async function showDevHub(
  * @param interaction
  */
 export async function handleCategoryMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const category = interaction.values[0]
 
@@ -140,7 +140,7 @@ export async function handleCategoryMenu(
  * @param interaction
  */
 export async function handleDevBackButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showDevHub(interaction)

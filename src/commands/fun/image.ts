@@ -212,7 +212,7 @@ async function getAnimeImage(user: User, type: string) {
       embeds: [
         MinaEmbed.error()
           .setDescription(
-            "oh no! my creative energy must've been too strong! let's try again!"
+            "oh no! my creative energy must've been too strong! let's try again!",
           )
           .setFooter({
             text: `requested by ${user.tag} | don't worry, we'll get it next time!`,

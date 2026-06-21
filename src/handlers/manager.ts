@@ -32,13 +32,13 @@ export default class Manager extends LavalinkManager {
 
     this.nodeManager.on('disconnect', (node, reason) => {
       client.logger.warn(
-        `Lavalink node "${node.id}" disconnected. Reason: ${JSON.stringify(reason)}`
+        `Lavalink node "${node.id}" disconnected. Reason: ${JSON.stringify(reason)}`,
       )
     })
 
     this.nodeManager.on('error', (node, error) => {
       client.logger.error(
-        `Error occurred on Lavalink node "${node.id}": ${error.message}`
+        `Error occurred on Lavalink node "${node.id}": ${error.message}`,
       )
     })
 

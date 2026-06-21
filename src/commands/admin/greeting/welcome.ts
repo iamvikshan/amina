@@ -148,7 +148,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    data: any
+    data: any,
   ): Promise<void> {
     const sub = interaction.options.getSubcommand()
     const settings = data.settings
@@ -160,7 +160,7 @@ const command: CommandData = {
         response = await sendPreview(
           settings,
           interaction.member as any,
-          'WELCOME'
+          'WELCOME',
         )
         break
 
@@ -168,7 +168,7 @@ const command: CommandData = {
         response = await setStatus(
           settings,
           interaction.options.getString('status', true),
-          'WELCOME'
+          'WELCOME',
         )
         break
 
@@ -176,7 +176,7 @@ const command: CommandData = {
         response = await setChannel(
           settings,
           interaction.options.getChannel('channel', true) as TextChannel,
-          'WELCOME'
+          'WELCOME',
         )
         break
 
@@ -184,7 +184,7 @@ const command: CommandData = {
         response = await setDescription(
           settings,
           interaction.options.getString('content', true),
-          'WELCOME'
+          'WELCOME',
         )
         break
 
@@ -192,7 +192,7 @@ const command: CommandData = {
         response = await setThumbnail(
           settings,
           interaction.options.getString('status', true),
-          'WELCOME'
+          'WELCOME',
         )
         break
 
@@ -200,7 +200,7 @@ const command: CommandData = {
         response = await setColor(
           settings,
           interaction.options.getString('hex-code', true),
-          'WELCOME'
+          'WELCOME',
         )
         break
 
@@ -208,7 +208,7 @@ const command: CommandData = {
         response = await setFooter(
           settings,
           interaction.options.getString('content', true),
-          'WELCOME'
+          'WELCOME',
         )
         break
 
@@ -216,7 +216,7 @@ const command: CommandData = {
         response = await setImage(
           settings,
           interaction.options.getString('url', true),
-          'WELCOME'
+          'WELCOME',
         )
         break
 

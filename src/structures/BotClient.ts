@@ -180,11 +180,11 @@ export default class BotClient extends Client {
         header: { alignment: 'center', content: 'Client Events' },
         singleLine: true,
         columns: [{ width: 25 }, { width: 5, alignment: 'center' }],
-      })
+      }),
     )
 
     this.logger.log(
-      `Loaded ${success + failed} events. Success (${success}) Failed (${failed})`
+      `Loaded ${success + failed} events. Success (${success}) Failed (${failed})`,
     )
   }
 
@@ -196,7 +196,7 @@ export default class BotClient extends Client {
       (CommandCategory as any)[cmd.category]?.enabled === false
     ) {
       this.logger.debug(
-        `Skipping Command ${cmd.name}. Category ${cmd.category} is disabled`
+        `Skipping Command ${cmd.name}. Category ${cmd.category} is disabled`,
       )
       return
     }
@@ -216,7 +216,7 @@ export default class BotClient extends Client {
       // Only load regular commands if GLOBAL is true
       if (!this.config.INTERACTIONS.GLOBAL) {
         this.logger.debug(
-          `Skipping command ${cmd.name}. Command is global but GLOBAL=false`
+          `Skipping command ${cmd.name}. Command is global but GLOBAL=false`,
         )
         return
       }
@@ -246,7 +246,7 @@ export default class BotClient extends Client {
     this.logger.success(`Loaded ${this.slashCommands.size} slash commands`)
     if (this.slashCommands.size > MAX_SLASH_COMMANDS) {
       throw new Error(
-        `A maximum of ${MAX_SLASH_COMMANDS} slash commands can be enabled`
+        `A maximum of ${MAX_SLASH_COMMANDS} slash commands can be enabled`,
       )
     }
   }
@@ -274,20 +274,20 @@ export default class BotClient extends Client {
     }
 
     const userContexts = this.contextMenus.filter(
-      ctx => ctx.type === ApplicationCommandType.User
+      ctx => ctx.type === ApplicationCommandType.User,
     ).size
     const messageContexts = this.contextMenus.filter(
-      ctx => ctx.type === ApplicationCommandType.Message
+      ctx => ctx.type === ApplicationCommandType.Message,
     ).size
 
     if (userContexts > MAX_USER_CONTEXTS) {
       throw new Error(
-        `A maximum of ${MAX_USER_CONTEXTS} USER contexts can be enabled`
+        `A maximum of ${MAX_USER_CONTEXTS} USER contexts can be enabled`,
       )
     }
     if (messageContexts > MAX_MESSAGE_CONTEXTS) {
       throw new Error(
-        `A maximum of ${MAX_MESSAGE_CONTEXTS} MESSAGE contexts can be enabled`
+        `A maximum of ${MAX_MESSAGE_CONTEXTS} MESSAGE contexts can be enabled`,
       )
     }
 
@@ -325,7 +325,7 @@ export default class BotClient extends Client {
           x =>
             x.username === search ||
             x.username.toLowerCase().includes(search.toLowerCase()) ||
-            x.tag.toLowerCase().includes(search.toLowerCase())
+            x.tag.toLowerCase().includes(search.toLowerCase()),
         )
         .forEach(user => users.push(user))
     }

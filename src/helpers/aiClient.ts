@@ -79,14 +79,14 @@ export class AiClient {
       const contentLength = response.headers.get('content-length')
       if (contentLength && parseInt(contentLength, 10) > MAX_IMAGE_SIZE) {
         throw new Error(
-          `Image too large: ${contentLength} bytes (max ${MAX_IMAGE_SIZE})`
+          `Image too large: ${contentLength} bytes (max ${MAX_IMAGE_SIZE})`,
         )
       }
 
       const arrayBuffer = await response.arrayBuffer()
       if (arrayBuffer.byteLength > MAX_IMAGE_SIZE) {
         throw new Error(
-          `Image too large: ${arrayBuffer.byteLength} bytes (max ${MAX_IMAGE_SIZE})`
+          `Image too large: ${arrayBuffer.byteLength} bytes (max ${MAX_IMAGE_SIZE})`,
         )
       }
       return Buffer.from(arrayBuffer).toString('base64')
@@ -110,7 +110,7 @@ export class AiClient {
     systemPrompt: string,
     history: ChatMessage[],
     userMessage: string,
-    toolDescriptions: string
+    toolDescriptions: string,
   ): Promise<ExtractionResult> {
     const extractionPrompt = `You are an intent extraction engine. Given the conversation and available tools, analyze the user's latest message and return a JSON object with:
 - "intent": A brief description of what the user wants
@@ -142,8 +142,8 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
               messages: sanitized as any,
               response_format: { type: 'json_object' },
             }),
-            this.timeout
-          )
+            this.timeout,
+          ),
         )
         this.recordSuccess()
         const raw = (response.choices?.[0]?.message?.content ?? '').trim()
@@ -152,7 +152,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
         this.recordFailure()
         if (!this.mistral) throw err
         Logger.warn(
-          `Gemini extraction failed (${err.message}), trying Mistral fallback`
+          `Gemini extraction failed (${err.message}), trying Mistral fallback`,
         )
       }
     }
@@ -165,8 +165,8 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
           messages: messages as any,
           response_format: { type: 'json_object' },
         }),
-        this.timeout
-      )
+        this.timeout,
+      ),
     )
     const raw = (response.choices?.[0]?.message?.content ?? '').trim()
     return this.parseExtractionResult(raw)
@@ -198,7 +198,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
     maxTokens: number,
     temperature: number,
     mediaItems?: MediaItem[],
-    tools?: OpenAITool[]
+    tools?: OpenAITool[],
   ): Promise<AiResponse> {
     const startTime = Date.now()
 
@@ -218,7 +218,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
         for (const media of mediaItems) {
           if (!AiClient.ALLOWED_IMAGE_TYPES.has(media.mimeType)) {
             Logger.warn(
-              `Unsupported media type for AI vision: ${media.mimeType}, skipping`
+              `Unsupported media type for AI vision: ${media.mimeType}, skipping`,
             )
             continue
           }
@@ -251,7 +251,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
             this.model,
             maxTokens,
             temperature,
-            tools
+            tools,
           )
           this.recordSuccess()
           return { ...response, latency: Date.now() - startTime }
@@ -259,7 +259,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
           this.recordFailure()
           if (!this.mistral || hasImages) throw geminiError
           Logger.warn(
-            `Gemini API failed (${geminiError.message}), falling back to Mistral`
+            `Gemini API failed (${geminiError.message}), falling back to Mistral`,
           )
         }
       } else if (!this.mistral || hasImages) {
@@ -272,7 +272,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
         messages,
         maxTokens,
         temperature,
-        tools
+        tools,
       )
       return { ...response, latency: Date.now() - startTime }
     } catch (error: any) {
@@ -288,7 +288,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
    * @returns {boolean} True when the tool call is a function tool call.
    */
   private static isFunctionToolCall(
-    toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall
+    toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
   ): toolCall is OpenAI.Chat.Completions.ChatCompletionMessageFunctionToolCall {
     return toolCall.type === 'function'
   }
@@ -298,7 +298,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
    * @param response
    */
   private parseCompletionResponse(
-    response: OpenAI.Chat.Completions.ChatCompletion
+    response: OpenAI.Chat.Completions.ChatCompletion,
   ): Omit<AiResponse, 'latency'> {
     const choice = response.choices?.[0]
     const text = choice?.message?.content ?? ''
@@ -335,7 +335,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
    * @param messages
    */
   private static sanitizeMessagesForGemini(
-    messages: ChatMessage[]
+    messages: ChatMessage[],
   ): ChatMessage[] {
     const result: ChatMessage[] = []
 
@@ -385,7 +385,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
     model: string,
     maxTokens: number,
     temperature: number,
-    tools?: OpenAITool[]
+    tools?: OpenAITool[],
   ): Promise<Omit<AiResponse, 'latency'>> {
     const sanitized = AiClient.sanitizeMessagesForGemini(messages)
     const response = await this.withRetry(() =>
@@ -397,8 +397,8 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
           temperature,
           tools: tools as any,
         }),
-        this.timeout
-      )
+        this.timeout,
+      ),
     )
 
     return this.parseCompletionResponse(response)
@@ -408,7 +408,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
     messages: ChatMessage[],
     maxTokens: number,
     temperature: number,
-    tools?: OpenAITool[]
+    tools?: OpenAITool[],
   ): Promise<Omit<AiResponse, 'latency'>> {
     const response = await this.withRetry(() =>
       this.withTimeout(
@@ -420,8 +420,8 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
           temperature,
           tools: tools as any,
         }),
-        this.timeout
-      )
+        this.timeout,
+      ),
     )
 
     return this.parseCompletionResponse(response)
@@ -445,7 +445,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
             Math.pow(2, attempt) *
             (0.5 + Math.random() * 0.5)
           Logger.warn(
-            `AI API retry ${attempt + 1}/${AiClient.MAX_RETRIES} after ${Math.round(delay)}ms (status: ${status ?? 'timeout'})`
+            `AI API retry ${attempt + 1}/${AiClient.MAX_RETRIES} after ${Math.round(delay)}ms (status: ${status ?? 'timeout'})`,
           )
           await new Promise(r => setTimeout(r, delay))
           continue
@@ -473,7 +473,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
     if (AiClient.circuitFailures === AiClient.CIRCUIT_THRESHOLD) {
       AiClient.circuitOpenUntil = Date.now() + AiClient.CIRCUIT_RESET_MS
       Logger.error(
-        `AI circuit breaker OPEN after ${AiClient.circuitFailures} failures (reset in ${AiClient.CIRCUIT_RESET_MS / 1000}s)`
+        `AI circuit breaker OPEN after ${AiClient.circuitFailures} failures (reset in ${AiClient.CIRCUIT_RESET_MS / 1000}s)`,
       )
     }
   }
@@ -494,7 +494,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
 
   private async withTimeout<T>(
     promise: Promise<T>,
-    timeoutMs: number
+    timeoutMs: number,
   ): Promise<T> {
     let timerId: ReturnType<typeof setTimeout> | undefined
     return Promise.race([
@@ -533,7 +533,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
 
     try {
       Logger.error(
-        `Unhandled AI error - Type: ${typeof error}, Message: ${errorMessage}`
+        `Unhandled AI error - Type: ${typeof error}, Message: ${errorMessage}`,
       )
       if (error.stack) Logger.debug(`Stack: ${error.stack}`)
     } catch (_logError) {

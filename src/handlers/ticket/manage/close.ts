@@ -8,7 +8,7 @@ import { isTicketChannel, closeTicket } from '@handlers/ticket/shared/utils'
  * @param interaction
  */
 export async function handleCloseTicket(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const channel = interaction.channel as TextChannel
 
@@ -16,7 +16,7 @@ export async function handleCloseTicket(
   if (!isTicketChannel(channel)) {
     const embed = MinaEmbed.error().setDescription(
       'this command can only be used in ticket channels\n\n' +
-        'please run this command from within an active ticket channel.'
+        'please run this command from within an active ticket channel.',
     )
 
     const backRow = MinaRows.backRow('ticket:btn:back_manage')
@@ -32,13 +32,13 @@ export async function handleCloseTicket(
   const status = await closeTicket(
     channel,
     interaction.user,
-    'Closed by a moderator'
+    'Closed by a moderator',
   )
 
   if (status === 'MISSING_PERMISSIONS') {
     const embed = MinaEmbed.error().setDescription(
       "i don't have permission to close tickets\n\n" +
-        'please make sure i have the **manage channels** permission.'
+        'please make sure i have the **manage channels** permission.',
     )
 
     const backRow = MinaRows.backRow('ticket:btn:back_manage')
@@ -53,7 +53,7 @@ export async function handleCloseTicket(
   if (status === 'ERROR') {
     const embed = MinaEmbed.error().setDescription(
       'an error occurred while closing the ticket\n\n' +
-        'please try again or contact a server administrator.'
+        'please try again or contact a server administrator.',
     )
 
     const backRow = MinaRows.backRow('ticket:btn:back_manage')

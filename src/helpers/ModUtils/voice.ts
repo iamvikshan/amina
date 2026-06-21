@@ -11,7 +11,7 @@ import { memberInteract, logModeration } from './core'
 export async function vMuteTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -39,7 +39,7 @@ export async function vMuteTarget(
 export async function vUnmuteTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -67,7 +67,7 @@ export async function vUnmuteTarget(
 export async function deafenTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -95,7 +95,7 @@ export async function deafenTarget(
 export async function unDeafenTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -123,7 +123,7 @@ export async function unDeafenTarget(
 export async function disconnectTarget(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string
+  reason: string,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))
@@ -152,7 +152,7 @@ export async function moveTarget(
   issuer: GuildMember,
   target: GuildMember,
   reason: string,
-  channel: VoiceChannel | StageChannel
+  channel: VoiceChannel | StageChannel,
 ): Promise<string | boolean> {
   if (!memberInteract(issuer, target)) return 'MEMBER_PERM'
   if (!memberInteract(issuer.guild.members.me as GuildMember, target))

@@ -43,7 +43,7 @@ const Schema = new mongoose.Schema(
       createdAt: 'created_at',
       updatedAt: false,
     },
-  }
+  },
 )
 
 export const model = mongoose.model('mod-logs', Schema)
@@ -52,7 +52,7 @@ export async function addModLogToDb(
   admin: GuildMember,
   target: any,
   reason: string,
-  type: string
+  type: string,
 ): Promise<any> {
   return await new model({
     guild_id: admin.guild.id,
@@ -68,7 +68,7 @@ export async function addModLogToDb(
 
 export async function getWarningLogs(
   guildId: string,
-  targetId: string
+  targetId: string,
 ): Promise<any[]> {
   return model
     .find({
@@ -81,7 +81,7 @@ export async function getWarningLogs(
 
 export async function clearWarningLogs(
   guildId: string,
-  targetId: string
+  targetId: string,
 ): Promise<any> {
   return model.deleteMany({
     guild_id: guildId,

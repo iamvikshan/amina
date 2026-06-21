@@ -132,7 +132,7 @@ export class MemoryManipulator {
 
   private async handleRememberFact(
     args: Record<string, unknown>,
-    context: NativeToolContext
+    context: NativeToolContext,
   ): Promise<string> {
     if (!this.memoryService) return 'Memory service is not available.'
 
@@ -143,7 +143,7 @@ export class MemoryManipulator {
 
     if (this.containsProhibitedMarkers(fact)) {
       Logger.warn(
-        `handleRememberFact rejected: content contains internal markers from user ${context.userId}`
+        `handleRememberFact rejected: content contains internal markers from user ${context.userId}`,
       )
       return 'That content cannot be stored as a memory.'
     }
@@ -159,7 +159,7 @@ export class MemoryManipulator {
         { key: 'user_fact', value: fact, importance: 6 },
         context.userId,
         context.guildId,
-        ctxStr
+        ctxStr,
       )
 
       if (stored) {
@@ -174,7 +174,7 @@ export class MemoryManipulator {
 
   private async handleUpdateMemory(
     args: Record<string, unknown>,
-    context: NativeToolContext
+    context: NativeToolContext,
   ): Promise<string> {
     if (!this.memoryService) return 'Memory service is not available.'
 
@@ -192,7 +192,7 @@ export class MemoryManipulator {
         description,
         newValue,
         context.userId,
-        context.guildId
+        context.guildId,
       )
 
       if (result.found) {
@@ -207,7 +207,7 @@ export class MemoryManipulator {
 
   private async handleForgetMemory(
     args: Record<string, unknown>,
-    context: NativeToolContext
+    context: NativeToolContext,
   ): Promise<string> {
     if (!this.memoryService) return 'Memory service is not available.'
 
@@ -220,7 +220,7 @@ export class MemoryManipulator {
       const result = await this.memoryService.deleteMemoryByMatch(
         description,
         context.userId,
-        context.guildId
+        context.guildId,
       )
 
       if (result.found) {
@@ -235,7 +235,7 @@ export class MemoryManipulator {
 
   private async handleRecallMemories(
     args: Record<string, unknown>,
-    context: NativeToolContext
+    context: NativeToolContext,
   ): Promise<string> {
     if (!this.memoryService) return 'Memory service is not available.'
 
@@ -251,7 +251,7 @@ export class MemoryManipulator {
         query,
         context.userId,
         context.guildId,
-        limit
+        limit,
       )
 
       if (memories.length === 0) {
@@ -261,7 +261,7 @@ export class MemoryManipulator {
       const formatted = memories
         .map(
           (m, i) =>
-            `${i + 1}. ${m.key}: ${m.value} (relevance: ${((m.score ?? 0) * 100).toFixed(0)}%)`
+            `${i + 1}. ${m.key}: ${m.value} (relevance: ${((m.score ?? 0) * 100).toFixed(0)}%)`,
         )
         .join('\n')
 

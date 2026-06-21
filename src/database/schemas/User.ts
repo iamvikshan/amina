@@ -79,7 +79,7 @@ const Schema = new mongoose.Schema(
       createdAt: 'created_at',
       updatedAt: 'updated_at',
     },
-  }
+  },
 )
 
 const Model = mongoose.model('user', Schema)
@@ -114,7 +114,7 @@ export async function addFlag(
   flaggedBy: string,
   serverId: string,
   serverName: string,
-  actionType: string | null = null
+  actionType: string | null = null,
 ) {
   // Get current user to check flag count
   const currentUser = await Model.findById(userId)
@@ -128,7 +128,7 @@ export async function addFlag(
     // Sort by flaggedAt and remove the oldest
     const sortedFlags = [...currentFlags].sort(
       (a: any, b: any) =>
-        new Date(a.flaggedAt).getTime() - new Date(b.flaggedAt).getTime()
+        new Date(a.flaggedAt).getTime() - new Date(b.flaggedAt).getTime(),
     )
     const oldestFlag = sortedFlags[0]
 
@@ -136,7 +136,7 @@ export async function addFlag(
     await Model.findByIdAndUpdate(
       userId,
       { $pull: { flags: { _id: oldestFlag._id } } },
-      { new: true }
+      { new: true },
     )
   }
 
@@ -151,7 +151,7 @@ export async function addFlag(
   const user = await Model.findByIdAndUpdate(
     userId,
     { $push: { flags: newFlag } },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -162,7 +162,7 @@ export async function removeFlag(userId: string, flaggedBy: string) {
   const user = await Model.findByIdAndUpdate(
     userId,
     { $pull: { flags: { flaggedBy } } },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -173,7 +173,7 @@ export async function removeAllFlags(userId: string) {
   const user = await Model.findByIdAndUpdate(
     userId,
     { $set: { flags: [] } },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -189,7 +189,7 @@ export async function removeFlagsByServer(userId: string, serverId: string) {
   const user = await Model.findByIdAndUpdate(
     userId,
     { $pull: { flags: { serverId } } },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -214,7 +214,7 @@ export async function addFlagFromModAction(
   flaggedByDisplayName: string,
   serverId: string,
   serverName: string,
-  actionType: string
+  actionType: string,
 ) {
   const formattedReason = reason
     ? `${actionType} by ${flaggedByDisplayName}: ${reason}`
@@ -226,19 +226,19 @@ export async function addFlagFromModAction(
     flaggedBy,
     serverId,
     serverName,
-    actionType
+    actionType,
   )
 }
 
 export async function updatePremium(
   userId: string,
   enabled: boolean,
-  expiresAt: Date | null
+  expiresAt: Date | null,
 ) {
   const user = await Model.findByIdAndUpdate(
     userId,
     { $set: { 'premium.enabled': enabled, 'premium.expiresAt': expiresAt } },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -248,7 +248,7 @@ export async function updatePremium(
 export async function setAfk(
   userId: string,
   reason: string | null = null,
-  duration: number | null = null
+  duration: number | null = null,
 ) {
   const since = new Date()
   const endTime = duration ? new Date(since.getTime() + duration * 60000) : null
@@ -262,7 +262,7 @@ export async function setAfk(
         'afk.endTime': endTime,
       },
     },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -280,7 +280,7 @@ export async function removeAfk(userId: string) {
         'afk.endTime': null,
       },
     },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -317,7 +317,7 @@ export async function updateBasicProfile(userId: string, basicData: any) {
   const user = await Model.findOneAndUpdate(
     { _id: userId },
     { $set: updateData },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -335,7 +335,7 @@ export async function updateMiscProfile(userId: string, miscData: any) {
   const user = await Model.findOneAndUpdate(
     { _id: userId },
     { $set: updateData },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -356,7 +356,7 @@ export async function updateProfile(userId: string, profileData: any) {
   const user = await Model.findOneAndUpdate(
     { _id: userId },
     { $set: updateData },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -387,7 +387,7 @@ export async function clearProfile(userId: string) {
         },
       },
     },
-    { new: true }
+    { new: true },
   )
 
   if (user) cache.set(userId, user)
@@ -414,7 +414,7 @@ export async function getUsersWithBirthdayToday() {
 
 export async function updateUserMinaAiPreferences(
   userId: string,
-  preferences: any
+  preferences: any,
 ) {
   const updateFields: Record<string, any> = {}
   if (preferences.ignoreMe !== undefined)
@@ -432,7 +432,7 @@ export async function updateUserMinaAiPreferences(
   const user = await Model.findOneAndUpdate(
     { _id: userId },
     { $set: updateFields },
-    { returnDocument: 'after' }
+    { returnDocument: 'after' },
   )
   if (user) cache.set(userId, user)
   return user

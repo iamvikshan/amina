@@ -24,7 +24,7 @@ export default async function balance(user: User) {
         name: 'net worth',
         value: `${(economy?.coins || 0) + (economy?.bank || 0)}${ECONOMY.CURRENCY}`,
         inline: true,
-      }
+      },
     )
 
   return { embeds: [embed] }

@@ -31,10 +31,10 @@ overlays.get('/approved', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -59,10 +59,10 @@ overlays.get('/rejected', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -87,10 +87,10 @@ overlays.get('/wasted', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -123,10 +123,10 @@ overlays.get('/triggered', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -159,10 +159,10 @@ overlays.get('/gay', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
   const opacity = parseNumberOrDefault(c.req.query('opacity'), 0.5, 0, 1)
 
@@ -195,10 +195,10 @@ overlays.get('/jail', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   // Generate jail bars
@@ -207,7 +207,7 @@ overlays.get('/jail', async c => {
   const bars = []
   for (let x = barSpacing; x < w; x += barSpacing) {
     bars.push(
-      `<rect x="${x - barWidth / 2}" y="0" width="${barWidth}" height="${h}" fill="#333" opacity="0.8"/>`
+      `<rect x="${x - barWidth / 2}" y="0" width="${barWidth}" height="${h}" fill="#333" opacity="0.8"/>`,
     )
   }
 
@@ -234,10 +234,10 @@ overlays.get('/rip', async c => {
   }
 
   const w = clampDimension(
-    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('width'), 512, 1, 2048),
   )
   const h = clampDimension(
-    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048)
+    parseNumberOrDefault(c.req.query('height'), 512, 1, 2048),
   )
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">

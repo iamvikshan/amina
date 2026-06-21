@@ -22,7 +22,7 @@ export { MinaButton, MinaRow, MinaSelect } from '@structures/components'
 export async function awaitComponentWithTimeout(
   message: Message,
   filter: (i: MessageComponentInteraction) => boolean,
-  timeoutMs: number = 60_000
+  timeoutMs: number = 60_000,
 ): Promise<MessageComponentInteraction | null> {
   try {
     return await message.awaitMessageComponent({
@@ -55,7 +55,7 @@ export async function disableComponents(message: Message): Promise<void> {
         }
         if (component.type === ComponentType.StringSelect) {
           return StringSelectMenuBuilder.from(component as any).setDisabled(
-            true
+            true,
           )
         }
         // Add other component types as needed

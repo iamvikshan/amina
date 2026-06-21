@@ -32,7 +32,7 @@ function makeOfflineStats(): BotStats & { cached: boolean } {
  */
 export async function getBotStats(
   env: Env,
-  options?: BotStatsOptions
+  options?: BotStatsOptions,
 ): Promise<BotStats & { cached: boolean; cacheAge?: number }> {
   const botApiUrl = options?.url || env.BOT_STATS_URL
   const cacheKey = botApiUrl || 'default'
@@ -76,7 +76,7 @@ export async function getBotStats(
     parsedUrl = new URL(`${botApiUrl}/stats`)
     if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
       console.warn(
-        `[bot-stats] SSRF blocked: invalid scheme in URL: ${botApiUrl}`
+        `[bot-stats] SSRF blocked: invalid scheme in URL: ${botApiUrl}`,
       )
       return makeOfflineStats()
     }
@@ -97,7 +97,7 @@ export async function getBotStats(
       hostname.endsWith('.internal')
     ) {
       console.warn(
-        `[bot-stats] SSRF blocked: private/internal address in URL: ${botApiUrl}`
+        `[bot-stats] SSRF blocked: private/internal address in URL: ${botApiUrl}`,
       )
       return makeOfflineStats()
     }
@@ -141,7 +141,7 @@ export async function getBotStats(
       ping: data.ping || 0,
       uptime: data.uptime || 0,
       status: ['online', 'idle', 'dnd', 'offline'].includes(
-        data.status as string
+        data.status as string,
       )
         ? (data.status as BotStats['status'])
         : 'online',
@@ -164,7 +164,7 @@ export async function getBotStats(
         JSON.stringify({ ...stats, timestamp: Date.now() }),
         {
           expirationTtl: 600, // 10 minutes
-        }
+        },
       )
     }
 

@@ -35,7 +35,7 @@ const OPEN_PERMS = ['ManageChannels'] as const
  * @param interaction
  */
 export async function handleTicketOpen(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<any> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
   const { guild, user } = interaction
@@ -62,14 +62,14 @@ export async function handleTicketOpen(
   if (topics.length > 0) {
     const options: Array<{ label: string; value: string }> = []
     settings.ticket.topics.forEach(cat =>
-      options.push({ label: cat.name, value: cat.name })
+      options.push({ label: cat.name, value: cat.name }),
     )
     const menuRow =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId('ticket-menu')
           .setPlaceholder('topic category')
-          .addOptions(options)
+          .addOptions(options),
       )
 
     await interaction.followUp({
@@ -157,7 +157,7 @@ export async function handleTicketOpen(
     if (catName) {
       // Find topic category by name
       const topicCategory = guild.channels.cache.find(
-        ch => ch.type === ChannelType.GuildCategory && ch.name === catName
+        ch => ch.type === ChannelType.GuildCategory && ch.name === catName,
       ) as CategoryChannel | undefined
       if (topicCategory) {
         parent = topicCategory
@@ -199,12 +199,12 @@ export async function handleTicketOpen(
     if (!parent) {
       error(
         'handleTicketOpen',
-        'Parent category is required but not found. Failed to resolve parent category.'
+        'Parent category is required but not found. Failed to resolve parent category.',
       )
       return interaction.editReply({
         embeds: [
           MinaEmbed.error(
-            'Unable to configure the ticket channel because the parent category is missing. Please contact an administrator to fix the ticket system configuration.'
+            'Unable to configure the ticket channel because the parent category is missing. Please contact an administrator to fix the ticket system configuration.',
           ),
         ],
       })
@@ -236,7 +236,7 @@ export async function handleTicketOpen(
         embeds: [
           MinaEmbed.error(
             'failed to create ticket channel due to permission issues.\n\n' +
-              'please check that i have the **manage channels** permission and that my role is above the ticket category.'
+              'please check that i have the **manage channels** permission and that my role is above the ticket category.',
           ),
         ],
       })
@@ -252,7 +252,7 @@ export async function handleTicketOpen(
           topic: catName
             ? mina.sayf('ticket.createEmbed.topic', { topic: catName })
             : '',
-        })
+        }),
       )
       .setFooter({
         text: mina.say('ticket.createEmbed.footer'),
@@ -260,8 +260,8 @@ export async function handleTicketOpen(
 
     const buttonsRow = MinaRows.from(
       MinaButtons.close('TICKET_CLOSE').setLabel(
-        mina.say('ticket.createEmbed.button')
-      )
+        mina.say('ticket.createEmbed.button'),
+      ),
     )
 
     const sent = await tktChannel.send({
@@ -280,11 +280,11 @@ export async function handleTicketOpen(
           topic: catName
             ? mina.sayf('ticket.createEmbed.dmTopic', { topic: catName })
             : '',
-        })
+        }),
       )
 
     const row = MinaRows.from(
-      MinaButtons.link(sent.url, mina.say('ticket.createEmbed.dmButton'))
+      MinaButtons.link(sent.url, mina.say('ticket.createEmbed.dmButton')),
     )
 
     // Try to DM, but don't fail if it doesn't work
@@ -296,11 +296,11 @@ export async function handleTicketOpen(
 
     // Reply with success message and link to ticket
     const successEmbed = MinaEmbed.success(
-      mina.say('ticket.createEmbed.success')
+      mina.say('ticket.createEmbed.success'),
     )
 
     const viewTicketButton = MinaRows.from(
-      MinaButtons.link(sent.url, mina.say('ticket.createEmbed.dmButton'))
+      MinaButtons.link(sent.url, mina.say('ticket.createEmbed.dmButton')),
     )
 
     await interaction.editReply({
@@ -332,7 +332,7 @@ export async function handleTicketOpen(
  * @param interaction
  */
 export async function handleTicketClose(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<any> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
@@ -350,7 +350,7 @@ export async function handleTicketClose(
 
   const status = await closeTicket(
     interaction.channel as BaseGuildTextChannel,
-    interaction.user
+    interaction.user,
   )
   if (status === 'MISSING_PERMISSIONS') {
     await interaction.followUp({
@@ -380,7 +380,7 @@ export async function handleTicketClose(
  * @param interaction
  */
 export async function handleTicketDelete(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   // Extract channel ID from custom_id
   // Format: ticket:btn:delete|ch:${channelId}

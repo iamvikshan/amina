@@ -82,7 +82,7 @@ async function getTogetherInvite(member: GuildMember, choice: string | null) {
         MinaEmbed.error()
           .setTitle('oops, slight problem!')
           .setDescription(
-            "hey friend! looks like you need to hop into a voice channel first - i can't start the fun without knowing where to set it up!"
+            "hey friend! looks like you need to hop into a voice channel first - i can't start the fun without knowing where to set it up!",
           ),
       ],
     }
@@ -94,7 +94,7 @@ async function getTogetherInvite(member: GuildMember, choice: string | null) {
         MinaEmbed.error()
           .setTitle("hmm, that's not quite right")
           .setDescription(
-            `oh! that game isn't in my collection yet. here's what we can play:\n\n${discordTogether.join(', ')}`
+            `oh! that game isn't in my collection yet. here's what we can play:\n\n${discordTogether.join(', ')}`,
           ),
       ],
     }
@@ -109,7 +109,7 @@ async function getTogetherInvite(member: GuildMember, choice: string | null) {
       MinaEmbed.success()
         .setTitle(`time for ${choice}!`)
         .setDescription(
-          `quick, quick! [click here](${invite.code}) to jump into the fun! i've got everything set up and ready to go!`
+          `quick, quick! [click here](${invite.code}) to jump into the fun! i've got everything set up and ready to go!`,
         ),
     ],
   }

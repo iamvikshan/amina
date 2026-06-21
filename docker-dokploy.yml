@@ -3,7 +3,7 @@ services:
     image: vikshan/amina:latest
     container_name: amina
     restart: unless-stopped
-    command: ["run", "src/index.ts"]
+    command: ['run', 'src/index.ts']
     depends_on:
       lavalink:
         condition: service_healthy
@@ -17,7 +17,7 @@ services:
       - amina-network
       - dokploy-network # <-- Added to allow Traefik to route traffic here
     healthcheck:
-      test: ["CMD", "bun", "run", "src/services/health.ts"]
+      test: ['CMD', 'bun', 'run', 'src/services/health.ts']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -36,10 +36,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: '1.0'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
     entrypoint:
       - /bin/sh
@@ -51,8 +51,9 @@ services:
       - amina-network
       - dokploy-network # <-- Added to allow Traefik to route traffic here
     healthcheck:
-      test: [
-          "CMD-SHELL",
+      test:
+        [
+          'CMD-SHELL',
           "wget --no-verbose --tries=1 --spider --header='Authorization: ${LAVALINK_PASS:-thoushantpass}' http://localhost:2333/version || exit 1",
         ]
       interval: 30s

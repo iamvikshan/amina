@@ -125,7 +125,7 @@ const command: CommandData = {
 
     if (!response.success) {
       return interaction.followUp(
-        "*drops paintbrush sadly* oh no! my artistic powers aren't working right now! maybe we can try again in a bit?"
+        "*drops paintbrush sadly* oh no! my artistic powers aren't working right now! maybe we can try again in a bit?",
       )
     }
 
@@ -137,7 +137,7 @@ const command: CommandData = {
     const buffer = response.buffer
     if (!buffer) {
       return interaction.followUp(
-        "*drops paintbrush sadly* oh no! I couldn't generate the image properly; please try again in a bit!"
+        "*drops paintbrush sadly* oh no! I couldn't generate the image properly; please try again in a bit!",
       )
     }
 

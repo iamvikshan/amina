@@ -16,7 +16,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
  * @param interaction
  */
 export async function showLogChannelSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -24,7 +24,7 @@ export async function showLogChannelSelect(
     .setAuthor({ name: 'setup log channel' })
     .setDescription(
       'please select the channel where ticket logs should be sent.\n\n' +
-        'this channel will receive logs when tickets are closed, including transcripts.'
+        'this channel will receive logs when tickets are closed, including transcripts.',
     )
     .setFooter({ text: 'select a text channel below' })
 
@@ -33,7 +33,7 @@ export async function showLogChannelSelect(
       new ChannelSelectMenuBuilder()
         .setCustomId('ticket:channel:log')
         .setPlaceholder('select a log channel...')
-        .setChannelTypes(ChannelType.GuildText)
+        .setChannelTypes(ChannelType.GuildText),
     )
 
   const backRow = MinaRows.backRow('ticket:btn:back_setup')
@@ -49,7 +49,7 @@ export async function showLogChannelSelect(
  * @param interaction
  */
 export async function handleLogChannelSelect(
-  interaction: ChannelSelectMenuInteraction
+  interaction: ChannelSelectMenuInteraction,
 ): Promise<void> {
   const channel = interaction.channels.first() as TextChannel
 
@@ -78,7 +78,7 @@ export async function handleLogChannelSelect(
     await interaction.reply({
       embeds: [
         MinaEmbed.error(
-          `i don't have permission to send messages and embeds in ${channel}. please give me those permissions.`
+          `i don't have permission to send messages and embeds in ${channel}. please give me those permissions.`,
         ),
       ],
       flags: MessageFlags.Ephemeral,
@@ -95,7 +95,7 @@ export async function handleLogChannelSelect(
 
   const successEmbed = MinaEmbed.success(
     `configuration saved. ticket logs will be sent to ${channel.toString()}.\n\n` +
-      'all ticket closures will now be logged in this channel.'
+      'all ticket closures will now be logged in this channel.',
   )
 
   const backRow = MinaRows.backRow('ticket:btn:back_setup')

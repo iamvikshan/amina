@@ -15,7 +15,7 @@ import { mina } from '@helpers/mina'
  * @param interaction
  */
 export async function showManageMenu(
-  interaction: MessageComponentInteraction
+  interaction: MessageComponentInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setAuthor({ name: mina.say('ticket.manage.title') })
@@ -42,8 +42,8 @@ export async function showManageMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel('remove user')
           .setDescription('remove users from current ticket')
-          .setValue('remove')
-      )
+          .setValue('remove'),
+      ),
   )
 
   const backButton = MinaRows.backRow('ticket:btn:back')
@@ -59,7 +59,7 @@ export async function showManageMenu(
  * @param interaction
  */
 export async function handleManageMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const option = interaction.values[0]
   const channel = interaction.channel
@@ -76,7 +76,7 @@ export async function handleManageMenu(
 
       // Try to find any ticket channel to provide as example
       const ticketChannels = guild.channels.cache.filter(ch =>
-        isTicketChannel(ch)
+        isTicketChannel(ch),
       )
 
       if (ticketChannels.size > 0) {
@@ -85,8 +85,8 @@ export async function handleManageMenu(
         const linkButton = MinaRows.from(
           MinaButtons.link(
             `https://discord.com/channels/${guild.id}/${exampleChannel.id}`,
-            mina.say('ticket.manage.button')
-          )
+            mina.say('ticket.manage.button'),
+          ),
         )
 
         const backButton = MinaRows.backRow('ticket:btn:back_manage')

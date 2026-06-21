@@ -61,7 +61,7 @@ user.get('/header-data', async c => {
           createdAt: 1,
           updatedAt: 1,
         },
-      }
+      },
     )
 
     if (!userData) {
@@ -133,7 +133,7 @@ user.get('/header-data', async c => {
       {
         userId,
         endpoint: '/v1/user/header-data',
-      }
+      },
     )
     return errors.internal(c, 'Failed to retrieve user data')
   }
@@ -167,7 +167,7 @@ user.get('/profile', async c => {
       { _id: userId },
       {
         projection: { apiKeys: 0, apiKey: 0 },
-      }
+      },
     )
 
     if (!userData) {
@@ -189,7 +189,7 @@ user.get('/profile', async c => {
       {
         userId,
         endpoint: '/v1/user/profile',
-      }
+      },
     )
     return errors.internal(c, 'Failed to retrieve user profile')
   }
@@ -221,7 +221,7 @@ user.get('/guilds', async c => {
     const userData = await db.findOne(
       'users',
       { _id: userId },
-      { projection: { guilds: 1 } }
+      { projection: { guilds: 1 } },
     )
 
     if (!userData) {
@@ -252,7 +252,7 @@ user.get('/guilds', async c => {
       {
         userId,
         endpoint: '/v1/user/guilds',
-      }
+      },
     )
     return errors.internal(c, 'Failed to retrieve user guilds')
   }
@@ -284,7 +284,7 @@ user.get('/achievements', async c => {
     const userData = await db.findOne(
       'users',
       { _id: userId },
-      { projection: { achievements: 1 } }
+      { projection: { achievements: 1 } },
     )
 
     if (!userData) {
@@ -307,7 +307,7 @@ user.get('/achievements', async c => {
       {
         userId,
         endpoint: '/v1/user/achievements',
-      }
+      },
     )
     return errors.internal(c, 'Failed to retrieve user achievements')
   }

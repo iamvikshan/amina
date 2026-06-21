@@ -68,12 +68,12 @@ export async function cleanupExpiredGuilds(client: BotClient): Promise<{
         totalDeleted += deleted.total
         guildsCleaned++
         client.logger.success(
-          `Cleaned up guild ${guildId}: ${deleted.total} records deleted across ${deleted.collections} collections`
+          `Cleaned up guild ${guildId}: ${deleted.total} records deleted across ${deleted.collections} collections`,
         )
       } catch (error: any) {
         totalErrors++
         client.logger.error(
-          `Error cleaning up guild ${guildId}: ${error.message}`
+          `Error cleaning up guild ${guildId}: ${error.message}`,
         )
       }
     }
@@ -81,11 +81,11 @@ export async function cleanupExpiredGuilds(client: BotClient): Promise<{
     // Always log final summary
     if (totalErrors === 0) {
       client.logger.success(
-        `Guild cleanup complete: ${totalDeleted} records deleted from ${guildsCleaned} guild(s)${guildsSkipped > 0 ? `, ${guildsSkipped} skipped` : ''}`
+        `Guild cleanup complete: ${totalDeleted} records deleted from ${guildsCleaned} guild(s)${guildsSkipped > 0 ? `, ${guildsSkipped} skipped` : ''}`,
       )
     } else {
       client.logger.warn(
-        `Guild cleanup completed with ${totalErrors} error(s): ${totalDeleted} records deleted from ${guildsCleaned} guild(s)${guildsSkipped > 0 ? `, ${guildsSkipped} skipped` : ''}`
+        `Guild cleanup completed with ${totalErrors} error(s): ${totalDeleted} records deleted from ${guildsCleaned} guild(s)${guildsSkipped > 0 ? `, ${guildsSkipped} skipped` : ''}`,
       )
     }
 

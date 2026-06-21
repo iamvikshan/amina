@@ -17,7 +17,7 @@ import type {
 export default async (
   _client: BotClient,
   reaction: MessageReaction | PartialMessageReaction,
-  user: User | PartialUser
+  user: User | PartialUser,
 ): Promise<void> => {
   if (reaction.partial) {
     try {
@@ -32,6 +32,6 @@ export default async (
   // Reaction Roles
   reactionRoleHandler.handleReactionAdd(
     reaction as MessageReaction,
-    user as User
+    user as User,
   )
 }

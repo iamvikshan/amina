@@ -93,7 +93,7 @@ async function getMatchingBans(guild: Guild, match: string) {
     new StringSelectMenuBuilder()
       .setCustomId('unban-menu')
       .setPlaceholder('choose a user to unban')
-      .addOptions(options)
+      .addOptions(options),
   )
 
   return {
@@ -105,7 +105,7 @@ async function getMatchingBans(guild: Guild, match: string) {
 async function waitForBan(
   issuer: GuildMember,
   reason: string | null,
-  sent: Message
+  sent: Message,
 ) {
   const collector = sent.channel?.createMessageComponentCollector({
     filter: m =>
@@ -126,13 +126,13 @@ async function waitForBan(
     const status = await unBanTarget(
       issuer,
       user,
-      reason || mina.say('error.noReason')
+      reason || mina.say('error.noReason'),
     )
     if (typeof status === 'boolean') {
       return sent.edit({
         embeds: [
           MinaEmbed.mod('unban').setDescription(
-            mina.sayf('moderation.unban.success', { target: user.username })
+            mina.sayf('moderation.unban.success', { target: user.username }),
           ),
         ],
         components: [],
@@ -144,7 +144,7 @@ async function waitForBan(
             mina.sayf('error.failed', {
               action: 'unban',
               target: user.username,
-            })
+            }),
           ),
         ],
         components: [],

@@ -8,7 +8,7 @@ export default async function start(
   prize: string,
   winners: number,
   host?: User | null,
-  allowedRoles: string[] = []
+  allowedRoles: string[] = [],
 ): Promise<string> {
   try {
     if (!host) host = member.user
@@ -71,7 +71,7 @@ export default async function start(
 
     await (member.client as any).giveawaysManager.start(
       giveawayChannel,
-      options
+      options,
     )
 
     return `Giveaway started in ${giveawayChannel}`

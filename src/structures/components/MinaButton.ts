@@ -37,7 +37,7 @@ export function parseState(customId: string): Record<string, string | number> {
       acc[key] = parsedValue
       return acc
     },
-    {} as Record<string, string | number>
+    {} as Record<string, string | number>,
   )
 }
 
@@ -59,7 +59,7 @@ export function parseState(customId: string): Record<string, string | number> {
  */
 export function buildCustomId(
   base: string,
-  state?: Record<string, string | number>
+  state?: Record<string, string | number>,
 ): string {
   if (!state || Object.keys(state).length === 0) {
     return base
@@ -75,13 +75,13 @@ export function buildCustomId(
       key.includes(':')
     ) {
       throw new Error(
-        `State key/value cannot contain '|' or ':': ${key}=${value}`
+        `State key/value cannot contain '|' or ':': ${key}=${value}`,
       )
     }
   }
 
   const stateParts = Object.entries(state).map(
-    ([key, value]) => `${key}:${value}`
+    ([key, value]) => `${key}:${value}`,
   )
   const customId = `${base}|${stateParts.join('|')}`
   if (customId.length > 100) {
@@ -379,7 +379,7 @@ export class MinaButton extends ButtonBuilder {
     customId: string,
     label: string,
     style: ButtonStyle = ButtonStyle.Secondary,
-    disabled = false
+    disabled = false,
   ): MinaButton {
     return new MinaButton()
       .setCustomId(customId)
@@ -407,7 +407,7 @@ export class MinaButton extends ButtonBuilder {
     base: string,
     label: string,
     style: ButtonStyle,
-    state: Record<string, string | number>
+    state: Record<string, string | number>,
   ): MinaButton {
     return new MinaButton()
       .setCustomId(buildCustomId(base, state))

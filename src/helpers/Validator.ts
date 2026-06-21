@@ -53,7 +53,7 @@ export class Validator {
         ].includes(config.MUSIC.DEFAULT_SOURCE)
       ) {
         warn(
-          'config.js: MUSIC.DEFAULT_SOURCE must be either ytsearch, ytmsearch, scsearch, spsearch, dzsearch or jssearch'
+          'config.js: MUSIC.DEFAULT_SOURCE must be either ytsearch, ytmsearch, scsearch, spsearch, dzsearch or jssearch',
         )
       }
     }
@@ -92,7 +92,7 @@ export class Validator {
     if (cmd.userPermissions) {
       if (!Array.isArray(cmd.userPermissions)) {
         throw new TypeError(
-          'Command userPermissions must be an Array of permission key strings.'
+          'Command userPermissions must be an Array of permission key strings.',
         )
       }
       for (const perm of cmd.userPermissions) {
@@ -103,7 +103,7 @@ export class Validator {
     if (cmd.botPermissions) {
       if (!Array.isArray(cmd.botPermissions)) {
         throw new TypeError(
-          'Command botPermissions must be an Array of permission key strings.'
+          'Command botPermissions must be an Array of permission key strings.',
         )
       }
       for (const perm of cmd.botPermissions) {
@@ -114,7 +114,7 @@ export class Validator {
     if (cmd.validations) {
       if (!Array.isArray(cmd.validations)) {
         throw new TypeError(
-          'Command validations must be an Array of validation Objects.'
+          'Command validations must be an Array of validation Objects.',
         )
       }
       for (const validation of cmd.validations) {
@@ -129,7 +129,7 @@ export class Validator {
           !(validation.message instanceof MinaEmbed)
         ) {
           throw new TypeError(
-            'Command validation message must be a string or MinaEmbed.'
+            'Command validation message must be a string or MinaEmbed.',
           )
         }
       }
@@ -145,7 +145,7 @@ export class Validator {
         typeof cmd.slashCommand.enabled !== 'boolean'
       ) {
         throw new TypeError(
-          'Command.slashCommand enabled must be a boolean value'
+          'Command.slashCommand enabled must be a boolean value',
         )
       }
       if (
@@ -153,7 +153,7 @@ export class Validator {
         typeof cmd.slashCommand.ephemeral !== 'boolean'
       ) {
         throw new TypeError(
-          'Command.slashCommand ephemeral must be a boolean value'
+          'Command.slashCommand ephemeral must be a boolean value',
         )
       }
       if (
@@ -217,7 +217,7 @@ export class Validator {
     if (context.userPermissions) {
       if (!Array.isArray(context.userPermissions)) {
         throw new TypeError(
-          'Context userPermissions must be an Array of permission key strings.'
+          'Context userPermissions must be an Array of permission key strings.',
         )
       }
       for (const perm of context.userPermissions) {

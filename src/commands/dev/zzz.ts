@@ -38,7 +38,7 @@ const command: CommandData = {
 
     // Register/Unregister commands in test guild
     const testGuild = client.guilds.cache.get(
-      config.BOT.TEST_GUILD_ID as string
+      config.BOT.TEST_GUILD_ID as string,
     )
     if (testGuild) {
       try {
@@ -58,16 +58,16 @@ const command: CommandData = {
         ;(client as BotClient).logger.success(
           `Updated test guild commands. ${
             enabled ? 'Enabled' : 'Disabled'
-          } dev commands.`
+          } dev commands.`,
         )
       } catch (error: any) {
         ;(client as BotClient).logger.error(
-          `Failed to update test guild commands: ${error.message}`
+          `Failed to update test guild commands: ${error.message}`,
         )
         return interaction.followUp({
           embeds: [
             MinaEmbed.error().setDescription(
-              'failed to update test guild commands. check bot logs for details.'
+              'failed to update test guild commands. check bot logs for details.',
             ),
           ],
         })
@@ -76,7 +76,7 @@ const command: CommandData = {
 
     const embed = MinaEmbed.success().setDescription(
       `dev commands are now ${enabled ? 'enabled' : 'disabled'}!\n` +
-        `current state: \`${enabled ? 'ENABLED' : 'DISABLED'}\``
+        `current state: \`${enabled ? 'ENABLED' : 'DISABLED'}\``,
     )
 
     return interaction.followUp({ embeds: [embed] })

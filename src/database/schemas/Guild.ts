@@ -215,7 +215,7 @@ export async function updateSettings(guildId: string, settings: any) {
   const existingDoc = await Model.findById(guildId)
   if (!existingDoc) {
     throw new Error(
-      `Guild document not found for ${guildId}. Call getSettings(guild) first to initialize the document with Discord metadata.`
+      `Guild document not found for ${guildId}. Call getSettings(guild) first to initialize the document with Discord metadata.`,
     )
   }
 
@@ -231,7 +231,7 @@ export async function setInviteLink(guildId: string, inviteLink: string) {
   const updatedSettings = await Model.findByIdAndUpdate(
     guildId,
     { 'server.invite_link': inviteLink },
-    { new: true }
+    { new: true },
   )
   cache.set(guildId, updatedSettings)
   return updatedSettings

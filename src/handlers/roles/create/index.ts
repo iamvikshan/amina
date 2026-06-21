@@ -13,7 +13,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showCreateRoleMenu(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('create new role')
@@ -30,7 +30,7 @@ export async function showCreateRoleMenu(
         name: 'options',
         value:
           '**basic** - name and color only\n**advanced** - include permission configuration',
-      }
+      },
     )
     .setFooter({ text: 'select an option to begin' })
 
@@ -38,14 +38,14 @@ export async function showCreateRoleMenu(
     MinaButtons.custom(
       'roles:btn:create_basic',
       'basic setup',
-      ButtonStyle.Primary
+      ButtonStyle.Primary,
     ),
     MinaButtons.custom(
       'roles:btn:create_advanced',
       'advanced setup',
-      ButtonStyle.Secondary
+      ButtonStyle.Secondary,
     ),
-    MinaButtons.custom('roles:btn:back', 'cancel', ButtonStyle.Danger)
+    MinaButtons.custom('roles:btn:back', 'cancel', ButtonStyle.Danger),
   )
 
   await interaction.update({
@@ -61,7 +61,7 @@ export async function showCreateRoleMenu(
  */
 export async function showCreateRoleModal(
   interaction: ButtonInteraction,
-  advanced: boolean = false
+  advanced: boolean = false,
 ): Promise<void> {
   const modal = {
     title: advanced ? 'create role - advanced' : 'create role - basic',
@@ -120,7 +120,7 @@ export async function showCreateRoleModal(
  * @param interaction
  */
 export async function handleCreateRoleModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   const [, mode] = interaction.customId.split('|')
   const advanced = mode === 'advanced'
@@ -150,7 +150,7 @@ export async function handleCreateRoleModal(
   const guild = interaction.guild
   if (!guild) return
   const existingRole = guild.roles.cache.find(
-    r => r.name.toLowerCase() === name.toLowerCase()
+    r => r.name.toLowerCase() === name.toLowerCase(),
   )
   if (existingRole) {
     await interaction.reply({
@@ -189,7 +189,7 @@ export async function handleCreateRoleModal(
             name: 'position',
             value: `${newRole.position}`,
             inline: true,
-          }
+          },
         )
         .setFooter({ text: 'use /roles to configure autorole or manage roles' })
 
@@ -223,7 +223,7 @@ async function showPermissionSelector(
   interaction: ModalSubmitInteraction,
   name: string,
   color: number | undefined,
-  reason: string
+  reason: string,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('configure permissions')
@@ -244,7 +244,7 @@ async function showPermissionSelector(
 
   // Encode role data in custom_id
   const roleData = Buffer.from(
-    JSON.stringify({ name, color, reason })
+    JSON.stringify({ name, color, reason }),
   ).toString('base64')
 
   const row = {
@@ -292,7 +292,7 @@ async function showPermissionSelector(
  * @param interaction
  */
 export async function handlePermissionSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const [, roleDataB64] = interaction.customId.split('|')
   const roleData = JSON.parse(Buffer.from(roleDataB64, 'base64').toString())
@@ -336,7 +336,7 @@ export async function handlePermissionSelect(
   // Combine permissions into single bigint
   const combinedPermissions = permissionArray.reduce(
     (acc, val) => acc | val,
-    0n
+    0n,
   )
 
   try {
@@ -372,7 +372,7 @@ export async function handlePermissionSelect(
             permissionSet === 'none'
               ? 'none'
               : permissionSet.charAt(0).toUpperCase() + permissionSet.slice(1),
-        }
+        },
       )
       .setFooter({ text: 'use /roles to configure autorole or manage roles' })
 

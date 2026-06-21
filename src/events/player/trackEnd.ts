@@ -12,7 +12,7 @@ import type { Player, Track } from 'lavalink-client'
 export default async (
   client: BotClient,
   player: Player,
-  track: Track
+  track: Track,
 ): Promise<void> => {
   const guild = client.guilds.cache.get(player.guildId)
   if (!guild) return

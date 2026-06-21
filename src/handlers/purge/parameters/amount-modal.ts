@@ -19,7 +19,7 @@ import {
 export async function showAmountModal(
   interaction: StringSelectMenuInteraction,
   purgeType: PurgeType,
-  additionalData?: { token?: string; userId?: string }
+  additionalData?: { token?: string; userId?: string },
 ): Promise<void> {
   const amountInput = new TextInputBuilder({
     customId: 'amount',
@@ -31,7 +31,7 @@ export async function showAmountModal(
   })
 
   const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    amountInput
+    amountInput,
   )
 
   const modal = new ModalBuilder({
@@ -52,7 +52,7 @@ export async function showAmountModal(
  * @param interaction
  */
 export async function handleAmountModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   const amountStr = interaction.fields.getTextInputValue('amount')
   const amount = parseInt(amountStr, 10)

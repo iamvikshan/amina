@@ -16,7 +16,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showServerSettingsMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const settings = await getSettings(interaction.guild)
 
@@ -33,7 +33,7 @@ export async function showServerSettingsMenu(
     .setDescription(
       'manage server-wide settings for mina.\n\n' +
         `**updates channel:** ${updatesChannel}\n` +
-        `**staff roles:** ${staffRoles}`
+        `**staff roles:** ${staffRoles}`,
     )
     .setFooter({ text: 'select an action from the menu below' })
 
@@ -58,7 +58,7 @@ export async function showServerSettingsMenu(
           .setLabel('back to main menu')
           .setDescription('return to admin hub')
           .setValue('back'),
-      ])
+      ]),
   )
 
   await interaction.editReply({
@@ -72,7 +72,7 @@ export async function showServerSettingsMenu(
  * @param interaction
  */
 export async function handleServerSettingsMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const action = interaction.values[0]
 
@@ -109,7 +109,7 @@ export async function handleServerSettingsMenu(
  */
 async function showChannelSelector(
   interaction: StringSelectMenuInteraction,
-  action: string
+  action: string,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('select updates channel')
@@ -117,7 +117,7 @@ async function showChannelSelector(
       'choose a channel where mina will post bot updates and announcements.\n\n' +
         '**requirements:**\n' +
         '- must be a text or announcement channel\n' +
-        '- mina must have permission to send messages'
+        '- mina must have permission to send messages',
     )
 
   const channelSelectRow =
@@ -125,7 +125,10 @@ async function showChannelSelector(
       new ChannelSelectMenuBuilder()
         .setCustomId(`admin:channel:${action}`)
         .setPlaceholder('select a channel')
-        .setChannelTypes([ChannelType.GuildText, ChannelType.GuildAnnouncement])
+        .setChannelTypes([
+          ChannelType.GuildText,
+          ChannelType.GuildAnnouncement,
+        ]),
     )
 
   await interaction.editReply({
@@ -141,7 +144,7 @@ async function showChannelSelector(
  */
 async function showRoleSelector(
   interaction: StringSelectMenuInteraction,
-  action: string
+  action: string,
 ): Promise<void> {
   const isAdding = action === 'staffadd'
   const embed = MinaEmbed.primary()
@@ -150,14 +153,14 @@ async function showRoleSelector(
       isAdding
         ? 'select a role to add to the staff list. staff roles have access to certain moderation features.\n\n' +
             '**note:** you can have up to 5 staff roles'
-        : 'select a role to remove from the staff list'
+        : 'select a role to remove from the staff list',
     )
 
   const roleSelectRow =
     new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
       new RoleSelectMenuBuilder()
         .setCustomId(`admin:role:${action}`)
-        .setPlaceholder('select a role')
+        .setPlaceholder('select a role'),
     )
 
   await interaction.editReply({

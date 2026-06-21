@@ -12,7 +12,7 @@ function getRequiredSecret(key: keyof Secrets): string {
   const value = process.env[key]
   if (!value) {
     throw new Error(
-      `Required secret ${key} is not set in environment variables`
+      `Required secret ${key} is not set in environment variables`,
     )
   }
   return value
@@ -77,7 +77,7 @@ export function validateSecrets(): void {
  * @param shoutrrrUrl
  */
 function toDiscordWebhookUrl(
-  shoutrrrUrl: string | undefined
+  shoutrrrUrl: string | undefined,
 ): string | undefined {
   if (!shoutrrrUrl) return undefined
   const match = shoutrrrUrl.match(/^discord:\/\/([^@]+)@(\d+)$/)

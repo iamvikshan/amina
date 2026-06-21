@@ -18,7 +18,7 @@ export async function checkUserReminders(client: BotClient): Promise<void> {
     }
 
     client.logger.log(
-      `Checking ${dueReminders.length} due reminder${dueReminders.length === 1 ? '' : 's'}...`
+      `Checking ${dueReminders.length} due reminder${dueReminders.length === 1 ? '' : 's'}...`,
     )
 
     for (const reminder of dueReminders) {
@@ -30,19 +30,19 @@ export async function checkUserReminders(client: BotClient): Promise<void> {
           // Mark as notified
           await markReminderNotified(reminder.user_id, reminder.reminder_id)
           client.logger.success(
-            `Sent reminder #${reminder.reminder_id} to user ${reminder.user_id}`
+            `Sent reminder #${reminder.reminder_id} to user ${reminder.user_id}`,
           )
         } else {
           // Failed to send, but mark as notified to prevent retry spam
           // User might have DMs disabled or left server
           await markReminderNotified(reminder.user_id, reminder.reminder_id)
           client.logger.warn(
-            `Failed to send reminder #${reminder.reminder_id} to user ${reminder.user_id} (marked as notified)`
+            `Failed to send reminder #${reminder.reminder_id} to user ${reminder.user_id} (marked as notified)`,
           )
         }
       } catch (error: any) {
         client.logger.error(
-          `Error processing reminder #${reminder.reminder_id}: ${error.message}`
+          `Error processing reminder #${reminder.reminder_id}: ${error.message}`,
         )
         // Mark as notified to prevent infinite retries
         try {
@@ -55,7 +55,7 @@ export async function checkUserReminders(client: BotClient): Promise<void> {
   } catch (error: any) {
     client.logger.error(
       `Error checking user reminders: ${error.message}`,
-      error
+      error,
     )
   }
 }
@@ -68,7 +68,7 @@ export async function checkUserReminders(client: BotClient): Promise<void> {
  */
 async function sendReminderNotification(
   client: BotClient,
-  reminder: any
+  reminder: any,
 ): Promise<boolean> {
   try {
     const user = await client.users.fetch(reminder.user_id)
@@ -110,7 +110,7 @@ async function sendReminderNotification(
       } catch (_channelError) {
         // Channel might be deleted or inaccessible, try DM
         Logger.debug(
-          `Channel ${reminder.channel_id} not accessible, trying DM for reminder #${reminder.reminder_id}`
+          `Channel ${reminder.channel_id} not accessible, trying DM for reminder #${reminder.reminder_id}`,
         )
       }
     }
@@ -125,7 +125,7 @@ async function sendReminderNotification(
     } catch (dmError: any) {
       // User has DMs disabled
       Logger.debug(
-        `Could not DM user ${reminder.user_id} for reminder #${reminder.reminder_id}: ${dmError.message}`
+        `Could not DM user ${reminder.user_id} for reminder #${reminder.reminder_id}: ${dmError.message}`,
       )
       return false
     }

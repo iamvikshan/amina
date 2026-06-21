@@ -25,7 +25,7 @@ const command: CommandData = {
     const embed = MinaEmbed.primary()
       .setTitle("mina's report system")
       .setDescription(
-        'heya! wanna help make me even more awesome? pick what you want to tell the devs about!'
+        'heya! wanna help make me even more awesome? pick what you want to tell the devs about!',
       )
 
     const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -44,7 +44,7 @@ const command: CommandData = {
             label: 'share your amazing feedback',
             value: 'feedback',
           },
-        ])
+        ]),
     )
 
     await interaction.followUp({
@@ -82,7 +82,7 @@ const command: CommandData = {
 
 async function showReportModal(
   interaction: StringSelectMenuInteraction,
-  type: string
+  type: string,
 ): Promise<void> {
   const titleInput = new TextInputBuilder({
     customId: 'title',
@@ -101,7 +101,7 @@ async function showReportModal(
   })
 
   const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    titleInput
+    titleInput,
   )
   const secondActionRow =
     new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput)
@@ -154,7 +154,7 @@ async function showReportModal(
     })
     const thirdActionRow =
       new ActionRowBuilder<TextInputBuilder>().addComponents(
-        additionalInfoInput
+        additionalInfoInput,
       )
     components.push(thirdActionRow)
   }

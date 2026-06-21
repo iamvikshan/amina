@@ -14,7 +14,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showAddTodModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const categoryInput = new TextInputBuilder({
     customId: 'category',
@@ -44,13 +44,13 @@ export async function showAddTodModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    categoryInput
+    categoryInput,
   )
   const secondRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    questionInput
+    questionInput,
   )
   const thirdRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    ratingInput
+    ratingInput,
   )
 
   const modal = new ModalBuilder({
@@ -67,7 +67,7 @@ export async function showAddTodModal(
  * @param interaction
  */
 export async function handleAddTodModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferReply({ ephemeral: true })
 
@@ -88,13 +88,13 @@ export async function handleAddTodModal(
     await addQuestion(category.toLowerCase(), question, rating)
 
     const embed = MinaEmbed.success(
-      `yay! your new *${category}* question has been added: "${question}" [${rating}]! so fun, right?`
+      `yay! your new *${category}* question has been added: "${question}" [${rating}]! so fun, right?`,
     )
 
     await interaction.editReply({ embeds: [embed] })
   } catch (error: any) {
     const errorEmbed = MinaEmbed.error(
-      `failed to add question: ${error.message}`
+      `failed to add question: ${error.message}`,
     )
 
     await interaction.editReply({ embeds: [errorEmbed] })

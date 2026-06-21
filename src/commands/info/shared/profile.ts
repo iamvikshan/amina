@@ -17,7 +17,7 @@ import {
  */
 export default async function profileView(
   interaction: ChatInputCommandInteraction,
-  target: User
+  target: User,
 ): Promise<void> {
   try {
     const userDb = await getUser(target)
@@ -28,7 +28,7 @@ export default async function profileView(
     if (!hasContent(profile)) {
       const embed = MinaEmbed.error()
         .setDescription(
-          `${isOwnProfile ? "you haven't" : "this user hasn't"} set up a profile yet!`
+          `${isOwnProfile ? "you haven't" : "this user hasn't"} set up a profile yet!`,
         )
         .setFooter({ text: 'use /profile to create your profile!' })
 
@@ -193,7 +193,7 @@ export default async function profileView(
     // Check if there's any visible content for other users
     if (!isOwnProfile && !hasVisibleContent) {
       const privateEmbed = MinaEmbed.error().setDescription(
-        `${target.username}'s profile is private.`
+        `${target.username}'s profile is private.`,
       )
 
       if (interaction.deferred || interaction.replied) {
@@ -216,13 +216,13 @@ export default async function profileView(
       const privateFields = basicFields
         .filter(
           ({ name, privacyKey }) =>
-            privacyKey && !profile.privacy?.[privacyKey] && profile[name]
+            privacyKey && !profile.privacy?.[privacyKey] && profile[name],
         )
         .map(({ label }) => label)
 
       if (privateFields.length > 0) {
         embed.setDescription(
-          `**Note:** Fields marked with 🔒 are private and only visible to you.\nPrivate fields: ${privateFields.join(', ')}`
+          `**Note:** Fields marked with 🔒 are private and only visible to you.\nPrivate fields: ${privateFields.join(', ')}`,
         )
       }
     }

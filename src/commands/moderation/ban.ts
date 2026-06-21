@@ -48,7 +48,7 @@ const command: CommandData = {
     const response = await ban(
       interaction.member as GuildMember,
       target,
-      reason
+      reason,
     )
     await interaction.followUp(response)
     return
@@ -58,18 +58,18 @@ const command: CommandData = {
 async function ban(
   issuer: GuildMember,
   target: User,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await banTarget(
     issuer,
     target,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
       embeds: [
         MinaEmbed.mod('ban').setDescription(
-          mina.sayf('moderation.ban', { target: target.username })
+          mina.sayf('moderation.ban', { target: target.username }),
         ),
       ],
     }
@@ -89,7 +89,7 @@ async function ban(
           mina.sayf('error.failed', {
             action: 'ban',
             target: target.username,
-          })
+          }),
         ),
       ],
     }

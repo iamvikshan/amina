@@ -13,7 +13,7 @@ import { MinaRows } from '@helpers/componentHelper'
  * @param interaction
  */
 export async function showSetupMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setAuthor({ name: 'ticket setup' })
@@ -23,7 +23,7 @@ export async function showSetupMenu(
         '**log channel** - set channel for ticket logs\n' +
         '**ticket limit** - set max concurrent open tickets per user\n' +
         '**manage topics** - add/remove/list ticket topics\n\n' +
-        'select an option below to continue:'
+        'select an option below to continue:',
     )
     .setFooter({ text: 'use the back button to return to main hub' })
 
@@ -47,8 +47,8 @@ export async function showSetupMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel('manage topics')
           .setDescription('add, remove, or list ticket topics')
-          .setValue('topics')
-      )
+          .setValue('topics'),
+      ),
   )
 
   const backRow = MinaRows.backRow('ticket:btn:back')
@@ -64,7 +64,7 @@ export async function showSetupMenu(
  * @param interaction
  */
 export async function handleSetupMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const option = interaction.values[0]
 

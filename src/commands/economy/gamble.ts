@@ -43,7 +43,7 @@ function calculateReward(
   amount: number,
   var1: string,
   var2: string,
-  var3: string
+  var3: string,
 ): number {
   if (var1 === var2 && var2 === var3) return 3 * amount
   if (var1 === var2 || var2 === var3 || var1 === var3) return 2 * amount
@@ -109,7 +109,7 @@ async function gamble(user: User, betAmount: number | null) {
   embed
     .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
     .setThumbnail(
-      'https://i.pinimg.com/originals/9a/f1/4e/9af14e0ae92487516894faa9ea2c35dd.gif'
+      'https://i.pinimg.com/originals/9a/f1/4e/9af14e0ae92487516894faa9ea2c35dd.gif',
     )
     .setDescription(str)
     .setFooter({

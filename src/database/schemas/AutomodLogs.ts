@@ -21,7 +21,7 @@ const Schema = new mongoose.Schema(
       createdAt: 'created_at',
       updatedAt: false,
     },
-  }
+  },
 )
 
 export const Model = mongoose.model('automod-logs', Schema)
@@ -30,7 +30,7 @@ export async function addAutoModLogToDb(
   member: GuildMember,
   content: string,
   reason: string,
-  strikes: number
+  strikes: number,
 ): Promise<void> {
   if (!member) throw new Error('Member is undefined')
   await new Model({

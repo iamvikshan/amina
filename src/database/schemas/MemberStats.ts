@@ -35,14 +35,14 @@ const Schema = new mongoose.Schema(
       createdAt: 'created_at',
       updatedAt: 'updated_at',
     },
-  }
+  },
 )
 
 export const Model = mongoose.model('member-stats', Schema)
 
 export async function getMemberStats(
   guildId: string,
-  memberId: string
+  memberId: string,
 ): Promise<any> {
   const key = `${guildId}|${memberId}`
   if (cache.has(key)) return cache.get(key)
@@ -61,7 +61,7 @@ export async function getMemberStats(
 
 export async function getXpLb(
   guildId: string,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<any[]> {
   return Model.find({
     guild_id: guildId,

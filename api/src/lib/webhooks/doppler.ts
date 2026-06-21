@@ -39,7 +39,7 @@ const MAX_ITEMS_TO_SHOW = 15 // Prevent Discord Embed limits from breaking the w
  * @param payload
  */
 export function transformDopplerPayload(
-  payload: DopplerPayload
+  payload: DopplerPayload,
 ): DiscordWebhookPayload {
   const config = payload.config
   const diff = payload.diff
@@ -145,9 +145,9 @@ export function transformDopplerPayload(
       url:
         project.id && workspace
           ? `https://dashboard.doppler.com/workplace/${encodeURIComponent(
-              workspace
+              workspace,
             )}/projects/${encodeURIComponent(project.id)}/configs/${encodeURIComponent(
-              config.name
+              config.name,
             )}`
           : undefined,
     },

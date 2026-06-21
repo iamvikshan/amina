@@ -41,7 +41,7 @@ const command: CommandData = {
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            mina.sayf('error.specifyUser', { action: 'untimeout' })
+            mina.sayf('error.specifyUser', { action: 'untimeout' }),
           ),
         ],
       })
@@ -60,7 +60,7 @@ const command: CommandData = {
     const response = await untimeout(
       interaction.member as GuildMember,
       target,
-      reason
+      reason,
     )
     await interaction.followUp(response)
     return
@@ -70,18 +70,18 @@ const command: CommandData = {
 async function untimeout(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await unTimeoutTarget(
     issuer,
     target,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
       embeds: [
         MinaEmbed.mod('untimeout').setDescription(
-          mina.sayf('moderation.untimeout', { target: target.user.username })
+          mina.sayf('moderation.untimeout', { target: target.user.username }),
         ),
       ],
     }
@@ -100,7 +100,7 @@ async function untimeout(
         MinaEmbed.error(
           mina.sayf('error.noTimeout', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -111,7 +111,7 @@ async function untimeout(
           mina.sayf('error.failed', {
             action: 'untimeout',
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }

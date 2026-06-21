@@ -4,7 +4,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function mentionOnlyHandler(
   interaction: ChatInputCommandInteraction,
-  settings: any
+  settings: any,
 ) {
   const enabled = interaction.options.getBoolean('enabled', true)
 
@@ -36,7 +36,7 @@ export default async function mentionOnlyHandler(
   embed.setDescription(
     enabled
       ? "mention-only mode enabled! i'll only respond when @mentioned."
-      : "free-will mode enabled! i'll respond to all messages in the configured channel."
+      : "free-will mode enabled! i'll respond to all messages in the configured channel.",
   )
 
   await interaction.followUp({ embeds: [embed] })

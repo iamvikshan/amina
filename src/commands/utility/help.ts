@@ -102,7 +102,7 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
         .setLabel(v.name)
         .setValue(k)
         .setDescription(`View commands in ${v.name} category`)
-        .setEmoji(v.emoji)
+        .setEmoji(v.emoji),
     )
   }
 
@@ -110,7 +110,7 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
     new StringSelectMenuBuilder()
       .setCustomId('help-menu')
       .setPlaceholder('choose the command category')
-      .addOptions(options)
+      .addOptions(options),
   )
 
   // Buttons Row - initially disabled (no category selected yet)
@@ -129,7 +129,7 @@ async function getHelpMenu(interaction: ChatInputCommandInteraction) {
         'a multipurpose discord bot with moderation, fun, economy, music, and more.\n' +
         'i can also talk, execute commands, and so much more using natural language conversation\n\n' +
         `[invite me](${botClient.getInvite()})\n` +
-        `[support server](${config.BOT.SUPPORT_SERVER ?? ''})`
+        `[support server](${config.BOT.SUPPORT_SERVER ?? ''})`,
     )
 
   return {
@@ -231,7 +231,7 @@ const waiter = (msg: Message, member: GuildMember) => {
 function getSlashCategoryEmbeds(
   client: BotClient,
   category: string,
-  member: GuildMember
+  member: GuildMember,
 ): MinaEmbed[] {
   let collector = ''
 
@@ -240,7 +240,7 @@ function getSlashCategoryEmbeds(
     client.slashCommands
       .filter(cmd => cmd.category === category)
       .forEach(
-        cmd => (collector += `\`/${cmd.name}\`\n ❯ ${cmd.description}\n\n`)
+        cmd => (collector += `\`/${cmd.name}\`\n ❯ ${cmd.description}\n\n`),
       )
 
     const filterCmd = client.slashCommands.get('filter')
@@ -274,7 +274,7 @@ function getSlashCategoryEmbeds(
 
   // For REMAINING Categories
   const commands = Array.from(
-    client.slashCommands.filter(cmd => cmd.category === category).values()
+    client.slashCommands.filter(cmd => cmd.category === category).values(),
   )
 
   if (commands.length === 0) {
@@ -292,7 +292,7 @@ function getSlashCategoryEmbeds(
   while (commands.length) {
     let toAdd = commands.splice(
       0,
-      commands.length > CMDS_PER_PAGE ? CMDS_PER_PAGE : commands.length
+      commands.length > CMDS_PER_PAGE ? CMDS_PER_PAGE : commands.length,
     )
 
     const mapped = toAdd
@@ -300,7 +300,7 @@ function getSlashCategoryEmbeds(
         // Check if the user has the required permissions for the command
         if (
           cmd.userPermissions?.some(
-            (perm: any) => !member.permissions.has(perm)
+            (perm: any) => !member.permissions.has(perm),
           )
         ) {
           return null

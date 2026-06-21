@@ -13,7 +13,7 @@ export default function emojiInfo(emoji: string) {
     .setDescription(
       `> id: **${custom.id}**\n` +
         `> name: **${custom.name}**\n` +
-        `> animated: **${custom.animated ? 'yes' : 'no'}**`
+        `> animated: **${custom.animated ? 'yes' : 'no'}**`,
     )
     .setImage(url)
 

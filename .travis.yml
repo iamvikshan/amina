@@ -31,7 +31,7 @@ jobs:
     # Stage: Bot Smoke
     # ============================================
     - stage: bot-smoke
-      name: "Bot Validation & Native Runtime Smoke"
+      name: 'Bot Validation & Native Runtime Smoke'
       before_install:
         # Install Doppler CLI for secrets
         - curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | sudo gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg
@@ -44,7 +44,7 @@ jobs:
         - bun install --frozen-lockfile --ignore-scripts
 
       script:
-        # 1. Run canonical lint + typecheck (oxlint + tsc --noEmit)
+        # 1. Run canonical lint + typecheck (oxlint + tsgo --noEmit)
         - bun check
 
         # 2. Load secrets from Doppler (or fall back to minimal test env)
@@ -103,7 +103,7 @@ jobs:
     # Stage: Docker Smoke
     # ============================================
     - stage: docker-smoke
-      name: "Docker Compose Health Smoke"
+      name: 'Docker Compose Health Smoke'
       services:
         - docker
       install: skip # Docker stage builds inside the container — no Bun install needed

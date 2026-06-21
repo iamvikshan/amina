@@ -12,7 +12,7 @@ import { secret } from '@src/config'
 export async function notifyDashboard(
   client: BotClient,
   guildId: string,
-  eventType: string = 'refresh'
+  eventType: string = 'refresh',
 ): Promise<void> {
   if (!config.BOT.DASHBOARD_URL?.trim() || !secret.WEBHOOK_SECRET?.trim()) {
     return
@@ -33,7 +33,7 @@ export async function notifyDashboard(
         },
         body: JSON.stringify({ guildId }),
         signal: controller.signal,
-      }
+      },
     )
 
     clearTimeout(timeoutId)
@@ -43,7 +43,7 @@ export async function notifyDashboard(
     } else {
       const errorText = await response.text()
       client.logger.error(
-        `Dashboard webhook failed (${response.status}): ${errorText}`
+        `Dashboard webhook failed (${response.status}): ${errorText}`,
       )
     }
   } catch (err: any) {

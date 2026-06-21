@@ -12,7 +12,7 @@ export default class Utils {
    */
   static containsLink(text: string): boolean {
     return /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/.test(
-      text
+      text,
     )
   }
 
@@ -22,7 +22,7 @@ export default class Utils {
    */
   static containsDiscordInvite(text: string): boolean {
     return /(https?:\/\/)?(www.)?(discord.(gg|io|me|li|link|plus)|discorda?p?p?.com\/invite|invite.gg|dsc.gg|urlcord.cf)\/[^\s/]+?(?=\b)/.test(
-      text
+      text,
     )
   }
 
@@ -99,7 +99,7 @@ export default class Utils {
    */
   static getRemainingTime(timeUntil: Date): string {
     const seconds = Math.abs(
-      (timeUntil.getTime() - new Date().getTime()) / 1000
+      (timeUntil.getTime() - new Date().getTime()) / 1000,
     )
     const time = Utils.timeformat(seconds)
     return time
@@ -128,7 +128,7 @@ export default class Utils {
    */
   static recursiveReadDirSync(
     dir: string,
-    allowedExtensions: string[] = ['.js']
+    allowedExtensions: string[] = ['.js'],
   ): string[] {
     const filePaths: string[] = []
     const readCommands = (dir: string) => {
@@ -192,7 +192,7 @@ export default class Utils {
   static async setVoiceStatus(
     client: any,
     channelId: string,
-    message: string
+    message: string,
   ): Promise<void> {
     const url = `/channels/${channelId}/voice-status`
     const payload = { status: message }

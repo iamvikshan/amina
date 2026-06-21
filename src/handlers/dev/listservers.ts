@@ -11,7 +11,7 @@ import { mina } from '@helpers/mina'
  */
 export async function showListservers(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
-  page: number = 1
+  page: number = 1,
 ): Promise<void> {
   const client = interaction.client as BotClient
   const servers = Array.from(client.guilds.cache.values())
@@ -21,7 +21,7 @@ export async function showListservers(
 
   if (totalPages === 0) {
     const embed = MinaEmbed.primary().setDescription(
-      mina.say('dev.listservers.empty')
+      mina.say('dev.listservers.empty'),
     )
 
     await interaction.editReply({
@@ -61,12 +61,12 @@ export async function showListservers(
   const paginationRow = MinaRows.from(
     MinaButtons.prev(
       `dev:btn:listservers_page|${currentPage - 1}`,
-      currentPage === 1
+      currentPage === 1,
     ),
     MinaButtons.next(
       `dev:btn:listservers_page|${currentPage + 1}`,
-      currentPage === totalPages
-    )
+      currentPage === totalPages,
+    ),
   )
 
   const backRow = MinaRows.backRow('dev:btn:back_listservers')
@@ -82,7 +82,7 @@ export async function showListservers(
  * @param interaction
  */
 export async function handleListserversPage(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 

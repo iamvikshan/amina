@@ -31,13 +31,13 @@ const command: CommandData = {
     }
     if (target.bot)
       return interaction.followUp(
-        "Eeek! I can't hack another bot - we might cause a paradox! 🌀"
+        "Eeek! I can't hack another bot - we might cause a paradox! 🌀",
       )
 
     const chaoticHackStages = responses.fun.hack.map(stage =>
       stage
         .replace('{target}', target.toString())
-        .replace('{target_lower}', target.username.toLowerCase())
+        .replace('{target_lower}', target.username.toLowerCase()),
     )
 
     const initialEmbed = MinaEmbed.loading()
@@ -49,7 +49,7 @@ const command: CommandData = {
     // Chaotic updates with random timing!
     for (let i = 1; i < chaoticHackStages.length; i++) {
       await new Promise(resolve =>
-        setTimeout(resolve, 2500 + Math.random() * 1000)
+        setTimeout(resolve, 2500 + Math.random() * 1000),
       )
 
       const embed = MinaEmbed.loading()
@@ -62,7 +62,7 @@ const command: CommandData = {
     const resultsEmbed = MinaEmbed.success()
       .setTitle(mina.say('fun.hackResult.title'))
       .setDescription(
-        mina.sayf('fun.hackResult.description', { target: target.toString() })
+        mina.sayf('fun.hackResult.description', { target: target.toString() }),
       )
       .addFields([
         {
@@ -89,7 +89,7 @@ const command: CommandData = {
     } catch (error) {
       interaction.client.logger.error(
         'Failed to send DM in hack command:',
-        error
+        error,
       )
       await message.edit({
         content: mina.say('fun.hackResult.dmFail'),

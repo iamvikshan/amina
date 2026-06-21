@@ -182,7 +182,7 @@ const SOCIAL_PLATFORMS: Record<
 }
 
 export function formatSocialLinks(
-  socials: Map<string, string> | undefined
+  socials: Map<string, string> | undefined,
 ): string {
   if (!socials || socials.size === 0) return ''
 
@@ -200,7 +200,7 @@ export function formatSocialLinks(
 }
 
 export function formatFavorites(
-  favorites: Map<string, string> | undefined
+  favorites: Map<string, string> | undefined,
 ): string {
   if (!favorites || favorites.size === 0) return ''
 

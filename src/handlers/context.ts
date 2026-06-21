@@ -12,7 +12,7 @@ const cooldownCache = new Map<string, number>()
  */
 export async function handleContext(
   interaction: ContextMenuCommandInteraction,
-  context: ContextData
+  context: ContextData,
 ): Promise<any> {
   // check cooldown
   if (context.cooldown) {

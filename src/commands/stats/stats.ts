@@ -27,7 +27,7 @@ const command: CommandData = {
 
   async interactionRun(
     interaction: ChatInputCommandInteraction,
-    data: { settings: any }
+    data: { settings: any },
   ) {
     if (!interaction.guild) {
       return interaction.followUp(mina.say('serverOnly'))
@@ -82,7 +82,7 @@ async function stats(member: GuildMember, settings: any) {
       {
         name: mina.say('statsCmd.fields.voice'),
         value: `> connections: ${memberStats.voice?.connections || 0}\n> time: ${Math.floor((memberStats.voice?.time || 0) / 60)} min`,
-      }
+      },
     )
     .setTimestamp()
 

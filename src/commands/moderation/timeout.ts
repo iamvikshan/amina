@@ -47,7 +47,7 @@ const command: CommandData = {
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            mina.sayf('error.specifyUser', { action: 'timeout' })
+            mina.sayf('error.specifyUser', { action: 'timeout' }),
           ),
         ],
       })
@@ -77,7 +77,7 @@ const command: CommandData = {
       interaction.member as GuildMember,
       target,
       ms,
-      reason
+      reason,
     )
     await interaction.followUp(response)
     return
@@ -88,7 +88,7 @@ async function timeout(
   issuer: GuildMember,
   target: GuildMember,
   ms: number,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (isNaN(ms)) {
     return {
@@ -99,13 +99,13 @@ async function timeout(
     issuer,
     target,
     ms,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
       embeds: [
         MinaEmbed.mod('timeout').setDescription(
-          mina.sayf('moderation.timeout', { target: target.user.username })
+          mina.sayf('moderation.timeout', { target: target.user.username }),
         ),
       ],
     }
@@ -124,7 +124,7 @@ async function timeout(
         MinaEmbed.error(
           mina.sayf('error.alreadyTimeout', {
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }
@@ -135,7 +135,7 @@ async function timeout(
           mina.sayf('error.failed', {
             action: 'timeout',
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }

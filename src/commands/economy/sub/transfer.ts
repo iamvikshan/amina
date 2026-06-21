@@ -7,7 +7,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 export default async function transfer(
   self: User,
   target: User,
-  coins: number
+  coins: number,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   if (isNaN(coins) || coins <= 0) return mina.say('error.invalidAmount')
   if (target.bot) return mina.say('economy.transfer.noBots')
@@ -38,7 +38,7 @@ export default async function transfer(
       mina.sayf('economy.transfer.success', {
         amount: `${coins}${ECONOMY.CURRENCY}`,
         target: target.username,
-      })
+      }),
     )
     .setTimestamp(Date.now())
 

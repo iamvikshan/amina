@@ -4,7 +4,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 export default async function statusHandler(
   interaction: ChatInputCommandInteraction,
-  settings: any
+  settings: any,
 ) {
   const globalConfig = await getAiConfig()
   const aiConfig = settings.aiResponder || {}
@@ -48,7 +48,7 @@ export default async function statusHandler(
           ? `<t:${Math.floor(aiConfig.updatedAt.getTime() / 1000)}:R>`
           : 'never',
         inline: true,
-      }
+      },
     )
 
   if (!globalConfig.globallyEnabled) {

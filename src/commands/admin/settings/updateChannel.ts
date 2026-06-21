@@ -11,7 +11,7 @@ import { mina } from '@helpers/mina'
 export default async function updateChannel(
   interaction: ChatInputCommandInteraction,
   channel: TextChannel,
-  settings: any
+  settings: any,
 ): Promise<void> {
   if (
     !channel
@@ -21,7 +21,7 @@ export default async function updateChannel(
     const embed = MinaEmbed.error().setDescription(
       mina.sayf('guild.setup.error.noPermission', {
         channel: channel.toString(),
-      })
+      }),
     )
     await interaction.editReply({ embeds: [embed] })
     return
@@ -41,7 +41,7 @@ export default async function updateChannel(
   })
 
   const notificationEmbed = MinaEmbed.primary().setDescription(
-    mina.say('guild.setup.success.testDescription')
+    mina.say('guild.setup.success.testDescription'),
   )
   await channel.send({ embeds: [notificationEmbed] })
 }

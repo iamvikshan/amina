@@ -15,7 +15,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showSettings(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   // Don't defer if already deferred (e.g., called from menu)
   if (!interaction.deferred && !interaction.replied) {
@@ -52,7 +52,7 @@ export async function showSettings(
         `use dm memories when chatting in servers (and vice versa).\n\n` +
         `**use memories across all servers:** ${globalMemoriesStatus}\n` +
         `use memories from all servers, not just the current one.\n\n` +
-        'select a setting to toggle it.'
+        'select a setting to toggle it.',
     )
     .setFooter({ text: 'changes take effect immediately' })
 
@@ -66,7 +66,7 @@ export async function showSettings(
           .setDescription(
             prefs.ignoreMe
               ? 'disable - allow me to respond to you'
-              : 'enable - i will never respond to you'
+              : 'enable - i will never respond to you',
           )
           .setValue('toggle_ignore'),
         new StringSelectMenuOptionBuilder()
@@ -76,7 +76,7 @@ export async function showSettings(
               ? 'globally disabled by developers'
               : prefs.allowDMs
                 ? 'disable - block dm responses'
-                : 'enable - allow dm responses'
+                : 'enable - allow dm responses',
           )
           .setValue('toggle_dms'),
         new StringSelectMenuOptionBuilder()
@@ -84,7 +84,7 @@ export async function showSettings(
           .setDescription(
             prefs.combineDmWithServer
               ? 'disable - separate dm and server memories'
-              : 'enable - combine dm and server memories'
+              : 'enable - combine dm and server memories',
           )
           .setValue('toggle_combine'),
         new StringSelectMenuOptionBuilder()
@@ -92,14 +92,14 @@ export async function showSettings(
           .setDescription(
             prefs.globalServerMemories !== false
               ? 'disable - use only current server memories'
-              : 'enable - use memories from all servers'
+              : 'enable - use memories from all servers',
           )
           .setValue('toggle_global'),
         new StringSelectMenuOptionBuilder()
           .setLabel('forget me')
           .setDescription('delete all your memories and set ignore me')
           .setValue('forget'),
-      ])
+      ]),
   )
 
   const backRow = MinaRows.backRow('minaai:btn:back')
@@ -115,7 +115,7 @@ export async function showSettings(
  * @param interaction
  */
 export async function handleSettingsMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const action = interaction.values[0]
 
@@ -151,7 +151,7 @@ export async function handleSettingsMenu(
     case 'toggle_dms': {
       if (!globalConfig.dmEnabledGlobally) {
         const embed = MinaEmbed.error(
-          'dm support is currently disabled globally by the bot developers.'
+          'dm support is currently disabled globally by the bot developers.',
         )
         await interaction.editReply({
           embeds: [embed],

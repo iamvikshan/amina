@@ -23,7 +23,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
  * @param interaction
  */
 export async function showMessageChannelSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setAuthor({ name: mina.say('ticket.setup.message.title') })
@@ -35,7 +35,7 @@ export async function showMessageChannelSelect(
       new ChannelSelectMenuBuilder()
         .setCustomId('ticket:channel:message')
         .setPlaceholder('select a channel...')
-        .setChannelTypes(ChannelType.GuildText)
+        .setChannelTypes(ChannelType.GuildText),
     )
 
   const backButton = MinaRows.backRow('ticket:btn:back_setup')
@@ -51,7 +51,7 @@ export async function showMessageChannelSelect(
  * @param interaction
  */
 export async function handleMessageChannelSelect(
-  interaction: ChannelSelectMenuInteraction
+  interaction: ChannelSelectMenuInteraction,
 ): Promise<void> {
   if (!interaction.guild) {
     await interaction.reply({
@@ -81,7 +81,7 @@ export async function handleMessageChannelSelect(
         MinaEmbed.error(
           mina.sayf('ticket.setup.message.noPermission', {
             channel: channel.toString(),
-          })
+          }),
         ),
       ],
       flags: MessageFlags.Ephemeral,
@@ -100,7 +100,7 @@ export async function handleMessageChannelSelect(
  */
 async function showTicketMessageModal(
   interaction: ChannelSelectMenuInteraction,
-  channel: TextChannel
+  channel: TextChannel,
 ): Promise<void> {
   const modal = new ModalBuilder({
     customId: `ticket:modal:message|ch:${channel.id}`,
@@ -114,7 +114,7 @@ async function showTicketMessageModal(
           placeholder: 'support ticket',
           required: false,
           maxLength: 256,
-        })
+        }),
       ),
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder({
@@ -124,7 +124,7 @@ async function showTicketMessageModal(
           placeholder: 'please use the button below to create a ticket',
           required: false,
           maxLength: 2048,
-        })
+        }),
       ),
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder({
@@ -134,7 +134,7 @@ async function showTicketMessageModal(
           placeholder: 'you can only have 1 open ticket at a time',
           required: false,
           maxLength: 2048,
-        })
+        }),
       ),
     ],
   })
@@ -147,7 +147,7 @@ async function showTicketMessageModal(
  * @param interaction
  */
 export async function handleTicketMessageModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   if (!interaction.guild) {
     await interaction.reply({
@@ -220,7 +220,7 @@ export async function handleTicketMessageModal(
         await interaction.editReply({
           embeds: [
             MinaEmbed.error(
-              "I couldn't set up the tickets category because my member info isn't available in the guild cache. Please try again or ensure the bot is still a member of this server."
+              "I couldn't set up the tickets category because my member info isn't available in the guild cache. Please try again or ensure the bot is still a member of this server.",
             ),
           ],
         })
@@ -276,7 +276,7 @@ export async function handleTicketMessageModal(
       await interaction.editReply({
         embeds: [
           MinaEmbed.error(
-            "i couldn't create the tickets category. please check my permissions."
+            "i couldn't create the tickets category. please check my permissions.",
           ),
         ],
       })
@@ -291,7 +291,7 @@ export async function handleTicketMessageModal(
     .setFooter({ text: footer })
 
   const buttonRow = MinaRows.single(
-    MinaButtons.custom('TICKET_CREATE', 'open a ticket', ButtonStyle.Success)
+    MinaButtons.custom('TICKET_CREATE', 'open a ticket', ButtonStyle.Success),
   )
 
   try {
@@ -306,7 +306,7 @@ export async function handleTicketMessageModal(
 
     const successEmbed = MinaEmbed.success(
       `ticket message created successfully in ${channel}.\n\n` +
-        `users can now click the button to create tickets.`
+        `users can now click the button to create tickets.`,
     )
 
     const backRow = MinaRows.backRow('ticket:btn:back_setup')
@@ -318,12 +318,12 @@ export async function handleTicketMessageModal(
   } catch (error) {
     ;(interaction.client as any).logger.error(
       'Failed to send ticket message:',
-      error
+      error,
     )
     await interaction.editReply({
       embeds: [
         MinaEmbed.error(
-          `failed to send ticket message to ${channel}. please check my permissions.`
+          `failed to send ticket message to ${channel}. please check my permissions.`,
         ),
       ],
     })

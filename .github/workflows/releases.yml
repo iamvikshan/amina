@@ -5,9 +5,9 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/releases.yml"
-      - "src/**"
-      - "Dockerfile"
+      - '.github/workflows/releases.yml'
+      - 'src/**'
+      - 'Dockerfile'
 
 # Cancel in-progress runs for the same branch
 concurrency:
@@ -40,7 +40,7 @@ jobs:
 
       - name: Run bot checks
         shell: bash
-        # Uses the canonical `bun check` (tsc --noEmit + oxlint) defined in package.json
+        # Uses the canonical `bun check` (tsgo --noEmit + oxlint) defined in package.json
         run: bun check
 
   # ============================================

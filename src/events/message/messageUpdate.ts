@@ -13,7 +13,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 export default async (
   _client: BotClient,
   oldMessage: Message | PartialMessage,
-  newMessage: Message | PartialMessage
+  newMessage: Message | PartialMessage,
 ): Promise<void> => {
   // Ignore if message is partial
   if (oldMessage.partial) return
@@ -28,7 +28,7 @@ export default async (
   if (!settings.logs.enabled || !settings.logs_channel) return
 
   const logChannel: any = oldMessage.guild.channels.cache.get(
-    settings.logs_channel
+    settings.logs_channel,
   )
   if (!logChannel) return
 
@@ -61,7 +61,7 @@ export default async (
           newMessage.content && newMessage.content.length > 1024
             ? newMessage.content.slice(0, 1021) + '...'
             : newMessage.content || 'none',
-      }
+      },
     )
     .setTimestamp()
 

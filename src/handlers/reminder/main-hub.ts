@@ -19,7 +19,7 @@ export async function showReminderHub(
   interaction:
     | StringSelectMenuInteraction
     | ButtonInteraction
-    | ChatInputCommandInteraction
+    | ChatInputCommandInteraction,
 ): Promise<void> {
   const userId = interaction.user.id
   const reminders = await getUserReminders(userId)
@@ -77,7 +77,7 @@ export async function showReminderHub(
   const menu = MinaSelects.string(
     'reminder:menu:operation',
     'select an operation...',
-    menuOptions
+    menuOptions,
   )
 
   await interaction.editReply({
@@ -91,7 +91,7 @@ export async function showReminderHub(
  * @param interaction
  */
 export async function handleReminderOperationMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const operation = interaction.values[0]
 
@@ -121,7 +121,7 @@ export async function handleReminderOperationMenu(
  * @param interaction
  */
 export async function handleReminderBackButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showReminderHub(interaction)

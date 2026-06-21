@@ -58,7 +58,7 @@ const command: CommandData = {
     } catch (error) {
       interaction.client.logger.error(
         'Failed to fetch guild member in kick command:',
-        error
+        error,
       )
       await interaction.followUp({
         embeds: [MinaEmbed.error(mina.say('error.notInServer'))],
@@ -69,7 +69,7 @@ const command: CommandData = {
     const response = await kick(
       interaction.member as GuildMember,
       target,
-      reason
+      reason,
     )
     await interaction.followUp(response)
     return
@@ -79,18 +79,18 @@ const command: CommandData = {
 async function kick(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await kickTarget(
     issuer,
     target,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
       embeds: [
         MinaEmbed.mod('kick').setDescription(
-          mina.sayf('moderation.kick', { target: target.user.username })
+          mina.sayf('moderation.kick', { target: target.user.username }),
         ),
       ],
     }
@@ -110,7 +110,7 @@ async function kick(
           mina.sayf('error.failed', {
             action: 'kick',
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }

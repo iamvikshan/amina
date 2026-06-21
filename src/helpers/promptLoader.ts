@@ -24,7 +24,7 @@ export function loadPrompt(): string {
     return prompt
   } catch (err) {
     Logger.warn(
-      `Failed to load prompt.md, using fallback: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to load prompt.md, using fallback: ${err instanceof Error ? err.message : String(err)}`,
     )
     return FALLBACK_PROMPT
   }

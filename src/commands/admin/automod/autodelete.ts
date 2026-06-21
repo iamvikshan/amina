@@ -106,22 +106,22 @@ const command: CommandData = {
     if (sub === 'attachments') {
       response = await antiAttachments(
         settings,
-        interaction.options.getString('status', true)
+        interaction.options.getString('status', true),
       )
     } else if (sub === 'invites') {
       response = await antiInvites(
         settings,
-        interaction.options.getString('status', true)
+        interaction.options.getString('status', true),
       )
     } else if (sub === 'links') {
       response = await antiLinks(
         settings,
-        interaction.options.getString('status', true)
+        interaction.options.getString('status', true),
       )
     } else if (sub === 'maxlines') {
       response = await maxLines(
         settings,
-        interaction.options.getInteger('amount', true)
+        interaction.options.getInteger('amount', true),
       )
     } else {
       response = 'Oops! Invalid command usage! Please check and try again!'

@@ -74,7 +74,7 @@ const command = {
 
       const name = interaction.options.getString('name', true)
       const colorIndex = colors.findIndex(
-        (c: any) => c.name.toLowerCase() === name.toLowerCase()
+        (c: any) => c.name.toLowerCase() === name.toLowerCase(),
       )
 
       if (colorIndex === -1) {
@@ -120,7 +120,7 @@ const command = {
       const embed = MinaEmbed.primary()
         .setTitle('available colors')
         .setDescription(
-          colors.map((c: any) => `• **${c.name}** (${c.hex})`).join('\n')
+          colors.map((c: any) => `• **${c.name}** (${c.hex})`).join('\n'),
         )
 
       return interaction.reply({ embeds: [embed], ephemeral: true })
@@ -130,7 +130,7 @@ const command = {
     if (subcommand === 'set') {
       const name = interaction.options.getString('color', true)
       const targetColor = colors.find(
-        (c: any) => c.name.toLowerCase() === name.toLowerCase()
+        (c: any) => c.name.toLowerCase() === name.toLowerCase(),
       )
 
       if (!targetColor) {
@@ -144,14 +144,14 @@ const command = {
 
       try {
         const member = await interaction.guild?.members.fetch(
-          interaction.user.id
+          interaction.user.id,
         )
         if (!member) throw new Error('Member not found')
 
         // Remove existing color roles
         const roleIdsToRemove = colors.map((c: any) => c.roleId)
         const rolesToRemove = member.roles.cache.filter(r =>
-          roleIdsToRemove.includes(r.id)
+          roleIdsToRemove.includes(r.id),
         )
 
         if (rolesToRemove.size > 0) {
@@ -164,7 +164,7 @@ const command = {
           // Role might have been deleted manually, try to recreate or error
           // For now, error and suggest admin fix
           return interaction.editReply(
-            `The role for **${name}** seems to be missing. Please ask an admin to fix the palette.`
+            `The role for **${name}** seems to be missing. Please ask an admin to fix the palette.`,
           )
         }
 
@@ -184,13 +184,13 @@ const command = {
 
       try {
         const member = await interaction.guild?.members.fetch(
-          interaction.user.id
+          interaction.user.id,
         )
         if (!member) throw new Error('Member not found')
 
         const roleIdsToRemove = colors.map((c: any) => c.roleId)
         const rolesToRemove = member.roles.cache.filter(r =>
-          roleIdsToRemove.includes(r.id)
+          roleIdsToRemove.includes(r.id),
         )
 
         if (rolesToRemove.size === 0) {
@@ -218,10 +218,12 @@ const command = {
 
     if (focused.name === 'color' || focused.name === 'name') {
       const filtered = colors.filter((c: any) =>
-        c.name.toLowerCase().startsWith(focused.value.toLowerCase())
+        c.name.toLowerCase().startsWith(focused.value.toLowerCase()),
       )
       await interaction.respond(
-        filtered.map((c: any) => ({ name: c.name, value: c.name })).slice(0, 25)
+        filtered
+          .map((c: any) => ({ name: c.name, value: c.name }))
+          .slice(0, 25),
       )
     }
   },

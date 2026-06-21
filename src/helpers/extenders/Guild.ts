@@ -12,12 +12,12 @@ const MEMBER_MENTION = /<?@?!?(\d{17,20})>?/
 Guild.prototype.findMatchingChannels = function (
   this: Guild,
   query: string,
-  type = [ChannelType.GuildText, ChannelType.GuildAnnouncement]
+  type = [ChannelType.GuildText, ChannelType.GuildAnnouncement],
 ): any[] /*GuildChannel[]*/ {
   if (!this || !query || typeof query !== 'string') return []
 
   const channelManager = this.channels.cache.filter(ch =>
-    type.includes(ch.type as any)
+    type.includes(ch.type as any),
   )
 
   const patternMatch = query.match(CHANNEL_MENTION)
@@ -51,12 +51,12 @@ Guild.prototype.findMatchingChannels = function (
 Guild.prototype.findMatchingVoiceChannels = function (
   this: Guild,
   query: string,
-  type = [ChannelType.GuildVoice, ChannelType.GuildStageVoice]
+  type = [ChannelType.GuildVoice, ChannelType.GuildStageVoice],
 ): any[] {
   if (!this || !query || typeof query !== 'string') return []
 
   const channelManager = this.channels.cache.filter(ch =>
-    type.includes(ch.type as any)
+    type.includes(ch.type as any),
   )
 
   const patternMatch = query.match(CHANNEL_MENTION)
@@ -88,7 +88,7 @@ Guild.prototype.findMatchingVoiceChannels = function (
  */
 Guild.prototype.findMatchingRoles = function (
   this: Guild,
-  query: string
+  query: string,
 ): any[] {
   if (!this || !query || typeof query !== 'string') return []
 
@@ -122,7 +122,7 @@ Guild.prototype.findMatchingRoles = function (
 Guild.prototype.resolveMember = async function (
   this: Guild,
   query: string,
-  exact: boolean = false
+  exact: boolean = false,
 ): Promise<any> {
   if (!query || typeof query !== 'string') return
 
@@ -147,7 +147,7 @@ Guild.prototype.resolveMember = async function (
       x =>
         x.user.username === query ||
         x.user.username.toLowerCase().includes(query.toLowerCase()) ||
-        x.displayName.toLowerCase().includes(query.toLowerCase())
+        x.displayName.toLowerCase().includes(query.toLowerCase()),
     )
   }
 }
@@ -157,7 +157,7 @@ Guild.prototype.resolveMember = async function (
  * @returns Array of [total, bots, members]
  */
 Guild.prototype.fetchMemberStats = async function (
-  this: Guild
+  this: Guild,
 ): Promise<number[]> {
   const all = await this.members.fetch()
   const total = all.size

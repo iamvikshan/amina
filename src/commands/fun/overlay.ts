@@ -73,13 +73,13 @@ const command: CommandData = {
 
     if (!response.success)
       return interaction.followUp(
-        'oops! something went wrong with the image magic'
+        'oops! something went wrong with the image magic',
       )
 
     const buffer = response.buffer
     if (!buffer)
       return interaction.followUp(
-        'oops! something went wrong with the image magic'
+        'oops! something went wrong with the image magic',
       )
     const attachment = new AttachmentBuilder(buffer, {
       name: 'attachment.png',

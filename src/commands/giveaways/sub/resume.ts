@@ -2,7 +2,7 @@ import { GuildMember } from 'discord.js'
 
 export default async function resume(
   member: GuildMember,
-  messageId: string
+  messageId: string,
 ): Promise<string> {
   if (!messageId) return 'You must provide a valid message id.'
 
@@ -13,7 +13,7 @@ export default async function resume(
 
   // Search with messageId
   const giveaway = (member.client as any).giveawaysManager.giveaways.find(
-    (g: any) => g.messageId === messageId && g.guildId === member.guild.id
+    (g: any) => g.messageId === messageId && g.guildId === member.guild.id,
   )
 
   // If no giveaway was found

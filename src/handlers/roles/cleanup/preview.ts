@@ -21,7 +21,7 @@ function filterRoles(
   guild: any,
   method: RoleCleanupMethod,
   params: any,
-  botTopPos: number
+  botTopPos: number,
 ): RoleCleanupStats {
   const keepIds = params.keepIds || new Set()
   let matched: Role[] = []
@@ -115,7 +115,7 @@ export async function showCleanupPreview(
     | ModalSubmitInteraction
     | ButtonInteraction,
   method: RoleCleanupMethod,
-  params: any
+  params: any,
 ): Promise<void> {
   const guild = interaction.guild
   if (!guild) {
@@ -149,7 +149,7 @@ export async function showCleanupPreview(
       isTooMany
         ? `**safety limit exceeded!**\n\nrefusing to delete more than ${MAX_DELETE} roles in one operation.\nplease narrow your filter criteria.`
         : `**method:** ${methodNames[method]}\n\n` +
-            `review the roles that will be deleted below. this action **cannot be undone**.`
+            `review the roles that will be deleted below. this action **cannot be undone**.`,
     )
     .addFields(
       { name: 'matched', value: String(stats.matched.length), inline: true },
@@ -158,7 +158,7 @@ export async function showCleanupPreview(
         value: String(stats.deletable.length),
         inline: true,
       },
-      { name: 'skipped', value: String(stats.skipped.length), inline: true }
+      { name: 'skipped', value: String(stats.skipped.length), inline: true },
     )
 
   if (!isTooMany && stats.deletable.length > 0) {
@@ -173,7 +173,7 @@ export async function showCleanupPreview(
       name: 'skipped roles',
       value: summarizeRoles(
         stats.skipped.map(s => s.role),
-        10
+        10,
       ),
     })
   }
@@ -190,7 +190,7 @@ export async function showCleanupPreview(
   if (stats.deletable.length === 0) {
     embed.setDescription(
       `**method:** ${methodNames[method]}\n\n` +
-        `no roles match your criteria or all matched roles are protected.`
+        `no roles match your criteria or all matched roles are protected.`,
     )
     await interaction.editReply({
       embeds: [embed],
@@ -204,13 +204,13 @@ export async function showCleanupPreview(
   const confirmCustomId =
     `roles:btn:confirm|method:${method}|params:${Buffer.from(stateParams).toString('base64')}`.substring(
       0,
-      100
+      100,
     )
 
   const confirmBtn = MinaButtons.custom(
     confirmCustomId,
     `confirm delete (${stats.deletable.length})`,
-    ButtonStyle.Danger
+    ButtonStyle.Danger,
   )
 
   const cancelBtn = MinaButtons.nah('roles:btn:cancel')

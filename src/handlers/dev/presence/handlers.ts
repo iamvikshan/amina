@@ -22,7 +22,7 @@ export async function showPresenceMenu(
   interaction:
     | StringSelectMenuInteraction
     | ButtonInteraction
-    | ModalSubmitInteraction
+    | ModalSubmitInteraction,
 ): Promise<void> {
   const currentConfig = await getPresenceConfig()
   const { ENABLED, STATUS, TYPE, MESSAGE, URL } = currentConfig.PRESENCE
@@ -37,7 +37,7 @@ export async function showPresenceMenu(
         `**type**: \`${TYPE}\`\n` +
         `**message**: \`${MESSAGE}\`\n` +
         `**url**: ${URL || 'n/a'}\n\n` +
-        '**select an operation to update:**'
+        '**select an operation to update:**',
     )
     .setFooter({ text: 'changes are applied immediately' })
 
@@ -49,7 +49,7 @@ export async function showPresenceMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel(ENABLED ? 'disable presence' : 'enable presence')
           .setDescription(
-            ENABLED ? 'turn off custom presence' : 'turn on custom presence'
+            ENABLED ? 'turn off custom presence' : 'turn on custom presence',
           )
           .setValue('toggle_enabled'),
         new StringSelectMenuOptionBuilder()
@@ -63,8 +63,8 @@ export async function showPresenceMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel('set status')
           .setDescription('change online status (online, idle, dnd, etc.)')
-          .setValue('set_status')
-      )
+          .setValue('set_status'),
+      ),
   )
 
   const backRow = MinaRows.backRow('dev:btn:back_presence')
@@ -88,7 +88,7 @@ export async function showPresenceMenu(
  * @param interaction
  */
 export async function handlePresenceOperation(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const operation = interaction.values[0]
 
@@ -116,7 +116,7 @@ export async function handlePresenceOperation(
  * @param interaction
  */
 async function handleToggleEnabled(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   const config = await getPresenceConfig()
@@ -138,7 +138,7 @@ async function handleToggleEnabled(
  * @param interaction
  */
 export async function showPresenceModal(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const config = await getPresenceConfig()
 
@@ -163,10 +163,10 @@ export async function showPresenceModal(
   })
 
   const firstRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    messageInput
+    messageInput,
   )
   const secondRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    urlInput
+    urlInput,
   )
 
   const modal = new ModalBuilder({
@@ -183,7 +183,7 @@ export async function showPresenceModal(
  * @param interaction
  */
 export async function handlePresenceModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -208,7 +208,7 @@ export async function handlePresenceModal(
  * @param interaction
  */
 async function showTypeSelection(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   const config = await getPresenceConfig()
@@ -246,8 +246,8 @@ async function showTypeSelection(
           .setLabel('competing')
           .setDescription('competing in {message}')
           .setValue('COMPETING')
-          .setDefault(config.PRESENCE.TYPE === 'COMPETING')
-      )
+          .setDefault(config.PRESENCE.TYPE === 'COMPETING'),
+      ),
   )
 
   const backRow = MinaRows.backRow('dev:btn:back_presence_menu')
@@ -263,7 +263,7 @@ async function showTypeSelection(
  * @param interaction
  */
 export async function handlePresenceTypeMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   const type = interaction.values[0]
@@ -285,7 +285,7 @@ export async function handlePresenceTypeMenu(
  * @param interaction
  */
 async function showStatusSelection(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   const config = await getPresenceConfig()
@@ -318,8 +318,8 @@ async function showStatusSelection(
           .setLabel('invisible')
           .setDescription('grey status (offline)')
           .setValue('invisible')
-          .setDefault(config.PRESENCE.STATUS === 'invisible')
-      )
+          .setDefault(config.PRESENCE.STATUS === 'invisible'),
+      ),
   )
 
   const backRow = MinaRows.backRow('dev:btn:back_presence_menu')
@@ -335,7 +335,7 @@ async function showStatusSelection(
  * @param interaction
  */
 export async function handlePresenceStatusMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   const status = interaction.values[0]
@@ -357,7 +357,7 @@ export async function handlePresenceStatusMenu(
  * @param interaction
  */
 export async function handleBackToPresenceMenu(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showPresenceMenu(interaction)
@@ -368,7 +368,7 @@ export async function handleBackToPresenceMenu(
  * @param interaction
  */
 export async function handlePresenceConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showPresenceMenu(interaction)

@@ -88,13 +88,13 @@ export class AiResponderService {
 
     try {
       const referencedMessage = await message.channel.messages.fetch(
-        message.reference.messageId
+        message.reference.messageId,
       )
       return referencedMessage.author.id === message.client.user.id
     } catch (error) {
       // If we can't fetch the message (deleted, no permissions, etc.), assume it's not a reply to bot
       logger.debug(
-        `Could not fetch referenced message ${message.reference.messageId}: ${error}`
+        `Could not fetch referenced message ${message.reference.messageId}: ${error}`,
       )
       return false
     }
@@ -144,7 +144,7 @@ export class AiResponderService {
           logger.success(`AI Responder initialized`)
         } else {
           logger.debug(
-            'AI Responder config unchanged, skipping client recreation'
+            'AI Responder config unchanged, skipping client recreation',
           )
         }
       } else {
@@ -152,7 +152,7 @@ export class AiResponderService {
           this.client = null
           this.currentClientConfig = null
           logger.log(
-            'AI Responder disabled (global toggle off or no credentials)'
+            'AI Responder disabled (global toggle off or no credentials)',
           )
         }
       }
@@ -288,7 +288,7 @@ export class AiResponderService {
       // Rate limiting
       if (this.isRateLimited(message, mode)) {
         logger.debug(
-          `Message rate limited - User: ${message.author.id}, Channel: ${message.channel.id}`
+          `Message rate limited - User: ${message.author.id}, Channel: ${message.channel.id}`,
         )
         return
       }
@@ -330,7 +330,7 @@ export class AiResponderService {
         message.content,
         message.author.id,
         message.author.username,
-        message.member?.displayName || message.author.username
+        message.member?.displayName || message.author.username,
       )
 
       const config = await configCache.getConfig()
@@ -338,7 +338,7 @@ export class AiResponderService {
       // Get active participants (hybrid: message count + time window)
       const participants = this.getActiveParticipants(
         history,
-        message.author.id
+        message.author.id,
       )
       const participantIds = Array.from(participants)
 
@@ -418,13 +418,13 @@ export class AiResponderService {
                 participantUserData.minaAi?.combineDmWithServer || false,
               globalServerMemories:
                 participantUserData.minaAi?.globalServerMemories !== false,
-            }
+            },
           )
 
           return { userId, memories: userMemories }
         } catch (error: any) {
           logger.debug(
-            `Failed to recall memories for user ${userId}: ${error.message}`
+            `Failed to recall memories for user ${userId}: ${error.message}`,
           )
           return { userId, memories: [] }
         }
@@ -465,11 +465,11 @@ export class AiResponderService {
             } catch (error: any) {
               logger.debug(
                 `Failed to fetch user ${userId} for memory context`,
-                error
+                error,
               )
               return null
             }
-          }
+          },
         )
 
         const contexts = await Promise.all(memoryContextPromises)
@@ -504,7 +504,7 @@ export class AiResponderService {
       const injectionCheck = checkInjection(message.content || '')
       if (injectionCheck.detected) {
         logger.error(
-          `Injection attempt detected from ${message.author.id}: ${injectionCheck.patterns.join(', ')}`
+          `Injection attempt detected from ${message.author.id}: ${injectionCheck.patterns.join(', ')}`,
         )
         // Don't block — just log for now. The system prompt should be robust enough.
         // Could add rate limiting or blocking for repeat offenders in the future.
@@ -517,7 +517,7 @@ export class AiResponderService {
             ? Object.entries(t.function.parameters.properties)
                 .map(
                   ([k, v]: [string, any]) =>
-                    `${k}: ${v.type}${v.description ? ' - ' + v.description : ''}`
+                    `${k}: ${v.type}${v.description ? ' - ' + v.description : ''}`,
                 )
                 .join(', ')
             : 'none'
@@ -536,11 +536,11 @@ export class AiResponderService {
           enhancedPrompt,
           formattedHistory,
           extractionUserMessage,
-          toolDescriptions
+          toolDescriptions,
         )
       } catch (err: any) {
         logger.warn(
-          `Extraction failed (${err.message}), falling back to ReAct loop`
+          `Extraction failed (${err.message}), falling back to ReAct loop`,
         )
         return this._reactFallback(
           message,
@@ -548,7 +548,7 @@ export class AiResponderService {
           formattedHistory,
           config,
           mediaItems,
-          conversationId
+          conversationId,
         )
       }
 
@@ -558,7 +558,7 @@ export class AiResponderService {
 
       // Pre-compute whether non-memory tools will run
       const hasNonMemoryTools = extraction.tools.some(
-        t => !MEMORY_TOOLS.has(t.name)
+        t => !MEMORY_TOOLS.has(t.name),
       )
 
       // Send status message BEFORE tool execution for non-memory tools
@@ -574,7 +574,7 @@ export class AiResponderService {
       const toolResults: string[] = []
       const historyWithCurrentUser = this.appendCurrentUserMessage(
         formattedHistory,
-        message.content || ''
+        message.content || '',
       )
 
       for (const toolSpec of extraction.tools) {
@@ -590,7 +590,7 @@ export class AiResponderService {
               message,
               commandName,
               metadata,
-              args
+              args,
             )
             if (!permissionCheck.allowed) {
               toolResults.push(permissionCheck.reason)
@@ -606,13 +606,13 @@ export class AiResponderService {
             const toolResult = await aiCommandRegistry.executeNativeTool(
               commandName,
               args,
-              nativeContext
+              nativeContext,
             )
             totalToolCalls++
             toolResults.push(toolResult)
           } catch (err: any) {
             logger.error(
-              `Failed to execute native tool ${commandName}: ${err.message}`
+              `Failed to execute native tool ${commandName}: ${err.message}`,
             )
             toolResults.push(`Tool ${commandName} failed: ${err.message}`)
           }
@@ -631,7 +631,7 @@ export class AiResponderService {
 
         if (!command || !metadata) {
           toolResults.push(
-            `Command /${realCommandName} not found. Available commands may be limited.`
+            `Command /${realCommandName} not found. Available commands may be limited.`,
           )
           continue
         }
@@ -640,7 +640,7 @@ export class AiResponderService {
           message,
           realCommandName,
           metadata,
-          args
+          args,
         )
 
         if (!permissionCheck.allowed) {
@@ -656,7 +656,7 @@ export class AiResponderService {
           message.client,
           message,
           realCommandName,
-          args
+          args,
         )
 
         try {
@@ -675,10 +675,10 @@ export class AiResponderService {
           toolResults.push(resultText)
         } catch (err: any) {
           logger.error(
-            `Failed to execute AI command ${commandName}: ${err.message}`
+            `Failed to execute AI command ${commandName}: ${err.message}`,
           )
           toolResults.push(
-            `Command /${commandName} failed with error: ${err.message}`
+            `Command /${commandName} failed with error: ${err.message}`,
           )
         }
       }
@@ -687,7 +687,7 @@ export class AiResponderService {
       const memoriesCreated = this.storeExtractedMemories(
         extraction.memories,
         message,
-        historyWithCurrentUser
+        historyWithCurrentUser,
       )
 
       // Build synthetic history for Call 2
@@ -699,7 +699,7 @@ export class AiResponderService {
         const syntheticMessage = `[INTERNAL CONTEXT - do not narrate or repeat this to the user] [Intent: ${extraction.intent}] ${toolSummary}`
         conversationBuffer.appendAssistantMessage(
           conversationId,
-          syntheticMessage
+          syntheticMessage,
         )
         updatedHistory.push({ role: 'assistant', content: syntheticMessage })
       }
@@ -717,7 +717,7 @@ export class AiResponderService {
         config.maxTokens,
         config.temperature,
         hasMediaContent ? mediaItems : undefined,
-        undefined
+        undefined,
       )
 
       // Send final text reply -- strip leaked internal markers
@@ -760,7 +760,7 @@ export class AiResponderService {
       }
     } catch (error: any) {
       logger.error(
-        `AI response failed - Error: ${error.message}, Guild: ${message.guild?.id}, Channel: ${message.channel.id}`
+        `AI response failed - Error: ${error.message}, Guild: ${message.guild?.id}, Channel: ${message.channel.id}`,
       )
 
       // Track failure
@@ -771,7 +771,7 @@ export class AiResponderService {
       // Send fallback message
       await message
         .reply(
-          "I'm having trouble thinking right now. Please try again in a moment."
+          "I'm having trouble thinking right now. Please try again in a moment.",
         )
         .catch(() => {
           // Ignore if we can't send fallback
@@ -798,7 +798,7 @@ export class AiResponderService {
       userPermissions: any[]
       freeWillAllowed: boolean
     },
-    args: Record<string, any>
+    args: Record<string, any>,
   ): Promise<{ allowed: boolean; reason: string; isFreeWill: boolean }> {
     const { permissionModel, userPermissions, freeWillAllowed } = metadata
 
@@ -888,7 +888,7 @@ export class AiResponderService {
   private detectPromptInjection(content: string): boolean {
     const lower = content.toLowerCase()
     return aiPermissions.injectionPatterns.some(pattern =>
-      lower.includes(pattern.toLowerCase())
+      lower.includes(pattern.toLowerCase()),
     )
   }
 
@@ -932,7 +932,7 @@ export class AiResponderService {
    */
   private async checkTargetHierarchy(
     message: Message,
-    args: Record<string, any>
+    args: Record<string, any>,
   ): Promise<{ allowed: boolean; reason: string }> {
     if (!message.guild) {
       return { allowed: true, reason: '' }
@@ -986,7 +986,7 @@ export class AiResponderService {
    */
   private applyFreeWillLimits(
     commandName: string,
-    args: Record<string, any>
+    args: Record<string, any>,
   ): Record<string, any> {
     const limits = aiPermissions.freeWill.limits as Record<
       string,
@@ -1089,7 +1089,7 @@ export class AiResponderService {
     const failures = this.failureCount.get(guildId) || []
     const now = Date.now()
     const recent = failures.filter(
-      timestamp => now - timestamp < this.FAILURE_WINDOW_MS
+      timestamp => now - timestamp < this.FAILURE_WINDOW_MS,
     )
     this.failureCount.set(guildId, recent)
     return recent.length
@@ -1112,7 +1112,7 @@ export class AiResponderService {
 
   private appendCurrentUserMessage(
     history: ChatMessage[],
-    userMessage: string
+    userMessage: string,
   ): ChatMessage[] {
     if (!userMessage.trim()) return [...history]
     return [...history, { role: 'user', content: userMessage }]
@@ -1124,19 +1124,19 @@ export class AiResponderService {
       .map(message =>
         (typeof message.content === 'string' ? message.content : '').substring(
           0,
-          50
-        )
+          50,
+        ),
       )
       .join(' | ')
   }
 
   private getValidExtractionArgs(
     commandName: string,
-    rawArgs: unknown
+    rawArgs: unknown,
   ): Record<string, any> | null {
     if (!this.isPlainObject(rawArgs)) {
       logger.error(
-        `Invalid extraction tool arguments for ${commandName}: expected plain object, got ${this.describeValueType(rawArgs)}`
+        `Invalid extraction tool arguments for ${commandName}: expected plain object, got ${this.describeValueType(rawArgs)}`,
       )
       return null
     }
@@ -1157,7 +1157,7 @@ export class AiResponderService {
   private storeExtractedMemories(
     memories: MemoryFact[],
     message: Message,
-    history: ChatMessage[]
+    history: ChatMessage[],
   ): number {
     if (memories.length === 0) return 0
 
@@ -1169,7 +1169,7 @@ export class AiResponderService {
           fact,
           message.author.id,
           message.guild?.id || null,
-          conversationSnippet
+          conversationSnippet,
         )
         .catch(err => logger.error(`Failed to store memory: ${err.message}`))
     }
@@ -1181,7 +1181,7 @@ export class AiResponderService {
     message: Message,
     enhancedPrompt: string,
     history: ChatMessage[],
-    userMessage: string
+    userMessage: string,
   ): Promise<MemoryFact[]> {
     if (!this.client || !userMessage.trim()) return []
 
@@ -1190,12 +1190,12 @@ export class AiResponderService {
         enhancedPrompt,
         history,
         userMessage,
-        ''
+        '',
       )
       return extraction.memories
     } catch (error: any) {
       logger.warn(
-        `Fallback memory extraction failed for ${message.author.id}: ${error.message}`
+        `Fallback memory extraction failed for ${message.author.id}: ${error.message}`,
       )
       return []
     }
@@ -1216,7 +1216,7 @@ export class AiResponderService {
     history: BufferMessage[],
     currentUserId: string,
     timeWindowMs: number = 10 * 60 * 1000, // 10 minutes default
-    maxMessageLookback: number = 15 // Last 15 messages default
+    maxMessageLookback: number = 15, // Last 15 messages default
   ): Set<string> {
     const participants = new Set<string>()
     const now = Date.now()
@@ -1252,7 +1252,7 @@ export class AiResponderService {
    * @returns {Promise<Map<string, any>>} Map of user ID to profile data
    */
   private async getParticipantProfiles(
-    userIds: string[]
+    userIds: string[],
   ): Promise<Map<string, any>> {
     const profiles = new Map<string, any>()
 
@@ -1265,7 +1265,7 @@ export class AiResponderService {
         return { userId, userData }
       } catch (error: any) {
         logger.error(
-          `Failed to fetch profile for user ${userId}: ${error.message}`
+          `Failed to fetch profile for user ${userId}: ${error.message}`,
         )
         return { userId, userData: null }
       }
@@ -1299,7 +1299,7 @@ export class AiResponderService {
     formattedHistory: ChatMessage[],
     config: AiConfig,
     mediaItems: MediaItem[],
-    conversationId: string
+    conversationId: string,
   ): Promise<void> {
     const hasMediaContent = mediaItems.length > 0
     const tools = aiCommandRegistry.getTools()
@@ -1314,7 +1314,7 @@ export class AiResponderService {
       config.maxTokens,
       config.temperature,
       hasMediaContent ? mediaItems : undefined,
-      tools
+      tools,
     )
 
     let totalTokensUsed = result.tokensUsed
@@ -1333,7 +1333,7 @@ export class AiResponderService {
     // Eagerly check if the first response has non-memory tool calls
     const initialToolCalls = result.toolCalls ?? []
     const hasNonMemoryReactTools = initialToolCalls.some(
-      tc => !MEMORY_TOOLS.has(tc.function.name)
+      tc => !MEMORY_TOOLS.has(tc.function.name),
     )
     if (hasNonMemoryReactTools) {
       const toolNames = initialToolCalls.map(tc => tc.function.name)
@@ -1354,7 +1354,7 @@ export class AiResponderService {
       // Send status message before executing non-memory tools (if not already sent)
       if (!statusMessage) {
         const hasNonMemory = toolCalls.some(
-          tc => !MEMORY_TOOLS.has(tc.function.name)
+          tc => !MEMORY_TOOLS.has(tc.function.name),
         )
         if (hasNonMemory) {
           const toolNames = toolCalls.map(tc => tc.function.name)
@@ -1389,7 +1389,7 @@ export class AiResponderService {
         } catch (parseError) {
           Logger.error(
             `Failed to parse tool arguments for ${commandName}`,
-            parseError
+            parseError,
           )
           functionResults.push(`Error: invalid arguments for ${commandName}`)
           continue
@@ -1402,7 +1402,7 @@ export class AiResponderService {
               message,
               commandName,
               metadata,
-              args
+              args,
             )
             if (!permissionCheck.allowed) {
               functionResults.push(permissionCheck.reason)
@@ -1418,14 +1418,14 @@ export class AiResponderService {
             const toolResult = await aiCommandRegistry.executeNativeTool(
               commandName,
               args,
-              nativeContext
+              nativeContext,
             )
             totalToolCalls++
             reactExecutedToolNames.add(commandName)
             functionResults.push(toolResult)
           } catch (err: any) {
             logger.error(
-              `Failed to execute native tool ${commandName}: ${err.message}`
+              `Failed to execute native tool ${commandName}: ${err.message}`,
             )
             functionResults.push(`Tool ${commandName} failed: ${err.message}`)
           }
@@ -1443,7 +1443,7 @@ export class AiResponderService {
 
         if (!command || !metadata) {
           functionResults.push(
-            `Command /${realCommandName} not found. Available commands may be limited.`
+            `Command /${realCommandName} not found. Available commands may be limited.`,
           )
           continue
         }
@@ -1452,7 +1452,7 @@ export class AiResponderService {
           message,
           realCommandName,
           metadata,
-          args
+          args,
         )
 
         if (!permissionCheck.allowed) {
@@ -1468,7 +1468,7 @@ export class AiResponderService {
           message.client,
           message,
           realCommandName,
-          args
+          args,
         )
 
         try {
@@ -1488,10 +1488,10 @@ export class AiResponderService {
           functionResults.push(resultText)
         } catch (err: any) {
           logger.error(
-            `Failed to execute AI command ${commandName}: ${err.message}`
+            `Failed to execute AI command ${commandName}: ${err.message}`,
           )
           functionResults.push(
-            `Command /${commandName} failed with error: ${err.message}`
+            `Command /${commandName} failed with error: ${err.message}`,
           )
         }
       }
@@ -1499,7 +1499,7 @@ export class AiResponderService {
       conversationBuffer.appendAssistantMessage(
         conversationId,
         result.text || '',
-        toolCalls
+        toolCalls,
       )
       currentHistory.push({
         role: 'assistant',
@@ -1514,7 +1514,7 @@ export class AiResponderService {
           conversationId,
           call.id,
           call.function.name,
-          toolResult
+          toolResult,
         )
         currentHistory.push({
           role: 'tool',
@@ -1535,7 +1535,7 @@ export class AiResponderService {
         config.maxTokens,
         config.temperature,
         undefined,
-        tools
+        tools,
       )
 
       totalTokensUsed += result.tokensUsed
@@ -1548,7 +1548,7 @@ export class AiResponderService {
       message,
       enhancedPrompt,
       formattedHistory,
-      fallbackUserMessage
+      fallbackUserMessage,
     )
 
     let memoryHistory = [...currentHistory]
@@ -1572,7 +1572,7 @@ export class AiResponderService {
       conversationBuffer.appendAssistantMessage(
         conversationId,
         sanitizedText,
-        result.toolCalls
+        result.toolCalls,
       )
       memoryHistory = [
         ...memoryHistory,
@@ -1588,14 +1588,14 @@ export class AiResponderService {
 
     if (iteration >= MAX_ITERATIONS) {
       logger.error(
-        `ReAct loop hit max iterations (${MAX_ITERATIONS}) for message ${message.id}`
+        `ReAct loop hit max iterations (${MAX_ITERATIONS}) for message ${message.id}`,
       )
     }
 
     const memoriesCreated = this.storeExtractedMemories(
       fallbackMemories,
       message,
-      memoryHistory
+      memoryHistory,
     )
 
     aiMetrics.record({

@@ -41,7 +41,7 @@ const command: CommandData = {
       await interaction.followUp({
         embeds: [
           MinaEmbed.error(
-            mina.sayf('error.specifyUser', { action: 'softban' })
+            mina.sayf('error.specifyUser', { action: 'softban' }),
           ),
         ],
       })
@@ -61,7 +61,7 @@ const command: CommandData = {
     } catch (error) {
       ;(interaction.client as any).logger.error(
         'Failed to fetch guild member in softban command:',
-        error
+        error,
       )
       await interaction.followUp({
         embeds: [MinaEmbed.error(mina.say('error.notInServer'))],
@@ -72,7 +72,7 @@ const command: CommandData = {
     const response = await softban(
       interaction.member as GuildMember,
       target,
-      reason
+      reason,
     )
     await interaction.followUp(response)
     return
@@ -82,18 +82,18 @@ const command: CommandData = {
 async function softban(
   issuer: GuildMember,
   target: GuildMember,
-  reason: string | null
+  reason: string | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const response = await softbanTarget(
     issuer,
     target,
-    reason || mina.say('error.noReason')
+    reason || mina.say('error.noReason'),
   )
   if (typeof response === 'boolean') {
     return {
       embeds: [
         MinaEmbed.mod('softban').setDescription(
-          mina.sayf('moderation.softban', { target: target.user.username })
+          mina.sayf('moderation.softban', { target: target.user.username }),
         ),
       ],
     }
@@ -113,7 +113,7 @@ async function softban(
           mina.sayf('error.failed', {
             action: 'softban',
             target: target.user.username,
-          })
+          }),
         ),
       ],
     }

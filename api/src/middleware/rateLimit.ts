@@ -38,7 +38,7 @@ export function rateLimit(config: RateLimitMiddlewareConfig) {
 
   return async function rateLimitMiddleware(
     c: Context<{ Bindings: Env }>,
-    next: Next
+    next: Next,
   ) {
     const kv = c.env.RATE_LIMIT
 
@@ -73,7 +73,7 @@ export function rateLimit(config: RateLimitMiddlewareConfig) {
     if (!result.allowed) {
       return errors.rateLimit(
         c,
-        `Rate limit exceeded. Try again in ${headers['Retry-After']} seconds`
+        `Rate limit exceeded. Try again in ${headers['Retry-After']} seconds`,
       )
     }
 
@@ -86,7 +86,7 @@ export function rateLimit(config: RateLimitMiddlewareConfig) {
  * @param c
  */
 async function defaultKeyGenerator(
-  c: Context<{ Bindings: Env }>
+  c: Context<{ Bindings: Env }>,
 ): Promise<string> {
   const ip =
     c.req.header('CF-Connecting-IP') ||
@@ -176,7 +176,7 @@ async function sha256(message: string): Promise<string> {
  * @param c
  */
 export async function botKeyGenerator(
-  c: Context<{ Bindings: Env }>
+  c: Context<{ Bindings: Env }>,
 ): Promise<string> {
   const clientId = c.req.header('X-Client-Id') || 'unknown'
   const path = new URL(c.req.url).pathname

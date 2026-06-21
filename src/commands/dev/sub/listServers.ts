@@ -5,7 +5,7 @@ import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
 
 export default async function listservers(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   const { client, member } = interaction
   const matched: any[] = []
@@ -68,7 +68,7 @@ export default async function listservers(
     components: [
       MinaRows.from(
         MinaButtons.prev('prevBtn', true),
-        MinaButtons.next('nxtBtn', totalPages === 1)
+        MinaButtons.next('nxtBtn', totalPages === 1),
       ),
     ],
   })

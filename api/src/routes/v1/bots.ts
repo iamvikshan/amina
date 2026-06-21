@@ -116,7 +116,7 @@ bots.get('/', async c => {
       err instanceof Error ? err : undefined,
       {
         endpoint: '/v1/bots',
-      }
+      },
     )
     return errors.internal(c, 'Failed to list bots')
   }
@@ -187,7 +187,7 @@ bots.get('/:clientId', async c => {
       {
         endpoint: '/v1/bots/:clientId',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to get bot info')
   }
@@ -240,7 +240,7 @@ bots.get('/:clientId/stats', async c => {
       {
         endpoint: '/v1/bots/:clientId/stats',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to get stats')
   }
@@ -285,7 +285,7 @@ bots.get('/:clientId/commands', async c => {
       {
         endpoint: '/v1/bots/:clientId/commands',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to get commands')
   }
@@ -331,7 +331,7 @@ bots.get('/:clientId/status', async c => {
       {
         endpoint: '/v1/bots/:clientId/status',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Failed to get status')
   }

@@ -16,7 +16,7 @@ export default class BotUtils {
     let latestVersion: string
 
     const response = await HttpUtils.getJson(
-      'https://api.github.com/repos/iamvikshan/amina/releases/latest'
+      'https://api.github.com/repos/iamvikshan/amina/releases/latest',
     )
 
     if (response.success && response.data?.tag_name) {
@@ -46,7 +46,7 @@ export default class BotUtils {
     if (isUpdateAvailable) {
       warn(`VersionCheck: v${latestVersion} update is available`)
       warn(
-        'Run `bunx amina update` to update, or visit: https://github.com/iamvikshan/amina/releases/latest'
+        'Run `bunx amina update` to update, or visit: https://github.com/iamvikshan/amina/releases/latest',
       )
     }
   }
@@ -58,7 +58,7 @@ export default class BotUtils {
    */
   static async getImageFromMessage(
     message: Message,
-    args: string[]
+    args: string[],
   ): Promise<string> {
     let url: string | undefined
 
@@ -139,7 +139,7 @@ export default class BotUtils {
   static areCommandsDifferent(
     existing: any,
     local: any,
-    debug = false
+    debug = false,
   ): boolean {
     // Helper to normalize strings by removing emoji variation selectors
     // Discord may strip variation selectors (U+FE0F, U+FE0E) from emoji
@@ -165,7 +165,7 @@ export default class BotUtils {
       if (existingDmPermValue !== localDmPermValue) {
         if (debug)
           console.log(
-            `[${local.name}] dm_permission differs: ${existingDmPermValue} vs ${localDmPermValue}`
+            `[${local.name}] dm_permission differs: ${existingDmPermValue} vs ${localDmPermValue}`,
           )
         return true
       }
@@ -178,7 +178,7 @@ export default class BotUtils {
     if (existingOptions.length !== localOptions.length) {
       if (debug)
         console.log(
-          `[${local.name}] options length differs: ${existingOptions.length} vs ${localOptions.length}`
+          `[${local.name}] options length differs: ${existingOptions.length} vs ${localOptions.length}`,
         )
       return true
     }
@@ -187,7 +187,7 @@ export default class BotUtils {
     const compareOptions = (
       existingOpt: any,
       localOpt: any,
-      path: string
+      path: string,
     ): boolean => {
       if (existingOpt.name !== localOpt.name) {
         if (debug) console.log(`[${path}] name differs`)
@@ -221,7 +221,7 @@ export default class BotUtils {
         if (existingName !== localName) {
           if (debug)
             console.log(
-              `[${path}] choice name differs at ${i}: "${existingChoices[i].name}" vs "${localChoices[i].name}"`
+              `[${path}] choice name differs at ${i}: "${existingChoices[i].name}" vs "${localChoices[i].name}"`,
             )
           return true
         }
@@ -241,12 +241,12 @@ export default class BotUtils {
 
       for (let i = 0; i < existingSubOptions.length; i++) {
         const found = localSubOptions.find(
-          (o: any) => o.name === existingSubOptions[i].name
+          (o: any) => o.name === existingSubOptions[i].name,
         )
         if (!found) {
           if (debug)
             console.log(
-              `[${path}] sub-option not found: ${existingSubOptions[i].name}`
+              `[${path}] sub-option not found: ${existingSubOptions[i].name}`,
             )
           return true
         }
@@ -261,7 +261,7 @@ export default class BotUtils {
 
     for (const localOpt of localOptions) {
       const existingOpt = existingOptions.find(
-        (o: any) => o.name === localOpt.name
+        (o: any) => o.name === localOpt.name,
       )
       if (!existingOpt) {
         if (debug)

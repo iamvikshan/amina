@@ -41,7 +41,7 @@ images.get('/rank-card', async c => {
   const requiredXp = parseNumberOrDefault(
     query.requiredXp || query.required_xp,
     100,
-    1
+    1,
   )
   const rank = parseNumberOrDefault(query.rank, 1, 1)
 
@@ -59,7 +59,7 @@ images.get('/rank-card', async c => {
       avatar: query.avatar,
       discriminator: query.discriminator,
       status: ['online', 'idle', 'dnd', 'offline'].includes(
-        query.status as string
+        query.status as string,
       )
         ? (query.status as 'online' | 'idle' | 'dnd' | 'offline')
         : undefined,
@@ -87,7 +87,7 @@ images.get('/rank-card', async c => {
       error instanceof Error ? error : undefined,
       {
         endpoint: '/v1/images/rank-card',
-      }
+      },
     )
     return errors.internal(c, 'Failed to generate rank card')
   }
@@ -100,7 +100,7 @@ images.get('/rank-card', async c => {
  */
 function handleGreetingCard(
   type: 'welcome' | 'farewell',
-  defaultAccentColor?: string
+  defaultAccentColor?: string,
 ) {
   return async (c: Context<{ Bindings: Env }>) => {
     const query = c.req.query()
@@ -109,7 +109,7 @@ function handleGreetingCard(
     const memberCount = parseNumberOrDefault(
       query.memberCount || query.member_count,
       0,
-      0
+      0,
     )
     const guildName = query.guildName || query.guild_name || 'Server'
 
@@ -139,7 +139,7 @@ function handleGreetingCard(
         error instanceof Error ? error : undefined,
         {
           endpoint: `/v1/images/${type}-card`,
-        }
+        },
       )
       return errors.internal(c, `Failed to generate ${type} card`)
     }
@@ -194,7 +194,7 @@ images.get('/spotify-card', async c => {
       error instanceof Error ? error : undefined,
       {
         endpoint: '/v1/images/spotify-card',
-      }
+      },
     )
     return errors.internal(c, 'Failed to generate Spotify card')
   }
@@ -232,7 +232,7 @@ images.get('/circle', async c => {
     parseNumberOrDefault(c.req.query('size'), 256, 16, 1024),
     16,
     1024,
-    256
+    256,
   )
 
   if (!imageUrl) {

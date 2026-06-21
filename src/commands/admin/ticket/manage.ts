@@ -7,7 +7,7 @@ import {
 
 export async function close(
   interaction: { channel: TextChannel },
-  author: User
+  author: User,
 ): Promise<string | null> {
   const { channel } = interaction
 
@@ -25,7 +25,7 @@ export async function close(
 
 export async function closeAll(
   interaction: { guild: Guild },
-  user: User
+  user: User,
 ): Promise<string> {
   const { guild } = interaction
   const stats = await closeAllTickets(guild, user)
@@ -34,7 +34,7 @@ export async function closeAll(
 
 export async function addToTicket(
   interaction: { channel: TextChannel },
-  inputId: string
+  inputId: string,
 ): Promise<string> {
   const { channel } = interaction
 
@@ -57,7 +57,7 @@ export async function addToTicket(
 
 export async function removeFromTicket(
   interaction: { channel: TextChannel },
-  inputId: string
+  inputId: string,
 ): Promise<string> {
   const { channel } = interaction
 

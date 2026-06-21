@@ -68,7 +68,7 @@ bots.post('/register', async c => {
       err instanceof Error ? err : undefined,
       {
         endpoint: '/internal/bots/register',
-      }
+      },
     )
     return errors.internal(c, 'Registration failed')
   }
@@ -127,7 +127,7 @@ bots.delete('/:clientId', async c => {
       {
         endpoint: 'DELETE /internal/bots/:clientId',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Deregistration failed')
   }
@@ -164,7 +164,7 @@ bots.post('/:clientId/heartbeat', async c => {
       {
         endpoint: '/internal/bots/:clientId/heartbeat',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Heartbeat failed')
   }
@@ -191,7 +191,7 @@ bots.post('/:clientId/stats', async c => {
     const stats = await c.req.json<BotStatsPushPayload>()
 
     const validation = validateBotStats(
-      stats as unknown as Record<string, unknown>
+      stats as unknown as Record<string, unknown>,
     )
     if (!validation.valid) {
       return errors.badRequest(c, validation.errors.join('; '))
@@ -211,7 +211,7 @@ bots.post('/:clientId/stats', async c => {
       {
         endpoint: '/internal/bots/:clientId/stats',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Stats push failed')
   }
@@ -267,7 +267,7 @@ bots.put('/:clientId', async c => {
       {
         endpoint: 'PUT /internal/bots/:clientId',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Update failed')
   }
@@ -304,13 +304,13 @@ bots.post('/:clientId/commands', async c => {
         typeof cmd.name !== 'string' ||
         cmd.name.trim() === '' ||
         typeof cmd.category !== 'string' ||
-        cmd.category.trim() === ''
+        cmd.category.trim() === '',
     )
 
     if (invalidCommands.length > 0) {
       return errors.badRequest(
         c,
-        `Each command must have non-empty 'name' and 'category' fields. Found ${invalidCommands.length} invalid entries.`
+        `Each command must have non-empty 'name' and 'category' fields. Found ${invalidCommands.length} invalid entries.`,
       )
     }
 
@@ -328,7 +328,7 @@ bots.post('/:clientId/commands', async c => {
       {
         endpoint: '/internal/bots/:clientId/commands',
         clientId,
-      }
+      },
     )
     return errors.internal(c, 'Commands update failed')
   }

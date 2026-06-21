@@ -7,13 +7,13 @@ import { mina } from '@helpers/mina'
 export async function addStaffRole(
   interaction: ChatInputCommandInteraction,
   role: Role,
-  settings: any
+  settings: any,
 ): Promise<void> {
   if (settings.server.staff_roles.includes(role.id)) {
     const embed = MinaEmbed.error().setDescription(
       mina.sayf('admin.settings.staffRole.alreadyAdded', {
         role: role.toString(),
-      })
+      }),
     )
     await interaction.editReply({ embeds: [embed] })
     return
@@ -21,7 +21,7 @@ export async function addStaffRole(
 
   if (settings.server.staff_roles.length >= 5) {
     const embed = MinaEmbed.error().setDescription(
-      mina.say('admin.settings.staffRole.maxReached')
+      mina.say('admin.settings.staffRole.maxReached'),
     )
     await interaction.editReply({ embeds: [embed] })
     return
@@ -44,18 +44,18 @@ export async function addStaffRole(
 export async function removeStaffRole(
   interaction: ChatInputCommandInteraction,
   role: Role,
-  settings: any
+  settings: any,
 ): Promise<void> {
   if (!settings.server.staff_roles.includes(role.id)) {
     const embed = MinaEmbed.error().setDescription(
-      mina.sayf('admin.settings.staffRole.notFound', { role: role.toString() })
+      mina.sayf('admin.settings.staffRole.notFound', { role: role.toString() }),
     )
     await interaction.editReply({ embeds: [embed] })
     return
   }
 
   settings.server.staff_roles = settings.server.staff_roles.filter(
-    (r: string) => r !== role.id
+    (r: string) => r !== role.id,
   )
   await updateSetupStatus(settings)
   await settings.save()

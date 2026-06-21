@@ -9,7 +9,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  */
 export async function showStatusEmbed(
   interaction: StringSelectMenuInteraction,
-  settings: any
+  settings: any,
 ): Promise<void> {
   const embed = MinaEmbed.primary().setTitle('server settings status')
 
@@ -55,7 +55,7 @@ export async function showStatusEmbed(
       `**log channel:** ${logChannel}\n` +
       `**max warns:** ${maxWarns}\n` +
       `**welcome:** ${welcomeChannel}\n` +
-      `**farewell:** ${farewellChannel}`
+      `**farewell:** ${farewellChannel}`,
   )
 
   await interaction.editReply({

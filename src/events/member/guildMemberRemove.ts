@@ -10,7 +10,7 @@ import type { GuildMember, PartialGuildMember } from 'discord.js'
  */
 export default async (
   client: BotClient,
-  member: GuildMember | PartialGuildMember
+  member: GuildMember | PartialGuildMember,
 ): Promise<void> => {
   if (member.partial) await member.user.fetch()
   if (!member.guild) return
@@ -21,7 +21,7 @@ export default async (
   // Check for counter channel
   if (
     settings.counters.find((doc: any) =>
-      ['MEMBERS', 'BOTS', 'USERS'].includes(doc.counter_type.toUpperCase())
+      ['MEMBERS', 'BOTS', 'USERS'].includes(doc.counter_type.toUpperCase()),
     )
   ) {
     if (member.user.bot) {

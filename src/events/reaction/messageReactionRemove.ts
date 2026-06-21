@@ -12,7 +12,7 @@ import type { MessageReaction, PartialMessageReaction, User } from 'discord.js'
 export default async (
   _client: BotClient,
   reaction: MessageReaction | PartialMessageReaction,
-  user: User
+  user: User,
 ): Promise<void> => {
   if (reaction.partial) {
     try {
@@ -24,6 +24,6 @@ export default async (
 
   await reactionRoleHandler.handleReactionRemove(
     reaction as MessageReaction,
-    user
+    user,
   )
 }

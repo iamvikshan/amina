@@ -47,7 +47,7 @@ const command: CommandData = {
 async function getUserLove(
   user1: User,
   user2: User,
-  mauthor: User
+  mauthor: User,
 ): Promise<{ embeds: MinaEmbed[] }> {
   const result = Math.ceil(Math.random() * 100)
 
@@ -97,7 +97,7 @@ async function getUserLove(
         name: mina.say('fun.love.embed.statusTitle'),
         value: loveStatus,
         inline: false,
-      }
+      },
     )
     .setImage(loveImage)
     .setThumbnail('https://www.wownow.net.in/assets/images/love.gif')

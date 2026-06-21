@@ -37,7 +37,7 @@ async function getQueue(
     client: any
     guild: any
   },
-  pgNo: number | null
+  pgNo: number | null,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guild.id)
   if (!player || !player.queue.current) {
@@ -64,7 +64,7 @@ async function getQueue(
 
   const queueList = tracks.map(
     (track: any, index: number) =>
-      `${start + index + 1}. [${track.info.title}](${track.info.uri}) \`[${client.utils.formatTime(track.info.duration)}]\``
+      `${start + index + 1}. [${track.info.title}](${track.info.uri}) \`[${client.utils.formatTime(track.info.duration)}]\``,
   )
 
   embed.setDescription(
@@ -74,7 +74,7 @@ async function getQueue(
         ? mina.sayf('music.success.queue.emptyPage', {
             page: pageNumber.toString(),
           })
-        : mina.say('music.empty')
+        : mina.say('music.empty'),
   )
 
   const maxPages = Math.ceil(player.queue.tracks.length / 10)

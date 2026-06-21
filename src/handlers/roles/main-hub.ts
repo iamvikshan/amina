@@ -17,7 +17,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function handleRolesOperationMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const operation = interaction.values[0]
 
@@ -51,7 +51,7 @@ export async function handleRolesOperationMenu(
  * @param interaction
  */
 export async function handleRolesBackButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -62,7 +62,7 @@ export async function handleRolesBackButton(
         '**cleanup** - bulk delete roles by various criteria\n' +
         '**create role** - create a new role with custom settings\n' +
         '**autorole** - manage automatic role assignment\n' +
-        '**add to user** - assign roles to multiple users'
+        '**add to user** - assign roles to multiple users',
     )
     .setFooter({ text: 'select an operation from the menu below' })
 
@@ -87,7 +87,7 @@ export async function handleRolesBackButton(
           .setLabel('add to user')
           .setDescription('assign roles to multiple users')
           .setValue('add2user'),
-      ])
+      ]),
   )
 
   await interaction.editReply({

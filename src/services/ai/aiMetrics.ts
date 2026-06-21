@@ -156,8 +156,8 @@ export class AiMetricsService {
                 },
                 $set: { 'minaAi.stats.lastInteraction': new Date() },
               },
-              { upsert: true }
-            )
+              { upsert: true },
+            ),
           )
         }
 
@@ -174,8 +174,8 @@ export class AiMetricsService {
                   'aiResponder.stats.toolCalls': entry.toolCalls,
                 },
               },
-              { upsert: true }
-            )
+              { upsert: true },
+            ),
           )
         }
 
@@ -187,7 +187,7 @@ export class AiMetricsService {
               messages: global.messages,
               tokens: global.tokens,
               toolCalls: global.toolCalls,
-            })
+            }),
           )
         }
 
@@ -234,11 +234,11 @@ export class AiMetricsService {
 
         if (failedCount > 0) {
           logger.error(
-            `AI metrics flush partially failed: ${failedCount}/${ops.length} ops rejected`
+            `AI metrics flush partially failed: ${failedCount}/${ops.length} ops rejected`,
           )
         } else {
           logger.debug(
-            `AI metrics flushed: ${users.size} users, ${guilds.size} guilds, ${global.messages} global messages`
+            `AI metrics flushed: ${users.size} users, ${guilds.size} guilds, ${global.messages} global messages`,
           )
         }
       } catch (err: any) {

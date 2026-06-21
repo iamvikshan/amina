@@ -164,7 +164,7 @@ app.post('/:id/:token/:provider', validateWebhookParams, async c => {
         provider,
         discordStatus: response.status,
       },
-      { status: 200 }
+      { status: 200 },
     )
   } catch (err) {
     const logger = createLogger(c)
@@ -173,7 +173,7 @@ app.post('/:id/:token/:provider', validateWebhookParams, async c => {
       err instanceof Error ? err : undefined,
       {
         provider,
-      }
+      },
     )
 
     return error(c, 'Failed to process webhook', {

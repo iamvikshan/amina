@@ -15,7 +15,7 @@ export const DEFAULT_TIMEOUT_HOURS = 24 // hours
  */
 export const memberInteract = (
   issuer: GuildMember,
-  target: GuildMember
+  target: GuildMember,
 ): boolean => {
   const { guild } = issuer
   if (guild.ownerId === issuer.id) return true
@@ -36,7 +36,7 @@ export const logModeration = async (
   target: GuildMember | User | string,
   reason: string,
   type: string,
-  data: any = {}
+  data: any = {},
 ): Promise<void> => {
   if (!type) return
   const { guild } = issuer
@@ -72,7 +72,7 @@ export const logModeration = async (
           name: 'Channel',
           value: `#${data.channel.name} [${data.channel.id}]`,
           inline: false,
-        }
+        },
       )
       break
   }
@@ -83,7 +83,7 @@ export const logModeration = async (
       .setThumbnail(
         target instanceof GuildMember || target instanceof User
           ? target.displayAvatarURL()
-          : null
+          : null,
       )
 
     if (target instanceof GuildMember) {
@@ -149,7 +149,7 @@ export const logModeration = async (
           issuer.displayName || issuer.user.tag,
           issuer.guild.id,
           issuer.guild.name,
-          actionType
+          actionType,
         )
       } catch (ex) {
         // Silently fail if flagging fails - don't break mod actions

@@ -3,7 +3,7 @@ import { getSettings, updateSettings } from '@src/database/schemas/Guild'
 
 export async function setupTicketCategory(
   guild: Guild,
-  category: CategoryChannel
+  category: CategoryChannel,
 ): Promise<string> {
   if (category.type !== ChannelType.GuildCategory) {
     return "that's not a category channel. try again with a proper category?"

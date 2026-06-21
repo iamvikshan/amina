@@ -26,7 +26,7 @@ export async function showRemindersList(
     | StringSelectMenuInteraction
     | ButtonInteraction
     | ModalSubmitInteraction,
-  page: number = 1
+  page: number = 1,
 ): Promise<void> {
   if (!interaction.deferred && !interaction.replied) {
     await interaction.deferUpdate()
@@ -37,7 +37,7 @@ export async function showRemindersList(
 
   if (reminders.length === 0) {
     const embed = MinaEmbed.warning(
-      mina.say('utility.reminder.list.empty')
+      mina.say('utility.reminder.list.empty'),
     ).setTitle('your reminders')
 
     await interaction.editReply({
@@ -70,14 +70,14 @@ export async function showRemindersList(
     .setTitle(
       mina.sayf('utility.reminder.list.title', {
         total: reminders.length.toString(),
-      })
+      }),
     )
     .setDescription(
       mina.sayf('utility.reminder.list.description', {
         start: (startIndex + 1).toString(),
         end: Math.min(endIndex, reminders.length).toString(),
         total: reminders.length.toString(),
-      })
+      }),
     )
     .addFields(fields)
     .setFooter({
@@ -95,12 +95,12 @@ export async function showRemindersList(
     const navButtons: any[] = []
     if (page > 1) {
       navButtons.push(
-        MinaButtons.prev(`reminder:btn:page|page:${page - 1}`, false)
+        MinaButtons.prev(`reminder:btn:page|page:${page - 1}`, false),
       )
     }
     if (page < totalPages) {
       navButtons.push(
-        MinaButtons.next(`reminder:btn:page|page:${page + 1}`, false)
+        MinaButtons.next(`reminder:btn:page|page:${page + 1}`, false),
       )
     }
     if (navButtons.length > 0) {
@@ -121,9 +121,9 @@ export async function showRemindersList(
         MinaSelects.string(
           'reminder:menu:delete',
           'select a reminder to delete...',
-          deleteOptions
-        )
-      )
+          deleteOptions,
+        ),
+      ),
     )
   }
 
@@ -140,9 +140,9 @@ export async function showRemindersList(
         MinaSelects.string(
           'reminder:menu:edit',
           'select a reminder to edit...',
-          editOptions
-        )
-      )
+          editOptions,
+        ),
+      ),
     )
   }
 
@@ -159,7 +159,7 @@ export async function showRemindersList(
  * @param interaction
  */
 export async function handleReminderPage(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const { state } = parseCustomIdState(interaction.customId)
   const page = state.page ? parseInt(state.page, 10) : 1
@@ -171,7 +171,7 @@ export async function handleReminderPage(
  * @param interaction
  */
 export async function handleDeleteReminderMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 
@@ -195,7 +195,7 @@ export async function handleDeleteReminderMenu(
     const embed = MinaEmbed.success(
       mina.sayf('utility.reminder.delete.success', {
         id: reminderId.toString(),
-      })
+      }),
     ).setTitle('reminder deleted')
 
     await interaction.editReply({
@@ -226,7 +226,7 @@ export async function handleDeleteReminderMenu(
  * @param interaction
  */
 export async function handleEditReminderMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 

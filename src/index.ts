@@ -33,7 +33,7 @@ async function logShutdownError(message: string, err: unknown): Promise<void> {
 }
 
 async function coordinateShutdown(
-  _signal: 'SIGTERM' | 'SIGINT'
+  _signal: 'SIGTERM' | 'SIGINT',
 ): Promise<void> {
   if (isShuttingDown) return
 
@@ -47,7 +47,7 @@ async function coordinateShutdown(
       exitCode = 1
       await logShutdownError(
         'Health server failed to stop cleanly',
-        healthStopResult.error
+        healthStopResult.error,
       )
     }
 
@@ -58,7 +58,7 @@ async function coordinateShutdown(
         exitCode = 1
         await logShutdownError(
           'Failed to destroy Discord client during shutdown',
-          err
+          err,
         )
       }
     }
@@ -69,7 +69,7 @@ async function coordinateShutdown(
       exitCode = 1
       await logShutdownError(
         'Failed to disconnect mongoose during shutdown',
-        err
+        err,
       )
     }
   } finally {

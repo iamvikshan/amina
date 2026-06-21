@@ -52,7 +52,7 @@ export class ModelRouter {
 
       default:
         Logger.warn(
-          `Unknown task type: ${taskType}, falling back to chat model`
+          `Unknown task type: ${taskType}, falling back to chat model`,
         )
         return { model: this.chatModel, taskType: 'chat' }
     }

@@ -64,7 +64,7 @@ const command: CommandData = {
 
       if (duration <= 0) {
         return interaction.followUp(
-          "you can't add negative or zero days... try a positive number?"
+          "you can't add negative or zero days... try a positive number?",
         )
       }
 
@@ -74,19 +74,19 @@ const command: CommandData = {
       await updatePremium(targetUser.id, true, expirationDate)
 
       return interaction.followUp(
-        `${targetUser.tag} now has premium until <t:${Math.floor(expirationDate.getTime() / 1000)}:F>. that's ${duration} days of premium access!`
+        `${targetUser.tag} now has premium until <t:${Math.floor(expirationDate.getTime() / 1000)}:F>. that's ${duration} days of premium access!`,
       )
     } else if (subcommand === 'remove') {
       if (!(userDb as any).premium.enabled) {
         return interaction.followUp(
-          `${targetUser.tag} doesn't have premium status. can't remove what's not there.`
+          `${targetUser.tag} doesn't have premium status. can't remove what's not there.`,
         )
       }
 
       await updatePremium(targetUser.id, false, null)
 
       return interaction.followUp(
-        `${targetUser.tag}'s premium status has been removed.`
+        `${targetUser.tag}'s premium status has been removed.`,
       )
     }
 

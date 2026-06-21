@@ -16,7 +16,7 @@ import Logger from '@helpers/Logger'
  * @param interaction
  */
 export async function showRemoveUserSelect(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const channel = interaction.channel as TextChannel
 
@@ -26,7 +26,7 @@ export async function showRemoveUserSelect(
       embeds: [
         MinaEmbed.error(
           'this operation can only be used in ticket channels.\n\n' +
-            'please run this command from within an active ticket channel.'
+            'please run this command from within an active ticket channel.',
         ),
       ],
       components: [MinaRows.backRow('ticket:btn:back_manage')],
@@ -38,7 +38,7 @@ export async function showRemoveUserSelect(
     .setAuthor({ name: 'remove users from ticket' })
     .setDescription(
       'select the users you want to remove from this ticket channel.\n\n' +
-        'selected users will no longer be able to view or send messages in this ticket.'
+        'selected users will no longer be able to view or send messages in this ticket.',
     )
     .setFooter({ text: 'you can select up to 10 users at once' })
 
@@ -48,7 +48,7 @@ export async function showRemoveUserSelect(
         .setCustomId('ticket:user:remove')
         .setPlaceholder('select users to remove...')
         .setMinValues(1)
-        .setMaxValues(10)
+        .setMaxValues(10),
     )
 
   const backRow = MinaRows.backRow('ticket:btn:back_manage')
@@ -64,7 +64,7 @@ export async function showRemoveUserSelect(
  * @param interaction
  */
 export async function handleRemoveUserSelect(
-  interaction: UserSelectMenuInteraction
+  interaction: UserSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
 

@@ -24,7 +24,7 @@ export function createSetupEmbed(settings: any) {
           settings.server.staff_roles && settings.server.staff_roles.length > 0
             ? `${settings.server.staff_roles.map((id: string) => `<@&${id}>`).join(', ')}`
             : 'no staff roles set\nuse `/settings staffadd` to add a staff role!',
-      }
+      },
     )
 
   if (settings.server.setup_completed) {

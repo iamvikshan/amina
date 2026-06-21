@@ -16,7 +16,7 @@ import { getSettings, updateSettings } from '@schemas/Guild'
  * @param interaction
  */
 export async function showLimitModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   if (!interaction.guild) {
     await interaction.reply({
@@ -42,7 +42,7 @@ export async function showLimitModal(
           value: currentLimit.toString(),
           required: true,
           maxLength: 3,
-        })
+        }),
       ),
     ],
   })
@@ -55,7 +55,7 @@ export async function showLimitModal(
  * @param interaction
  */
 export async function handleLimitModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
@@ -68,7 +68,7 @@ export async function handleLimitModal(
       embeds: [
         MinaEmbed.error(
           'invalid input. please enter a valid number.\n\n' +
-            'try the command again and enter a number like `5`, `10`, or `15`.'
+            'try the command again and enter a number like `5`, `10`, or `15`.',
         ),
       ],
     })
@@ -80,7 +80,7 @@ export async function handleLimitModal(
       embeds: [
         MinaEmbed.error(
           'ticket limit cannot be less than 5.\n\n' +
-            'please set a limit of at least 5 open tickets per user.'
+            'please set a limit of at least 5 open tickets per user.',
         ),
       ],
     })
@@ -92,7 +92,7 @@ export async function handleLimitModal(
       embeds: [
         MinaEmbed.error(
           'ticket limit cannot exceed 100.\n\n' +
-            'please set a reasonable limit to avoid spam.'
+            'please set a reasonable limit to avoid spam.',
         ),
       ],
     })
@@ -113,7 +113,7 @@ export async function handleLimitModal(
 
   const successEmbed = MinaEmbed.success(
     `configuration saved. users can now have a maximum of \`${limit}\` open tickets.\n\n` +
-      'this limit helps prevent spam and keeps your support system organized.'
+      'this limit helps prevent spam and keeps your support system organized.',
   )
 
   const backRow = MinaRows.backRow('ticket:btn:back_setup')

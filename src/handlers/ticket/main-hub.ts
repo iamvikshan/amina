@@ -14,7 +14,7 @@ import { mina } from '@helpers/mina'
  * @param interaction
  */
 export async function showTicketHub(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.info()
     .setAuthor({ name: mina.say('ticket.hub.title') })
@@ -33,8 +33,8 @@ export async function showTicketHub(
         new StringSelectMenuOptionBuilder()
           .setLabel(mina.say('ticket.hub.manage.label'))
           .setDescription(mina.say('ticket.hub.manage.description'))
-          .setValue('manage')
-      )
+          .setValue('manage'),
+      ),
   )
 
   await interaction.editReply({
@@ -48,7 +48,7 @@ export async function showTicketHub(
  * @param interaction
  */
 export async function handleTicketCategoryMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const category = interaction.values[0]
 
@@ -79,7 +79,7 @@ export async function handleTicketCategoryMenu(
  * @param interaction
  */
 export async function handleTicketBackButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
   await showTicketHub(interaction)

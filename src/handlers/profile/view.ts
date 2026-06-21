@@ -9,7 +9,7 @@ export function createEditButton(): ActionRowBuilder<ButtonBuilder> {
     MinaButtons.custom(
       'profile:btn:edit_from_view',
       'edit',
-      ButtonStyle.Primary
-    )
+      ButtonStyle.Primary,
+    ),
   )
 }

@@ -20,18 +20,18 @@ export async function ticketModalSetup(
     channel: TextChannel
     member: GuildMember
   },
-  targetChannel: TextChannel
+  targetChannel: TextChannel,
 ): Promise<void> {
   const { guild, channel, member } = interaction
 
   const buttonRow = MinaRow.of(
-    MinaButton.go('ticket_btnSetup').setLabel('setup message')
+    MinaButton.go('ticket_btnSetup').setLabel('setup message'),
   )
 
   const sentMsg = await channel.send({
     embeds: [
       MinaEmbed.primary().setDescription(
-        mina.say('ticket.setup.message.description')
+        mina.say('ticket.setup.message.description'),
       ),
     ],
     components: [buttonRow],
@@ -56,7 +56,7 @@ export async function ticketModalSetup(
     await sentMsg.edit({
       embeds: [
         MinaEmbed.error().setDescription(
-          mina.say('ticket.setup.message.cancelled')
+          mina.say('ticket.setup.message.cancelled'),
         ),
       ],
       components: [],
@@ -75,24 +75,24 @@ export async function ticketModalSetup(
             .setCustomId('title')
             .setLabel('embed title')
             .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+            .setRequired(false),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('description')
             .setLabel('embed description')
             .setStyle(TextInputStyle.Paragraph)
-            .setRequired(false)
+            .setRequired(false),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder()
             .setCustomId('footer')
             .setLabel('embed footer')
             .setStyle(TextInputStyle.Short)
-            .setRequired(false)
+            .setRequired(false),
         ),
       ],
-    })
+    }),
   )
 
   // receive modal input
@@ -110,7 +110,7 @@ export async function ticketModalSetup(
     await sentMsg.edit({
       embeds: [
         MinaEmbed.error().setDescription(
-          mina.say('ticket.setup.message.cancelled')
+          mina.say('ticket.setup.message.cancelled'),
         ),
       ],
       components: [],
@@ -121,7 +121,7 @@ export async function ticketModalSetup(
   await modal.reply({
     embeds: [
       MinaEmbed.primary().setDescription(
-        mina.say('ticket.setup.message.processing')
+        mina.say('ticket.setup.message.processing'),
       ),
     ],
   })
@@ -153,12 +153,12 @@ export async function ticketModalSetup(
   const embed = MinaEmbed.primary()
     .setAuthor({ name: title || 'support ticket' })
     .setDescription(
-      description || 'please use the button below to create a ticket'
+      description || 'please use the button below to create a ticket',
     )
     .setFooter({ text: footer || 'you can only have 1 open ticket at a time!' })
 
   const tktBtnRow = MinaRow.of(
-    MinaButton.go('TICKET_CREATE').setLabel('open a ticket')
+    MinaButton.go('TICKET_CREATE').setLabel('open a ticket'),
   )
 
   const ticketMessage = await targetChannel.send({
@@ -174,7 +174,7 @@ export async function ticketModalSetup(
   await sentMsg.edit({
     embeds: [
       MinaEmbed.success().setDescription(
-        mina.say('ticket.setup.message.success')
+        mina.say('ticket.setup.message.success'),
       ),
     ],
     components: [],
@@ -183,7 +183,7 @@ export async function ticketModalSetup(
 
 export async function setupLogChannel(
   target: TextChannel,
-  settings: any
+  settings: any,
 ): Promise<string> {
   if (
     !target.permissionsFor(target.guild.members.me as any)?.has('SendMessages')
@@ -202,7 +202,7 @@ export async function setupLogChannel(
 
 export async function setupLimit(
   limit: number,
-  settings: any
+  settings: any,
 ): Promise<string> {
   if (Number.parseInt(limit.toString(), 10) < 5)
     return mina.say('ticket.setup.message.limitTooLow')

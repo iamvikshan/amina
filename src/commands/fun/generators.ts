@@ -118,13 +118,13 @@ const command: CommandData = {
 
     if (!response.success) {
       return interaction.followUp(
-        '*drops art supplies* Oops! Something went wrong with the meme magic!'
+        '*drops art supplies* Oops! Something went wrong with the meme magic!',
       )
     }
 
     if (!response.buffer) {
       return interaction.followUp(
-        '*drops art supplies* Oops! The meme service did not return an image buffer!'
+        '*drops art supplies* Oops! The meme service did not return an image buffer!',
       )
     }
 

@@ -56,7 +56,7 @@ async function search(
     guild: any
     channel: any
   },
-  query: string
+  query: string,
 ): Promise<string | { embeds: MinaEmbed[] } | null> {
   if (!member.voice.channel) {
     return { embeds: [MinaEmbed.error(mina.say('error.notInVoice'))] }
@@ -114,7 +114,7 @@ async function search(
       .setCustomId('search-results')
       .setPlaceholder('pick a song')
       .setMaxValues(1)
-      .addOptions(options)
+      .addOptions(options),
   )
 
   const searchEmbed = MinaEmbed.info()
@@ -158,7 +158,7 @@ async function search(
     const trackEmbed = MinaEmbed.success()
       .setAuthor({ name: mina.say('music.success.queued.track') })
       .setDescription(
-        `[${selectedTrack.info.title}](${selectedTrack.info.uri})`
+        `[${selectedTrack.info.title}](${selectedTrack.info.uri})`,
       )
       .setThumbnail(selectedTrack.info.artworkUrl)
       .addFields({

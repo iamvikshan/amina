@@ -44,7 +44,7 @@ export async function checkGuildReminders(client: BotClient): Promise<void> {
         await settings.save()
 
         client.logger.log(
-          `Sending setup reminder to guild: ${guild.name} (${guild.id})`
+          `Sending setup reminder to guild: ${guild.name} (${guild.id})`,
         )
 
         try {
@@ -55,7 +55,7 @@ export async function checkGuildReminders(client: BotClient): Promise<void> {
               .setDescription(
                 `heyyy! just your friendly neighborhood mina here!\n\n` +
                   `i noticed we haven't finished setting things up yet! pretty please run \`/settings\` when you can - i have so many cool features i want to show you!\n\n` +
-                  `can't wait to show you what i can really do!`
+                  `can't wait to show you what i can really do!`,
               )
               .setFooter({
                 text: "let's make your server amazing together!",
@@ -63,18 +63,18 @@ export async function checkGuildReminders(client: BotClient): Promise<void> {
 
             await owner.send({ embeds: [reminderEmbed] })
             client.logger.success(
-              `Sent setup reminder to owner of ${guild.name}`
+              `Sent setup reminder to owner of ${guild.name}`,
             )
           }
         } catch (err: any) {
           client.logger.error(
-            `Failed to send reminder DM for guild ${guild.id}: ${err.message}`
+            `Failed to send reminder DM for guild ${guild.id}: ${err.message}`,
           )
         }
       }
     } catch (error: any) {
       client.logger.error(
-        `Error checking reminders for guild ${guild.id}: ${error.message}`
+        `Error checking reminders for guild ${guild.id}: ${error.message}`,
       )
     }
   }

@@ -13,7 +13,7 @@ import {
 Message.prototype.safeReply = async function (
   this: Message,
   content: string | MessagePayload | MessageReplyOptions,
-  seconds?: number
+  seconds?: number,
 ): Promise<any> {
   if (!content) return
   const perms: any[] = ['ViewChannel', 'SendMessages']
@@ -36,7 +36,7 @@ Message.prototype.safeReply = async function (
     const reply = await this.reply(content)
     setTimeout(
       () => reply.deletable && reply.delete().catch((_ex: any) => {}),
-      seconds * 1000
+      seconds * 1000,
     )
   } catch (ex) {
     ;(this.client as any).logger.error(`safeReply`, ex)

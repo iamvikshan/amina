@@ -12,7 +12,7 @@ import { MinaButtons, MinaRows } from '@helpers/componentHelper'
  * @param interaction
  */
 export async function showAddToUserMenu(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
     .setTitle('add roles to users')
@@ -29,7 +29,7 @@ export async function showAddToUserMenu(
           '- you can select up to 25 users at once\n' +
           '- only assignable roles will be shown\n' +
           '- users who already have the role will be skipped',
-      }
+      },
     )
     .setFooter({ text: 'select users to begin' })
 
@@ -60,7 +60,7 @@ export async function showAddToUserMenu(
  * @param interaction
  */
 export async function handleUserSelect(
-  interaction: UserSelectMenuInteraction
+  interaction: UserSelectMenuInteraction,
 ): Promise<void> {
   const selectedUsers = interaction.values
   const guild = interaction.guild
@@ -79,7 +79,7 @@ export async function handleUserSelect(
     role =>
       role.id !== guild.id && // Not @everyone
       !role.managed && // Not managed by integration
-      role.position < botHighestRole.position // Below bot's highest role
+      role.position < botHighestRole.position, // Below bot's highest role
   )
 
   if (assignableRoles.size === 0) {
@@ -94,13 +94,13 @@ export async function handleUserSelect(
 
   // Encode user IDs in custom_id
   const userDataB64 = Buffer.from(JSON.stringify(selectedUsers)).toString(
-    'base64'
+    'base64',
   )
 
   const embed = MinaEmbed.primary()
     .setTitle('select roles')
     .setDescription(
-      `adding roles to **${selectedUsers.length}** user${selectedUsers.length > 1 ? 's' : ''}`
+      `adding roles to **${selectedUsers.length}** user${selectedUsers.length > 1 ? 's' : ''}`,
     )
     .addFields(
       {
@@ -110,7 +110,7 @@ export async function handleUserSelect(
       {
         name: 'next step',
         value: 'select the roles you want to assign to these users',
-      }
+      },
     )
     .setFooter({ text: `${assignableRoles.size} assignable roles available` })
 
@@ -141,11 +141,11 @@ export async function handleUserSelect(
  * @param interaction
  */
 export async function handleRoleSelect(
-  interaction: RoleSelectMenuInteraction
+  interaction: RoleSelectMenuInteraction,
 ): Promise<void> {
   const [, userDataB64] = interaction.customId.split('|')
   const userIds: string[] = JSON.parse(
-    Buffer.from(userDataB64, 'base64').toString()
+    Buffer.from(userDataB64, 'base64').toString(),
   )
   const selectedRoleIds = interaction.values
 
@@ -226,7 +226,7 @@ export async function handleRoleSelect(
         name: 'roles to assign',
         value: roles.map(r => `${r}`).join(', '),
         inline: false,
-      }
+      },
     )
     .setFooter({ text: 'confirm to proceed with assignment' })
 
@@ -260,7 +260,7 @@ export async function handleRoleSelect(
         MinaEmbed.primary()
           .setTitle('no changes needed')
           .setDescription(
-            'all selected users already have all selected roles.'
+            'all selected users already have all selected roles.',
           ),
       ],
       components: [MinaRows.backRow('roles:btn:back')],
@@ -271,13 +271,13 @@ export async function handleRoleSelect(
   // Encode assignment data
   const assignmentData = { userIds, roleIds: selectedRoleIds }
   const assignmentDataB64 = Buffer.from(
-    JSON.stringify(assignmentData)
+    JSON.stringify(assignmentData),
   ).toString('base64')
 
   const confirmBtn = MinaButtons.custom(
     `roles:btn:assign_confirm|${assignmentDataB64}`,
     `confirm (${stats.totalOperations} assignments)`,
-    ButtonStyle.Success
+    ButtonStyle.Success,
   )
   const cancelBtn = MinaButtons.nah('roles:btn:back')
 
@@ -292,11 +292,11 @@ export async function handleRoleSelect(
  * @param interaction
  */
 export async function handleAssignConfirm(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const [, assignmentDataB64] = interaction.customId.split('|')
   const { userIds, roleIds } = JSON.parse(
-    Buffer.from(assignmentDataB64, 'base64').toString()
+    Buffer.from(assignmentDataB64, 'base64').toString(),
   )
 
   const guild = interaction.guild
@@ -305,7 +305,7 @@ export async function handleAssignConfirm(
     await interaction.editReply({
       embeds: [
         MinaEmbed.error().setDescription(
-          'This command must be used in a guild.'
+          'This command must be used in a guild.',
         ),
       ],
       components: [],
@@ -333,7 +333,7 @@ export async function handleAssignConfirm(
     try {
       await member.roles.add(
         roles,
-        `Bulk role assignment by ${interaction.user.tag}`
+        `Bulk role assignment by ${interaction.user.tag}`,
       )
       successCount++
     } catch (error: any) {
@@ -354,7 +354,7 @@ export async function handleAssignConfirm(
       {
         name: 'roles assigned',
         value: roles.map((r: any) => `${r}`).join(', '),
-      }
+      },
     )
 
   if (errors.length > 0) {

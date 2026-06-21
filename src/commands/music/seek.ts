@@ -53,7 +53,7 @@ async function seekTo(
     client: any
     guildId: string
   },
-  time: number
+  time: number,
 ): Promise<string | { embeds: MinaEmbed[] }> {
   const player = client.musicManager.getPlayer(guildId)
 

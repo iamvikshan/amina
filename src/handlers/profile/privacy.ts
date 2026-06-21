@@ -15,7 +15,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * @param interaction
  */
 export async function showPrivacyMenu(
-  interaction: StringSelectMenuInteraction | ButtonInteraction
+  interaction: StringSelectMenuInteraction | ButtonInteraction,
 ): Promise<void> {
   const user = await getUser(interaction.user)
   const privacy = user.profile?.privacy || {}
@@ -29,7 +29,7 @@ export async function showPrivacyMenu(
         `- region: ${privacy.showRegion ? 'visible' : 'hidden'}\n` +
         `- birthdate: ${privacy.showBirthdate ? 'visible' : 'hidden'}\n` +
         `- pronouns: ${privacy.showPronouns ? 'visible' : 'hidden'}\n\n` +
-        'select a field below to toggle its visibility.'
+        'select a field below to toggle its visibility.',
     )
 
   const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -40,28 +40,28 @@ export async function showPrivacyMenu(
         new StringSelectMenuOptionBuilder()
           .setLabel('age')
           .setDescription(
-            `currently ${privacy.showAge ? 'visible' : 'hidden'} - click to toggle`
+            `currently ${privacy.showAge ? 'visible' : 'hidden'} - click to toggle`,
           )
           .setValue('showAge'),
         new StringSelectMenuOptionBuilder()
           .setLabel('region')
           .setDescription(
-            `currently ${privacy.showRegion ? 'visible' : 'hidden'} - click to toggle`
+            `currently ${privacy.showRegion ? 'visible' : 'hidden'} - click to toggle`,
           )
           .setValue('showRegion'),
         new StringSelectMenuOptionBuilder()
           .setLabel('birthdate')
           .setDescription(
-            `currently ${privacy.showBirthdate ? 'visible' : 'hidden'} - click to toggle`
+            `currently ${privacy.showBirthdate ? 'visible' : 'hidden'} - click to toggle`,
           )
           .setValue('showBirthdate'),
         new StringSelectMenuOptionBuilder()
           .setLabel('pronouns')
           .setDescription(
-            `currently ${privacy.showPronouns ? 'visible' : 'hidden'} - click to toggle`
+            `currently ${privacy.showPronouns ? 'visible' : 'hidden'} - click to toggle`,
           )
           .setValue('showPronouns'),
-      ])
+      ]),
   )
 
   const backRow = MinaRows.backRow('profile:btn:back')
@@ -85,7 +85,7 @@ export async function showPrivacyMenu(
  * @param interaction
  */
 export async function handlePrivacyMenu(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const setting = interaction.values[0]
 

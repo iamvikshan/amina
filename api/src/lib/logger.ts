@@ -17,7 +17,7 @@ import type { Context } from 'hono'
  * @param shoutrrrUrl
  */
 function toDiscordWebhookUrl(
-  shoutrrrUrl: string | undefined
+  shoutrrrUrl: string | undefined,
 ): string | undefined {
   if (!shoutrrrUrl) return undefined
 
@@ -67,7 +67,7 @@ const webhookRateLimiter = {
         dropped.reject(new Error('Webhook queue full, message dropped'))
       }
       console.warn(
-        `[logger] Webhook queue full (${MAX_WEBHOOK_QUEUE_SIZE}), dropping oldest message`
+        `[logger] Webhook queue full (${MAX_WEBHOOK_QUEUE_SIZE}), dropping oldest message`,
       )
     }
 
@@ -103,7 +103,7 @@ const webhookRateLimiter = {
           console.error(
             'Failed to send Discord webhook:',
             res.status,
-            res.statusText
+            res.statusText,
           )
         }
         item.resolve()
@@ -173,7 +173,7 @@ export class Logger {
   error(
     message: string,
     error?: Error | unknown,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown>,
   ): void {
     // Log to console
     if (error instanceof Error) {
@@ -219,7 +219,7 @@ export class Logger {
   private sendToDiscord(
     level: 'warning' | 'error',
     message: string,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown>,
   ): void {
     if (!this.webhookUrl) return
 
@@ -287,7 +287,7 @@ export class Logger {
     const payloadStr = JSON.stringify(payload)
     const webhookPromise = webhookRateLimiter.enqueue(
       this.webhookUrl,
-      payloadStr
+      payloadStr,
     )
 
     // Schedule background execution (doesn't block response)

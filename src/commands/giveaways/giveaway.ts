@@ -210,7 +210,7 @@ const command: CommandData = {
         const parsed = ems(addDur)
         if (parsed === null || Number.isNaN(parsed)) {
           return interaction.followUp(
-            mina.say('giveaway.edit.error.invalidDuration')
+            mina.say('giveaway.edit.error.invalidDuration'),
           )
         }
         addDurationMs = parsed
@@ -226,7 +226,7 @@ const command: CommandData = {
         messageId,
         addDurationMs,
         newPrize,
-        newWinnerCount
+        newWinnerCount,
       )
     } else {
       response = mina.say('error.invalidSubcommand')
@@ -239,7 +239,7 @@ const command: CommandData = {
 // Modal Giveaway setup
 async function runModalSetup(
   interaction: ChatInputCommandInteraction,
-  targetCh: GuildTextBasedChannel
+  targetCh: GuildTextBasedChannel,
 ) {
   const member = interaction.member as GuildMember
   const channel = interaction.channel as TextChannel
@@ -273,12 +273,12 @@ async function runModalSetup(
       mina.sayf('giveaway.setup.error.noPermission', {
         perms: parsePermissions(SETUP_PERMS),
         channel: targetCh.toString(),
-      })
+      }),
     )
   }
 
   const buttonRow = MinaRows.from(
-    MinaButtons.custom('giveaway_btnSetup', mina.say('giveaway.setup.button'))
+    MinaButtons.custom('giveaway_btnSetup', mina.say('giveaway.setup.button')),
   )
 
   const sentMsg = await channel.safeSend({
@@ -319,7 +319,7 @@ async function runModalSetup(
             placeholder: mina.say('giveaway.setup.modal.duration.placeholder'),
             style: TextInputStyle.Short,
             required: true,
-          })
+          }),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
@@ -328,7 +328,7 @@ async function runModalSetup(
             placeholder: mina.say('giveaway.setup.modal.prize.placeholder'),
             style: TextInputStyle.Short,
             required: true,
-          })
+          }),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
@@ -337,7 +337,7 @@ async function runModalSetup(
             placeholder: mina.say('giveaway.setup.modal.winners.placeholder'),
             style: TextInputStyle.Short,
             required: true,
-          })
+          }),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
@@ -346,7 +346,7 @@ async function runModalSetup(
             placeholder: mina.say('giveaway.setup.modal.roles.placeholder'),
             style: TextInputStyle.Short,
             required: false,
-          })
+          }),
         ),
         new ActionRowBuilder<TextInputBuilder>().addComponents(
           new TextInputBuilder({
@@ -355,10 +355,10 @@ async function runModalSetup(
             placeholder: mina.say('giveaway.setup.modal.host.placeholder'),
             style: TextInputStyle.Short,
             required: false,
-          })
+          }),
         ),
       ],
-    })
+    }),
   )
 
   // receive modal input
@@ -424,7 +424,7 @@ async function runModalSetup(
     prize,
     winners,
     host,
-    allowedRoles
+    allowedRoles,
   )
   await modal.editReply(response)
 }

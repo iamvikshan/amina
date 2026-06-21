@@ -34,7 +34,7 @@ images.get('/rank-card', async c => {
   if (missing.length > 0) {
     return errors.badRequest(
       c,
-      `Missing required parameters: ${missing.join(', ')}`
+      `Missing required parameters: ${missing.join(', ')}`,
     )
   }
 
@@ -61,7 +61,7 @@ images.get('/rank-card', async c => {
       error instanceof Error ? error : undefined,
       {
         endpoint: '/images/rank-card',
-      }
+      },
     )
     return errors.internal(c, 'Failed to generate rank card')
   }
@@ -97,7 +97,7 @@ images.get('/welcome', async c => {
       error instanceof Error ? error : undefined,
       {
         endpoint: '/images/welcome',
-      }
+      },
     )
     return errors.internal(c, 'Failed to generate welcome card')
   }

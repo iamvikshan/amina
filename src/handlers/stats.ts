@@ -36,7 +36,7 @@ export default {
   async trackMessageStats(
     message: Message,
     _isCommand: boolean,
-    settings: any
+    settings: any,
   ): Promise<void> {
     if (!message.guildId || !message.member) return
 
@@ -96,7 +96,7 @@ export default {
       return
     const statsDb = await getMemberStats(
       interaction.guildId,
-      (interaction.member as GuildMember).id
+      (interaction.member as GuildMember).id,
     )
     if (interaction.isChatInputCommand()) statsDb.commands.slash += 1
     if (interaction.isUserContextMenuCommand()) statsDb.contexts.user += 1
@@ -111,7 +111,7 @@ export default {
    */
   async trackVoiceStats(
     oldState: VoiceState,
-    newState: VoiceState
+    newState: VoiceState,
   ): Promise<void> {
     const oldChannel = oldState.channel
     const newChannel = newState.channel

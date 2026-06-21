@@ -24,7 +24,7 @@ async function sendOnboardingMenu(channel: TextChannel): Promise<void> {
 
   const row = MinaRows.from(
     MinaButtons.go('AMINA_SETUP').setLabel(mina.say('guild.setup.button')),
-    MinaButtons.custom('AMINA_REMIND', mina.say('guild.setup.remind'), 2)
+    MinaButtons.custom('AMINA_REMIND', mina.say('guild.setup.remind'), 2),
   )
 
   const sentMessage = await channel.send({ embeds: [embed], components: [row] })
@@ -40,7 +40,7 @@ async function sendOnboardingMenu(channel: TextChannel): Promise<void> {
  * @param interaction
  */
 async function handleSetupButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const updatesChannelInput = new TextInputBuilder({
     customId: 'UPDATES_CHANNEL',
@@ -59,7 +59,7 @@ async function handleSetupButton(
   })
 
   const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    updatesChannelInput
+    updatesChannelInput,
   )
   const secondActionRow =
     new ActionRowBuilder<TextInputBuilder>().addComponents(staffRoleInput)
@@ -78,7 +78,7 @@ async function handleSetupButton(
  * @param interaction
  */
 async function handleSetupModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<any> {
   if (!interaction.guild) return
 
@@ -93,10 +93,10 @@ async function handleSetupModal(
   const updatesChannel = guild.channels.cache.find(
     channel =>
       channel.name.toLowerCase() === updatesChannelName.toLowerCase() &&
-      channel.type === ChannelType.GuildText
+      channel.type === ChannelType.GuildText,
   ) as TextChannel | undefined
   const staffRole = guild.roles.cache.find(
-    role => role.name.toLowerCase() === staffRoleName.toLowerCase()
+    role => role.name.toLowerCase() === staffRoleName.toLowerCase(),
   )
 
   if (!updatesChannel || !staffRole) {
@@ -133,7 +133,7 @@ async function handleSetupModal(
     .setDescription(mina.say('guild.setup.success.description'))
     .addFields(
       { name: 'updates channel', value: `${updatesChannel}`, inline: true },
-      { name: 'staff role', value: `${staffRole}`, inline: true }
+      { name: 'staff role', value: `${staffRole}`, inline: true },
     )
     .setFooter({ text: mina.say('guild.setup.success.footer') })
 
@@ -149,7 +149,7 @@ async function handleSetupModal(
   // Remove the setup message if it exists
   if (settingsData.setup_message_id) {
     const setupChannel = guild.channels.cache.find(channel =>
-      (channel as any).messages?.cache?.has(settingsData.setup_message_id)
+      (channel as any).messages?.cache?.has(settingsData.setup_message_id),
     ) as TextChannel | undefined
     if (setupChannel) {
       await setupChannel.messages
@@ -166,7 +166,7 @@ async function handleSetupModal(
  * @param interaction
  */
 async function handleRemindButton(
-  interaction: ButtonInteraction
+  interaction: ButtonInteraction,
 ): Promise<void> {
   const reminderTimeInput = new TextInputBuilder({
     customId: 'REMINDER_TIME',
@@ -177,7 +177,7 @@ async function handleRemindButton(
   })
 
   const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    reminderTimeInput
+    reminderTimeInput,
   )
 
   const modal = new ModalBuilder({
@@ -194,7 +194,7 @@ async function handleRemindButton(
  * @param interaction
  */
 async function handleRemindModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<any> {
   if (!interaction.guild) return
 
@@ -225,7 +225,7 @@ async function handleRemindModal(
         await owner.send({ embeds: [reminderEmbed] }).catch(() => {})
       }
     },
-    minutes * 60 * 1000
+    minutes * 60 * 1000,
   )
 
   await interaction.reply({

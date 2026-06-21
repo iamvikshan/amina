@@ -12,7 +12,7 @@ import {
  * @param interaction
  */
 export async function showTokenModal(
-  interaction: StringSelectMenuInteraction
+  interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const tokenInput = new TextInputBuilder({
     customId: 'token',
@@ -39,7 +39,7 @@ export async function showTokenModal(
  * @param interaction
  */
 export async function handleTokenModal(
-  interaction: ModalSubmitInteraction
+  interaction: ModalSubmitInteraction,
 ): Promise<void> {
   const token = interaction.fields.getTextInputValue('token').trim()
 
