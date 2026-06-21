@@ -1,3 +1,15 @@
+## [3.3.11](https://github.com/iamvikshan/amina/compare/v3.3.10...v3.3.11) (2026-06-21)
+
+### Bug Fixes
+
+* **api:** update api dependencies ([#426](https://github.com/iamvikshan/amina/issues/426)) ([9d040b8](https://github.com/iamvikshan/amina/commit/9d040b886dd90343f08246fd0a6230924fc4e399))
+* **api:** update api dependencies to ^2.0.5 ([#433](https://github.com/iamvikshan/amina/issues/433)) ([de47acf](https://github.com/iamvikshan/amina/commit/de47acf616dd6fb7ca75c0dad2129be465cb4f20))
+* **deps:** update dependency mongoose to ^9.7.1 ([#444](https://github.com/iamvikshan/amina/issues/444)) ([1704506](https://github.com/iamvikshan/amina/commit/1704506d70e39c906e13e169bc0f0e618a8ac590))
+
+### Reverts
+
+* Revert "chore(deps): update dockerfile base images to v26 ([#438](https://github.com/iamvikshan/amina/issues/438))" ([#439](https://github.com/iamvikshan/amina/issues/439)) ([b495807](https://github.com/iamvikshan/amina/commit/b4958072b3ae679464adcd86cff7edb126523e4f))
+
 ## [3.3.10](https://github.com/iamvikshan/amina/compare/v3.3.9...v3.3.10) (2026-06-15)
 
 ### Bug Fixes
