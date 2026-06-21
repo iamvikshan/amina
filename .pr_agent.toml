@@ -1,0 +1,40 @@
+# ==========================================
+# PR Agent Core Configuration
+# ==========================================
+
+[config]
+# Active model used for reviews and commands
+model = "gemini/gemini-2.5-flash"
+fallback_models = ["gemini/gemini-2.0-flash"]
+# Max number of code suggestions to return
+num_code_suggestions = 5
+
+[github_action_config]
+# Toggles for automated behaviors on pull request actions
+auto_review = true
+auto_describe = true
+auto_improve = true
+
+[pr_reviewer]
+# Add inline code comments directly to the PR diff
+inline_code_comments = true
+# Require test coverage check during code review
+require_tests_review = false
+# Custom review instructions tailored to the amina project
+extra_instructions = """
+- Verify compliance with the AGENTS.md rules.
+- Confirm imports use path aliases (@helpers/*, @schemas/*, @structures/*, etc.) instead of relative paths.
+- Ensure strict TypeScript rules are followed (e.g. no 'any' unless unavoidable, proper optional chaining for strict optional properties).
+"""
+
+[pr_description]
+# Enable Git release notes generation in PR descriptions
+enable_git_release_notes = true
+
+[add_docs]
+# Custom instructions for documentation generation to align with JSDoc conventions
+extra_instructions = """
+- Always use standard JSDoc format for TypeScript files.
+- Explicitly document all function parameters (using type and descriptions), return values, and generic type parameters.
+- Include documented error scenarios using the @throws tag where applicable.
+"""
