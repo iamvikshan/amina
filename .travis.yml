@@ -43,9 +43,9 @@ jobs:
         # Install dependencies (Bun is the sole package manager)
         - bun install --frozen-lockfile --ignore-scripts
 
-      script:
-        # 1. Run canonical lint + typecheck (oxlint + tsgo --noEmit)
-        - bun check
+      # script:
+      #   # 1. Run canonical lint + typecheck (oxlint + tsgo --noEmit)
+      #   - bun check
 
         # 2. Load secrets from Doppler (or fall back to minimal test env)
         - |

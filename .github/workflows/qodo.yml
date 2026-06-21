@@ -1,22 +1,22 @@
 name: PR Agent (Gemini)
+
 on:
   pull_request:
     types: [opened, reopened, ready_for_review]
   issue_comment:
+    if: ${{ github.actor != 'github-actions[bot]' && !contains(github.actor, '[bot]') }}
     types: [created]
 
 jobs:
   pr_agent_job:
-    # Skip bot/machine-generated comments to avoid feedback loops
-    if: ${{ github.actor != 'github-actions[bot]' && !contains(github.actor, '[bot]') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
       pull-requests: write
-      contents: write
+      contents: read
     steps:
       - name: PR Agent action step
-        uses: qodo-ai/pr-agent@main
+        uses: The-PR-Agent/pr-agent@v0.25.0
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           config.model: 'gemini/gemini-2.5-flash'
@@ -25,3 +25,5 @@ jobs:
           github_action_config.auto_review: 'true'
           github_action_config.auto_describe: 'true'
           github_action_config.auto_improve: 'true'
+          pr_reviewer.inline_code_comments: 'true'
+          pr_description.enable_git_release_notes: 'true'
