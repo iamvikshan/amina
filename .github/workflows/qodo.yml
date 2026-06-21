@@ -4,11 +4,11 @@ on:
   pull_request:
     types: [opened, reopened, ready_for_review]
   issue_comment:
-    if: ${{ github.actor != 'github-actions[bot]' && !contains(github.actor, '[bot]') }}
     types: [created]
 
 jobs:
   pr_agent_job:
+    if: ${{ github.actor != 'github-actions[bot]' && !contains(github.actor, '[bot]') }}
     runs-on: ubuntu-latest
     permissions:
       issues: write

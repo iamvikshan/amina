@@ -95,7 +95,7 @@ jobs:
             import semanticRelease from 'semantic-release';
             import { appendFileSync } from 'node:fs';
             try {
-              const result = await semanticRelease();
+              const result = await semanticRelease({ extends: './.github/release.json' });
               if (result && result.nextRelease && result.nextRelease.version) {
                 appendFileSync(
                   process.env.GITHUB_OUTPUT,
