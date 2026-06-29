@@ -17,7 +17,7 @@ jobs:
       contents: read
     steps:
       - name: PR Agent action step
-        uses: The-PR-Agent/pr-agent@v0.37.0
+        uses: The-PR-Agent/pr-agent@v0.38.0
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI }}
