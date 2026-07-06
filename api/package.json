@@ -12,7 +12,7 @@
     "type": "tsgo --noEmit"
   },
   "dependencies": {
-    "@hono/node-server": "^2.0.6",
+    "@hono/node-server": "^2.0.8",
     "hono": "^4.12.27",
     "mongodb": "^7.4.0",
     "zod": "^4.4.3"
