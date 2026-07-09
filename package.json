@@ -54,7 +54,7 @@
     "discord.js": "^14.26.4",
     "enhanced-ms": "^5.0.0",
     "lavalink-client": "^2.10.3",
-    "lru-cache": "^11.5.1",
+    "lru-cache": "^11.5.2",
     "module-alias": "^2.3.4",
     "mongoose": "^9.7.4",
     "openai": "^6.45.0",
