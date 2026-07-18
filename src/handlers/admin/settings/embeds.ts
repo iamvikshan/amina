@@ -4,8 +4,9 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show status embed with current settings
- * @param interaction
- * @param settings
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {any} settings - The settings object
+ * @returns {void} Nothing.
  */
 export async function showStatusEmbed(
   interaction: StringSelectMenuInteraction,

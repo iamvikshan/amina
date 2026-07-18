@@ -18,8 +18,9 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
  * Show parameter input for the selected cleanup method
  * Note: For methods using modals (prefix, below, older), the interaction must NOT be deferred
  * before calling this function, as showModal() requires an undeferred interaction.
- * @param interaction
- * @param method
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {RoleCleanupMethod} method - The method
+ * @returns {void} Nothing.
  */
 export async function showParameterInputForMethod(
   interaction: StringSelectMenuInteraction,
@@ -44,7 +45,8 @@ export async function showParameterInputForMethod(
 
 /**
  * Show modal for prefix input
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showPrefixModal(
   interaction: StringSelectMenuInteraction,
@@ -73,7 +75,8 @@ async function showPrefixModal(
 
 /**
  * Show modal for position input
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showPositionModal(
   interaction: StringSelectMenuInteraction,
@@ -102,7 +105,8 @@ async function showPositionModal(
 
 /**
  * Show modal for older than input
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showOlderModal(
   interaction: StringSelectMenuInteraction,
@@ -131,7 +135,8 @@ async function showOlderModal(
 
 /**
  * Handle modal submissions for cleanup parameters
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCleanupModal(
   interaction: ModalSubmitInteraction,
@@ -183,9 +188,10 @@ export async function handleCleanupModal(
 
 /**
  * Show role select menu to choose roles to keep (optional)
- * @param interaction
- * @param method
- * @param params
+ * @param {StringSelectMenuInteraction | ModalSubmitInteraction} interaction - The interaction object
+ * @param {RoleCleanupMethod} method - The method
+ * @param {any} params - The params
+ * @returns {void} Nothing.
  */
 async function showRoleKeepSelect(
   interaction: StringSelectMenuInteraction | ModalSubmitInteraction,
@@ -235,7 +241,8 @@ async function showRoleKeepSelect(
 
 /**
  * Handle role keep select interaction
- * @param interaction
+ * @param {RoleSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRoleKeepSelect(
   interaction: RoleSelectMenuInteraction,
@@ -276,7 +283,8 @@ export async function handleRoleKeepSelect(
 
 /**
  * Handle continue button (no exclusions)
- * @param interaction
+ * @param {any} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleContinueButton(interaction: any): Promise<void> {
   await interaction.deferUpdate()

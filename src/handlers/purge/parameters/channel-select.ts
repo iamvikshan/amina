@@ -14,13 +14,14 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show optional channel selection
- * @param interaction
- * @param purgeType
- * @param amount
- * @param additionalData
- * @param additionalData.token
- * @param additionalData.userId
- * @param isManualSelection
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {PurgeType} purgeType - The purge type
+ * @param {number} amount - The amount
+ * @param {Object} additionalData - The additional data
+ * @param {Object} additionalData.token - The additional data.token
+ * @param {string} additionalData.userId - The additional data.user id
+ * @param {boolean} isManualSelection - The is manual selection
+ * @returns {void} Nothing.
  */
 export async function showChannelSelect(
   interaction:
@@ -103,7 +104,8 @@ export async function showChannelSelect(
 
 /**
  * Handle channel selection
- * @param interaction
+ * @param {ChannelSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleChannelSelect(
   interaction: ChannelSelectMenuInteraction,
@@ -146,7 +148,8 @@ export async function handleChannelSelect(
 
 /**
  * Handle "use current channel" button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleUseCurrentChannel(
   interaction: ButtonInteraction,
@@ -188,7 +191,8 @@ export async function handleUseCurrentChannel(
 
 /**
  * Handle "proceed channel" button for default flow
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProceedChannel(
   interaction: ButtonInteraction,
@@ -230,7 +234,8 @@ export async function handleProceedChannel(
 
 /**
  * Get human-readable label for purge type
- * @param type
+ * @param {PurgeType} type - The type
+ * @returns {string} The result string.
  */
 function getPurgeTypeLabel(type: PurgeType): string {
   const labels: Record<PurgeType, string> = {

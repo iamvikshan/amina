@@ -16,7 +16,8 @@ import Logger from '@helpers/Logger'
 
 /**
  * Show edit profile menu
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showEditMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -63,7 +64,8 @@ export async function showEditMenu(
 
 /**
  * Handle edit category selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleEditMenu(
   interaction: StringSelectMenuInteraction,
@@ -92,7 +94,8 @@ export async function handleEditMenu(
 
 /**
  * Handle profile modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProfileModal(
   interaction: ModalSubmitInteraction,

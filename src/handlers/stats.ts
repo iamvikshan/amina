@@ -10,9 +10,10 @@ const xpToAdd = (): number => getRandomInt(19) + 1
 
 /**
  * Parse level-up message with placeholders
- * @param content
- * @param member
- * @param level
+ * @param {string} content - The content
+ * @param {GuildMember} member - The guild member
+ * @param {number} level - The level
+ * @returns {string} The result string.
  */
 const parse = (content: string, member: GuildMember, level: number): string => {
   return content
@@ -29,9 +30,10 @@ const parse = (content: string, member: GuildMember, level: number): string => {
 export default {
   /**
    * This function saves stats for a new message
-   * @param message
-   * @param _isCommand
-   * @param settings
+   * @param {Message} message - The message object
+   * @param {boolean} _isCommand - The _is command
+   * @param {any} settings - The settings object
+   * @returns {void} Nothing.
    */
   async trackMessageStats(
     message: Message,
@@ -89,7 +91,8 @@ export default {
 
   /**
    * Track interaction stats (slash commands, context menus)
-   * @param interaction
+   * @param {Interaction} interaction - The interaction object
+   * @returns {void} Nothing.
    */
   async trackInteractionStats(interaction: Interaction): Promise<void> {
     if (!interaction.guild || !interaction.member || !interaction.guildId)
@@ -106,8 +109,9 @@ export default {
 
   /**
    * Track voice channel stats (connections and time)
-   * @param oldState
-   * @param newState
+   * @param {VoiceState} oldState - The old state
+   * @param {VoiceState} newState - The new state
+   * @returns {void} Nothing.
    */
   async trackVoiceStats(
     oldState: VoiceState,

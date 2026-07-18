@@ -6,8 +6,9 @@ const MEMBER_MENTION = /<?@?!?(\d{17,20})>?/
 
 /**
  * Get all channels that match the query
- * @param query - The search query
- * @param type - Array of channel types to filter by
+ * @param {string} query - The search query
+ * @param {string} type - Array of channel types to filter by
+ * @returns {any[]} The result array.
  */
 Guild.prototype.findMatchingChannels = function (
   this: Guild,
@@ -45,8 +46,9 @@ Guild.prototype.findMatchingChannels = function (
 
 /**
  * Get all voice channels that match the query
- * @param query - The search query
- * @param type - Array of voice channel types to filter by
+ * @param {string} query - The search query
+ * @param {string} type - Array of voice channel types to filter by
+ * @returns {any[]} The result array.
  */
 Guild.prototype.findMatchingVoiceChannels = function (
   this: Guild,
@@ -84,7 +86,8 @@ Guild.prototype.findMatchingVoiceChannels = function (
 
 /**
  * Find all roles that match the query
- * @param query - The search query
+ * @param {string} query - The search query
+ * @returns {any[]} The result array.
  */
 Guild.prototype.findMatchingRoles = function (
   this: Guild,
@@ -116,8 +119,9 @@ Guild.prototype.findMatchingRoles = function (
 
 /**
  * Resolves a guild member from search query
- * @param query - The search query
- * @param exact - Whether to perform exact matching
+ * @param {string} query - The search query
+ * @param {boolean} exact - Whether to perform exact matching
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 Guild.prototype.resolveMember = async function (
   this: Guild,
@@ -155,7 +159,7 @@ Guild.prototype.resolveMember = async function (
 
 /**
  * Fetch member stats
- * @returns Array of [total, bots, members]
+ * @returns {Promise<number[]>} Array of [total, bots, members]
  */
 Guild.prototype.fetchMemberStats = async function (
   this: Guild,

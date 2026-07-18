@@ -12,7 +12,8 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show autorole management menu with current status
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showAutoroleMenu(
   interaction: StringSelectMenuInteraction,
@@ -75,7 +76,8 @@ export async function showAutoroleMenu(
 
 /**
  * Handle autorole enable button - show role select
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAutoroleEnableButton(
   interaction: ButtonInteraction,
@@ -112,7 +114,8 @@ export async function handleAutoroleEnableButton(
 
 /**
  * Handle autorole role selection
- * @param interaction
+ * @param {RoleSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAutoroleRoleSelect(
   interaction: RoleSelectMenuInteraction,
@@ -191,7 +194,8 @@ export async function handleAutoroleRoleSelect(
 
 /**
  * Handle autorole disable button - show confirmation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAutoroleDisableButton(
   interaction: ButtonInteraction,
@@ -238,7 +242,8 @@ export async function handleAutoroleDisableButton(
 
 /**
  * Handle autorole disable confirmation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAutoroleDisableConfirm(
   interaction: ButtonInteraction,
@@ -274,7 +279,8 @@ export async function handleAutoroleDisableConfirm(
 
 /**
  * Handle autorole cancel button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAutoroleCancel(
   interaction: ButtonInteraction,
@@ -285,8 +291,9 @@ export async function handleAutoroleCancel(
 
 /**
  * Validate if a role can be used as autorole
- * @param guild
- * @param role
+ * @param {any} guild - The guild object
+ * @param {Role} role - The role object
+ * @returns {Object} Validation result with valid flag and optional reason.
  */
 function validateAutorole(
   guild: any,

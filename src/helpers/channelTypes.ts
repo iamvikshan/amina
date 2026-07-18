@@ -2,8 +2,8 @@ import { ChannelType } from 'discord.js'
 
 /**
  * Converts a Discord ChannelType enum to a human-readable string
- * @param type - The Discord ChannelType enum value
- * @returns A readable string representation of the channel type
+ * @param {ChannelType} type - The Discord ChannelType enum value
+ * @returns {string} A readable string representation of the channel type
  */
 export default function channelTypes(type: ChannelType): string {
   switch (type) {

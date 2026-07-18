@@ -7,7 +7,8 @@ import Logger from '@helpers/Logger'
 /**
  * Check for due reminders and send notifications
  * This runs periodically to check for reminders that need to be sent
- * @param client - The bot client instance
+ * @param {BotClient} client - The bot client instance
+ * @returns {void} Nothing.
  */
 export async function checkUserReminders(client: BotClient): Promise<void> {
   try {
@@ -63,8 +64,9 @@ export async function checkUserReminders(client: BotClient): Promise<void> {
 /**
  * Send reminder notification to user
  * Tries channel first, falls back to DM
- * @param client
- * @param reminder
+ * @param {BotClient} client - The bot client instance
+ * @param {any} reminder - The reminder
+ * @returns {Promise<boolean>} A promise that resolves when done.
  */
 async function sendReminderNotification(
   client: BotClient,

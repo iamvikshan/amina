@@ -7,6 +7,7 @@ import type { GuildMember } from 'discord.js'
  * Handles guild member add event
  * @param {BotClient} client - The bot client instance
  * @param {GuildMember} member - The member who joined
+ * @returns {void} Nothing.
  */
 export default async (
   client: BotClient,

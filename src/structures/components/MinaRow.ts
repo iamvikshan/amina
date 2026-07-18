@@ -21,12 +21,18 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
   // CONFIRMATION
   // ============================================
 
-  /** Confirm/Cancel (yeah | nah) */
+  /**
+   * Confirm/Cancel (yeah | nah)
+   * @returns {MinaRow} The result.
+   */
   static confirmCancel(): MinaRow {
     return new MinaRow().addComponents(MinaButton.yeah(), MinaButton.nah())
   }
 
-  /** Yes/No alias */
+  /**
+   * Yes/No alias
+   * @returns {MinaRow} The result.
+   */
   static yesNo(): MinaRow {
     return MinaRow.confirmCancel()
   }
@@ -37,12 +43,13 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Navigation with hub (prev | hub | next)
-   * @param hasPrev
-   * @param hasNext
-   * @param customIds
-   * @param customIds.prev
-   * @param customIds.hub
-   * @param customIds.next
+   * @param {boolean} hasPrev - The has prev
+   * @param {boolean} hasNext - The has next
+   * @param {Array} customIds - The custom ids
+   * @param {Object} customIds.prev - The custom ids.prev
+   * @param {Object} customIds.hub - The custom ids.hub
+   * @param {Object} customIds.next - The custom ids.next
+   * @returns {void} Nothing.
    */
   static navigation(
     hasPrev = true,
@@ -64,12 +71,13 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Simple prev/next with disabled states
-   * @param customIds
-   * @param customIds.prev
-   * @param customIds.next
-   * @param disabledStates
-   * @param disabledStates.prev
-   * @param disabledStates.next
+   * @param {Array} customIds - The custom ids
+   * @param {Object} customIds.prev - The custom ids.prev
+   * @param {Object} customIds.next - The custom ids.next
+   * @param {Array} disabledStates - The disabled states
+   * @param {Object} disabledStates.prev - The disabled states.prev
+   * @param {Object} disabledStates.next - The disabled states.next
+   * @returns {void} Nothing.
    */
   static prevNext(
     customIds?: { prev?: string; next?: string },
@@ -83,11 +91,12 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Pagination row - auto-handles disabled states based on page/total
-   * @param currentPage
-   * @param totalPages
-   * @param customIds
-   * @param customIds.prev
-   * @param customIds.next
+   * @param {number} currentPage - The current page
+   * @param {number} totalPages - The total pages
+   * @param {Array} customIds - The custom ids
+   * @param {Object} customIds.prev - The custom ids.prev
+   * @param {Object} customIds.next - The custom ids.next
+   * @returns {void} Nothing.
    */
   static pagination(
     currentPage: number,
@@ -105,9 +114,10 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Back and hub
-   * @param customIds
-   * @param customIds.back
-   * @param customIds.hub
+   * @param {Array} customIds - The custom ids
+   * @param {Object} customIds.back - The custom ids.back
+   * @param {Object} customIds.hub - The custom ids.hub
+   * @returns {MinaRow} The result.
    */
   static backHub(customIds?: { back?: string; hub?: string }): MinaRow {
     return new MinaRow().addComponents(
@@ -122,10 +132,11 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Truth or Dare
-   * @param customIds
-   * @param customIds.truth
-   * @param customIds.dare
-   * @param customIds.random
+   * @param {Object} customIds - The custom ids
+   * @param {Object} customIds.truth - The custom ids.truth
+   * @param {Object} customIds.dare - The custom ids.dare
+   * @param {Object} customIds.random - The custom ids.random
+   * @returns {void} Nothing.
    */
   static truthOrDare(customIds?: {
     truth?: string
@@ -139,7 +150,10 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
     )
   }
 
-  /** Music controls */
+  /**
+   * Music controls
+   * @returns {MinaRow} The result.
+   */
   static musicControls(): MinaRow {
     return new MinaRow().addComponents(
       MinaButton.prev('music:prev'),
@@ -151,7 +165,8 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Ticket controls
-   * @param isOpen
+   * @param {boolean} isOpen - The is open
+   * @returns {MinaRow} The result.
    */
   static ticket(isOpen = true): MinaRow {
     return new MinaRow().addComponents(
@@ -168,7 +183,8 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Single button row
-   * @param button
+   * @param {MinaButton} button - The button component
+   * @returns {MinaRow} The result.
    */
   static single(button: MinaButton): MinaRow {
     return new MinaRow().addComponents(button)
@@ -176,7 +192,8 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Custom row from buttons
-   * @param {...any} buttons
+   * @param {MinaButton[} buttons - The buttons
+   * @returns {MinaRow} The result.
    */
   static of(...buttons: MinaButton[]): MinaRow {
     return new MinaRow().addComponents(...buttons)
@@ -184,7 +201,8 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Link buttons row
-   * @param links
+   * @param {Array} links - The links
+   * @returns {MinaRow} The result.
    */
   static links(links: Array<{ url: string; label: string }>): MinaRow {
     return new MinaRow().addComponents(
@@ -194,8 +212,9 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Single back button as row
-   * @param customId
+   * @param {string} customId - The custom ID
    * @example MinaRow.backRow('dev:btn:back_tod')
+   * @returns {MinaRow} The result.
    */
   static backRow(customId: string): MinaRow {
     return new MinaRow().addComponents(MinaButton.back(customId))
@@ -203,8 +222,9 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
 
   /**
    * Single hub button as row
-   * @param customId
+   * @param {string} customId - The custom ID
    * @example MinaRow.hubRow('profile:btn:hub')
+   * @returns {MinaRow} The result.
    */
   static hubRow(customId: string): MinaRow {
     return new MinaRow().addComponents(MinaButton.hub(customId))

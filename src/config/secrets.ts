@@ -5,8 +5,9 @@
 
 /**
  * Get a required secret from environment variables
- * @param key
+ * @param {keyof Secrets} key - The key
  * @throws Error if the secret is not set
+ * @returns {string} The result string.
  */
 function getRequiredSecret(key: keyof Secrets): string {
   const value = process.env[key]
@@ -20,7 +21,8 @@ function getRequiredSecret(key: keyof Secrets): string {
 
 /**
  * Get an optional secret from environment variables
- * @param key
+ * @param {keyof Secrets} key - The key
+ * @returns {string | undefined} The result.
  */
 function getOptionalSecret(key: keyof Secrets): string | undefined {
   return process.env[key]
@@ -28,6 +30,7 @@ function getOptionalSecret(key: keyof Secrets): string | undefined {
 
 /**
  * Get Lavalink nodes from environment variables
+ * @returns {Secrets['LAVALINK_NODES']} The result.
  */
 function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
   const nodes: Secrets['LAVALINK_NODES'] = []
@@ -37,8 +40,12 @@ function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
     nodes.push({
       id: process.env.LAVALINK_1_ID,
       host: process.env.LAVALINK_1_HOST,
-      ...(process.env.LAVALINK_1_PORT && { port: Number(process.env.LAVALINK_1_PORT) }),
-      ...(process.env.LAVALINK_PASS && { authorization: process.env.LAVALINK_PASS }),
+      ...(process.env.LAVALINK_1_PORT && {
+        port: Number(process.env.LAVALINK_1_PORT),
+      }),
+      ...(process.env.LAVALINK_PASS && {
+        authorization: process.env.LAVALINK_PASS,
+      }),
       secure: false,
     })
   }
@@ -48,8 +55,12 @@ function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
     nodes.push({
       id: process.env.LAVALINK_2_ID,
       host: process.env.LAVALINK_2_HOST,
-      ...(process.env.LAVALINK_2_PORT && { port: Number(process.env.LAVALINK_2_PORT) }),
-      ...(process.env.LAVALINK_PASS && { authorization: process.env.LAVALINK_PASS }),
+      ...(process.env.LAVALINK_2_PORT && {
+        port: Number(process.env.LAVALINK_2_PORT),
+      }),
+      ...(process.env.LAVALINK_PASS && {
+        authorization: process.env.LAVALINK_PASS,
+      }),
       secure: false,
     })
   }
@@ -60,6 +71,7 @@ function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
 /**
  * Validate that all required secrets are present
  * @throws Error if any required secret is missing
+ * @returns {void} Nothing.
  */
 export function validateSecrets(): void {
   getRequiredSecret('BOT_TOKEN')
@@ -70,7 +82,8 @@ export function validateSecrets(): void {
  * Convert Shoutrrr Discord URL format to standard Discord webhook URL
  * Shoutrrr format: discord://TOKEN@WEBHOOK_ID
  * Standard format: https://discord.com/api/webhooks/WEBHOOK_ID/TOKEN
- * @param shoutrrrUrl
+ * @param {string | undefined} shoutrrrUrl - The shoutrrr url
+ * @returns {string | undefined} The result.
  */
 function toDiscordWebhookUrl(
   shoutrrrUrl: string | undefined,

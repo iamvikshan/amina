@@ -11,6 +11,7 @@ import type { Message } from 'discord.js'
 export default class BotUtils {
   /**
    * Check if the bot is up to date
+   * @returns {void} Nothing.
    */
   static async checkForUpdates(): Promise<void> {
     let latestVersion: string
@@ -53,8 +54,9 @@ export default class BotUtils {
 
   /**
    * Get the image url from the message
-   * @param message - The Discord message
-   * @param args - Command arguments
+   * @param {Message} message - The Discord message
+   * @param {string[} args - Command arguments
+   * @returns {Promise<string>} A promise that resolves when done.
    */
   static async getImageFromMessage(
     message: Message,
@@ -115,6 +117,7 @@ export default class BotUtils {
 
   /**
    * Music validation checks
+   * @returns {Validation[]} The result array.
    */
   static get musicValidations(): Validation[] {
     return [
@@ -138,9 +141,10 @@ export default class BotUtils {
 
   /**
    * Check if two commands are different
-   * @param existing - The existing command from Discord
-   * @param local - The local command definition
-   * @param debug - If true, logs the reason for difference
+   * @param {any} existing - The existing command from Discord
+   * @param {any} local - The local command definition
+   * @param {boolean} debug - If true, logs the reason for difference
+   * @returns {boolean} Whether the operation succeeded.
    */
   static areCommandsDifferent(
     existing: any,

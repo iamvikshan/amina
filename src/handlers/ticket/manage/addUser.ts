@@ -13,7 +13,8 @@ import Logger from '@helpers/Logger'
 
 /**
  * Show user select for adding users to ticket
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showAddUserSelect(
   interaction: StringSelectMenuInteraction,
@@ -61,7 +62,8 @@ export async function showAddUserSelect(
 
 /**
  * Handle user selection for adding to ticket
- * @param interaction
+ * @param {UserSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAddUserSelect(
   interaction: UserSelectMenuInteraction,

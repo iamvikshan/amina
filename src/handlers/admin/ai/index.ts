@@ -14,7 +14,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Mina AI Settings menu
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showMinaAIMenu(
   interaction: StringSelectMenuInteraction,
@@ -85,7 +86,8 @@ export async function showMinaAIMenu(
 
 /**
  * Handle remove free-will channel selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRemoveFreeWillChannel(
   interaction: StringSelectMenuInteraction,
@@ -147,7 +149,8 @@ export async function handleRemoveFreeWillChannel(
 
 /**
  * Handle Mina AI action selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleMinaAIMenu(
   interaction: StringSelectMenuInteraction,

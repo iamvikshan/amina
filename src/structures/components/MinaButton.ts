@@ -5,8 +5,8 @@ import { ButtonBuilder, ButtonStyle } from 'discord.js'
 
 /**
  * Parse state from customId created by buildCustomId
- * @param customId - The customId to parse (format: base|key1:value1|key2:value2)
- * @returns Object with parsed state, converting numeric strings to numbers
+ * @param {string} customId - The customId to parse (format: base|key1:value1|key2:value2)
+ * @returns {Record<string, string | number>} Object with parsed state, converting numeric strings to numbers
  * @example
  * parseState('btn:page|page:2|size:10') // { page: 2, size: 10 }
  * parseState('btn:action|action:delete') // { action: 'delete' }
@@ -48,14 +48,16 @@ export function parseState(customId: string): Record<string, string | number> {
  *   MinaButton.prev('my:btn:prev', true)  // disabled prev button
  *   MinaButton.hub()                       // default hub button
  *   MinaButton.custom('id', 'label', ButtonStyle.Primary)
+ * @returns {void} Nothing.
  */
 /**
  * Build custom_id with state
  * Format: base|key1:value1|key2:value2
- * @param base
- * @param state
+ * @param {string} base - The base
+ * @param {Record<string} state - The state
  * @example buildCustomId('roles:menu:cleanup', { page: 2, filter: 'prefix' })
  *   -> 'roles:menu:cleanup|page:2|filter:prefix'
+ * @returns {string} The result string.
  */
 export function buildCustomId(
   base: string,
@@ -390,11 +392,11 @@ export class MinaButton extends ButtonBuilder {
 
   /**
    * Create button with embedded state
-   * @param base - Base customId without state
-   * @param label - Button label
-   * @param style - Button style
-   * @param state - State object to encode (format: {key: value} where value is string or number)
-   * @returns MinaButton with encoded customId
+   * @param {string} base - Base customId without state
+   * @param {string} label - Button label
+   * @param {ButtonStyle} style - Button style
+   * @param {Record<string} state - State object to encode (format: {key: value} where value is string or number)
+   * @returns {MinaButton} MinaButton with encoded customId
    * @example
    * MinaButton.withState('btn:page', 'Next', ButtonStyle.Primary, {page: 2, size: 10})
    * // Creates button with customId: "btn:page|page:2|size:10"

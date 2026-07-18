@@ -5,7 +5,8 @@ import type { BotClient } from '@src/structures'
 /**
  * Updates the bot's presence/status AND bot statistics
  * Migrated from handlers/presence.ts
- * @param client - The bot client instance
+ * @param {BotClient} client - The bot client instance
+ * @returns {void} Nothing.
  */
 export async function updatePresence(client: BotClient): Promise<void> {
   const config = await getPresenceConfig()

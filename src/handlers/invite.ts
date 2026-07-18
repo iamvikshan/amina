@@ -39,7 +39,8 @@ const cacheInvite = (invite: Invite | any, isVanity = false): CachedInvite => ({
 
 /**
  * This function caches all invites for the provided guild
- * @param guild
+ * @param {Guild} guild - The guild object
+ * @returns {Promise<Collection<string, CachedInvite>>} A promise that resolves when done.
  */
 async function cacheGuildInvites(
   guild: Guild,
@@ -62,9 +63,10 @@ async function cacheGuildInvites(
 
 /**
  * Add roles to inviter based on invites count
- * @param guild
- * @param inviterData
- * @param isAdded
+ * @param {Guild} guild - The guild object
+ * @param {any} inviterData - The inviter data
+ * @param {boolean} isAdded - The is added
+ * @returns {void} Nothing.
  */
 const checkInviteRewards = async (
   guild: Guild,
@@ -96,7 +98,8 @@ const checkInviteRewards = async (
 
 /**
  * Track inviter by comparing new invites with cached invites
- * @param member
+ * @param {GuildMember} member - The guild member
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 async function trackJoinedMember(member: GuildMember): Promise<any> {
   const { guild } = member
@@ -160,8 +163,9 @@ async function trackJoinedMember(member: GuildMember): Promise<any> {
 
 /**
  * Fetch inviter data from database
- * @param guild
- * @param user
+ * @param {Guild} guild - The guild object
+ * @param {User} user - The user object
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 async function trackLeftMember(guild: Guild, user: User): Promise<any> {
   if (user.bot) return {}

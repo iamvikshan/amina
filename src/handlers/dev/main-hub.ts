@@ -10,7 +10,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main dev hub with category selection
- * @param interaction
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showDevHub(
   interaction:
@@ -78,7 +79,8 @@ export async function showDevHub(
 
 /**
  * Handle category selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCategoryMenu(
   interaction: StringSelectMenuInteraction,
@@ -137,7 +139,8 @@ export async function handleCategoryMenu(
 
 /**
  * Handle back button - return to main hub
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleDevBackButton(
   interaction: ButtonInteraction,

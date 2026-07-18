@@ -116,7 +116,8 @@ export async function removeReactionRole(
 
 /**
  * Clear all reaction role cache entries for a guild
- * @param guildId - The guild ID to clear from cache
+ * @param {string} guildId - The guild ID to clear from cache
+ * @returns {void} Nothing.
  */
 export function clearGuildReactionRoleCache(guildId: string): void {
   const keysToDelete: string[] = []

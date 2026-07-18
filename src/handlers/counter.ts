@@ -4,7 +4,8 @@ import type { Guild } from 'discord.js'
 
 /**
  * Updates the counter channel for all the guildId's present in the update queue
- * @param client - The bot client instance
+ * @param {BotClient} client - The bot client instance
+ * @returns {void} Nothing.
  */
 export async function updateCounterChannels(client: BotClient): Promise<void> {
   client.counterUpdateQueue.forEach(async guildId => {
@@ -51,8 +52,9 @@ export async function updateCounterChannels(client: BotClient): Promise<void> {
 
 /**
  * Initialize guild counters at startup
- * @param guild - The guild to initialize counters for
- * @param settings - The guild settings
+ * @param {Guild} guild - The guild to initialize counters for
+ * @param {any} settings - The guild settings
+ * @returns {Promise<boolean>} A promise that resolves when done.
  */
 export async function init(guild: Guild, settings: any): Promise<boolean> {
   if (

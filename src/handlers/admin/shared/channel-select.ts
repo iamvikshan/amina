@@ -11,7 +11,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Check if guild is test guild
- * @param guildId
+ * @param {string | null} guildId - The guild ID
+ * @returns {boolean} Whether the operation succeeded.
  */
 function isTestGuild(guildId: string | null): boolean {
   if (!guildId) return false
@@ -20,7 +21,8 @@ function isTestGuild(guildId: string | null): boolean {
 
 /**
  * Get free-will channels from settings
- * @param settings
+ * @param {any} settings - The settings object
+ * @returns {string[]} The result array.
  */
 function getFreeWillChannels(settings: any): string[] {
   if (!settings?.aiResponder) return []
@@ -30,9 +32,10 @@ function getFreeWillChannels(settings: any): string[] {
 /**
  * Add or remove a free-will channel
  * Returns new array of channels
- * @param currentChannels
- * @param channelId
- * @param guildId
+ * @param {string[} currentChannels - The current channels
+ * @param {string} channelId - The channel ID
+ * @param {string} guildId - The guild ID
+ * @returns {void} Nothing.
  */
 function toggleFreeWillChannel(
   currentChannels: string[],
@@ -66,7 +69,8 @@ function toggleFreeWillChannel(
 
 /**
  * Handle channel selection for updates channel, freewill, and log channel
- * @param interaction
+ * @param {ChannelSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleChannelSelect(
   interaction: ChannelSelectMenuInteraction,

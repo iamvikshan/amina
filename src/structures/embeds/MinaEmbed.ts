@@ -86,9 +86,10 @@ export class MinaEmbed extends EmbedBuilder {
   /**
    * Format quote for display
    * Returns: "quote text" — character - anime
-   * @param quote
-   * @param character
-   * @param anime
+   * @param {string} quote - The quote
+   * @param {string} character - The character
+   * @param {string} anime - The anime
+   * @returns {string} The result string.
    */
   private formatQuote(quote: string, character: string, anime: string): string {
     return `*"${quote}"*\n— ${character} - ${anime}`
@@ -96,6 +97,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Add anime quote to end of description (async)
+   * @returns {Promise<this>} A promise that resolves when done.
    */
   async withQuote(): Promise<this> {
     const q = await mina.quote()
@@ -107,6 +109,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Add anime quote to end of description (sync - uses cache)
+   * @returns {this} The result.
    */
   withQuoteSync(): this {
     const q = mina.quoteSync()
@@ -118,7 +121,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Conditionally add quote based on probability (sync)
-   * @param probability - 0-1 chance of including quote
+   * @param {number} probability - 0-1 chance of including quote
+   * @returns {this} The result.
    */
   withQuoteProbability(probability: number): this {
     if (Math.random() < probability) {
@@ -129,8 +133,9 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Add quote with chance and tip with chance (sync)
-   * @param quoteChance - 0-1 chance of quote
-   * @param tipChance - 0-1 chance of footer tip (only if no quote)
+   * @param {number} quoteChance - 0-1 chance of quote
+   * @param {number} tipChance - 0-1 chance of footer tip (only if no quote)
+   * @returns {this} The result.
    */
   withRandomExtras(quoteChance: number, tipChance: number = 0.3): this {
     if (Math.random() < quoteChance) {
@@ -147,6 +152,7 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Add footer with random tip
+   * @returns {this} The result.
    */
   withTip(): this {
     this.setFooter({ text: `tip: ${mina.tip()}` })
@@ -155,8 +161,9 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Add custom footer
-   * @param text
-   * @param iconURL
+   * @param {string} text - The text content
+   * @param {string} iconURL - The icon u r l
+   * @returns {this} The result.
    */
   withFooter(text: string, iconURL?: string): this {
     this.setFooter({ text, ...(iconURL !== undefined && { iconURL }) })
@@ -166,6 +173,7 @@ export class MinaEmbed extends EmbedBuilder {
   /**
    * Add contextual footer (randomly picks tip or nothing)
    * 40% chance to show a tip
+   * @returns {this} The result.
    */
   withRandomFooter(): this {
     if (Math.random() < 0.4) {
@@ -180,7 +188,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply user context to embed
-   * @param ctx
+   * @param {UserContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withUser(ctx: UserContext): this {
     if (ctx.showAvatar !== false) {
@@ -194,7 +203,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply member context to embed
-   * @param ctx
+   * @param {MemberContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withMember(ctx: MemberContext): this {
     if (ctx.showAvatar !== false) {
@@ -236,7 +246,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply guild context to embed
-   * @param ctx
+   * @param {GuildContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withGuild(ctx: GuildContext): this {
     if (ctx.showIcon !== false && ctx.guild.iconURL()) {
@@ -260,7 +271,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply bot as author
-   * @param ctx
+   * @param {BotContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withBot(ctx: BotContext): this {
     if (ctx.showAsAuthor !== false) {
@@ -274,7 +286,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply moderation context
-   * @param ctx
+   * @param {ModerationContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withModeration(ctx: ModerationContext): this {
     const target =
@@ -305,7 +318,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply economy context
-   * @param ctx
+   * @param {EconomyContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withEconomy(ctx: EconomyContext): this {
     this.setThumbnail(ctx.user.displayAvatarURL({ size: 256 }))
@@ -333,7 +347,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply music context
-   * @param ctx
+   * @param {MusicContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withMusic(ctx: MusicContext): this {
     if (ctx.track.thumbnail) {
@@ -383,7 +398,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Apply level/rank context
-   * @param ctx
+   * @param {LevelContext} ctx - The context interaction
+   * @returns {this} The result.
    */
   withLevel(ctx: LevelContext): this {
     this.setThumbnail(ctx.user.displayAvatarURL({ size: 256 }))
@@ -415,7 +431,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Success embed (green) - 30% quote chance
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static success(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -426,7 +443,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Error embed (blood red) - 10% quote chance
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static error(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -437,7 +455,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Warning embed (amber) - 10% quote chance
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static warning(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -448,7 +467,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Info embed (cyber blue) - 30% quote chance
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static info(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -459,7 +479,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Primary embed (crimson) - 30% quote chance
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static primary(description?: string): MinaEmbed {
     const embed = new MinaEmbed().withRandomExtras(0.3)
@@ -471,7 +492,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Secondary embed (electric blue) - 30% quote chance
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static secondary(description?: string): MinaEmbed {
     const embed = new MinaEmbed()
@@ -485,7 +507,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Gold/Achievement embed - 30% quote chance
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static gold(description?: string): MinaEmbed {
     const embed = new MinaEmbed()
@@ -499,7 +522,8 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Loading embed - no quote/tip (keep clean)
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static loading(description?: string): MinaEmbed {
     return new MinaEmbed()
@@ -509,8 +533,9 @@ export class MinaEmbed extends EmbedBuilder {
 
   /**
    * Moderation action embed - 0% quote (keep professional)
-   * @param action
-   * @param description
+   * @param {Object} action - The action
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static mod(
     action:
@@ -533,7 +558,8 @@ export class MinaEmbed extends EmbedBuilder {
   /**
    * Plain embed - no automatic quote/tip
    * Use when you want full control
-   * @param description
+   * @param {string} description - The description
+   * @returns {MinaEmbed} The result.
    */
   static plain(description?: string): MinaEmbed {
     const embed = new MinaEmbed()

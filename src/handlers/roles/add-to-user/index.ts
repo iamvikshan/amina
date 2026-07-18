@@ -9,7 +9,8 @@ import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 
 /**
  * Show the add to user menu - starts with user selection
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showAddToUserMenu(
   interaction: ButtonInteraction,
@@ -57,7 +58,8 @@ export async function showAddToUserMenu(
 
 /**
  * Handle user selection - show role selector
- * @param interaction
+ * @param {UserSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleUserSelect(
   interaction: UserSelectMenuInteraction,
@@ -138,7 +140,8 @@ export async function handleUserSelect(
 
 /**
  * Handle role selection - show preview
- * @param interaction
+ * @param {RoleSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRoleSelect(
   interaction: RoleSelectMenuInteraction,
@@ -289,7 +292,8 @@ export async function handleRoleSelect(
 
 /**
  * Execute role assignment
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAssignConfirm(
   interaction: ButtonInteraction,

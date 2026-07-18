@@ -6,7 +6,8 @@ import Logger from '@helpers/Logger'
 
 /**
  * Show confirmation for close all operation
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showCloseAllConfirmation(
   interaction: StringSelectMenuInteraction,
@@ -37,7 +38,8 @@ export async function showCloseAllConfirmation(
 
 /**
  * Handle close all confirmation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCloseAllConfirm(
   interaction: ButtonInteraction,
@@ -103,7 +105,8 @@ export async function handleCloseAllConfirm(
 
 /**
  * Handle close all cancellation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCloseAllCancel(
   interaction: ButtonInteraction,

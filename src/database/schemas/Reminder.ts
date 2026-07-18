@@ -39,7 +39,8 @@ const Model = mongoose.model<IReminderDocument>('reminder', Schema)
 
 /**
  * Get next reminder ID for a user
- * @param userId
+ * @param {string} userId - The user ID
+ * @returns {Promise<number>} A promise that resolves when done.
  */
 async function getNextReminderId(userId: string): Promise<number> {
   const lastReminder = await Model.findOne({ user_id: userId })
@@ -52,11 +53,12 @@ async function getNextReminderId(userId: string): Promise<number> {
 
 /**
  * Create a new reminder
- * @param userId
- * @param message
- * @param remindAt
- * @param channelId
- * @param guildId
+ * @param {string} userId - The user ID
+ * @param {string} message - The message object
+ * @param {Date} remindAt - The remind at
+ * @param {string} channelId - The channel ID
+ * @param {string | null} guildId - The guild ID
+ * @returns {Promise<IReminderDocument>} A promise that resolves when done.
  */
 export async function createReminder(
   userId: string,
@@ -86,8 +88,9 @@ export async function createReminder(
 
 /**
  * Get all active reminders for a user
- * @param userId
- * @param includeNotified
+ * @param {string} userId - The user ID
+ * @param {boolean} includeNotified - The include notified
+ * @returns {Promise<IReminderDocument[]>} A promise that resolves when done.
  */
 export async function getUserReminders(
   userId: string,
@@ -105,8 +108,9 @@ export async function getUserReminders(
 
 /**
  * Get a specific reminder by user ID and reminder ID
- * @param userId
- * @param reminderId
+ * @param {string} userId - The user ID
+ * @param {number} reminderId - The reminder id
+ * @returns {Promise<IReminderDocument | null>} A promise that resolves when done.
  */
 export async function getReminder(
   userId: string,
@@ -125,9 +129,10 @@ export async function getReminder(
 
 /**
  * Update reminder message
- * @param userId
- * @param reminderId
- * @param newMessage
+ * @param {string} userId - The user ID
+ * @param {number} reminderId - The reminder id
+ * @param {string} newMessage - The new message
+ * @returns {Promise<IReminderDocument | null>} A promise that resolves when done.
  */
 export async function updateReminderMessage(
   userId: string,
@@ -147,9 +152,10 @@ export async function updateReminderMessage(
 
 /**
  * Update reminder time
- * @param userId
- * @param reminderId
- * @param newRemindAt
+ * @param {string} userId - The user ID
+ * @param {number} reminderId - The reminder id
+ * @param {Date} newRemindAt - The new remind at
+ * @returns {Promise<IReminderDocument | null>} A promise that resolves when done.
  */
 export async function updateReminderTime(
   userId: string,
@@ -169,8 +175,9 @@ export async function updateReminderTime(
 
 /**
  * Mark reminder as notified
- * @param userId
- * @param reminderId
+ * @param {string} userId - The user ID
+ * @param {number} reminderId - The reminder id
+ * @returns {Promise<IReminderDocument | null>} A promise that resolves when done.
  */
 export async function markReminderNotified(
   userId: string,
@@ -189,8 +196,9 @@ export async function markReminderNotified(
 
 /**
  * Delete a reminder
- * @param userId
- * @param reminderId
+ * @param {string} userId - The user ID
+ * @param {number} reminderId - The reminder id
+ * @returns {Promise<boolean>} A promise that resolves when done.
  */
 export async function deleteReminder(
   userId: string,
@@ -204,7 +212,8 @@ export async function deleteReminder(
 
 /**
  * Delete all reminders for a user
- * @param userId
+ * @param {string} userId - The user ID
+ * @returns {Promise<number>} A promise that resolves when done.
  */
 export async function deleteAllUserReminders(userId: string): Promise<number> {
   const result = await Model.deleteMany({ user_id: userId })
@@ -219,6 +228,7 @@ export async function deleteAllUserReminders(userId: string): Promise<number> {
 
 /**
  * Get all due reminders (for scheduler)
+ * @returns {Promise<IReminderDocument[]>} A promise that resolves when done.
  */
 export async function getDueReminders(): Promise<IReminderDocument[]> {
   return Model.find({
@@ -231,8 +241,9 @@ export async function getDueReminders(): Promise<IReminderDocument[]> {
 
 /**
  * Get reminder count for a user
- * @param userId
- * @param includeNotified
+ * @param {string} userId - The user ID
+ * @param {boolean} includeNotified - The include notified
+ * @returns {Promise<number>} A promise that resolves when done.
  */
 export async function getUserReminderCount(
   userId: string,

@@ -18,6 +18,7 @@ import BotUtils from '@helpers/BotUtils'
 /**
  * Client ready event handler
  * @param {BotClient} client - The bot client instance
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient): Promise<void> => {
   client.logger.success(

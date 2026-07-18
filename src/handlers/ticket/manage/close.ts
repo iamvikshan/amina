@@ -5,7 +5,8 @@ import { isTicketChannel, closeTicket } from '@handlers/ticket/shared/utils'
 
 /**
  * Handle close ticket operation
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCloseTicket(
   interaction: StringSelectMenuInteraction,

@@ -7,8 +7,9 @@ const cooldownCache = new Map<string, number>()
 
 /**
  * Handle context menu command execution
- * @param interaction - The context menu interaction
- * @param context - The context command instance
+ * @param {ContextMenuCommandInteraction} interaction - The context menu interaction
+ * @param {ContextData} context - The context command instance
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 export async function handleContext(
   interaction: ContextMenuCommandInteraction,
@@ -75,8 +76,9 @@ export async function handleContext(
 
 /**
  * Apply cooldown for a user on a context command
- * @param memberId - The member ID
- * @param context - The context command instance
+ * @param {string} memberId - The member ID
+ * @param {ContextData} context - The context command instance
+ * @returns {void} Nothing.
  */
 function applyCooldown(memberId: string, context: ContextData): void {
   const key = context.name + '|' + memberId
@@ -85,9 +87,9 @@ function applyCooldown(memberId: string, context: ContextData): void {
 
 /**
  * Get remaining cooldown time for a user on a context command
- * @param memberId - The member ID
- * @param context - The context command instance
- * @returns The remaining cooldown time in seconds
+ * @param {string} memberId - The member ID
+ * @param {ContextData} context - The context command instance
+ * @returns {number} The remaining cooldown time in seconds
  */
 function getRemainingCooldown(memberId: string, context: ContextData): number {
   const key = context.name + '|' + memberId

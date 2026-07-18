@@ -10,11 +10,12 @@ import {
 
 /**
  * Show custom amount modal
- * @param interaction
- * @param purgeType
- * @param additionalData
- * @param additionalData.token
- * @param additionalData.userId
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {PurgeType} purgeType - The purge type
+ * @param {Object} additionalData - The additional data
+ * @param {Object} additionalData.token - The additional data.token
+ * @param {string} additionalData.userId - The additional data.user id
+ * @returns {void} Nothing.
  */
 export async function showAmountModal(
   interaction: StringSelectMenuInteraction,
@@ -49,7 +50,8 @@ export async function showAmountModal(
 
 /**
  * Handle amount modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAmountModal(
   interaction: ModalSubmitInteraction,

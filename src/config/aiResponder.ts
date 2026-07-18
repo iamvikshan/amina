@@ -72,6 +72,7 @@ class ConfigCache {
   /**
    * Force immediate refresh of config from database.
    * Bypasses TTL and fetches fresh data.
+   * @returns {void} Nothing.
    */
   async forceRefresh(): Promise<void> {
     this.cache = null

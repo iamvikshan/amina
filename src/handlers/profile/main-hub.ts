@@ -13,7 +13,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show the main profile hub menu
- * @param interaction
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showProfileHub(
   interaction:
@@ -68,7 +69,8 @@ export async function showProfileHub(
 
 /**
  * Handle profile operation selection from main hub
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProfileOperationMenu(
   interaction: StringSelectMenuInteraction,
@@ -97,7 +99,8 @@ export async function handleProfileOperationMenu(
 
 /**
  * Handle back button to return to main profile hub
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProfileBackButton(
   interaction: ButtonInteraction,

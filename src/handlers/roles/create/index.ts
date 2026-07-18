@@ -10,7 +10,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show the create role menu
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showCreateRoleMenu(
   interaction: ButtonInteraction,
@@ -56,8 +57,9 @@ export async function showCreateRoleMenu(
 
 /**
  * Show the basic create role modal (name and color)
- * @param interaction
- * @param advanced
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @param {boolean} advanced - The advanced
+ * @returns {void} Nothing.
  */
 export async function showCreateRoleModal(
   interaction: ButtonInteraction,
@@ -117,7 +119,8 @@ export async function showCreateRoleModal(
 
 /**
  * Handle create role modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCreateRoleModal(
   interaction: ModalSubmitInteraction,
@@ -214,10 +217,11 @@ export async function handleCreateRoleModal(
 
 /**
  * Show permission selection menu for advanced role creation
- * @param interaction
- * @param name
- * @param color
- * @param reason
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @param {string} name - The name
+ * @param {number | undefined} color - The color
+ * @param {string} reason - The reason
+ * @returns {void} Nothing.
  */
 async function showPermissionSelector(
   interaction: ModalSubmitInteraction,
@@ -289,7 +293,8 @@ async function showPermissionSelector(
 
 /**
  * Handle permission selection and create role
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePermissionSelect(
   interaction: StringSelectMenuInteraction,

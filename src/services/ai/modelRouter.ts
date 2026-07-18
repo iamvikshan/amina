@@ -39,7 +39,8 @@ export class ModelRouter {
 
   /**
    * Get the model ID for a given task type
-   * @param taskType
+   * @param {TaskType} taskType - The task type
+   * @returns {ModelConfig} The result.
    */
   getModel(taskType: TaskType): ModelConfig {
     switch (taskType) {
@@ -60,6 +61,7 @@ export class ModelRouter {
 
   /**
    * Get a summary of current model routing for display
+   * @returns {Record<TaskType, string>} The result.
    */
   getRoutingSummary(): Record<TaskType, string> {
     return {

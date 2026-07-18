@@ -5,7 +5,8 @@ import { updatePresence } from './update'
  * Initialize and handle bot presence updates
  * Updates both presence and bot statistics every 10 minutes
  * Migrated from handlers/presence.ts
- * @param client - The bot client instance
+ * @param {BotClient} client - The bot client instance
+ * @returns {void} Nothing.
  */
 export default async function handlePresence(client: BotClient): Promise<void> {
   await updatePresence(client)

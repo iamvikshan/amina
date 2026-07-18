@@ -48,7 +48,8 @@ const INJECTION_PATTERNS: Array<{ name: string; pattern: RegExp }> = [
 /**
  * Check a message for prompt injection patterns.
  * Normalizes text with NFKC to prevent Unicode evasion (e.g., ⓘgnore → ignore).
- * @param text
+ * @param {string} text - The text content
+ * @returns {InjectionCheckResult} The result.
  */
 export function checkInjection(text: string): InjectionCheckResult {
   // Normalize Unicode to prevent evasion via lookalike characters

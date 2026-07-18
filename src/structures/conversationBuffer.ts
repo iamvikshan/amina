@@ -82,7 +82,8 @@ export class ConversationBuffer {
    * Ensure tool call/response pairs are complete after slicing history.
    * Strips orphaned tool messages and removes tool_calls from assistant
    * messages whose matching tool responses were sliced off.
-   * @param messages
+   * @param {Message[} messages - The messages
+   * @returns {Message[]} The result array.
    */
   static sanitizeToolPairs(messages: Message[]): Message[] {
     if (messages.length === 0) return messages
@@ -305,7 +306,8 @@ export class ConversationBuffer {
   /**
    * Load conversation from DB and restore to cache.
    * Isolated method to serve as the deduplicated loading target.
-   * @param conversationId
+   * @param {string} conversationId - The conversation id
+   * @returns {Promise<Message[]>} A promise that resolves when done.
    */
   private async loadFromDb(conversationId: string): Promise<Message[]> {
     try {
@@ -340,7 +342,8 @@ export class ConversationBuffer {
   /**
    * Validate and normalize raw DB documents into the expected Message shape.
    * Filters out any documents that cannot be meaningfully converted.
-   * @param dbMessages
+   * @param {any[} dbMessages - The db messages
+   * @returns {Message[]} The result array.
    */
   private validateDbMessages(dbMessages: any[]): Message[] {
     const validated: Message[] = []
@@ -410,8 +413,9 @@ export class ConversationBuffer {
    * Debounced persistence to MongoDB.
    * Waits PERSIST_DEBOUNCE_MS before writing to avoid rapid writes
    * during ReAct loops.
-   * @param conversationId
-   * @param _messages
+   * @param {string} conversationId - The conversation id
+   * @param {Message[} _messages - The _messages
+   * @returns {void} Nothing.
    */
   private persistToDb(
     conversationId: string,
@@ -472,7 +476,8 @@ export class ConversationBuffer {
 
   /**
    * Clear a conversation from both cache and database.
-   * @param conversationId
+   * @param {string} conversationId - The conversation id
+   * @returns {void} Nothing.
    */
   clear(conversationId: string) {
     this.cache.delete(conversationId)

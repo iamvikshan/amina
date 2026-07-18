@@ -189,8 +189,9 @@ function buildButtonRow(page: number, showHub: boolean): MinaRow {
 
 /**
  * Show Logging Configuration menu (from admin hub menu interaction)
- * @param interaction
- * @param page
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {number} page - The page number
+ * @returns {void} Nothing.
  */
 export async function showLoggingMenu(
   interaction: StringSelectMenuInteraction,
@@ -211,8 +212,9 @@ export async function showLoggingMenu(
 
 /**
  * Show Logging Configuration menu directly (from /logs command)
- * @param interaction
- * @param page
+ * @param {ChatInputCommandInteraction} interaction - The interaction object
+ * @param {number} page - The page number
+ * @returns {void} Nothing.
  */
 export async function showLoggingMenuDirect(
   interaction: ChatInputCommandInteraction,
@@ -241,7 +243,8 @@ export async function showLoggingMenuDirect(
 
 /**
  * Handle page navigation buttons
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleLoggingPageButton(
   interaction: ButtonInteraction,
@@ -271,7 +274,8 @@ export async function handleLoggingPageButton(
 
 /**
  * Handle Logging action selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleLoggingMenu(
   interaction: StringSelectMenuInteraction,
@@ -422,7 +426,8 @@ export async function handleLoggingMenu(
 
 /**
  * Handle back to logs button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleBackToLogs(
   interaction: ButtonInteraction,

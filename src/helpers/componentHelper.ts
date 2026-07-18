@@ -15,9 +15,10 @@ export { MinaButton, MinaRow, MinaSelect } from '@structures/components'
 /**
  * Await a component interaction with timeout handling
  * Automatically disables components on timeout
- * @param message
- * @param filter
- * @param timeoutMs
+ * @param {Message} message - The message object
+ * @param {Object} filter - The filter
+ * @param {Array} timeoutMs - The timeout ms
+ * @returns {void} Nothing.
  */
 export async function awaitComponentWithTimeout(
   message: Message,
@@ -39,7 +40,8 @@ export async function awaitComponentWithTimeout(
 /**
  * Disable all components in a message
  * Useful for timeout or after action completion
- * @param message
+ * @param {Message} message - The message object
+ * @returns {void} Nothing.
  */
 export async function disableComponents(message: Message): Promise<void> {
   try {
@@ -75,7 +77,8 @@ export async function disableComponents(message: Message): Promise<void> {
 /**
  * Parse custom_id state from pipe-delimited format
  * Example: "roles:menu:cleanup|page:2|filter:prefix" -> { page: "2", filter: "prefix" }
- * @param customId
+ * @param {string} customId - The custom ID
+ * @returns {void} Nothing.
  */
 export function parseCustomIdState(customId: string): {
   base: string

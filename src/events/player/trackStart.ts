@@ -10,6 +10,7 @@ import type { Player, Track } from 'lavalink-client'
  * @param {BotClient} client - The bot client instance
  * @param {Player} player - The player instance
  * @param {Track} track - The track that started
+ * @returns {void} Nothing.
  */
 export default async (
   client: BotClient,

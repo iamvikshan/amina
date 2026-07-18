@@ -8,7 +8,8 @@ const { getEffectiveInvites, checkInviteRewards } = inviteHandler
 /**
  * Handle adding invites to a user (admin)
  * Requires ManageGuild permission
- * @param interaction
+ * @param {ChatInputCommandInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAddInvites(
   interaction: ChatInputCommandInteraction,

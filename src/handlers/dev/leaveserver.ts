@@ -13,7 +13,8 @@ import { MinaRows } from '@helpers/componentHelper'
 
 /**
  * Show leave server modal
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showLeaveServerModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -42,7 +43,8 @@ export async function showLeaveServerModal(
 
 /**
  * Handle leave server modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleLeaveServerModal(
   interaction: ModalSubmitInteraction,

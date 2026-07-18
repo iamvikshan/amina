@@ -6,8 +6,9 @@ import { mina } from '@helpers/mina'
 
 /**
  * Show list of servers with pagination
- * @param interaction
- * @param page
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @param {number} page - The page number
+ * @returns {void} Nothing.
  */
 export async function showListservers(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -80,7 +81,8 @@ export async function showListservers(
 
 /**
  * Handle pagination button click
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleListserversPage(
   interaction: ButtonInteraction,

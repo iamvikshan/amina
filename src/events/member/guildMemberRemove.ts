@@ -7,6 +7,7 @@ import type { GuildMember, PartialGuildMember } from 'discord.js'
  * Handles guild member remove event
  * @param {BotClient} client - The bot client instance
  * @param {GuildMember | PartialGuildMember} member - The member who left
+ * @returns {void} Nothing.
  */
 export default async (
   client: BotClient,

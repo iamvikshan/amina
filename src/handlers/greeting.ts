@@ -31,9 +31,10 @@ interface GreetingConfig {
 
 /**
  * Parse greeting message with placeholders
- * @param content
- * @param member
- * @param inviterData
+ * @param {string} content - The content
+ * @param {GuildMember} member - The guild member
+ * @param {InviterData} inviterData - The inviter data
+ * @returns {void} Nothing.
  */
 const parse = async (
   content: string,
@@ -93,17 +94,20 @@ const parse = async (
 
 /**
  * Build greeting message with content and embed
- * @param member
- * @param type
- * @param config
- * @param inviterData
+ * @param {GuildMember} member - The guild member
+ * @param {string} type - The type
+ * @param {GreetingConfig} config - The configuration object
+ * @param {InviterData} inviterData - The inviter data
+ * @returns {Promise<} A promise that resolves when done.
  */
 const buildGreeting = async (
   member: GuildMember,
   type: 'WELCOME' | 'FAREWELL',
   config: GreetingConfig,
   inviterData?: InviterData,
-): Promise<{ content?: string | undefined; embeds?: EmbedBuilder[] } | undefined> => {
+): Promise<
+  { content?: string | undefined; embeds?: EmbedBuilder[] } | undefined
+> => {
   if (!config) return
   let content: string | undefined
 
@@ -147,8 +151,9 @@ const buildGreeting = async (
 
 /**
  * Send welcome message
- * @param member
- * @param inviterData
+ * @param {GuildMember} member - The guild member
+ * @param {InviterData} inviterData - The inviter data
+ * @returns {void} Nothing.
  */
 async function sendWelcome(
   member: GuildMember,
@@ -170,8 +175,9 @@ async function sendWelcome(
 
 /**
  * Send farewell message
- * @param member
- * @param inviterData
+ * @param {GuildMember} member - The guild member
+ * @param {InviterData} inviterData - The inviter data
+ * @returns {void} Nothing.
  */
 async function sendFarewell(
   member: GuildMember,

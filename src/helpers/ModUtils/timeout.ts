@@ -4,10 +4,11 @@ import { memberInteract, logModeration } from './core'
 
 /**
  * Timeouts (aka mutes) the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param ms
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {number} ms - The ms
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function timeoutTarget(
   issuer: GuildMember,
@@ -33,9 +34,10 @@ export async function timeoutTarget(
 
 /**
  * UnTimeouts (aka unmutes) the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function unTimeoutTarget(
   issuer: GuildMember,

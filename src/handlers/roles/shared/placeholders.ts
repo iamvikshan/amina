@@ -4,8 +4,9 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show a "Coming Soon" message for unimplemented features
- * @param interaction
- * @param featureName
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {string} featureName - The feature name
+ * @returns {void} Nothing.
  */
 export async function showComingSoonMessage(
   interaction: StringSelectMenuInteraction,

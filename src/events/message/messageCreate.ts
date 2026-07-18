@@ -78,8 +78,8 @@ function getVerbConjugation(subject: string): string {
 /**
  * Generates a pronoun-aware AFK message
  * @param {object} params Parameters for generating message
- * @param params.pronouns
- * @param params.minutes
+ * @param {Array} params.pronouns - The params.pronouns
+ * @param {Array} params.minutes - The params.minutes
  * @returns {string} Formatted AFK message
  */
 function generateAfkMessage(params: {
@@ -128,6 +128,7 @@ function generateAfkMessage(params: {
  * Handles message creation events
  * @param {BotClient} client - The bot client instance
  * @param {Message} message - The message that was created
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient, message: Message): Promise<void> => {
   if (message.author.bot) return

@@ -14,12 +14,13 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show amount selection menu
- * @param interaction
- * @param purgeType
- * @param additionalData
- * @param additionalData.token
- * @param additionalData.userId
- * @param isDefault
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {PurgeType} purgeType - The purge type
+ * @param {Object} additionalData - The additional data
+ * @param {Object} additionalData.token - The additional data.token
+ * @param {string} additionalData.userId - The additional data.user id
+ * @param {boolean} isDefault - The is default
+ * @returns {void} Nothing.
  */
 export async function showAmountSelect(
   interaction:
@@ -108,7 +109,8 @@ export async function showAmountSelect(
 
 /**
  * Handle amount selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAmountSelect(
   interaction: StringSelectMenuInteraction,

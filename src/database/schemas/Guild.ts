@@ -154,7 +154,8 @@ export const Model = mongoose.model('guild', Schema)
 
 /**
  * Delete guild from cache
- * @param guildId - The guild ID to remove from cache
+ * @param {string} guildId - The guild ID to remove from cache
+ * @returns {void} Nothing.
  */
 export function deleteGuildFromCache(guildId: string): void {
   cache.delete(guildId)

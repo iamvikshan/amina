@@ -4,7 +4,7 @@ import { mina } from '@helpers/mina'
 
 class MongooseGiveaways extends GiveawaysManager {
   /**
-   * @param {BotClient} client
+   * @param {any} client - The bot client instance
    */
   constructor(client: any) {
     super(

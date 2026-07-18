@@ -9,7 +9,8 @@ import {
 
 /**
  * Show token/keyword input modal
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showTokenModal(
   interaction: StringSelectMenuInteraction,
@@ -36,7 +37,8 @@ export async function showTokenModal(
 
 /**
  * Handle token modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleTokenModal(
   interaction: ModalSubmitInteraction,

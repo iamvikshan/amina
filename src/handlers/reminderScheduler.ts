@@ -5,7 +5,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 /**
  * Check for pending guild setup reminders
  * This replaces the memory-leaking setTimeout approach
- * @param client - The bot client instance
+ * @param {BotClient} client - The bot client instance
+ * @returns {void} Nothing.
  */
 export async function checkGuildReminders(client: BotClient): Promise<void> {
   // Look for guilds that joined ~24 hours ago (between 23.5 and 24.5 hours ago)

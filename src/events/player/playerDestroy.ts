@@ -5,6 +5,7 @@ import type { Player } from 'lavalink-client'
  * Handles player destroy events
  * @param {BotClient} client - The bot client instance
  * @param {Player} player - The player that was destroyed
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient, player: Player): Promise<void> => {
   const guild = client.guilds.cache.get(player.guildId)

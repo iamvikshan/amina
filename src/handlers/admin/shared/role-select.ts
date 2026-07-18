@@ -7,7 +7,8 @@ import {
 
 /**
  * Handle role selection for staff roles
- * @param interaction
+ * @param {RoleSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRoleSelect(
   interaction: RoleSelectMenuInteraction,

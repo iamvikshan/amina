@@ -22,7 +22,8 @@ const CLOSE_PERMS = ['ManageChannels', 'ReadMessageHistory'] as const
 
 /**
  * Check if channel is a ticket channel
- * @param channel
+ * @param {Channel} channel - The channel object
+ * @returns {boolean} Whether the operation succeeded.
  */
 export function isTicketChannel(channel: Channel): boolean {
   return (
@@ -35,7 +36,8 @@ export function isTicketChannel(channel: Channel): boolean {
 
 /**
  * Get all ticket channels in a guild
- * @param guild
+ * @param {Guild} guild - The guild object
+ * @returns {Collection<string, any>} The result.
  */
 export function getTicketChannels(guild: Guild): Collection<string, any> {
   return guild.channels.cache.filter(ch => isTicketChannel(ch))
@@ -43,8 +45,9 @@ export function getTicketChannels(guild: Guild): Collection<string, any> {
 
 /**
  * Get existing ticket channel for a user
- * @param guild
- * @param userId
+ * @param {Guild} guild - The guild object
+ * @param {string} userId - The user ID
+ * @returns {any} The result.
  */
 export function getExistingTicketChannel(guild: Guild, userId: string): any {
   const tktChannels = getTicketChannels(guild)
@@ -53,7 +56,8 @@ export function getExistingTicketChannel(guild: Guild, userId: string): any {
 
 /**
  * Parse ticket details from channel topic
- * @param channel
+ * @param {BaseGuildTextChannel} channel - The channel object
+ * @returns {Promise<} A promise that resolves when done.
  */
 export async function parseTicketDetails(
   channel: BaseGuildTextChannel,
@@ -71,9 +75,10 @@ export async function parseTicketDetails(
 
 /**
  * Close a ticket channel
- * @param channel
- * @param closedBy
- * @param reason
+ * @param {BaseGuildTextChannel} channel - The channel object
+ * @param {User} closedBy - The closed by
+ * @param {string} reason - The reason
+ * @returns {Promise<string>} A promise that resolves when done.
  */
 export async function closeTicket(
   channel: BaseGuildTextChannel,
@@ -296,8 +301,9 @@ export async function closeTicket(
 
 /**
  * Close all open tickets in a guild
- * @param guild
- * @param author
+ * @param {Guild} guild - The guild object
+ * @param {User} author - The author
+ * @returns {Promise<[number, number]>} A promise that resolves when done.
  */
 export async function closeAllTickets(
   guild: Guild,
