@@ -307,10 +307,7 @@ export default async (
           interaction,
           purgeType,
           amount,
-          {
-            ...(token !== undefined && { token }),
-            ...(userId !== undefined && { userId }),
-          },
+          { token: token ?? undefined, userId: userId ?? undefined },
           false,
         ) // isManualSelection = false (default flow)
         return

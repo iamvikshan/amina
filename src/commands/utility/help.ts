@@ -176,10 +176,13 @@ const waiter = (msg: Message, member: GuildMember) => {
             next: 'nextBtn',
           })
           // Use response.editReply instead of msg.edit
-          await response.editReply({
-            embeds: [arrEmbeds[currentPage]],
-            components: [menuRow, buttonsRow],
-          })
+          const initialEmbed = arrEmbeds[currentPage]
+          if (initialEmbed) {
+            await response.editReply({
+              embeds: [initialEmbed],
+              components: [menuRow, buttonsRow],
+            })
+          }
           break
         }
 
@@ -192,10 +195,13 @@ const waiter = (msg: Message, member: GuildMember) => {
               next: 'nextBtn',
             })
             // Use response.editReply instead of msg.edit
-            await response.editReply({
-              embeds: [arrEmbeds[currentPage]],
-              components: [menuRow, buttonsRow],
-            })
+            const prevEmbed = arrEmbeds[currentPage]
+            if (prevEmbed) {
+              await response.editReply({
+                embeds: [prevEmbed],
+                components: [menuRow, buttonsRow],
+              })
+            }
           }
           break
 
@@ -208,10 +214,13 @@ const waiter = (msg: Message, member: GuildMember) => {
               next: 'nextBtn',
             })
             // Use response.editReply instead of msg.edit
-            await response.editReply({
-              embeds: [arrEmbeds[currentPage]],
-              components: [menuRow, buttonsRow],
-            })
+            const nextEmbed = arrEmbeds[currentPage]
+            if (nextEmbed) {
+              await response.editReply({
+                embeds: [nextEmbed],
+                components: [menuRow, buttonsRow],
+              })
+            }
           }
           break
       }

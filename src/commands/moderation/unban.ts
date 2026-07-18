@@ -121,6 +121,7 @@ async function waitForBan(
 
   collector.on('collect', async response => {
     const userId = response.values[0]
+    if (!userId) return
     const user = await issuer.client.users.fetch(userId, { cache: true })
 
     const status = await unBanTarget(

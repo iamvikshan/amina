@@ -82,7 +82,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
     try {
       await client.joinLeaveWebhook.send({
         username: 'Amina (Left)',
-        avatarURL: client.user?.displayAvatarURL(),
+        avatarURL: client.user?.displayAvatarURL() ?? '',
         embeds: [webhookEmbed],
       })
     } catch (err: any) {

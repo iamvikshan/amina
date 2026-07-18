@@ -73,15 +73,28 @@ const config: Config = {
     DEFAULT_SOURCE: 'scsearch', // ytsearch = Youtube, ytmsearch = Youtube Music, scsearch = SoundCloud, spsearch = Spotify
     LAVALINK_RETRY_AMOUNT: 20,
     LAVALINK_RETRY_DELAY: 30000,
-    LAVALINK_NODES: secret.LAVALINK_NODES.map(node => ({
-      id: node.id,
-      host: node.host,
-      port: node.port || 2333,
-      authorization: node.authorization,
-      secure: node.secure || false,
-      retryAmount: 20,
-      retryDelay: 30000,
-    })).filter(node => node.id && node.host), // Only include nodes that are defined
+    LAVALINK_NODES: secret.LAVALINK_NODES.map(node => {
+      const mapped: {
+        id?: string
+        host?: string
+        port: number
+        authorization?: string
+        secure: boolean
+        retryAmount: number
+        retryDelay: number
+      } = {
+        id: node.id,
+        host: node.host,
+        port: node.port || 2333,
+        secure: node.secure || false,
+        retryAmount: 20,
+        retryDelay: 30000,
+      }
+      if (node.authorization) {
+        mapped.authorization = node.authorization
+      }
+      return mapped
+    }).filter(node => node.host), // Only include nodes that are defined
   },
 
   GIVEAWAYS: {

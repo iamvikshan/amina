@@ -122,7 +122,8 @@ function generatePronounForms(pronounString: string | null): PronounForms {
   }
 
   // Use the first pronoun (subject) to get the full set of forms
-  return pronounForms[subject] || pronounForms['they']
+  const defaultPronouns: PronounForms = { subject: 'they', object: 'them', possessive: 'their' }
+  return pronounForms[subject] || pronounForms['they'] || defaultPronouns
 }
 
 function generateReactionMessage(

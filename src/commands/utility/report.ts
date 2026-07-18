@@ -67,6 +67,7 @@ const command: CommandData = {
       try {
         if (i.customId === 'report_select' && i.isStringSelectMenu()) {
           const selected = i.values[0]
+          if (!selected) return
           await showReportModal(i, selected)
         }
       } catch (error) {

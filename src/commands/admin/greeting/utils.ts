@@ -26,7 +26,7 @@ export async function sendPreview(
   if (!response) {
     return `could not build the ${greetingKey} message. please check your settings.`
   }
-  await targetChannel.send(response)
+  await targetChannel.send(response as string)
 
   return `sent a preview of the ${greetingKey} message to ${targetChannel.toString()}!`
 }

@@ -75,11 +75,11 @@ async function getFact(
     }
   }
 
-  const fact = response.data?.fact
+  const fact = response.data?.fact ?? 'unknown'
   const imageUrl = response.data?.image
   const aminaIntros = responses.fun.facts.intros
   const randomIntro =
-    aminaIntros[Math.floor(Math.random() * aminaIntros.length)]
+    (aminaIntros[Math.floor(Math.random() * aminaIntros.length)]) as string
 
   const embed = MinaEmbed.primary()
     .setTitle(

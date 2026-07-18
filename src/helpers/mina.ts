@@ -165,7 +165,7 @@ function getFallbackQuotes(): Quote[] {
  * @param arr
  */
 function random<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  return arr[Math.floor(Math.random() * arr.length)] as T
 }
 
 /**
@@ -348,19 +348,23 @@ export const mina = {
   getColor: (name: string): ColorResolvable => {
     // Check embed colors first
     if (name in colors.embed) {
-      return (colors.embed as Record<string, ColorResolvable>)[name]
+      const val = (colors.embed as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Check palette
     if (name in colors.palette) {
-      return (colors.palette as Record<string, ColorResolvable>)[name]
+      const val = (colors.palette as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Check moderation
     if (name in colors.moderation) {
-      return (colors.moderation as Record<string, ColorResolvable>)[name]
+      const val = (colors.moderation as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Check features
     if (name in colors.features) {
-      return (colors.features as Record<string, ColorResolvable>)[name]
+      const val = (colors.features as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Default to primary
     return colors.embed.primary as ColorResolvable

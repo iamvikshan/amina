@@ -59,19 +59,19 @@ async function getUserLove(
   if (result <= 20) {
     loveStatus = loveData.titles.low
     customResponse =
-      loveData.low[Math.floor(Math.random() * loveData.low.length)]
+      loveData.low[Math.floor(Math.random() * loveData.low.length)] as string
   } else if (result <= 50) {
     loveStatus = loveData.titles.decent
     customResponse =
-      loveData.decent[Math.floor(Math.random() * loveData.decent.length)]
+      loveData.decent[Math.floor(Math.random() * loveData.decent.length)] as string
   } else if (result <= 80) {
     loveStatus = loveData.titles.good
     customResponse =
-      loveData.good[Math.floor(Math.random() * loveData.good.length)]
+      loveData.good[Math.floor(Math.random() * loveData.good.length)] as string
   } else {
     loveStatus = loveData.titles.perfect
     customResponse =
-      loveData.perfect[Math.floor(Math.random() * loveData.perfect.length)]
+      loveData.perfect[Math.floor(Math.random() * loveData.perfect.length)] as string
   }
 
   const loveImage =
