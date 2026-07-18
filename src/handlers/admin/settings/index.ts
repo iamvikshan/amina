@@ -8,7 +8,6 @@ import {
   ChannelType,
 } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
-import { handleAdminBackButton } from '../main-hub'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
@@ -78,6 +77,7 @@ export async function handleServerSettingsMenu(
 
   if (action === 'back') {
     await interaction.deferUpdate()
+    const { handleAdminBackButton } = await import('../main-hub')
     await handleAdminBackButton(interaction as any)
     return
   }

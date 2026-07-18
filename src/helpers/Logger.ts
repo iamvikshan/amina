@@ -1,8 +1,7 @@
 import { secret } from '@src/config'
-import { WebhookClient } from 'discord.js'
+import { EmbedBuilder, WebhookClient } from 'discord.js'
 import pino from 'pino'
 import Honeybadger from './Honeybadger'
-import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const webhookLogger = secret.LOGS_WEBHOOK
   ? new WebhookClient({
@@ -45,7 +44,9 @@ function sendWebhook(content?: string, err?: Error | any): void {
   if (!content && !err) return
   const errString = err?.stack || err
 
-  const embed = MinaEmbed.error().setAuthor({ name: err?.name || 'error' })
+  const embed = new EmbedBuilder()
+    .setColor(0xff0000)
+    .setAuthor({ name: err?.name || 'error' })
 
   if (errString)
     embed.setDescription(

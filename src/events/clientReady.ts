@@ -76,6 +76,9 @@ export default async (client: BotClient): Promise<void> => {
     client.giveawaysManager
       ._init()
       .then(() => client.logger.success('Giveaway Manager initialized'))
+      .catch((err: Error) =>
+        client.logger.error('Failed to initialize Giveaway Manager', err),
+      )
   }
 
   // Initialize Presence Handler

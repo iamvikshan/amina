@@ -12,7 +12,6 @@ import {
 } from '@helpers/componentHelper'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
-import { showEditReminder } from './edit'
 
 const REMINDERS_PER_PAGE = 5
 
@@ -245,7 +244,7 @@ export async function handleEditReminderMenu(
     return
   }
 
-  await showEditReminder(interaction, reminderId)
+  await (await import('./edit')).showEditReminder(interaction, reminderId)
 }
 
 // Helper functions

@@ -20,7 +20,6 @@ import {
 } from '@helpers/componentHelper'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
-import { showRemindersList } from './list'
 
 const MIN_DURATION_MS = 60000
 const MAX_DURATION_DAYS = 365
@@ -251,7 +250,7 @@ export async function handleEditMessageModal(
     // Refresh list after a short delay
     setTimeout(async () => {
       try {
-        await showRemindersList(interaction, 1)
+        await (await import('./list')).showRemindersList(interaction, 1)
       } catch (_error) {
         // User may have navigated away
       }
@@ -357,7 +356,7 @@ export async function handleEditTimeModal(
     // Refresh list after a short delay
     setTimeout(async () => {
       try {
-        await showRemindersList(interaction, 1)
+        await (await import('./list')).showRemindersList(interaction, 1)
       } catch (_error) {
         // User may have navigated away
       }

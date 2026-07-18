@@ -2,7 +2,6 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import Logger from '@helpers/Logger'
 
 let cachedPrompt: string | null = null
 
@@ -23,7 +22,7 @@ export function loadPrompt(): string {
     cachedPrompt = prompt
     return prompt
   } catch (err) {
-    Logger.warn(
+    console.warn(
       `Failed to load prompt.md, using fallback: ${err instanceof Error ? err.message : String(err)}`,
     )
     return FALLBACK_PROMPT
