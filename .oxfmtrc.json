@@ -29,6 +29,7 @@
     }
   ],
   "ignorePatterns": [
+    "api/",
     "node_modules/",
     "dist/",
     "*.lock",

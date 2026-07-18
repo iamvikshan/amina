@@ -18,6 +18,8 @@
     "es2022": true
   },
   "ignorePatterns": [
+    "api/**",
+    "types/api/**",
     "dist/**",
     "build/**",
     "logs/**",
