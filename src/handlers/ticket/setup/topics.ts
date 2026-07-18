@@ -69,7 +69,8 @@ export async function showTopicsMenu(
 
   // Disable remove if no topics
   if (topicCount === 0) {
-    menu.components[0].options[2].setDescription('no topics to remove')
+    const removeOption = menu.components[0]?.options[2]
+    if (removeOption) removeOption.setDescription('no topics to remove')
   }
 
   const backRow = MinaRows.backRow('ticket:btn:back_setup')

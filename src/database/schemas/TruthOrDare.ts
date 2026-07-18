@@ -45,8 +45,8 @@ export async function addQuestion(
   if (latestQuestion) {
     const latestQuestionId = latestQuestion.questionId
     const idParts = latestQuestionId.split(/(\d+)/)
-    const currentNumber = parseInt(idParts[1])
-    questionId = idParts[0] + (currentNumber + 1)
+    const currentNumber = parseInt(idParts[1] ?? '0')
+    questionId = (idParts[0] ?? '') + (currentNumber + 1)
   }
 
   const data = new model({

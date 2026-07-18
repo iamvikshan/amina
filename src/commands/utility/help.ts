@@ -164,7 +164,8 @@ const waiter = (msg: Message, member: GuildMember) => {
       switch (response.customId) {
         case 'help-menu': {
           const selectResponse = response as StringSelectMenuInteraction
-          const cat = selectResponse.values[0].toUpperCase()
+          const cat = selectResponse.values[0]?.toUpperCase()
+          if (!cat) break
           const client = msg.client as BotClient
           arrEmbeds = getSlashCategoryEmbeds(client, cat, member)
           currentPage = 0

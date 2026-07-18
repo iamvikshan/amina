@@ -88,6 +88,7 @@ function generateAfkMessage(params: {
 }): string {
   const { pronouns, minutes = 0 } = params
   const [subject, object] = pronouns.split('/')
+  if (!subject) return ''
 
   // Capitalize first letter of subject pronoun
   const Subject = subject.charAt(0).toUpperCase() + subject.slice(1)
@@ -119,6 +120,7 @@ function generateAfkMessage(params: {
   else category = 'veryLong'
 
   const intros = timeBasedIntros[category]
+  if (!intros) return ''
   return intros[Math.floor(Math.random() * intros.length)]
 }
 
@@ -135,6 +137,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
   if ((authorData as any).afk?.enabled) {
     const authorPronouns = await fetchPronouns(message.author.id)
     const [subject] = authorPronouns.split('/')
+    if (!subject) return
     const Subject = subject.charAt(0).toUpperCase() + subject.slice(1)
     const verb = getVerbConjugation(subject)
 
@@ -178,6 +181,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
 
       for (let i = 0; i < mentions.length; i++) {
         const mentionedUser = mentions[i]
+        if (!mentionedUser) continue
         const userData: any = usersData[i]
         const userPronouns = pronounsMap.get(mentionedUser.id) || 'they/them'
 

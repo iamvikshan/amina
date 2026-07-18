@@ -93,19 +93,18 @@ export async function showMemoriesView(
     // Group memories by type
     const byType: Record<string, typeof memories> = {}
     for (const memory of memories) {
-      if (!byType[memory.memoryType]) {
-        byType[memory.memoryType] = []
-      }
-      byType[memory.memoryType].push(memory)
+      const bucket = byType[memory.memoryType] ?? []
+      bucket.push(memory)
+      byType[memory.memoryType] = bucket
     }
 
     // Get sorted memory types
     const memoryTypes = Object.keys(byType).sort((a, b) => {
-      const aTotal = byType[a].reduce(
+      const aTotal = (byType[a] ?? []).reduce(
         (sum, m) => sum + m.importance + m.accessCount,
         0,
       )
-      const bTotal = byType[b].reduce(
+      const bTotal = (byType[b] ?? []).reduce(
         (sum, m) => sum + m.importance + m.accessCount,
         0,
       )
@@ -136,6 +135,7 @@ export async function showMemoriesView(
 
     for (const type of memoryTypes) {
       const mems = byType[type]
+      if (!mems) continue
       const previewMems = mems.slice(0, MEMORIES_PER_TYPE_PREVIEW)
 
       const lines = previewMems.map(m => {
@@ -348,13 +348,13 @@ export async function showCategoryDetailView(
     if (navRow) {
       // Update custom IDs
       if (hasPrev) {
-        navRow.components[0].setCustomId(
+        navRow.components[0]?.setCustomId(
           buildCustomId('category_page', currentPage - 1),
         )
       }
       if (hasNext) {
         const nextIndex = hasPrev ? 1 : 0
-        navRow.components[nextIndex].setCustomId(
+        navRow.components[nextIndex]?.setCustomId(
           buildCustomId('category_page', currentPage + 1),
         )
       }
@@ -475,10 +475,9 @@ export async function handleDmMe(
     if (!isCategoryView || !categoryType) {
       const byType: Record<string, typeof memories> = {}
       for (const memory of memories) {
-        if (!byType[memory.memoryType]) {
-          byType[memory.memoryType] = []
-        }
-        byType[memory.memoryType].push(memory)
+        const bucket = byType[memory.memoryType] ?? []
+        bucket.push(memory)
+        byType[memory.memoryType] = bucket
       }
 
       for (const [type, mems] of Object.entries(byType)) {

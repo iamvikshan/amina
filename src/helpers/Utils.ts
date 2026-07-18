@@ -159,7 +159,7 @@ export default class Utils {
       ? `${ms / 1000}s`
       : ['d', 'h', 'm', 's']
           .map((unit, i) => {
-            const value = [864e5, 36e5, 6e4, 1e3][i]
+            const value = [864e5, 36e5, 6e4, 1e3][i] ?? 1
             const amount = Math.floor(ms / value)
             ms %= value
             return amount ? `${amount}${unit}` : null

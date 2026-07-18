@@ -341,6 +341,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
 
     for (let i = 0; i < messages.length; i++) {
       const msg = messages[i]
+      if (!msg) continue
 
       if (msg.role === 'assistant' && msg.tool_calls?.length) {
         // Keep assistant text, strip tool_calls
@@ -352,8 +353,9 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
         // Gather consecutive tool-result messages
         const parts: string[] = []
         let j = i + 1
-        while (j < messages.length && messages[j].role === 'tool') {
+        while (j < messages.length) {
           const t = messages[j]
+          if (!t || t.role !== 'tool') break
           parts.push(`[${t.name ?? 'tool'}]: ${t.content}`)
           j++
         }

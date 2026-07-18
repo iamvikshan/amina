@@ -63,6 +63,7 @@ export async function handleReloadType(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const reloadType = interaction.values[0]
+  if (!reloadType) return
 
   await interaction.deferUpdate()
 

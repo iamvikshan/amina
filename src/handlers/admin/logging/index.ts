@@ -249,6 +249,7 @@ export async function handleLoggingPageButton(
   await interaction.deferUpdate()
 
   const [, , rawAction] = interaction.customId.split(':')
+  if (!rawAction) return
   // Extract base action by removing any context suffix (e.g., "|hub")
   const baseAction = rawAction.split('|')[0]
   const settings = await getSettings(interaction.guild)
@@ -276,6 +277,7 @@ export async function handleLoggingMenu(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const action = interaction.values[0]
+  if (!action) return
 
   await interaction.deferUpdate()
   const settings = await getSettings(interaction.guild)

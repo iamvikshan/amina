@@ -86,6 +86,7 @@ const command = {
 
       await interaction.deferReply()
       const colorData = colors[colorIndex]
+      if (!colorData) return
 
       try {
         // Delete Role

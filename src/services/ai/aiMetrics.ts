@@ -196,7 +196,8 @@ export class AiMetricsService {
         // Selectively re-buffer only failed operations
         let failedCount = 0
         for (let i = 0; i < results.length; i++) {
-          if (results[i].status === 'rejected') {
+          const result = results[i]
+          if (result?.status === 'rejected') {
             failedCount++
             const source = opSources[i]
             if (!source) continue

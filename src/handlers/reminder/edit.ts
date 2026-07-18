@@ -99,6 +99,7 @@ export async function handleEditActionMenu(
   await interaction.deferUpdate()
 
   const value = interaction.values[0]
+  if (!value) return
   const [action, reminderIdStr] = value.split('_').slice(-2)
   const reminderId = parseInt(reminderIdStr, 10)
 

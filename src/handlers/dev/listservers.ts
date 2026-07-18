@@ -49,6 +49,7 @@ export async function showListservers(
   const fields = []
   for (let i = start; i < end; i++) {
     const server = servers[i]
+    if (!server) continue
     fields.push({
       name: server.name,
       value: `ID: ${server.id}\nMembers: ${server.memberCount}`,

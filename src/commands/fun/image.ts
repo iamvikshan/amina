@@ -224,8 +224,8 @@ async function getAnimeImage(user: User, type: string) {
 }
 
 function getRandomResponse(type: string): string {
-  const responses = AMINA_RESPONSES[type] || AMINA_RESPONSES.default
-  return responses[Math.floor(Math.random() * responses.length)]
+  const responses = AMINA_RESPONSES[type] || AMINA_RESPONSES.default || []
+  return responses[Math.floor(Math.random() * responses.length)] ?? ''
 }
 
 export default command

@@ -298,6 +298,7 @@ export async function handlePermissionSelect(
   const roleData = JSON.parse(Buffer.from(roleDataB64, 'base64').toString())
   const { name, color, reason } = roleData
   const permissionSet = interaction.values[0]
+  if (!permissionSet) return
 
   await interaction.deferUpdate()
 

@@ -176,6 +176,7 @@ export async function handleDeleteReminderMenu(
   await interaction.deferUpdate()
 
   const value = interaction.values[0]
+  if (!value) return
   const reminderId = parseInt(value.replace('delete_', ''), 10)
 
   if (isNaN(reminderId)) {
@@ -231,6 +232,7 @@ export async function handleEditReminderMenu(
   await interaction.deferUpdate()
 
   const value = interaction.values[0]
+  if (!value) return
   const reminderId = parseInt(value.replace('edit_', ''), 10)
 
   if (isNaN(reminderId)) {
