@@ -78,10 +78,13 @@ export default class BotUtils {
     }
 
     if (!url && args.length !== 0) {
-      try {
-        url = new URL(args[0]).href
-      } catch (_ex) {
-        /* Ignore */
+      const firstArg = args[0]
+      if (firstArg) {
+        try {
+          url = new URL(firstArg).href
+        } catch (_ex) {
+          /* Ignore */
+        }
       }
     }
 
@@ -92,11 +95,14 @@ export default class BotUtils {
     }
 
     if (!url && message.guild) {
-      const member = await message.guild.members
-        .fetch(args[0])
-        .catch(() => null)
-      if (member) {
-        url = member.user.displayAvatarURL({ size: 256, extension: 'png' })
+      const firstArg = args[0]
+      if (firstArg) {
+        const member = await message.guild.members
+          .fetch(firstArg)
+          .catch(() => null)
+        if (member) {
+          url = member.user.displayAvatarURL({ size: 256, extension: 'png' })
+        }
       }
     }
 

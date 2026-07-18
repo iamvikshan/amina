@@ -303,13 +303,15 @@ export default class BotClient extends Client {
     const patternMatch = search.match(/(\d{17,20})/)
     if (patternMatch) {
       const id = patternMatch[1]
-      const fetched = await this.users
-        .fetch(id, { cache: true })
-        .catch(() => {})
-      if (fetched) {
-        users.push(fetched)
-        return users
+      if (id) {
+        const fetched = await this.users
+          .fetch(id, { cache: true })
+          .catch(() => {})
+        if (fetched) {
+          users.push(fetched)
+        }
       }
+      return users
     }
 
     const matchingTags = this.users.cache.filter(user => user.tag === search)

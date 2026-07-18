@@ -130,6 +130,7 @@ Guild.prototype.resolveMember = async function (
   const patternMatch = query.match(MEMBER_MENTION)
   if (patternMatch) {
     const id = patternMatch[1]
+    if (!id) return
     const fetched = await this.members.fetch({ user: id }).catch(() => {})
     if (fetched) return fetched
   }

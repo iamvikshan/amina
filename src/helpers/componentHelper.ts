@@ -81,7 +81,7 @@ export function parseCustomIdState(customId: string): {
   base: string
   state: Record<string, string>
 } {
-  const [base, ...stateParts] = customId.split('|')
+  const [base = '', ...stateParts] = customId.split('|')
   const state: Record<string, string> = {}
 
   for (const part of stateParts) {
