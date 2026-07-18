@@ -2,7 +2,7 @@ import { StringSelectMenuInteraction, ButtonInteraction } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { closeAllTickets } from '@handlers/ticket/shared/utils'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /**
  * Show confirmation for close all operation

@@ -1,6 +1,6 @@
 import CommandCategory from '@src/structures/CommandCategory'
 import config from '@src/config'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import {
   ActionRowBuilder,
   StringSelectMenuBuilder,

@@ -7,7 +7,7 @@ import {
 } from 'discord.js'
 import { getUser } from '@schemas/User'
 import { MinaRows } from '@helpers/componentHelper'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**

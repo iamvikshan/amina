@@ -1,6 +1,6 @@
 import { getUser } from '@schemas/User'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import axios from 'axios'
 import {
   ApplicationCommandOptionType,

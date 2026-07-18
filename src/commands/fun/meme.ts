@@ -3,7 +3,7 @@ import HttpUtils from '@helpers/HttpUtils'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 interface MemeApiResponse {
   title: string

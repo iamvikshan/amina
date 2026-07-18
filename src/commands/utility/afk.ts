@@ -5,7 +5,7 @@ import {
   TextChannel,
 } from 'discord.js'
 import { getUser, setAfk, removeAfk } from '@schemas/User'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {

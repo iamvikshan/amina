@@ -6,7 +6,7 @@ import {
   StringSelectMenuBuilder,
   MessageComponentInteraction,
 } from 'discord.js'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 // Re-export component classes for backward compatibility
 // New code should import directly from '@structures/components'

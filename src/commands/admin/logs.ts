@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import { showLoggingMenuDirect } from '@handlers/admin/logging'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 const command: CommandData = {
   name: 'logs',

@@ -4,7 +4,7 @@ import { getSettings } from '@src/database/schemas/Guild'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 export default async function statusSettings(
   interaction: ChatInputCommandInteraction,

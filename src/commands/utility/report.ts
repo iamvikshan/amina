@@ -8,7 +8,7 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js'
 import { FEEDBACK } from '@src/config'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {

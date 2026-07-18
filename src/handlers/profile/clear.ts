@@ -6,7 +6,7 @@ import {
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { clearProfile } from '@schemas/User'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /**
  * Legacy handler for old String Select Menu clear confirmation

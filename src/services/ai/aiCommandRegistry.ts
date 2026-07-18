@@ -3,7 +3,7 @@ import {
   type PermissionResolvable,
 } from 'discord.js'
 import type { BotClient } from '@src/structures'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import aiPermissions from '@src/data/aiPermissions.json'
 
 // Permission model types

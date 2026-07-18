@@ -7,7 +7,7 @@ import { MESSAGES } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
 import axios from 'axios'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 const BASE_URL = 'https://some-random-api.com/animal'
 

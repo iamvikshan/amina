@@ -15,7 +15,7 @@ import {
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**

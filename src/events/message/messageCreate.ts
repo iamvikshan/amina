@@ -5,7 +5,7 @@ import type { Message } from 'discord.js'
 import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/ai/aiResponder'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /**
  * Fetches pronouns for multiple users from PronounsDB API v2 (batched)

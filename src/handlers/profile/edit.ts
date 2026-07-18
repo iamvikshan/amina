@@ -12,7 +12,7 @@ import { createBasicModal, createMiscModal } from '@commands/utility/profile'
 import { updateProfile, getUser } from '@schemas/User'
 import { validateBirthdate, calculateAge } from './shared/utils'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /**
  * Show edit profile menu
