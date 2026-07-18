@@ -19,7 +19,7 @@ export async function kickTarget(
 
   try {
     await target.kick(reason)
-    logModeration(issuer, target, reason, 'Kick')
+    logModeration(issuer, target, reason, 'Kick').catch(() => {})
     return true
   } catch (ex) {
     error('kickTarget', ex)
@@ -45,7 +45,7 @@ export async function softbanTarget(
   try {
     await target.ban({ deleteMessageDays: 7, reason })
     await issuer.guild.members.unban(target.user)
-    logModeration(issuer, target, reason, 'Softban')
+    logModeration(issuer, target, reason, 'Softban').catch(() => {})
     return true
   } catch (ex) {
     error('softbanTarget', ex)
@@ -75,7 +75,7 @@ export async function banTarget(
 
   try {
     await issuer.guild.bans.create(target.id, { deleteMessageDays: 0, reason })
-    logModeration(issuer, target, reason, 'Ban')
+    logModeration(issuer, target, reason, 'Ban').catch(() => {})
     return true
   } catch (ex) {
     error(`banTarget`, ex)
@@ -96,7 +96,7 @@ export async function unBanTarget(
 ): Promise<string | boolean> {
   try {
     await issuer.guild.bans.remove(target, reason)
-    logModeration(issuer, target, reason, 'UnBan')
+    logModeration(issuer, target, reason, 'UnBan').catch(() => {})
     return true
   } catch (ex) {
     error(`unBanTarget`, ex)

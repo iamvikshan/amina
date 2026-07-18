@@ -82,13 +82,13 @@ const checkInviteRewards = async (
     ;(settings as any).invite.ranks.forEach((reward: any) => {
       if (isAdded) {
         if (invites >= reward.invites && !inviter.roles.cache.has(reward._id)) {
-          inviter.roles.add(reward._id)
+          inviter.roles.add(reward._id).catch(() => {})
         }
       } else if (
         invites < reward.invites &&
         inviter.roles.cache.has(reward._id)
       ) {
-        inviter.roles.remove(reward._id)
+        inviter.roles.remove(reward._id).catch(() => {})
       }
     })
   }
@@ -154,7 +154,7 @@ async function trackJoinedMember(member: GuildMember): Promise<any> {
     inviterData = inviterDb
   }
 
-  checkInviteRewards(guild, inviterData, true)
+  checkInviteRewards(guild, inviterData, true).catch(() => {})
   return inviterData
 }
 
@@ -180,7 +180,7 @@ async function trackLeftMember(guild: Guild, user: User): Promise<any> {
     inviterData = inviterDb
   }
 
-  checkInviteRewards(guild, inviterData, false)
+  checkInviteRewards(guild, inviterData, false).catch(() => {})
   return inviterData
 }
 

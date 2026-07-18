@@ -22,7 +22,7 @@ export async function vMuteTarget(
 
   try {
     await target.voice.setMute(true, reason)
-    logModeration(issuer, target, reason, 'Vmute')
+    logModeration(issuer, target, reason, 'Vmute').catch(() => {})
     return true
   } catch (ex) {
     error(`vMuteTarget`, ex)
@@ -50,7 +50,7 @@ export async function vUnmuteTarget(
 
   try {
     await target.voice.setMute(false, reason)
-    logModeration(issuer, target, reason, 'Vunmute')
+    logModeration(issuer, target, reason, 'Vunmute').catch(() => {})
     return true
   } catch (ex) {
     error(`vUnmuteTarget`, ex)
@@ -78,7 +78,7 @@ export async function deafenTarget(
 
   try {
     await target.voice.setDeaf(true, reason)
-    logModeration(issuer, target, reason, 'Deafen')
+    logModeration(issuer, target, reason, 'Deafen').catch(() => {})
     return true
   } catch (ex) {
     error(`deafenTarget`, ex)
@@ -106,7 +106,7 @@ export async function unDeafenTarget(
 
   try {
     await target.voice.setDeaf(false, reason)
-    logModeration(issuer, target, reason, 'unDeafen')
+    logModeration(issuer, target, reason, 'unDeafen').catch(() => {})
     return true
   } catch (ex) {
     error(`unDeafenTarget`, ex)
@@ -133,7 +133,7 @@ export async function disconnectTarget(
 
   try {
     await target.voice.disconnect(reason)
-    logModeration(issuer, target, reason, 'Disconnect')
+    logModeration(issuer, target, reason, 'Disconnect').catch(() => {})
     return true
   } catch (ex) {
     error(`disconnectTarget`, ex)
@@ -166,7 +166,7 @@ export async function moveTarget(
 
   try {
     await target.voice.setChannel(channel, reason)
-    logModeration(issuer, target, reason, 'Move', { channel })
+    logModeration(issuer, target, reason, 'Move', { channel }).catch(() => {})
     return true
   } catch (ex) {
     error(`moveTarget`, ex)

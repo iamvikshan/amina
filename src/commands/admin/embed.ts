@@ -38,11 +38,15 @@ const command: CommandData = {
   async interactionRun(interaction: ChatInputCommandInteraction) {
     const channel = interaction.options.getChannel('channel', true)
     if (!(channel as any).canSendEmbeds()) {
-      return interaction.followUp(mina.say('embed.setup.cannotSend'))
+      return interaction
+        .followUp(mina.say('embed.setup.cannotSend'))
+        .catch(() => {})
     }
-    interaction.followUp(
-      mina.sayf('embed.setup.started', { channel: channel.toString() }),
-    )
+    interaction
+      .followUp(
+        mina.sayf('embed.setup.started', { channel: channel.toString() }),
+      )
+      .catch(() => {})
     await embedSetup(
       channel as TextBasedChannel,
       interaction.member as GuildMember,
@@ -280,15 +284,19 @@ async function embedSetup(
       if (fields) {
         fields.pop()
         embed.setFields(fields)
-        interaction.reply({
-          content: mina.say('embed.setup.fieldRemoved'),
-          ephemeral: true,
-        })
+        interaction
+          .reply({
+            content: mina.say('embed.setup.fieldRemoved'),
+            ephemeral: true,
+          })
+          .catch(() => {})
       } else {
-        interaction.reply({
-          content: mina.say('embed.setup.noFields'),
-          ephemeral: true,
-        })
+        interaction
+          .reply({
+            content: mina.say('embed.setup.noFields'),
+            ephemeral: true,
+          })
+          .catch(() => {})
       }
     }
 

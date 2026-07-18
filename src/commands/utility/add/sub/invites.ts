@@ -64,7 +64,7 @@ export async function handleAddInvites(
         `${user.username} now has ${getEffectiveInvites(memberDb.invite_data)} invites`,
       )
 
-    checkInviteRewards(interaction.guild, memberDb, true)
+    checkInviteRewards(interaction.guild, memberDb, true).catch(() => {})
     await interaction.editReply({ embeds: [embed] })
   } catch (err: any) {
     await interaction.editReply(`failed to add invites: ${err.message}`)

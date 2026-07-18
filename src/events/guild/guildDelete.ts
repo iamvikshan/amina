@@ -33,7 +33,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   }
 
   // Notify dashboard to refresh guild data (fire-and-forget)
-  notifyDashboard(client, guild.id, 'leave')
+  notifyDashboard(client, guild.id, 'leave').catch(() => {})
 
   let ownerTag = 'Deleted User'
   const ownerId = guild.ownerId || settings.server.owner

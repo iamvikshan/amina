@@ -20,7 +20,7 @@ export async function warnTarget(
     return 'BOT_PERM'
 
   try {
-    logModeration(issuer, target, reason, 'Warn')
+    logModeration(issuer, target, reason, 'Warn').catch(() => {})
     const memberDb: any = await getMember(issuer.guild.id, target.id)
     memberDb.warnings += 1
     const settings = await getSettings(issuer.guild)

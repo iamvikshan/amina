@@ -251,7 +251,7 @@ export default async function statusSettings(
 
   collector.on('end', () => {
     try {
-      reply.edit({ components: [] })
+      reply.edit({ components: [] }).catch(() => {})
     } catch (error) {
       Logger.error('Failed to remove components after collector end', error)
     }

@@ -87,7 +87,7 @@ export class Logger {
       pinoLogger.error(ex, `${content}: ${ex?.message}`)
 
       // Report to Honeybadger
-      Honeybadger.notify(ex, {
+      void Honeybadger.notify(ex, {
         context: {
           errorLocation: content,
         },
@@ -96,7 +96,7 @@ export class Logger {
       pinoLogger.error(content)
 
       // Report string errors to Honeybadger as well
-      Honeybadger.notify(new Error(content))
+      void Honeybadger.notify(new Error(content))
     }
     if (webhookLogger) sendWebhook(content, ex)
   }

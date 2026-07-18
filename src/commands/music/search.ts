@@ -42,7 +42,7 @@ const command: CommandData = {
 
     const response = await search({ member, guild, channel }, query)
     if (response) await interaction.followUp(response)
-    else interaction.deleteReply()
+    else interaction.deleteReply().catch(() => {})
   },
 }
 

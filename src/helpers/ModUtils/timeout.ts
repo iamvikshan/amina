@@ -23,7 +23,7 @@ export async function timeoutTarget(
 
   try {
     await target.timeout(ms, reason)
-    logModeration(issuer, target, reason, 'Timeout')
+    logModeration(issuer, target, reason, 'Timeout').catch(() => {})
     return true
   } catch (ex) {
     error('timeoutTarget', ex)
@@ -50,7 +50,7 @@ export async function unTimeoutTarget(
 
   try {
     await target.timeout(null, reason)
-    logModeration(issuer, target, reason, 'UnTimeout')
+    logModeration(issuer, target, reason, 'UnTimeout').catch(() => {})
     return true
   } catch (ex) {
     error('unTimeoutTarget', ex)

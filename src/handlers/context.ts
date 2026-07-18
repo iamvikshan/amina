@@ -54,11 +54,13 @@ export async function handleContext(
 
     await context.run(interaction)
   } catch (ex) {
-    interaction.followUp('Oops! An error occurred while running the command')
+    interaction
+      .followUp('Oops! An error occurred while running the command')
+      .catch(() => {})
     ;(interaction.client as any).logger.error('contextRun', ex)
 
     // Notify Honeybadger
-    Honeybadger.notify(ex, {
+    void Honeybadger.notify(ex, {
       context: {
         context_menu: context.name,
       },

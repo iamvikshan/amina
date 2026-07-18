@@ -35,7 +35,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   }
 
   // Notify dashboard to refresh guild data (fire-and-forget)
-  notifyDashboard(client, guild.id, 'join')
+  notifyDashboard(client, guild.id, 'join').catch(() => {})
 
   // Check for existing invite link or create a new one
   let inviteLink = guildSettings.server.invite_link

@@ -175,7 +175,7 @@ export const handleSlashCommand = async (
     client.logger.error('interactionRun', ex)
 
     // Notify Honeybadger with command context
-    Honeybadger.notify(ex, {
+    void Honeybadger.notify(ex, {
       context: {
         command: cmd.name,
         category: cmd.category,
