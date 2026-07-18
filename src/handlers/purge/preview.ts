@@ -22,7 +22,7 @@ export async function showPurgePreview(
   purgeType: PurgeType,
   amount: number,
   channelId: string,
-  additionalData?: { token?: string; userId?: string },
+  additionalData?: { token?: string | undefined; userId?: string | undefined },
 ): Promise<void> {
   const channel = interaction.guild?.channels.cache.get(channelId)
   const channelMention = channel ? `<#${channelId}>` : `Channel ${channelId}`

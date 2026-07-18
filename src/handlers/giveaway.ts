@@ -12,8 +12,12 @@ class MongooseGiveaways extends GiveawaysManager {
       {
         default: {
           botsCanWin: false,
-          embedColor: mina.featureColors.giveaway,
-          embedColorEnd: mina.featureColors.giveawayEnd,
+          ...(mina.featureColors.giveaway !== undefined && {
+            embedColor: mina.featureColors.giveaway,
+          }),
+          ...(mina.featureColors.giveawayEnd !== undefined && {
+            embedColorEnd: mina.featureColors.giveawayEnd,
+          }),
           reaction: client.config.GIVEAWAYS.REACTION,
         },
       },
@@ -21,21 +25,27 @@ class MongooseGiveaways extends GiveawaysManager {
     )
   }
 
-  async getAllGiveaways(): Promise<any[]> {
+  override async getAllGiveaways(): Promise<any[]> {
     return await Model.find().lean().exec()
   }
 
-  async saveGiveaway(_messageId: string, giveawayData: any): Promise<boolean> {
+  override async saveGiveaway(
+    _messageId: string,
+    giveawayData: any,
+  ): Promise<boolean> {
     await Model.create(giveawayData)
     return true
   }
 
-  async editGiveaway(messageId: string, giveawayData: any): Promise<boolean> {
+  override async editGiveaway(
+    messageId: string,
+    giveawayData: any,
+  ): Promise<boolean> {
     await Model.updateOne({ messageId }, giveawayData).exec()
     return true
   }
 
-  async deleteGiveaway(messageId: string): Promise<boolean> {
+  override async deleteGiveaway(messageId: string): Promise<boolean> {
     await Model.deleteOne({ messageId }).exec()
     return true
   }

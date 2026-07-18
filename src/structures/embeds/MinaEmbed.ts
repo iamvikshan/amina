@@ -159,7 +159,7 @@ export class MinaEmbed extends EmbedBuilder {
    * @param iconURL
    */
   withFooter(text: string, iconURL?: string): this {
-    this.setFooter({ text, iconURL })
+    this.setFooter({ text, ...(iconURL !== undefined && { iconURL }) })
     return this
   }
 

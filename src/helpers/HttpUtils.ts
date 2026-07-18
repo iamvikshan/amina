@@ -7,9 +7,9 @@ import { error, debug } from '@helpers/Logger'
  */
 export interface JsonResponse<T = any> {
   success: boolean
-  status?: number
-  data?: T
-  error?: string
+  status?: number | undefined
+  data?: T | undefined
+  error?: string | undefined
 }
 
 /**
@@ -17,9 +17,9 @@ export interface JsonResponse<T = any> {
  */
 export interface BufferResponse {
   success: boolean
-  status?: number
-  buffer?: Buffer
-  error?: string
+  status?: number | undefined
+  buffer?: Buffer | undefined
+  error?: string | undefined
 }
 
 /**

@@ -57,7 +57,7 @@ export function getExistingTicketChannel(guild: Guild, userId: string): any {
  */
 export async function parseTicketDetails(
   channel: BaseGuildTextChannel,
-): Promise<{ user?: User; catName: string } | undefined> {
+): Promise<{ user?: User | undefined; catName: string } | undefined> {
   if (!channel.topic) return
   const split = channel.topic?.split('|')
   const userId = split[1]

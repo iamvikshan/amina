@@ -27,7 +27,7 @@ export async function showAmountSelect(
     | ButtonInteraction
     | ModalSubmitInteraction,
   purgeType: PurgeType,
-  additionalData?: { token?: string; userId?: string },
+  additionalData?: { token?: string | undefined; userId?: string | undefined },
   isDefault?: boolean,
 ): Promise<void> {
   const embed = MinaEmbed.primary()

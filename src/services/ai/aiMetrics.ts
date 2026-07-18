@@ -199,6 +199,7 @@ export class AiMetricsService {
           if (results[i].status === 'rejected') {
             failedCount++
             const source = opSources[i]
+            if (!source) continue
 
             if (source.type === 'user') {
               const existing = this.userBuffer.get(source.userId) ?? {

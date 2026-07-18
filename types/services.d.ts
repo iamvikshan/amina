@@ -57,10 +57,10 @@ declare global {
   interface AiResponse {
     text: string
     tokensUsed: number
-    promptTokens?: number
-    completionTokens?: number
+    promptTokens?: number | undefined
+    completionTokens?: number | undefined
     latency: number
-    toolCalls?: ToolCall[]
+    toolCalls?: ToolCall[] | undefined
   }
 
   interface ExtractionResult {

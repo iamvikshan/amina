@@ -48,10 +48,10 @@ export default class BotClient extends Client {
   public contextMenus: Collection<string, any>
   private _loadedEventNames: Set<string> = new Set()
   public counterUpdateQueue: any[]
-  public joinLeaveWebhook?: WebhookClient
+  public joinLeaveWebhook?: WebhookClient | undefined
   public musicManager?: any
   public giveawaysManager?: any
-  public logger: typeof Logger
+  public override logger: typeof Logger
   public honeybadger: typeof Honeybadger
   public database: typeof schemas
   public utils: any

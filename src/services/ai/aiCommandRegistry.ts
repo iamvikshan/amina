@@ -256,7 +256,7 @@ export class AiCommandRegistry {
           parameters: {
             type: 'object',
             properties,
-            required: required.length > 0 ? required : undefined,
+            ...(required.length > 0 && { required }),
           },
         })
         return results
@@ -282,7 +282,7 @@ export class AiCommandRegistry {
                 parameters: {
                   type: 'object',
                   properties,
-                  required: required.length > 0 ? required : undefined,
+                  ...(required.length > 0 && { required }),
                 },
               })
               this.subcommandMap.set(compoundName, {
@@ -308,7 +308,7 @@ export class AiCommandRegistry {
             parameters: {
               type: 'object',
               properties,
-              required: required.length > 0 ? required : undefined,
+              ...(required.length > 0 && { required }),
             },
           })
           this.subcommandMap.set(compoundName, {

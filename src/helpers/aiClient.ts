@@ -44,7 +44,7 @@ export class AiClient {
 
   constructor(config: {
     geminiApiKey: string
-    mistralApiKey?: string
+    mistralApiKey?: string | undefined
     model: string
     extractionModel: string
     timeout: number

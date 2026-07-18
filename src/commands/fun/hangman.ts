@@ -51,7 +51,7 @@ const command: CommandData = {
         title: mina.sayf('fun.hangman.title', {
           theme: choice.charAt(0).toUpperCase() + choice.slice(1),
         }),
-        color: mina.palette.discordBlurple,
+        ...(mina.palette.discordBlurple !== undefined && { color: mina.palette.discordBlurple }),
       },
       hangman: {
         hat: '🎩',

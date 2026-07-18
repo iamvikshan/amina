@@ -364,6 +364,7 @@ export async function handleLoggingMenu(
         }
 
         const lastPart = parts[parts.length - 1]
+        if (!lastPart) return
         const currentValue = parent[lastPart]
 
         // If toggling a category object (channel/role), toggle all sub-settings

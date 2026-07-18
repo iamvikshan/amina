@@ -167,7 +167,7 @@ export async function handleCreateRoleModal(
     try {
       const newRole = await guild.roles.create({
         name,
-        color,
+        ...(color !== undefined && { color }),
         reason,
       })
 

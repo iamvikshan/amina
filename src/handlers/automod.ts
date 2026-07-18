@@ -223,7 +223,10 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
             user: author.username,
             id: author.id,
           }),
-          iconURL: author.avatarURL() || undefined,
+          ...(() => {
+            const url = author.avatarURL()
+            return url ? { iconURL: url } : undefined
+          })(),
         })
 
       ;(logChannel as any).safeSend({ embeds: [logEmbed] })

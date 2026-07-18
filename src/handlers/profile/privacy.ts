@@ -88,6 +88,7 @@ export async function handlePrivacyMenu(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const setting = interaction.values[0]
+  if (!setting) return
 
   try {
     const user = await getUser(interaction.user)

@@ -104,7 +104,10 @@ async function getPronouns(user: User): Promise<PronounInfo> {
 
 function generatePronounForms(pronounString: string | null): PronounForms {
   // Convert pronoun string (e.g. "he/him" or "they/them") to useful forms
-  const [subject] = pronounString?.toLowerCase().split('/') || ['they', 'them']
+  const [subject = 'they'] = pronounString?.toLowerCase().split('/') || [
+    'they',
+    'them',
+  ]
 
   // Handle common pronoun sets
   const pronounForms: Record<string, PronounForms> = {

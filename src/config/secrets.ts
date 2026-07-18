@@ -37,10 +37,8 @@ function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
     nodes.push({
       id: process.env.LAVALINK_1_ID,
       host: process.env.LAVALINK_1_HOST,
-      port: process.env.LAVALINK_1_PORT
-        ? Number(process.env.LAVALINK_1_PORT)
-        : undefined,
-      authorization: process.env.LAVALINK_PASS,
+      ...(process.env.LAVALINK_1_PORT && { port: Number(process.env.LAVALINK_1_PORT) }),
+      ...(process.env.LAVALINK_PASS && { authorization: process.env.LAVALINK_PASS }),
       secure: false,
     })
   }
@@ -50,10 +48,8 @@ function getLavalinkNodes(): Secrets['LAVALINK_NODES'] {
     nodes.push({
       id: process.env.LAVALINK_2_ID,
       host: process.env.LAVALINK_2_HOST,
-      port: process.env.LAVALINK_2_PORT
-        ? Number(process.env.LAVALINK_2_PORT)
-        : undefined,
-      authorization: process.env.LAVALINK_PASS,
+      ...(process.env.LAVALINK_2_PORT && { port: Number(process.env.LAVALINK_2_PORT) }),
+      ...(process.env.LAVALINK_PASS && { authorization: process.env.LAVALINK_PASS }),
       secure: false,
     })
   }

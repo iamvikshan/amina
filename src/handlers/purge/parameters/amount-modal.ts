@@ -19,7 +19,7 @@ import {
 export async function showAmountModal(
   interaction: StringSelectMenuInteraction,
   purgeType: PurgeType,
-  additionalData?: { token?: string; userId?: string },
+  additionalData?: { token?: string | undefined; userId?: string | undefined },
 ): Promise<void> {
   const amountInput = new TextInputBuilder({
     customId: 'amount',

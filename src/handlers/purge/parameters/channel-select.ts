@@ -29,7 +29,7 @@ export async function showChannelSelect(
     | ButtonInteraction,
   purgeType: PurgeType,
   amount: number,
-  additionalData?: { token?: string; userId?: string },
+  additionalData?: { token?: string | undefined; userId?: string | undefined },
   isManualSelection?: boolean, // true if user manually selected amount (not default flow)
 ): Promise<void> {
   const embed = MinaEmbed.primary()

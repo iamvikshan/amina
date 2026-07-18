@@ -103,7 +103,7 @@ const buildGreeting = async (
   type: 'WELCOME' | 'FAREWELL',
   config: GreetingConfig,
   inviterData?: InviterData,
-): Promise<{ content?: string; embeds?: EmbedBuilder[] } | undefined> => {
+): Promise<{ content?: string | undefined; embeds?: EmbedBuilder[] } | undefined> => {
   if (!config) return
   let content: string | undefined
 
