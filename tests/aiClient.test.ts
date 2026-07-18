@@ -2,33 +2,42 @@ import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
 // -- Mocks must be declared before imports that use them --
 
-const mockGeminiCreate = mock((): Promise<any> =>
-  Promise.resolve({
-    choices: [
-      {
-        message: { content: 'Hello!', tool_calls: undefined },
-        finish_reason: 'stop',
-      },
-    ],
-    usage: { total_tokens: 42, prompt_tokens: 10, completion_tokens: 32 },
-  })
+const mockGeminiCreate = mock(
+  (): Promise<any> =>
+    Promise.resolve({
+      choices: [
+        {
+          message: { content: 'Hello!', tool_calls: undefined },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: { total_tokens: 42, prompt_tokens: 10, completion_tokens: 32 },
+    }),
 )
 
-const mockMistralCreate = mock((): Promise<any> =>
-  Promise.resolve({
-    choices: [{ message: { content: 'Mistral response', tool_calls: undefined } }],
-    usage: { total_tokens: 20, prompt_tokens: 8, completion_tokens: 12 },
-  })
+const mockMistralCreate = mock(
+  (): Promise<any> =>
+    Promise.resolve({
+      choices: [
+        { message: { content: 'Mistral response', tool_calls: undefined } },
+      ],
+      usage: { total_tokens: 20, prompt_tokens: 8, completion_tokens: 12 },
+    }),
 )
 
 // Track which instances are created by baseURL
-const openaiInstances: Record<string, { chat: { completions: { create: any } } }> = {}
+const openaiInstances: Record<
+  string,
+  { chat: { completions: { create: any } } }
+> = {}
 
 void mock.module('openai', () => ({
   default: class MockOpenAI {
     chat: any
     constructor({ baseURL }: { baseURL: string }) {
-      if (baseURL === 'https://generativelanguage.googleapis.com/v1beta/openai/') {
+      if (
+        baseURL === 'https://generativelanguage.googleapis.com/v1beta/openai/'
+      ) {
         this.chat = { completions: { create: mockGeminiCreate } }
       } else if (baseURL === 'https://api.mistral.ai/v1') {
         this.chat = { completions: { create: mockMistralCreate } }
@@ -62,7 +71,7 @@ void mock.module('../src/helpers/Logger', () => ({
 import { AiClient, AiCircuitBreakerError } from '../src/helpers/aiClient'
 
 const captureRejection = async (
-  operation: () => Promise<unknown>
+  operation: () => Promise<unknown>,
 ): Promise<unknown> => {
   try {
     await operation()
@@ -87,7 +96,7 @@ describe('AiClient', () => {
           },
         ],
         usage: { total_tokens: 42, prompt_tokens: 10, completion_tokens: 32 },
-      })
+      }),
     )
     mockMistralCreate.mockReset()
     mockMistralCreate.mockImplementation(() =>
@@ -96,7 +105,7 @@ describe('AiClient', () => {
           { message: { content: 'Mistral response', tool_calls: undefined } },
         ],
         usage: { total_tokens: 20, prompt_tokens: 8, completion_tokens: 12 },
-      })
+      }),
     )
     AiClient.resetCircuit()
     AiClient.setRetryDelay(1)
@@ -115,7 +124,7 @@ describe('AiClient', () => {
       [],
       'Hello',
       1000,
-      0.7
+      0.7,
     )
 
     expect(result.text).toBe('Hello!')
@@ -147,7 +156,7 @@ describe('AiClient', () => {
           },
         ],
         usage: { total_tokens: 50, prompt_tokens: 20, completion_tokens: 30 },
-      })
+      }),
     )
 
     const result = await client.generateResponse(
@@ -155,17 +164,19 @@ describe('AiClient', () => {
       [],
       'Timeout user 123',
       1000,
-      0.7
+      0.7,
     )
 
     expect(result.toolCalls).toBeDefined()
     expect(result.toolCalls).toHaveLength(1)
-    expect(result.toolCalls?.[0].id).toBe('call_1')
-    expect(result.toolCalls?.[0].type).toBe('function')
-    expect(result.toolCalls?.[0].function.name).toBe('timeout')
-    expect(result.toolCalls?.[0].function.arguments).toBe(
-      '{"user":"123","duration":60}'
-    )
+    const toolCalls = result.toolCalls
+    if (!toolCalls) throw new Error('expected toolCalls')
+    const tc = toolCalls[0]
+    if (!tc) throw new Error('expected toolCalls[0]')
+    expect(tc.id).toBe('call_1')
+    expect(tc.type).toBe('function')
+    expect(tc.function.name).toBe('timeout')
+    expect(tc.function.arguments).toBe('{"user":"123","duration":60}')
   })
 
   test('circuit breaker opens after repeated failures', async () => {
@@ -193,7 +204,7 @@ describe('AiClient', () => {
           [],
           'Hello',
           1000,
-          0.7
+          0.7,
         )
       } catch {
         // Expected
@@ -203,7 +214,7 @@ describe('AiClient', () => {
     mockGeminiCreate.mockClear()
 
     const error = await captureRejection(() =>
-      noFallbackClient.generateResponse('System', [], 'Hello', 1000, 0.7)
+      noFallbackClient.generateResponse('System', [], 'Hello', 1000, 0.7),
     )
 
     expect(error).toBeInstanceOf(AiCircuitBreakerError)
@@ -237,7 +248,7 @@ describe('AiClient', () => {
       [],
       'Hello',
       1000,
-      0.7
+      0.7,
     )
     expect(result.text).toBe('Success after retry')
     expect(callCount).toBe(3)
@@ -245,7 +256,7 @@ describe('AiClient', () => {
 
   test('Mistral fallback on Gemini failure', async () => {
     mockGeminiCreate.mockImplementation(() =>
-      Promise.reject(new Error('Gemini is down'))
+      Promise.reject(new Error('Gemini is down')),
     )
 
     const result = await client.generateResponse(
@@ -253,7 +264,7 @@ describe('AiClient', () => {
       [],
       'Hello',
       1000,
-      0.7
+      0.7,
     )
 
     expect(result.text).toBe('Mistral response')
@@ -264,35 +275,49 @@ describe('AiClient', () => {
 
   test('Mistral fallback parses snake_case tool_calls correctly', async () => {
     mockGeminiCreate.mockImplementation(() =>
-      Promise.reject(new Error('Gemini is down'))
+      Promise.reject(new Error('Gemini is down')),
     )
     mockMistralCreate.mockImplementationOnce(() =>
       Promise.resolve({
-        choices: [{
-          message: {
-            content: 'I will do that.',
-            tool_calls: [{
-              id: 'mistral_call_1',
-              type: 'function',
-              function: {
-                name: 'ban_user',
-                arguments: '{"userId":"456"}',
-              },
-            }],
+        choices: [
+          {
+            message: {
+              content: 'I will do that.',
+              tool_calls: [
+                {
+                  id: 'mistral_call_1',
+                  type: 'function',
+                  function: {
+                    name: 'ban_user',
+                    arguments: '{"userId":"456"}',
+                  },
+                },
+              ],
+            },
           },
-        }],
+        ],
         usage: { total_tokens: 30, prompt_tokens: 15, completion_tokens: 15 },
-      })
+      }),
     )
 
-    const result = await client.generateResponse('System', [], 'Ban user 456', 1000, 0.7)
+    const result = await client.generateResponse(
+      'System',
+      [],
+      'Ban user 456',
+      1000,
+      0.7,
+    )
 
     expect(result.toolCalls).toBeDefined()
     expect(result.toolCalls).toHaveLength(1)
-    expect(result.toolCalls?.[0].id).toBe('mistral_call_1')
-    expect(result.toolCalls?.[0].type).toBe('function')
-    expect(result.toolCalls?.[0].function.name).toBe('ban_user')
-    expect(result.toolCalls?.[0].function.arguments).toBe('{"userId":"456"}')
+    const toolCalls = result.toolCalls
+    if (!toolCalls) throw new Error('expected toolCalls')
+    const tc = toolCalls[0]
+    if (!tc) throw new Error('expected toolCalls[0]')
+    expect(tc.id).toBe('mistral_call_1')
+    expect(tc.type).toBe('function')
+    expect(tc.function.name).toBe('ban_user')
+    expect(tc.function.arguments).toBe('{"userId":"456"}')
   })
 
   test('timeout handling', async () => {
@@ -304,11 +329,11 @@ describe('AiClient', () => {
     })
 
     mockGeminiCreate.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 5000))
+      () => new Promise(resolve => setTimeout(resolve, 5000)),
     )
 
     const error = await captureRejection(() =>
-      shortTimeoutClient.generateResponse('System', [], 'Hello', 1000, 0.7)
+      shortTimeoutClient.generateResponse('System', [], 'Hello', 1000, 0.7),
     )
 
     expect(error).toBeInstanceOf(Error)
@@ -326,19 +351,19 @@ describe('AiClient', () => {
         new Response(Buffer.from('fake-image-data'), {
           status: 200,
           headers: { 'content-type': 'image/png' },
-        })
-      )
+        }),
+      ),
     ) as any
 
     try {
-      await client.generateResponse(
-        'System',
-        [],
-        'What is this?',
-        1000,
-        0.7,
-        [{ url: 'https://example.com/image.png', mimeType: 'image/png', isVideo: false, isGif: false }]
-      )
+      await client.generateResponse('System', [], 'What is this?', 1000, 0.7, [
+        {
+          url: 'https://example.com/image.png',
+          mimeType: 'image/png',
+          isVideo: false,
+          isGif: false,
+        },
+      ])
 
       const callArgs = (mockGeminiCreate.mock.calls[0] as any[])[0]
       expect(callArgs.model).toBe('gemini-flash-latest')
@@ -347,12 +372,10 @@ describe('AiClient', () => {
       const userMsg = callArgs.messages[callArgs.messages.length - 1]
       expect(userMsg.content).toBeInstanceOf(Array)
       const imageContent = userMsg.content.find(
-        (c: any) => c.type === 'image_url'
+        (c: any) => c.type === 'image_url',
       )
       expect(imageContent).toBeDefined()
-      expect(imageContent.image_url.url).toMatch(
-        /^data:image\/png;base64,/
-      )
+      expect(imageContent.image_url.url).toMatch(/^data:image\/png;base64,/)
     } finally {
       globalThis.fetch = originalFetch
     }
@@ -371,11 +394,18 @@ describe('AiClient', () => {
         'Check this video',
         1000,
         0.7,
-        [{ url: 'https://example.com/video.mp4', mimeType: 'video/mp4', isVideo: true, isGif: false }]
+        [
+          {
+            url: 'https://example.com/video.mp4',
+            mimeType: 'video/mp4',
+            isVideo: true,
+            isGif: false,
+          },
+        ],
       )
 
-      expect(warnCalls.some((m) => m.includes('Unsupported media type'))).toBe(
-        true
+      expect(warnCalls.some(m => m.includes('Unsupported media type'))).toBe(
+        true,
       )
     } finally {
       Logger.warn = origWarn
@@ -392,7 +422,7 @@ describe('AiClient', () => {
           },
         ],
         usage: { total_tokens: 5, prompt_tokens: 3, completion_tokens: 2 },
-      })
+      }),
     )
 
     const result = await client.generateResponse(
@@ -400,7 +430,7 @@ describe('AiClient', () => {
       [],
       'Hello',
       1000,
-      0.7
+      0.7,
     )
     expect(result.text).toBe('')
   })
@@ -427,7 +457,7 @@ describe('AiClient', () => {
           },
         ],
         usage: { total_tokens: 10, prompt_tokens: 5, completion_tokens: 5 },
-      })
+      }),
     )
 
     const result = await client.generateResponse(
@@ -435,18 +465,20 @@ describe('AiClient', () => {
       [],
       'Do the thing',
       1000,
-      0.7
+      0.7,
     )
 
     expect(result.toolCalls).toHaveLength(1)
-    expect(result.toolCalls?.[0].function.arguments).toBe(
-      '{"key":"value","num":1}'
-    )
+    const toolCalls = result.toolCalls
+    if (!toolCalls) throw new Error('expected toolCalls')
+    const tc = toolCalls[0]
+    if (!tc) throw new Error('expected toolCalls[0]')
+    expect(tc.function.arguments).toBe('{"key":"value","num":1}')
   })
 
   test('Mistral fallback tool call with object arguments is JSON-stringified', async () => {
     mockGeminiCreate.mockImplementation(() =>
-      Promise.reject(new Error('Gemini is down'))
+      Promise.reject(new Error('Gemini is down')),
     )
     mockMistralCreate.mockImplementationOnce(() =>
       Promise.resolve({
@@ -468,7 +500,7 @@ describe('AiClient', () => {
           },
         ],
         usage: { total_tokens: 10, prompt_tokens: 5, completion_tokens: 5 },
-      })
+      }),
     )
 
     const result = await client.generateResponse(
@@ -476,11 +508,15 @@ describe('AiClient', () => {
       [],
       'Do the other thing',
       1000,
-      0.7
+      0.7,
     )
 
     expect(result.toolCalls).toHaveLength(1)
-    expect(result.toolCalls?.[0].function.arguments).toBe('{"foo":"bar"}')
+    const toolCalls = result.toolCalls
+    if (!toolCalls) throw new Error('expected toolCalls')
+    const tc = toolCalls[0]
+    if (!tc) throw new Error('expected toolCalls[0]')
+    expect(tc.function.arguments).toBe('{"foo":"bar"}')
   })
 
   test('vision request does NOT fall back to Mistral when Gemini fails', async () => {
@@ -490,24 +526,24 @@ describe('AiClient', () => {
         new Response(Buffer.from('fake-image-data'), {
           status: 200,
           headers: { 'content-type': 'image/png' },
-        })
-      )
+        }),
+      ),
     ) as any
 
     mockGeminiCreate.mockImplementation(() =>
-      Promise.reject(new Error('Gemini vision error'))
+      Promise.reject(new Error('Gemini vision error')),
     )
 
     try {
       const error = await captureRejection(() =>
-        client.generateResponse(
-          'System',
-          [],
-          'What is this?',
-          1000,
-          0.7,
-          [{ url: 'https://example.com/img.png', mimeType: 'image/png', isVideo: false, isGif: false }]
-        )
+        client.generateResponse('System', [], 'What is this?', 1000, 0.7, [
+          {
+            url: 'https://example.com/img.png',
+            mimeType: 'image/png',
+            isVideo: false,
+            isGif: false,
+          },
+        ]),
       )
 
       expect(error).toBeInstanceOf(Error)
@@ -529,8 +565,8 @@ describe('AiClient', () => {
         new Response(Buffer.from('fake-image-data'), {
           status: 200,
           headers: { 'content-type': 'image/png' },
-        })
-      )
+        }),
+      ),
     ) as any
 
     // Open the circuit
@@ -548,7 +584,9 @@ describe('AiClient', () => {
     for (let i = 0; i < 5; i++) {
       try {
         await noFallbackClient.generateResponse('S', [], 'H', 1000, 0.7)
-      } catch { /* expected */ }
+      } catch {
+        /* expected */
+      }
     }
 
     // Now create a client WITH Mistral fallback but send a vision request
@@ -568,8 +606,15 @@ describe('AiClient', () => {
           'What is this?',
           1000,
           0.7,
-          [{ url: 'https://example.com/img.png', mimeType: 'image/png', isVideo: false, isGif: false }]
-        )
+          [
+            {
+              url: 'https://example.com/img.png',
+              mimeType: 'image/png',
+              isVideo: false,
+              isGif: false,
+            },
+          ],
+        ),
       )
 
       expect(error).toBeInstanceOf(AiCircuitBreakerError)
@@ -588,17 +633,34 @@ describe('AiClient', () => {
         role: 'assistant',
         content: '',
         tool_calls: [
-          { id: 'call_1', type: 'function', function: { name: 'uptime', arguments: '{}' } },
+          {
+            id: 'call_1',
+            type: 'function',
+            function: { name: 'uptime', arguments: '{}' },
+          },
         ],
       },
-      { role: 'tool', content: 'Uptime: 5h', tool_call_id: 'call_1', name: 'uptime' },
+      {
+        role: 'tool',
+        content: 'Uptime: 5h',
+        tool_call_id: 'call_1',
+        name: 'uptime',
+      },
     ]
 
     mockGeminiCreate.mockImplementation(() =>
       Promise.resolve({
-        choices: [{ message: { content: 'Bot has been up for 5h.', tool_calls: undefined }, finish_reason: 'stop' }],
+        choices: [
+          {
+            message: {
+              content: 'Bot has been up for 5h.',
+              tool_calls: undefined,
+            },
+            finish_reason: 'stop',
+          },
+        ],
         usage: { total_tokens: 30, prompt_tokens: 20, completion_tokens: 10 },
-      })
+      }),
     )
 
     await client.generateResponse('System', historyWithToolCalls, '', 1000, 0.7)
@@ -615,7 +677,7 @@ describe('AiClient', () => {
 
     // Tool results should appear as a user message
     const toolResultUser = sentMessages.find(
-      (m: any) => m.role === 'user' && m.content.includes('[Tool Results]')
+      (m: any) => m.role === 'user' && m.content.includes('[Tool Results]'),
     )
     expect(toolResultUser).toBeDefined()
     expect(toolResultUser.content).toContain('uptime')
@@ -634,14 +696,14 @@ describe('AiClient', () => {
       mockGeminiCreate.mockImplementationOnce(() =>
         Promise.resolve({
           choices: [{ message: { content: validExtraction } }],
-        })
+        }),
       )
 
       const result = await client.extractAnalysis(
         'System prompt',
         [],
         'Hello there',
-        '- greet: Say hello (params: none)'
+        '- greet: Say hello (params: none)',
       )
 
       expect(result.intent).toBe('greeting')
@@ -652,19 +714,19 @@ describe('AiClient', () => {
 
     test('falls back to Mistral on Gemini failure', async () => {
       mockGeminiCreate.mockImplementationOnce(() =>
-        Promise.reject(new Error('Gemini down'))
+        Promise.reject(new Error('Gemini down')),
       )
       mockMistralCreate.mockImplementationOnce(() =>
         Promise.resolve({
           choices: [{ message: { content: validExtraction } }],
-        })
+        }),
       )
 
       const result = await client.extractAnalysis(
         'System prompt',
         [],
         'Hello',
-        ''
+        '',
       )
 
       expect(result.intent).toBe('greeting')
@@ -688,37 +750,41 @@ describe('AiClient', () => {
       mockGeminiCreate.mockImplementationOnce(() =>
         Promise.resolve({
           choices: [{ message: { content: withTools } }],
-        })
+        }),
       )
 
       const result = await client.extractAnalysis(
         'System',
         [],
         'Ban user 123',
-        ''
+        '',
       )
 
       expect(result.tools).toHaveLength(1)
-      expect(result.tools[0].name).toBe('moderation_ban')
-      expect(result.tools[0].args).toEqual({ user: '123' })
+      const tool = result.tools[0]
+      if (!tool) throw new Error('expected tools[0]')
+      expect(tool.name).toBe('moderation_ban')
+      expect(tool.args).toEqual({ user: '123' })
       expect(result.memories).toHaveLength(1)
-      expect(result.memories[0].key).toBe('name')
+      const mem = result.memories[0]
+      if (!mem) throw new Error('expected memories[0]')
+      expect(mem.key).toBe('name')
     })
 
     test('throws on malformed JSON from both providers', async () => {
       mockGeminiCreate.mockImplementationOnce(() =>
         Promise.resolve({
           choices: [{ message: { content: 'not json' } }],
-        })
+        }),
       )
       mockMistralCreate.mockImplementationOnce(() =>
         Promise.resolve({
           choices: [{ message: { content: 'also not json' } }],
-        })
+        }),
       )
 
       const error = await captureRejection(() =>
-        client.extractAnalysis('System', [], 'Hello', '')
+        client.extractAnalysis('System', [], 'Hello', ''),
       )
 
       expect(error).toBeInstanceOf(Error)
@@ -731,7 +797,9 @@ describe('Tool argument shape validation', () => {
   const isValidToolArgs = (raw: string): boolean => {
     try {
       const parsed = JSON.parse(raw)
-      return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+      return (
+        typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+      )
     } catch {
       return false
     }

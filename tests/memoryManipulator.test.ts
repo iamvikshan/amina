@@ -50,7 +50,7 @@ void mock.module('openai', () => ({
             create: mock(() =>
               Promise.resolve({
                 choices: [{ message: { content: '[]' } }],
-              })
+              }),
             ),
           },
         },
@@ -58,7 +58,7 @@ void mock.module('openai', () => ({
           create: mock(() =>
             Promise.resolve({
               data: [{ embedding: new Array(1024).fill(0.1) }],
-            })
+            }),
           ),
         },
       }
@@ -83,11 +83,11 @@ type SavedMemoryPayload = {
 }
 
 const mockSaveMemory = mock(
-  (_payload: SavedMemoryPayload): Promise<void> => Promise.resolve()
+  (_payload: SavedMemoryPayload): Promise<void> => Promise.resolve(),
 )
 const mockGetUserMemoryCount = mock((): Promise<any> => Promise.resolve(0))
 const mockPruneLeastImportantMemories = mock(
-  (): Promise<any> => Promise.resolve({ deletedCount: 0 })
+  (): Promise<any> => Promise.resolve({ deletedCount: 0 }),
 )
 const mockVectorSearch = mock((): Promise<any> => Promise.resolve([]))
 const mockFindSimilarMemory = mock((): Promise<any> => Promise.resolve(null))
@@ -99,7 +99,7 @@ void mock.module('../src/database/schemas/AiMemory', () => ({
   getUserMemories: mock(() => Promise.resolve([])),
   deleteUserMemories: mock(() => Promise.resolve(0)),
   getMemoryStats: mock(() =>
-    Promise.resolve({ total: 0, byType: [], topUsers: [] })
+    Promise.resolve({ total: 0, byType: [], topUsers: [] }),
   ),
   pruneMemories: mock(() => Promise.resolve(0)),
   getUserMemoryCount: mockGetUserMemoryCount,
@@ -119,7 +119,7 @@ import { MemoryService } from '../src/services/ai/memoryService'
 import { MemoryManipulator } from '../src/services/ai/memoryManipulator'
 
 const captureRejection = async (
-  operation: () => Promise<unknown>
+  operation: () => Promise<unknown>,
 ): Promise<unknown> => {
   try {
     await operation()
@@ -137,7 +137,7 @@ class TestRegistry {
     string,
     (
       args: Record<string, unknown>,
-      ctx: { userId: string; guildId: string | null }
+      ctx: { userId: string; guildId: string | null },
     ) => Promise<string>
   >()
   private definitions: Array<{
@@ -152,7 +152,7 @@ class TestRegistry {
       declaration: any
       handler: any
       permissionModel?: string
-    }>
+    }>,
   ) {
     for (const tool of tools) {
       this.handlers.set(tool.declaration.name, tool.handler)
@@ -177,7 +177,7 @@ class TestRegistry {
   async executeNativeTool(
     name: string,
     args: Record<string, unknown>,
-    context: { userId: string; guildId: string | null }
+    context: { userId: string; guildId: string | null },
   ): Promise<string> {
     const handler = this.handlers.get(name)
     if (!handler) throw new Error(`Native tool ${name} not found`)
@@ -259,12 +259,15 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'remember_fact',
       { fact: 'likes cats', context: 'mentioned in chat' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
 
     // Should call storeMemory
     expect(mockSaveMemory).toHaveBeenCalledTimes(1)
-    const saveArgs = mockSaveMemory.mock.calls[0][0] as any
+    const firstCall = mockSaveMemory.mock.calls[0]
+    if (!firstCall)
+      throw new Error('expected mockSaveMemory to have been called')
+    const saveArgs = firstCall[0] as any
     expect(saveArgs.key).toBe('user_fact')
     expect(saveArgs.value).toBe('likes cats')
     expect(saveArgs.userId).toBe('user123')
@@ -285,13 +288,13 @@ describe('MemoryManipulator', () => {
         context: 'mentioned before',
         importance: 7,
         score: 0.92,
-      })
+      }),
     )
 
     const result = await registry.executeNativeTool(
       'update_memory',
       { description: 'likes cats', new_value: 'actually prefers dogs now' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
 
     // Should have updated via findByIdAndUpdate
@@ -310,13 +313,13 @@ describe('MemoryManipulator', () => {
         context: 'mentioned before',
         importance: 7,
         score: 0.9,
-      })
+      }),
     )
 
     const result = await registry.executeNativeTool(
       'forget_memory',
       { description: 'likes cats' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
 
     // Should have deleted via findByIdAndDelete
@@ -347,13 +350,13 @@ describe('MemoryManipulator', () => {
           guildId: 'guild456',
           score: 0.7,
         },
-      ])
+      ]),
     )
 
     const result = await registry.executeNativeTool(
       'recall_memories',
       { query: 'what does the user like', limit: 5 },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
 
     expect(typeof result).toBe('string')
@@ -369,7 +372,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'update_memory',
       { description: 'something that does not exist', new_value: 'new value' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
 
     expect(typeof result).toBe('string')
@@ -381,7 +384,7 @@ describe('MemoryManipulator', () => {
     const forgetResult = await registry.executeNativeTool(
       'forget_memory',
       { description: 'never stored this' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
 
     expect(typeof forgetResult).toBe('string')
@@ -408,7 +411,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'recall_memories',
       { query: 'nonexistent topic' },
-      { userId: 'user123', guildId: null }
+      { userId: 'user123', guildId: null },
     )
 
     expect(typeof result).toBe('string')
@@ -420,8 +423,8 @@ describe('MemoryManipulator', () => {
       registry.executeNativeTool(
         'nonexistent_tool',
         {},
-        { userId: 'user123', guildId: null }
-      )
+        { userId: 'user123', guildId: null },
+      ),
     )
 
     expect(error).toBeInstanceOf(Error)
@@ -437,7 +440,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'remember_fact',
       { fact: '' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"fact"')
@@ -448,7 +451,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'remember_fact',
       { fact: 123 },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"fact"')
@@ -459,7 +462,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'remember_fact',
       {},
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"fact"')
@@ -469,7 +472,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'remember_fact',
       { fact: 'valid fact', context: 42 },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"context"')
@@ -480,7 +483,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'remember_fact',
       { fact: 'valid fact' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).not.toContain('Error')
     expect(mockSaveMemory).toHaveBeenCalled()
@@ -490,7 +493,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'update_memory',
       { description: '', new_value: 'something' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"description"')
@@ -500,7 +503,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'update_memory',
       { description: 'some memory', new_value: '   ' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"new_value"')
@@ -510,7 +513,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'forget_memory',
       { description: '' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"description"')
@@ -520,7 +523,7 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'recall_memories',
       { query: '' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
     expect(result).toContain('Error')
     expect(result).toContain('"query"')
@@ -533,7 +536,7 @@ describe('MemoryManipulator', () => {
     await registry.executeNativeTool(
       'recall_memories',
       { query: 'any topic', limit: -5 },
-      { userId: 'user123', guildId: null }
+      { userId: 'user123', guildId: null },
     )
     // Verify it didn't throw -- clamping worked
 
@@ -543,7 +546,7 @@ describe('MemoryManipulator', () => {
     await registry.executeNativeTool(
       'recall_memories',
       { query: 'any topic', limit: 100 },
-      { userId: 'user123', guildId: null }
+      { userId: 'user123', guildId: null },
     )
     // Verify it didn't throw -- clamping worked
   })
@@ -551,11 +554,14 @@ describe('MemoryManipulator', () => {
   test('MEMORY_TOOLS use lowercase OpenAI-format type strings', () => {
     const tools = registry.getTools()
     for (const tool of tools) {
-      const params = (tool as any).function?.parameters || (tool as any).parameters
+      const params =
+        (tool as any).function?.parameters || (tool as any).parameters
       if (params) {
         expect(params.type).toBe('object')
         for (const prop of Object.values(params.properties) as any[]) {
-          expect(prop.type).toMatch(/^(string|integer|number|boolean|array|object)$/)
+          expect(prop.type).toMatch(
+            /^(string|integer|number|boolean|array|object)$/,
+          )
         }
       }
     }
@@ -574,7 +580,7 @@ describe('MemoryManipulator', () => {
       const result = await registry.executeNativeTool(
         'remember_fact',
         { fact },
-        { userId: 'user123', guildId: 'guild456' }
+        { userId: 'user123', guildId: 'guild456' },
       )
       expect(result).toContain('cannot be stored')
       expect(mockSaveMemory).not.toHaveBeenCalled()
@@ -585,12 +591,15 @@ describe('MemoryManipulator', () => {
     const result = await registry.executeNativeTool(
       'remember_fact',
       { fact: 'I enjoy hiking on weekends' },
-      { userId: 'user123', guildId: 'guild456' }
+      { userId: 'user123', guildId: 'guild456' },
     )
 
     expect(result.toLowerCase()).toContain('remember')
     expect(mockSaveMemory).toHaveBeenCalledTimes(1)
-    const saveArgs = mockSaveMemory.mock.calls[0][0] as any
+    const firstCall = mockSaveMemory.mock.calls[0]
+    if (!firstCall)
+      throw new Error('expected mockSaveMemory to have been called')
+    const saveArgs = firstCall[0] as any
     expect(saveArgs.value).toBe('I enjoy hiking on weekends')
   })
 })

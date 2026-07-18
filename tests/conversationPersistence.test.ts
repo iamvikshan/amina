@@ -34,7 +34,7 @@ describe('Conversation Persistence Schema', () => {
     const indexes = Model.schema.indexes()
     const ttlIndex = indexes.find(
       ([fields, opts]: any) =>
-        fields.lastActivity !== undefined && opts?.expireAfterSeconds != null
+        fields.lastActivity !== undefined && opts?.expireAfterSeconds != null,
     )
     expect(ttlIndex).toBeDefined()
     expect(ttlIndex?.[1].expireAfterSeconds).toBe(1800)
@@ -47,7 +47,12 @@ describe('Conversation Persistence Schema', () => {
     const rolePath = msgSchema.path('role')
     expect(rolePath).toBeDefined()
     expect(rolePath.options.required).toBe(true)
-    expect(rolePath.options.enum).toEqual(['user', 'assistant', 'tool', 'system'])
+    expect(rolePath.options.enum).toEqual([
+      'user',
+      'assistant',
+      'tool',
+      'system',
+    ])
 
     const contentPath = msgSchema.path('content')
     expect(contentPath).toBeDefined()
@@ -76,8 +81,8 @@ const mockUpsert = mock(() => Promise.resolve())
 const mockLoad = mock(
   (
     _conversationId: string,
-    _ttlMs?: number
-  ): Promise<ConversationMessage[] | null> => Promise.resolve(null)
+    _ttlMs?: number,
+  ): Promise<ConversationMessage[] | null> => Promise.resolve(null),
 )
 const mockDelete = mock(() => Promise.resolve())
 
@@ -117,7 +122,9 @@ describe('ConversationBuffer with Persistence', () => {
 
     const history = await buffer.getHistory('test-conv')
     expect(history).toHaveLength(1)
-    expect(history[0].content).toBe('cached message')
+    const first = history[0]
+    if (!first) throw new Error('expected history[0]')
+    expect(first.content).toBe('cached message')
 
     expect(mockLoad).not.toHaveBeenCalled()
 
@@ -127,14 +134,21 @@ describe('ConversationBuffer with Persistence', () => {
   test('getHistory restores conversation from DB on cache miss', async () => {
     const dbMessages = [
       { role: 'user' as const, content: 'restored msg', timestamp: 999 },
-      { role: 'assistant' as const, content: 'restored reply', timestamp: 1000 },
+      {
+        role: 'assistant' as const,
+        content: 'restored reply',
+        timestamp: 1000,
+      },
     ]
     mockLoad.mockResolvedValueOnce(dbMessages)
 
     const history = await buffer.getHistory('restored-conv')
     expect(history).toHaveLength(2)
-    expect(history[0].content).toBe('restored msg')
-    expect(history[1].content).toBe('restored reply')
+    const h0 = history[0]
+    const h1 = history[1]
+    if (!h0 || !h1) throw new Error('expected 2 elements')
+    expect(h0.content).toBe('restored msg')
+    expect(h1.content).toBe('restored reply')
 
     // Subsequent call should hit cache, not DB
     mockLoad.mockClear()
@@ -155,7 +169,9 @@ describe('ConversationBuffer with Persistence', () => {
 
     const history = await buffer.getHistory('big-conv', 3)
     expect(history).toHaveLength(3)
-    expect(history[0].content).toBe('msg 7')
+    const first = history[0]
+    if (!first) throw new Error('expected history[0]')
+    expect(first.content).toBe('msg 7')
 
     buffer.shutdown()
   })

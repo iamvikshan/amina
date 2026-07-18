@@ -8,7 +8,9 @@ void mock.module('openai', () => ({
   default: class MockOpenAI {
     chat = {
       completions: {
-        create: mock(() => Promise.resolve({ choices: [{ message: { content: '[]' } }] })),
+        create: mock(() =>
+          Promise.resolve({ choices: [{ message: { content: '[]' } }] }),
+        ),
       },
     }
     embeddings = {
@@ -18,15 +20,29 @@ void mock.module('openai', () => ({
 }))
 
 void mock.module('@helpers/Logger', () => ({
-  default: { debug() {}, info() {}, warn() {}, error() {}, log() {}, success() {} },
+  default: {
+    debug() {},
+    info() {},
+    warn() {},
+    error() {},
+    log() {},
+    success() {},
+  },
 }))
 
 void mock.module('../src/helpers/Logger', () => ({
-  default: { debug() {}, info() {}, warn() {}, error() {}, log() {}, success() {} },
+  default: {
+    debug() {},
+    info() {},
+    warn() {},
+    error() {},
+    log() {},
+    success() {},
+  },
 }))
 
 const mockSaveMemory = mock(
-  (_payload: Record<string, unknown>): Promise<void> => Promise.resolve()
+  (_payload: Record<string, unknown>): Promise<void> => Promise.resolve(),
 )
 const mockFindSimilarMemory = mock((): Promise<any> => Promise.resolve(null))
 
@@ -35,13 +51,11 @@ void mock.module('../src/database/schemas/AiMemory', () => ({
   getUserMemories: mock(() => Promise.resolve([])),
   deleteUserMemories: mock(() => Promise.resolve(0)),
   getMemoryStats: mock(() =>
-    Promise.resolve({ total: 0, byType: [], topUsers: [] })
+    Promise.resolve({ total: 0, byType: [], topUsers: [] }),
   ),
   pruneMemories: mock(() => Promise.resolve(0)),
   getUserMemoryCount: mock(() => Promise.resolve(0)),
-  pruneLeastImportantMemories: mock(() =>
-    Promise.resolve({ deletedCount: 0 })
-  ),
+  pruneLeastImportantMemories: mock(() => Promise.resolve({ deletedCount: 0 })),
   vectorSearch: mock(() => Promise.resolve([])),
   findSimilarMemory: mockFindSimilarMemory,
   Model: {
@@ -52,7 +66,10 @@ void mock.module('../src/database/schemas/AiMemory', () => ({
   },
 }))
 
-import { AiResponderService, MEMORY_TOOLS } from '../src/services/ai/aiResponder'
+import {
+  AiResponderService,
+  MEMORY_TOOLS,
+} from '../src/services/ai/aiResponder'
 import { MemoryService } from '../src/services/ai/memoryService'
 
 describe('AiResponderService extraction guards', () => {
@@ -79,7 +96,7 @@ describe('AiResponderService extraction guards', () => {
 
     const withCurrentUser = service.appendCurrentUserMessage(
       history,
-      'My favorite food is ramen'
+      'My favorite food is ramen',
     )
     const snippet = service.buildConversationSnippet(withCurrentUser)
 
@@ -112,7 +129,7 @@ describe('AiResponderService fallback memory extraction', () => {
       { author: { id: 'user-1' } } as any,
       'System prompt',
       [],
-      'My favorite food is ramen'
+      'My favorite food is ramen',
     )
 
     expect(result).toEqual(memories)
@@ -131,7 +148,7 @@ describe('AiResponderService fallback memory extraction', () => {
       { author: { id: 'user-1' } } as any,
       'System prompt',
       [],
-      'My favorite food is ramen'
+      'My favorite food is ramen',
     )
 
     expect(result).toEqual([])
@@ -150,7 +167,7 @@ describe('MEMORY_TOOLS classification', () => {
   test('memory-only execution has no non-memory tools', () => {
     const executedToolNames = new Set(['remember_fact', 'recall_memories'])
     const hasNonMemoryTools = [...executedToolNames].some(
-      (name) => !MEMORY_TOOLS.has(name)
+      name => !MEMORY_TOOLS.has(name),
     )
     expect(hasNonMemoryTools).toBe(false)
   })
@@ -158,7 +175,7 @@ describe('MEMORY_TOOLS classification', () => {
   test('mixed execution detects non-memory tools', () => {
     const executedToolNames = new Set(['remember_fact', 'gamble'])
     const hasNonMemoryTools = [...executedToolNames].some(
-      (name) => !MEMORY_TOOLS.has(name)
+      name => !MEMORY_TOOLS.has(name),
     )
     expect(hasNonMemoryTools).toBe(true)
   })
@@ -166,7 +183,7 @@ describe('MEMORY_TOOLS classification', () => {
   test('non-memory-only execution detects non-memory tools', () => {
     const executedToolNames = new Set(['ban', 'timeout'])
     const hasNonMemoryTools = [...executedToolNames].some(
-      (name) => !MEMORY_TOOLS.has(name)
+      name => !MEMORY_TOOLS.has(name),
     )
     expect(hasNonMemoryTools).toBe(true)
   })
@@ -179,7 +196,7 @@ describe('synthetic history INTERNAL CONTEXT prefix', () => {
     const syntheticMessage = `[INTERNAL CONTEXT - do not narrate or repeat this to the user] [Intent: ${intent}] ${toolSummary}`
 
     expect(syntheticMessage).toContain(
-      '[INTERNAL CONTEXT - do not narrate or repeat this to the user]'
+      '[INTERNAL CONTEXT - do not narrate or repeat this to the user]',
     )
     expect(syntheticMessage).toContain(`[Intent: ${intent}]`)
     expect(syntheticMessage).toContain(toolSummary)
@@ -221,9 +238,8 @@ describe('storeExtractedMemories does not persist synthetic internal context', (
     })
 
     // Patch the module-level memoryService used by storeExtractedMemories
-    const { memoryService: importedMemService } = await import(
-      '../src/services/ai/memoryService'
-    )
+    const { memoryService: importedMemService } =
+      await import('../src/services/ai/memoryService')
     const origStoreMemory = importedMemService.storeMemory
     importedMemService.storeMemory = memService.storeMemory.bind(memService)
 
@@ -253,7 +269,10 @@ describe('storeExtractedMemories does not persist synthetic internal context', (
       await Bun.sleep(50)
 
       expect(mockSaveMemory).toHaveBeenCalledTimes(1)
-      const saved = mockSaveMemory.mock.calls[0][0] as any
+      const firstCall = mockSaveMemory.mock.calls[0]
+      if (!firstCall)
+        throw new Error('expected mockSaveMemory to have been called')
+      const saved = firstCall[0] as any
       expect(saved.value).toBe('ramen')
       expect(saved.key).toBe('favorite_food')
       expect(saved.context).toBe('')
