@@ -101,7 +101,7 @@ export async function handleEditActionMenu(
   const value = interaction.values[0]
   if (!value) return
   const [action, reminderIdStr] = value.split('_').slice(-2)
-  const reminderId = parseInt(reminderIdStr, 10)
+  const reminderId = parseInt(reminderIdStr ?? 'NaN', 10)
 
   if (isNaN(reminderId)) {
     await interaction.followUp({
@@ -196,7 +196,7 @@ export async function handleEditMessageModal(
   await interaction.deferUpdate()
 
   const { state } = parseCustomIdState(interaction.customId)
-  const reminderId = parseInt(state.id, 10)
+  const reminderId = parseInt(state.id ?? 'NaN', 10)
 
   if (isNaN(reminderId)) {
     await interaction.followUp({
@@ -274,7 +274,7 @@ export async function handleEditTimeModal(
   await interaction.deferUpdate()
 
   const { state } = parseCustomIdState(interaction.customId)
-  const reminderId = parseInt(state.id, 10)
+  const reminderId = parseInt(state.id ?? 'NaN', 10)
 
   if (isNaN(reminderId)) {
     await interaction.followUp({

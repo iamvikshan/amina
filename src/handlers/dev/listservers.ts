@@ -88,7 +88,7 @@ export async function handleListserversPage(
   await interaction.deferUpdate()
 
   const customId = interaction.customId
-  const page = parseInt(customId.split('|')[1], 10)
+  const page = parseInt(customId.split('|')[1] ?? '0', 10)
 
   await showListservers(interaction, page)
 }

@@ -143,7 +143,7 @@ export async function handleCreateRoleModal(
       })
       return
     }
-    color = parseInt(hexMatch[1], 16)
+    color = parseInt(hexMatch[1] ?? '0', 16)
   }
 
   // Check if role name already exists
@@ -295,7 +295,9 @@ export async function handlePermissionSelect(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const [, roleDataB64] = interaction.customId.split('|')
-  const roleData = JSON.parse(Buffer.from(roleDataB64, 'base64').toString())
+  const roleData = JSON.parse(
+    Buffer.from(roleDataB64 ?? '', 'base64').toString(),
+  )
   const { name, color, reason } = roleData
   const permissionSet = interaction.values[0]
   if (!permissionSet) return

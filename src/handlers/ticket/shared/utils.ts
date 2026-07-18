@@ -60,8 +60,9 @@ export async function parseTicketDetails(
 ): Promise<{ user?: User | undefined; catName: string } | undefined> {
   if (!channel.topic) return
   const split = channel.topic?.split('|')
-  const userId = split[1]
-  const catName = split[2] || 'Default'
+  const userId = split?.[1]
+  if (!userId) return undefined
+  const catName = split?.[2] || 'Default'
   const user = await channel.client.users
     .fetch(userId, { cache: false })
     .catch(() => undefined)

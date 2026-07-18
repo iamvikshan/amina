@@ -40,7 +40,7 @@ export async function handleContext(
   }
 
   try {
-    await interaction.deferReply({ ephemeral: context.ephemeral })
+    await interaction.deferReply({ ephemeral: context.ephemeral ?? false })
 
     // Set Honeybadger context
     Honeybadger.setContext({

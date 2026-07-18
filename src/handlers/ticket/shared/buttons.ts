@@ -94,7 +94,7 @@ export async function handleTicketOpen(
       content: mina.say('error.processing'),
       components: [],
     })
-    catName = res.values[0]
+    catName = res.values[0] ?? null
   }
 
   try {

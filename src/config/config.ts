@@ -83,16 +83,14 @@ const config: Config = {
         retryAmount: number
         retryDelay: number
       } = {
-        id: node.id,
-        host: node.host,
         port: node.port || 2333,
         secure: node.secure || false,
         retryAmount: 20,
         retryDelay: 30000,
       }
-      if (node.authorization) {
-        mapped.authorization = node.authorization
-      }
+      if (node.id) mapped.id = node.id
+      if (node.host) mapped.host = node.host
+      if (node.authorization) mapped.authorization = node.authorization
       return mapped
     }).filter(node => node.host), // Only include nodes that are defined
   },

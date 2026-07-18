@@ -296,9 +296,9 @@ export default async (
         const purgeType = typePart?.split(':')[1] as any
         const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
         const token = tokenPart
-          ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+          ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
           : undefined
-        const userId = userPart?.split(':')[1]
+        const userId = userPart?.split(':')[1] ?? undefined
 
         await interaction.deferUpdate()
         const { showChannelSelect } =

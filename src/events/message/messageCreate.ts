@@ -121,7 +121,7 @@ function generateAfkMessage(params: {
 
   const intros = timeBasedIntros[category]
   if (!intros) return ''
-  return intros[Math.floor(Math.random() * intros.length)]
+  return intros[Math.floor(Math.random() * intros.length)] ?? ''
 }
 
 /**
@@ -209,7 +209,8 @@ export default async (client: BotClient, message: Message): Promise<void> => {
                 1000 /
                 60,
             )
-            const [subject] = userPronouns.split('/')
+            const [subjectRaw] = userPronouns.split('/')
+            const subject = subjectRaw ?? ''
             const verb = getVerbConjugation(subject)
             endTime = `\n⌛ ${subject} should be back in: ${minutesLeft} minutes (unless ${subject}${verb} lost in a parallel dimension~)`
           }

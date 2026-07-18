@@ -145,7 +145,7 @@ export async function handleRoleSelect(
 ): Promise<void> {
   const [, userDataB64] = interaction.customId.split('|')
   const userIds: string[] = JSON.parse(
-    Buffer.from(userDataB64, 'base64').toString(),
+    Buffer.from(userDataB64 ?? '', 'base64').toString(),
   )
   const selectedRoleIds = interaction.values
 
@@ -296,7 +296,7 @@ export async function handleAssignConfirm(
 ): Promise<void> {
   const [, assignmentDataB64] = interaction.customId.split('|')
   const { userIds, roleIds } = JSON.parse(
-    Buffer.from(assignmentDataB64, 'base64').toString(),
+    Buffer.from(assignmentDataB64 ?? '', 'base64').toString(),
   )
 
   const guild = interaction.guild

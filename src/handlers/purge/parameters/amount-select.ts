@@ -114,6 +114,7 @@ export async function handleAmountSelect(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const selected = interaction.values[0]
+  if (!selected) return
   const customId = interaction.customId
 
   // Parse state from custom_id
@@ -125,9 +126,9 @@ export async function handleAmountSelect(
 
   const purgeType = typePart?.split(':')[1] as PurgeType
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   if (selected === 'custom') {
     // Show modal for custom amount

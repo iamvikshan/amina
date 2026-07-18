@@ -258,7 +258,7 @@ export async function handleRoleKeepSelect(
   const method = methodPart.split(':')[1] as RoleCleanupMethod
   let params = {}
   if (paramsPart) {
-    const base64Params = paramsPart.split(':')[1]
+    const base64Params = paramsPart.split(':')[1] ?? ''
     try {
       const decoded = Buffer.from(base64Params, 'base64').toString('utf-8')
       params = decoded ? JSON.parse(decoded) : {}
@@ -296,7 +296,7 @@ export async function handleContinueButton(interaction: any): Promise<void> {
   const method = methodPart.split(':')[1] as RoleCleanupMethod
   let params = {}
   if (paramsPart) {
-    const base64Params = paramsPart.split(':')[1]
+    const base64Params = paramsPart.split(':')[1] ?? ''
     try {
       const decoded = Buffer.from(base64Params, 'base64').toString('utf-8')
       params = decoded ? JSON.parse(decoded) : {}

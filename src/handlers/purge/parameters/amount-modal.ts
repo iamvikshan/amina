@@ -75,9 +75,9 @@ export async function handleAmountModal(
 
   const purgeType = typePart?.split(':')[1] as PurgeType
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   await interaction.deferReply({ ephemeral: false })
 

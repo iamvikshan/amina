@@ -35,7 +35,7 @@ export async function handlePurgeConfirm(
   }
 
   try {
-    const decoded = Buffer.from(stateEncoded, 'base64').toString()
+    const decoded = Buffer.from(stateEncoded ?? '', 'base64').toString()
     stateData = JSON.parse(decoded) as typeof stateData
   } catch (error) {
     ;(interaction.client as any).logger.error(

@@ -108,7 +108,7 @@ export async function showChannelSelect(
 export async function handleChannelSelect(
   interaction: ChannelSelectMenuInteraction,
 ): Promise<void> {
-  const channelId = interaction.values[0]
+  const channelId = interaction.values[0] ?? ''
   const channel = interaction.guild?.channels.cache.get(channelId)
 
   if (!channel || !channel.isTextBased()) {
@@ -132,9 +132,9 @@ export async function handleChannelSelect(
   const purgeType = typePart?.split(':')[1] as PurgeType
   const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   // Proceed to preview
   const { showPurgePreview } = await import('../preview')
@@ -174,9 +174,9 @@ export async function handleUseCurrentChannel(
   const purgeType = typePart?.split(':')[1] as PurgeType
   const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   // Proceed to preview
   const { showPurgePreview } = await import('../preview')
@@ -216,9 +216,9 @@ export async function handleProceedChannel(
   const purgeType = typePart?.split(':')[1] as PurgeType
   const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   // Proceed to preview
   const { showPurgePreview } = await import('../preview')

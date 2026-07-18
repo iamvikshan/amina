@@ -361,8 +361,10 @@ export async function handleLoggingMenu(
         // Navigate to parent and toggle
         let parent: any = settings
         for (let i = 0; i < parts.length - 1; i++) {
-          if (!parent[parts[i]]) parent[parts[i]] = {}
-          parent = parent[parts[i]]
+          const part = parts[i]
+          if (!part) continue
+          if (!parent[part]) parent[part] = {}
+          parent = parent[part]
         }
 
         const lastPart = parts[parts.length - 1]

@@ -107,7 +107,7 @@ export async function handleProfileModal(
 
       if (!birthdateValidation.isValid) {
         await interaction.reply({
-          content: birthdateValidation.error,
+          content: birthdateValidation.error ?? 'invalid date',
           ephemeral: true,
         })
         return

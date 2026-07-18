@@ -91,7 +91,7 @@ export async function handleRemoveFreeWillChannel(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   await interaction.deferUpdate()
-  const channelId = interaction.values[0]
+  const channelId = interaction.values[0] ?? ''
   const channel = interaction.guild?.channels.cache.get(channelId)
 
   if (!channel) {

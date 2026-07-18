@@ -212,7 +212,9 @@ export async function handleCleanupConfirm(
   if (paramsPart) {
     const base64Params = paramsPart.split(':')[1]
     try {
-      const decoded = Buffer.from(base64Params, 'base64').toString('utf-8')
+      const decoded = Buffer.from(base64Params ?? '', 'base64').toString(
+        'utf-8',
+      )
       params = decoded ? JSON.parse(decoded) : {}
     } catch (_err) {
       // Ignore parsing errors

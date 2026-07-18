@@ -202,7 +202,7 @@ export async function showMinaAiMenu(
 export async function handleMinaAiMenu(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
-  const operation = interaction.values[0]
+  const operation = interaction.values[0] ?? ''
 
   await handleMinaAiOperation(interaction, operation)
 }
