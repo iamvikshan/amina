@@ -6,10 +6,11 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Filter roles based on cleanup criteria and permissions
- * @param guild
- * @param method
- * @param params
- * @param botTopPos
+ * @param {any} guild - The guild object
+ * @param {RoleCleanupMethod} method - The method
+ * @param {any} params - The params
+ * @param {number} botTopPos - The bot top pos
+ * @returns {RoleCleanupStats} The result.
  */
 function filterRoles(
   guild: any,
@@ -82,9 +83,10 @@ function filterRoles(
 
 /**
  * Execute role cleanup (deletion)
- * @param interaction
- * @param method
- * @param params
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @param {RoleCleanupMethod} method - The method
+ * @param {any} params - The params
+ * @returns {void} Nothing.
  */
 export async function executeCleanup(
   interaction: ButtonInteraction,
@@ -190,7 +192,8 @@ export async function executeCleanup(
 
 /**
  * Handle cleanup confirmation button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCleanupConfirm(
   interaction: ButtonInteraction,
@@ -212,7 +215,9 @@ export async function handleCleanupConfirm(
   if (paramsPart) {
     const base64Params = paramsPart.split(':')[1]
     try {
-      const decoded = Buffer.from(base64Params, 'base64').toString('utf-8')
+      const decoded = Buffer.from(base64Params ?? '', 'base64').toString(
+        'utf-8',
+      )
       params = decoded ? JSON.parse(decoded) : {}
     } catch (_err) {
       // Ignore parsing errors
@@ -224,7 +229,8 @@ export async function handleCleanupConfirm(
 
 /**
  * Handle cleanup cancellation button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCleanupCancel(
   interaction: ButtonInteraction,

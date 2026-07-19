@@ -8,7 +8,7 @@ import botstats from './sub/botstats'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 import type { BotClient } from '@structures/BotClient'
 

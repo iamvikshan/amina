@@ -12,10 +12,11 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Filter roles based on cleanup criteria and permissions
- * @param guild
- * @param method
- * @param params
- * @param botTopPos
+ * @param {any} guild - The guild object
+ * @param {RoleCleanupMethod} method - The method
+ * @param {any} params - The params
+ * @param {number} botTopPos - The bot top pos
+ * @returns {RoleCleanupStats} The result.
  */
 function filterRoles(
   guild: any,
@@ -88,8 +89,9 @@ function filterRoles(
 
 /**
  * Summarize roles for display (with limit)
- * @param roles
- * @param limit
+ * @param {Role[} roles - The roles
+ * @param {number} limit - The limit
+ * @returns {string} The result string.
  */
 function summarizeRoles(roles: Role[], limit = 20): string {
   if (roles.length === 0) return 'None'
@@ -104,9 +106,10 @@ function summarizeRoles(roles: Role[], limit = 20): string {
 
 /**
  * Show cleanup preview with confirmation buttons
- * @param interaction
- * @param method
- * @param params
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {RoleCleanupMethod} method - The method
+ * @param {any} params - The params
+ * @returns {void} Nothing.
  */
 export async function showCleanupPreview(
   interaction:

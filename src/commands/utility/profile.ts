@@ -5,7 +5,7 @@ import {
   TextInputStyle,
   ChatInputCommandInteraction,
 } from 'discord.js'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 const command: CommandData = {
   name: 'profile',
@@ -192,7 +192,9 @@ export function formatSocialLinks(
         const cleanPlatform = platform.toLowerCase().trim()
         const linkGenerator =
           SOCIAL_PLATFORMS[cleanPlatform] || SOCIAL_PLATFORMS.default
-        const link = linkGenerator(username, cleanPlatform)
+        const link = linkGenerator
+          ? linkGenerator(username, cleanPlatform)
+          : '#'
         return `${platform}: [${username}](${link})`
       })
       .join(' • ') || 'None'

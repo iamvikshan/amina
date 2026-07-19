@@ -11,7 +11,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show modal for adding a ToD question
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showAddTodModal(
   interaction: StringSelectMenuInteraction,
@@ -64,7 +65,8 @@ export async function showAddTodModal(
 
 /**
  * Handle ToD add modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAddTodModal(
   interaction: ModalSubmitInteraction,

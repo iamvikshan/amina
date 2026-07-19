@@ -29,10 +29,11 @@ export * from './voice'
 
 /**
  * Add a moderation action based on the action type
- * @param issuer
- * @param target
- * @param reason
- * @param action
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @param {'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN'} action - The moderation action
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function addModAction(
   issuer: GuildMember,
@@ -67,8 +68,9 @@ export async function addModAction(
 export default class ModUtils {
   /**
    * Check if issuer can moderate target
-   * @param issuer
-   * @param target
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @returns {boolean} Whether the operation succeeded.
    */
   static canModerate(issuer: GuildMember, target: GuildMember): boolean {
     const { guild } = issuer
@@ -79,10 +81,11 @@ export default class ModUtils {
 
   /**
    * Add a moderation action
-   * @param issuer
-   * @param target
-   * @param reason
-   * @param action
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @param {'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN'} action - The moderation action
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async addModAction(
     issuer: GuildMember,
@@ -95,11 +98,12 @@ export default class ModUtils {
 
   /**
    * Delete messages based on type
-   * @param issuer
-   * @param channel
-   * @param type
-   * @param amount
-   * @param argument
+   * @param {GuildMember} issuer - The issuer
+   * @param {BaseGuildTextChannel} channel - The channel object
+   * @param {string} type - The type
+   * @param {number} amount - The amount
+   * @param {any} argument - The argument
+   * @returns {Promise<string | number>} A promise that resolves when done.
    */
   static async purgeMessages(
     issuer: GuildMember,
@@ -113,9 +117,10 @@ export default class ModUtils {
 
   /**
    * Warn a target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async warnTarget(
     issuer: GuildMember,
@@ -127,10 +132,11 @@ export default class ModUtils {
 
   /**
    * Timeout a target member
-   * @param issuer
-   * @param target
-   * @param ms
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {number} ms - The ms
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async timeoutTarget(
     issuer: GuildMember,
@@ -143,9 +149,10 @@ export default class ModUtils {
 
   /**
    * Remove timeout from target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async unTimeoutTarget(
     issuer: GuildMember,
@@ -157,9 +164,10 @@ export default class ModUtils {
 
   /**
    * Kick a target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async kickTarget(
     issuer: GuildMember,
@@ -171,9 +179,10 @@ export default class ModUtils {
 
   /**
    * Softban a target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async softbanTarget(
     issuer: GuildMember,
@@ -185,9 +194,10 @@ export default class ModUtils {
 
   /**
    * Ban a target user
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {User} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async banTarget(
     issuer: GuildMember,
@@ -199,9 +209,10 @@ export default class ModUtils {
 
   /**
    * Unban a target user
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {User} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async unBanTarget(
     issuer: GuildMember,
@@ -213,9 +224,10 @@ export default class ModUtils {
 
   /**
    * Voice mute a target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async vMuteTarget(
     issuer: GuildMember,
@@ -227,9 +239,10 @@ export default class ModUtils {
 
   /**
    * Voice unmute a target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async vUnmuteTarget(
     issuer: GuildMember,
@@ -241,9 +254,10 @@ export default class ModUtils {
 
   /**
    * Deafen a target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async deafenTarget(
     issuer: GuildMember,
@@ -255,9 +269,10 @@ export default class ModUtils {
 
   /**
    * Undeafen a target member
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async unDeafenTarget(
     issuer: GuildMember,
@@ -269,9 +284,10 @@ export default class ModUtils {
 
   /**
    * Disconnect a target member from voice
-   * @param issuer
-   * @param target
-   * @param reason
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async disconnectTarget(
     issuer: GuildMember,
@@ -283,10 +299,11 @@ export default class ModUtils {
 
   /**
    * Move a target member to another voice channel
-   * @param issuer
-   * @param target
-   * @param reason
-   * @param channel
+   * @param {GuildMember} issuer - The issuer
+   * @param {GuildMember} target - The target
+   * @param {string} reason - The reason
+   * @param {VoiceChannel | StageChannel} channel - The channel object
+   * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async moveTarget(
     issuer: GuildMember,

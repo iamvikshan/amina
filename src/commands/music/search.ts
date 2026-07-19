@@ -8,7 +8,7 @@ import {
 import config from '@src/config'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 const command: CommandData = {
   name: 'search',
@@ -42,7 +42,7 @@ const command: CommandData = {
 
     const response = await search({ member, guild, channel }, query)
     if (response) await interaction.followUp(response)
-    else interaction.deleteReply()
+    else interaction.deleteReply().catch(() => {})
   },
 }
 

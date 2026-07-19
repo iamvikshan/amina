@@ -3,7 +3,7 @@ import {
   type PermissionResolvable,
 } from 'discord.js'
 import type { BotClient } from '@src/structures'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import aiPermissions from '@src/data/aiPermissions.json'
 
 // Permission model types
@@ -103,7 +103,8 @@ export class AiCommandRegistry {
 
   /**
    * Register native tools (not backed by slash commands)
-   * @param tools
+   * @param {Array} tools - The tools to register
+   * @returns {void} Nothing.
    */
   registerNativeTools(
     tools: Array<{
@@ -146,7 +147,8 @@ export class AiCommandRegistry {
 
   /**
    * Check if a tool is a native tool (not a slash command)
-   * @param name
+   * @param {string} name - The name
+   * @returns {boolean} Whether the operation succeeded.
    */
   isNativeTool(name: string): boolean {
     return this.nativeToolHandlers.has(name)
@@ -154,9 +156,10 @@ export class AiCommandRegistry {
 
   /**
    * Execute a native tool by name
-   * @param name
-   * @param args
-   * @param context
+   * @param {string} name - The name
+   * @param {Record<string} args - The command arguments
+   * @param {NativeToolContext} context - The context
+   * @returns {Promise<string>} A promise that resolves when done.
    */
   async executeNativeTool(
     name: string,
@@ -170,7 +173,8 @@ export class AiCommandRegistry {
 
   /**
    * Get permission model for a command
-   * @param cmd
+   * @param {CommandData} cmd - The cmd
+   * @returns {PermissionModel} The result.
    */
   private getPermissionModel(cmd: CommandData): PermissionModel {
     const { overrides } = aiPermissions
@@ -196,7 +200,8 @@ export class AiCommandRegistry {
 
   /**
    * Build metadata for a command
-   * @param cmd
+   * @param {CommandData} cmd - The cmd
+   * @returns {AiToolMetadata} The result.
    */
   private buildMetadata(cmd: CommandData): AiToolMetadata {
     const permissionModel = this.getPermissionModel(cmd)
@@ -256,7 +261,7 @@ export class AiCommandRegistry {
           parameters: {
             type: 'object',
             properties,
-            required: required.length > 0 ? required : undefined,
+            ...(required.length > 0 && { required }),
           },
         })
         return results
@@ -282,7 +287,7 @@ export class AiCommandRegistry {
                 parameters: {
                   type: 'object',
                   properties,
-                  required: required.length > 0 ? required : undefined,
+                  ...(required.length > 0 && { required }),
                 },
               })
               this.subcommandMap.set(compoundName, {
@@ -308,7 +313,7 @@ export class AiCommandRegistry {
             parameters: {
               type: 'object',
               properties,
-              required: required.length > 0 ? required : undefined,
+              ...(required.length > 0 && { required }),
             },
           })
           this.subcommandMap.set(compoundName, {

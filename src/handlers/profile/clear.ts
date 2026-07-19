@@ -6,12 +6,13 @@ import {
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { clearProfile } from '@schemas/User'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /**
  * Legacy handler for old String Select Menu clear confirmation
  * Kept for backward compatibility
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProfileClear(
   interaction: StringSelectMenuInteraction,
@@ -50,7 +51,8 @@ export async function handleProfileClear(
 
 /**
  * Show clear profile confirmation
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showClearConfirmation(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -101,7 +103,8 @@ export async function showClearConfirmation(
 
 /**
  * Handle clear profile confirmation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleClearConfirm(
   interaction: ButtonInteraction,
@@ -130,7 +133,8 @@ export async function handleClearConfirm(
 
 /**
  * Handle clear profile cancellation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleClearCancel(
   interaction: ButtonInteraction,

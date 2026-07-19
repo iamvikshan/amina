@@ -55,6 +55,7 @@ const shouldModerate = (message: Message): boolean => {
  * Perform moderation on the message
  * @param {Message} message - The message to moderate
  * @param {any} settings - Guild settings containing automod config
+ * @returns {void} Nothing.
  */
 async function performAutomod(message: Message, settings: any): Promise<void> {
   const { automod } = settings
@@ -223,7 +224,10 @@ async function performAutomod(message: Message, settings: any): Promise<void> {
             user: author.username,
             id: author.id,
           }),
-          iconURL: author.avatarURL() || undefined,
+          ...(() => {
+            const url = author.avatarURL()
+            return url ? { iconURL: url } : undefined
+          })(),
         })
 
       ;(logChannel as any).safeSend({ embeds: [logEmbed] })

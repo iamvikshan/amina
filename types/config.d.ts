@@ -55,7 +55,7 @@ declare global {
     }
     FEEDBACK: {
       ENABLED: boolean
-      URL?: string
+      URL?: string | undefined
     }
     AUTOMOD: {
       ENABLED: boolean
@@ -110,27 +110,27 @@ declare global {
     // Bot & Database
     readonly BOT_TOKEN: string
     readonly MONGO_CONNECTION: string
-    readonly LOGS_WEBHOOK?: string
+    readonly LOGS_WEBHOOK?: string | undefined
 
     // API Keys & Tokens
-    readonly MISTRAL?: string
-    readonly GEMINI?: string
-    readonly VOYAGE?: string
-    readonly VOYAGE_MONGO?: string
-    readonly WEATHERSTACK_KEY?: string
-    readonly STRANGE_API_KEY?: string
-    readonly SPOTIFY_CLIENT_ID?: string
-    readonly SPOTIFY_CLIENT_SECRET?: string
-    readonly HONEYBADGER_API_KEY?: string
-    readonly WEBHOOK_SECRET?: string
+    readonly MISTRAL?: string | undefined
+    readonly GEMINI?: string | undefined
+    readonly VOYAGE?: string | undefined
+    readonly VOYAGE_MONGO?: string | undefined
+    readonly WEATHERSTACK_KEY?: string | undefined
+    readonly STRANGE_API_KEY?: string | undefined
+    readonly SPOTIFY_CLIENT_ID?: string | undefined
+    readonly SPOTIFY_CLIENT_SECRET?: string | undefined
+    readonly HONEYBADGER_API_KEY?: string | undefined
+    readonly WEBHOOK_SECRET?: string | undefined
 
     // Lavalink Nodes
     readonly LAVALINK_NODES: Array<{
-      id?: string
-      host?: string
-      port?: number
-      authorization?: string
-      secure?: boolean
+      id?: string | undefined
+      host?: string | undefined
+      port?: number | undefined
+      authorization?: string | undefined
+      secure?: boolean | undefined
     }>
   }
 
@@ -146,16 +146,16 @@ declare global {
     dmEnabledGlobally: boolean
     dedupThreshold: number
     geminiApiKey: string
-    mistralApiKey?: string
-    voyageApiKey?: string
-    voyageMongoApiKey?: string
+    mistralApiKey?: string | undefined
+    voyageApiKey?: string | undefined
+    voyageMongoApiKey?: string | undefined
   }
 
   interface AiAuthConfig {
     geminiApiKey: string
-    mistralApiKey?: string
-    voyageApiKey?: string
-    voyageMongoApiKey?: string
+    mistralApiKey?: string | undefined
+    voyageApiKey?: string | undefined
+    voyageMongoApiKey?: string | undefined
   }
 }
 

@@ -5,7 +5,7 @@ import type { AiCommandRegistry, NativeToolContext } from './aiCommandRegistry'
 
 import Logger from '@helpers/Logger'
 // Tool declarations for memory manipulation
-const MEMORY_TOOLS = [
+const MEMORY_TOOLS: FunctionDeclaration[] = [
   {
     name: 'remember_fact',
     description:
@@ -89,6 +89,7 @@ export class MemoryManipulator {
   /**
    * Store a reference to the memory service for handler use.
    * @param {MemoryService} memoryService - Memory service instance
+   * @returns {void} Nothing.
    */
   initialize(memoryService: MemoryService) {
     this.memoryService = memoryService
@@ -108,26 +109,29 @@ export class MemoryManipulator {
   /**
    * Register the 4 memory tools as native tools with the AI command registry.
    * @param {AiCommandRegistry} registry - Command registry to register tools on
+   * @returns {void} Nothing.
    */
   registerTools(registry: AiCommandRegistry) {
-    registry.registerNativeTools([
-      {
-        declaration: MEMORY_TOOLS[0],
-        handler: this.handleRememberFact.bind(this),
-      },
-      {
-        declaration: MEMORY_TOOLS[1],
-        handler: this.handleUpdateMemory.bind(this),
-      },
-      {
-        declaration: MEMORY_TOOLS[2],
-        handler: this.handleForgetMemory.bind(this),
-      },
-      {
-        declaration: MEMORY_TOOLS[3],
-        handler: this.handleRecallMemories.bind(this),
-      },
-    ])
+    const handlers = [
+      this.handleRememberFact.bind(this),
+      this.handleUpdateMemory.bind(this),
+      this.handleForgetMemory.bind(this),
+      this.handleRecallMemories.bind(this),
+    ]
+    const tools: Array<{
+      declaration: (typeof MEMORY_TOOLS)[number]
+      handler: Function
+    }> = []
+    for (let i = 0; i < MEMORY_TOOLS.length; i++) {
+      const declaration = MEMORY_TOOLS[i]
+      const handler = handlers[i]
+      if (declaration && handler) {
+        tools.push({ declaration, handler })
+      }
+    }
+    registry.registerNativeTools(
+      tools as Parameters<typeof registry.registerNativeTools>[0],
+    )
   }
 
   private async handleRememberFact(

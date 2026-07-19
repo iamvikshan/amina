@@ -54,9 +54,10 @@ export const Model = mongoose.model('conversation', ConversationSchema)
 
 /**
  * Upsert conversation (create or update)
- * @param conversationId
- * @param messages
- * @param maxMessages
+ * @param {string} conversationId - The conversation id
+ * @param {any[]} messages - The messages
+ * @param {number} maxMessages - The max messages
+ * @returns {void} Nothing.
  */
 export async function upsertConversation(
   conversationId: string,
@@ -77,8 +78,9 @@ export async function upsertConversation(
 
 /**
  * Load conversation from DB (only if not stale).
- * @param conversationId
- * @param ttlMs - Maximum age in ms; documents older than this are treated as expired.
+ * @param {string} conversationId - The conversation id
+ * @param {number} ttlMs - Maximum age in ms; documents older than this are treated as expired.
+ * @returns {Promise<any[] | null>} A promise that resolves when done.
  */
 export async function loadConversation(
   conversationId: string,
@@ -95,7 +97,8 @@ export async function loadConversation(
 
 /**
  * Delete a conversation
- * @param conversationId
+ * @param {string} conversationId - The conversation id
+ * @returns {void} Nothing.
  */
 export async function deleteConversation(
   conversationId: string,

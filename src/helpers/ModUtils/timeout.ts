@@ -4,10 +4,11 @@ import { memberInteract, logModeration } from './core'
 
 /**
  * Timeouts (aka mutes) the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param ms
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {number} ms - The ms
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function timeoutTarget(
   issuer: GuildMember,
@@ -23,7 +24,7 @@ export async function timeoutTarget(
 
   try {
     await target.timeout(ms, reason)
-    logModeration(issuer, target, reason, 'Timeout')
+    logModeration(issuer, target, reason, 'Timeout').catch(() => {})
     return true
   } catch (ex) {
     error('timeoutTarget', ex)
@@ -33,9 +34,10 @@ export async function timeoutTarget(
 
 /**
  * UnTimeouts (aka unmutes) the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function unTimeoutTarget(
   issuer: GuildMember,
@@ -50,7 +52,7 @@ export async function unTimeoutTarget(
 
   try {
     await target.timeout(null, reason)
-    logModeration(issuer, target, reason, 'UnTimeout')
+    logModeration(issuer, target, reason, 'UnTimeout').catch(() => {})
     return true
   } catch (ex) {
     error('unTimeoutTarget', ex)

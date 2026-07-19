@@ -14,6 +14,7 @@ const wait = (ms: number): Promise<void> =>
  * Handles guild deletion event when the bot leaves a server
  * @param {BotClient} client - The bot client instance
  * @param {Guild} guild - The guild that was left
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient, guild: Guild): Promise<void> => {
   if (!guild.available) return
@@ -33,7 +34,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   }
 
   // Notify dashboard to refresh guild data (fire-and-forget)
-  notifyDashboard(client, guild.id, 'leave')
+  notifyDashboard(client, guild.id, 'leave').catch(() => {})
 
   let ownerTag = 'Deleted User'
   const ownerId = guild.ownerId || settings.server.owner

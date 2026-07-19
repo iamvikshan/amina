@@ -5,11 +5,12 @@ import { logModeration } from './core'
 
 /**
  * Delete the specified number of messages matching the type
- * @param issuer
- * @param channel
- * @param type
- * @param amount
- * @param argument
+ * @param {GuildMember} issuer - The issuer
+ * @param {BaseGuildTextChannel} channel - The channel object
+ * @param {string} type - The type
+ * @param {number} amount - The amount
+ * @param {any} argument - The argument
+ * @returns {Promise<string | number>} A promise that resolves when done.
  */
 export async function purgeMessages(
   issuer: GuildMember,

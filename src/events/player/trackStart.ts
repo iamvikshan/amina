@@ -10,6 +10,7 @@ import type { Player, Track } from 'lavalink-client'
  * @param {BotClient} client - The bot client instance
  * @param {Player} player - The player instance
  * @param {Track} track - The track that started
+ * @returns {void} Nothing.
  */
 export default async (
   client: BotClient,
@@ -104,22 +105,22 @@ export default async (
         description = previous
           ? mina.say('music.controls.previous')
           : mina.say('music.controls.noPrevious')
-        if (previous) player.play({ clientTrack: previous })
+        if (previous) player.play({ clientTrack: previous }).catch(() => {})
         break
 
       case 'pause':
         if (player.paused) {
-          player.resume()
+          player.resume().catch(() => {})
           description = mina.say('music.controls.resumed')
         } else {
-          player.pause()
+          player.pause().catch(() => {})
           description = mina.say('music.controls.paused')
         }
         await msg.edit({ components: [row(player)] })
         break
 
       case 'stop':
-        player.stopPlaying(true, false)
+        player.stopPlaying(true, false).catch(() => {})
         description = mina.say('music.controls.stopped')
         break
 
@@ -128,7 +129,7 @@ export default async (
           player.queue.tracks.length > 0
             ? mina.say('music.controls.skipped')
             : mina.say('music.controls.queueEmpty')
-        if (player.queue.tracks.length > 0) player.skip()
+        if (player.queue.tracks.length > 0) player.skip().catch(() => {})
         break
 
       case 'shuffle':

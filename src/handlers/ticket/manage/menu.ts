@@ -12,7 +12,8 @@ import { mina } from '@helpers/mina'
 
 /**
  * Show manage menu with runtime operations
- * @param interaction
+ * @param {MessageComponentInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showManageMenu(
   interaction: MessageComponentInteraction,
@@ -56,7 +57,8 @@ export async function showManageMenu(
 
 /**
  * Handle manage menu selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleManageMenu(
   interaction: StringSelectMenuInteraction,

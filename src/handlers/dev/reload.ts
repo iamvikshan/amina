@@ -14,6 +14,7 @@ import { mina } from '@helpers/mina'
 /**
  * Show reload menu
  * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction to respond to
+ * @returns {void} Nothing.
  */
 export async function showReloadMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -58,11 +59,13 @@ export async function showReloadMenu(
 /**
  * Handle reload type selection
  * @param {StringSelectMenuInteraction} interaction - The select menu interaction
+ * @returns {void} Nothing.
  */
 export async function handleReloadType(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const reloadType = interaction.values[0]
+  if (!reloadType) return
 
   await interaction.deferUpdate()
 

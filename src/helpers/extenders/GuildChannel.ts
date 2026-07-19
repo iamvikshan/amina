@@ -7,6 +7,7 @@ import {
 
 /**
  * Check if bot has permission to send embeds
+ * @returns {boolean} Whether the operation succeeded.
  */
 GuildChannel.prototype.canSendEmbeds = function (this: GuildChannel): boolean {
   const botMember = this.guild.members.me
@@ -20,8 +21,9 @@ GuildChannel.prototype.canSendEmbeds = function (this: GuildChannel): boolean {
 
 /**
  * Safely send a message to the channel
- * @param content - The message content
- * @param seconds - Optional auto-delete timeout in seconds
+ * @param {string | MessagePayload | MessageCreateOptions} content - The message content
+ * @param {number} seconds - Optional auto-delete timeout in seconds
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 GuildChannel.prototype.safeSend = async function (
   this: GuildChannel,

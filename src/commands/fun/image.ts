@@ -7,7 +7,7 @@ import { MESSAGES } from '@src/config'
 import { getJson } from '@helpers/HttpUtils'
 import axios from 'axios'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 const BASE_URL = 'https://some-random-api.com/animal'
 
@@ -224,8 +224,8 @@ async function getAnimeImage(user: User, type: string) {
 }
 
 function getRandomResponse(type: string): string {
-  const responses = AMINA_RESPONSES[type] || AMINA_RESPONSES.default
-  return responses[Math.floor(Math.random() * responses.length)]
+  const responses = AMINA_RESPONSES[type] || AMINA_RESPONSES.default || []
+  return responses[Math.floor(Math.random() * responses.length)] ?? ''
 }
 
 export default command

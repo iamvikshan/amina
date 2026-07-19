@@ -6,9 +6,10 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 /**
  * Handles member role changes event
  * @param {BotClient} client - The bot client instance
- * @param _client
+ * @param {BotClient} _client - The _client
  * @param {GuildMember} oldMember - The member before role changes
  * @param {GuildMember} newMember - The member after role changes
+ * @returns {void} Nothing.
  */
 export default async (
   _client: BotClient,

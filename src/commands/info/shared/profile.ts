@@ -1,6 +1,6 @@
 import { User, ChatInputCommandInteraction } from 'discord.js'
 import { getUser } from '@schemas/User'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import {
   formatValue,
@@ -12,8 +12,9 @@ import {
 /**
  * Handle viewing a user's profile
  * Used by /info profile command
- * @param interaction
- * @param target
+ * @param {ChatInputCommandInteraction} interaction - The interaction object
+ * @param {User} target - The target
+ * @returns {void} Nothing.
  */
 export default async function profileView(
   interaction: ChatInputCommandInteraction,

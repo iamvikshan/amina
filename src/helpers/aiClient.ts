@@ -44,7 +44,7 @@ export class AiClient {
 
   constructor(config: {
     geminiApiKey: string
-    mistralApiKey?: string
+    mistralApiKey?: string | undefined
     model: string
     extractionModel: string
     timeout: number
@@ -66,7 +66,8 @@ export class AiClient {
 
   /**
    * Fetch image data from URL and convert to base64
-   * @param url
+   * @param {string} url - The URL
+   * @returns {Promise<string>} A promise that resolves when done.
    */
   private async fetchImageAsBase64(url: string): Promise<string> {
     const controller = new AbortController()
@@ -295,7 +296,8 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
 
   /**
    * Parse an OpenAI-compatible chat completion response into our AiResponse shape
-   * @param response
+   * @param {OpenAI.Chat.Completions.ChatCompletion} response - The response
+   * @returns {Omit<AiResponse, 'latency'>} The result.
    */
   private parseCompletionResponse(
     response: OpenAI.Chat.Completions.ChatCompletion,
@@ -332,7 +334,8 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
    * calling (role:'tool' messages or tool_calls on assistant messages cause
    * 400). Convert tool-related turns into plain user/assistant text so the
    * model still sees the context.
-   * @param messages
+   * @param {ChatMessage[]} messages - The messages
+   * @returns {ChatMessage[]} The result array.
    */
   private static sanitizeMessagesForGemini(
     messages: ChatMessage[],
@@ -341,6 +344,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
 
     for (let i = 0; i < messages.length; i++) {
       const msg = messages[i]
+      if (!msg) continue
 
       if (msg.role === 'assistant' && msg.tool_calls?.length) {
         // Keep assistant text, strip tool_calls
@@ -352,8 +356,9 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
         // Gather consecutive tool-result messages
         const parts: string[] = []
         let j = i + 1
-        while (j < messages.length && messages[j].role === 'tool') {
+        while (j < messages.length) {
           const t = messages[j]
+          if (!t || t.role !== 'tool') break
           parts.push(`[${t.name ?? 'tool'}]: ${t.content}`)
           j++
         }
@@ -485,8 +490,9 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
   }
 
   /**
-   * @param ms
+   * @param {number} ms - The ms
    * @internal For testing only
+   * @returns {void} Nothing.
    */
   static setRetryDelay(ms: number): void {
     AiClient.BASE_DELAY_MS = ms

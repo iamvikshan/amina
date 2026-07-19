@@ -3,13 +3,15 @@ import {
   UserSelectMenuInteraction,
   RoleSelectMenuInteraction,
   ButtonStyle,
+  MessageFlags,
 } from 'discord.js'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 
 /**
  * Show the add to user menu - starts with user selection
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showAddToUserMenu(
   interaction: ButtonInteraction,
@@ -57,7 +59,8 @@ export async function showAddToUserMenu(
 
 /**
  * Handle user selection - show role selector
- * @param interaction
+ * @param {UserSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleUserSelect(
   interaction: UserSelectMenuInteraction,
@@ -138,15 +141,24 @@ export async function handleUserSelect(
 
 /**
  * Handle role selection - show preview
- * @param interaction
+ * @param {RoleSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRoleSelect(
   interaction: RoleSelectMenuInteraction,
 ): Promise<void> {
   const [, userDataB64] = interaction.customId.split('|')
-  const userIds: string[] = JSON.parse(
-    Buffer.from(userDataB64, 'base64').toString(),
-  )
+  let userIds: string[] = []
+  try {
+    const decoded = Buffer.from(userDataB64 ?? '', 'base64').toString()
+    userIds = decoded ? JSON.parse(decoded) : []
+  } catch {
+    await interaction.reply({
+      content: 'invalid interaction data',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
   const selectedRoleIds = interaction.values
 
   const guild = interaction.guild
@@ -289,15 +301,27 @@ export async function handleRoleSelect(
 
 /**
  * Execute role assignment
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAssignConfirm(
   interaction: ButtonInteraction,
 ): Promise<void> {
   const [, assignmentDataB64] = interaction.customId.split('|')
-  const { userIds, roleIds } = JSON.parse(
-    Buffer.from(assignmentDataB64, 'base64').toString(),
-  )
+  let userIds: string[] = []
+  let roleIds: string[] = []
+  try {
+    const decoded = Buffer.from(assignmentDataB64 ?? '', 'base64').toString()
+    const parsed = decoded ? JSON.parse(decoded) : {}
+    userIds = parsed.userIds ?? []
+    roleIds = parsed.roleIds ?? []
+  } catch {
+    await interaction.reply({
+      content: 'invalid interaction data',
+      flags: MessageFlags.Ephemeral,
+    })
+    return
+  }
 
   const guild = interaction.guild
   if (!guild) {

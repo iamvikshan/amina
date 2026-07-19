@@ -45,7 +45,7 @@ const command: CommandData = {
 
     if (sub === 'coin') {
       const items = ['HEAD', 'TAIL']
-      const toss = items[Math.floor(Math.random() * items.length)]
+      const toss = items[Math.floor(Math.random() * items.length)] as string
       await interaction.followUp({ embeds: [firstEmbed(interaction.user)] })
 
       setTimeout(() => {
@@ -71,7 +71,7 @@ const command: CommandData = {
 const firstEmbed = (user: User): MinaEmbed => {
   const coinTossIntros = responses.fun.flip.intros
   const randomIntro =
-    coinTossIntros[Math.floor(Math.random() * coinTossIntros.length)]
+    coinTossIntros[Math.floor(Math.random() * coinTossIntros.length)] as string
   return MinaEmbed.primary()
     .setTitle(randomIntro)
     .setDescription(
@@ -85,7 +85,7 @@ const firstEmbed = (user: User): MinaEmbed => {
 const secondEmbed = (): MinaEmbed => {
   const waitingMessages = responses.fun.flip.waiting
   const randomWait =
-    waitingMessages[Math.floor(Math.random() * waitingMessages.length)]
+    waitingMessages[Math.floor(Math.random() * waitingMessages.length)] as string
   return MinaEmbed.loading()
     .setDescription(randomWait)
     .setImage(

@@ -4,7 +4,7 @@ import { getSettings } from '@src/database/schemas/Guild'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 export default async function statusSettings(
   interaction: ChatInputCommandInteraction,
@@ -251,7 +251,7 @@ export default async function statusSettings(
 
   collector.on('end', () => {
     try {
-      reply.edit({ components: [] })
+      reply.edit({ components: [] }).catch(() => {})
     } catch (error) {
       Logger.error('Failed to remove components after collector end', error)
     }

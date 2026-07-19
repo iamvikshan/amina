@@ -4,9 +4,10 @@ import type { VoiceState } from 'discord.js'
 
 /**
  * Voice state update event handler
- * @param client
- * @param oldState
- * @param newState
+ * @param {BotClient} client - The bot client instance
+ * @param {VoiceState} oldState - The old state
+ * @param {VoiceState} newState - The new state
+ * @returns {void} Nothing.
  */
 export default async (
   client: BotClient,

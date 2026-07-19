@@ -29,7 +29,8 @@ import { loadPrompt } from '@helpers/promptLoader'
 
 /**
  * Show Mina AI operations menu with current settings
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showMinaAiMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -197,20 +198,22 @@ export async function showMinaAiMenu(
 
 /**
  * Handle Mina AI operation selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleMinaAiMenu(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
-  const operation = interaction.values[0]
+  const operation = interaction.values[0] ?? ''
 
   await handleMinaAiOperation(interaction, operation)
 }
 
 /**
  * Handle Mina AI operation execution
- * @param interaction
- * @param operation
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @param {string} operation - The operation
+ * @returns {void} Nothing.
  */
 export async function handleMinaAiOperation(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -344,9 +347,10 @@ export async function handleMinaAiOperation(
 
 /**
  * Show boolean select menu for toggle operations
- * @param interaction
- * @param operation
- * @param title
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @param {string} operation - The operation
+ * @param {string} title - The title
+ * @returns {void} Nothing.
  */
 async function showBooleanSelect(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -383,8 +387,9 @@ async function showBooleanSelect(
 
 /**
  * Handle boolean select for toggle operations
- * @param interaction
- * @param operation
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {string} operation - The operation
+ * @returns {void} Nothing.
  */
 export async function handleMinaAiToggle(
   interaction: StringSelectMenuInteraction,
@@ -432,7 +437,8 @@ export async function handleMinaAiToggle(
 
 /**
  * Show modal for model input
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showModelModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -461,7 +467,8 @@ async function showModelModal(
 
 /**
  * Show modal for tokens input
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showTokensModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -490,7 +497,8 @@ async function showTokensModal(
 
 /**
  * Show modal for temperature input
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showTemperatureModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -519,7 +527,8 @@ async function showTemperatureModal(
 
 /**
  * Handle modal submissions for Mina AI
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleMinaAiModal(
   interaction: ModalSubmitInteraction,

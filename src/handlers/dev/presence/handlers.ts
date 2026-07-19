@@ -16,7 +16,8 @@ import { updatePresence } from './update'
 
 /**
  * Show presence management menu (Hub Flow)
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction | ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showPresenceMenu(
   interaction:
@@ -85,7 +86,8 @@ export async function showPresenceMenu(
 
 /**
  * Handle presence operation selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePresenceOperation(
   interaction: StringSelectMenuInteraction,
@@ -113,7 +115,8 @@ export async function handlePresenceOperation(
 
 /**
  * Toggle presence enabled/disabled
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function handleToggleEnabled(
   interaction: StringSelectMenuInteraction,
@@ -135,7 +138,8 @@ async function handleToggleEnabled(
 
 /**
  * Show presence modal for message and URL input
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showPresenceModal(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -180,7 +184,8 @@ export async function showPresenceModal(
 
 /**
  * Handle presence modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePresenceModal(
   interaction: ModalSubmitInteraction,
@@ -205,7 +210,8 @@ export async function handlePresenceModal(
 
 /**
  * Show activity type selection menu
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showTypeSelection(
   interaction: StringSelectMenuInteraction,
@@ -260,7 +266,8 @@ async function showTypeSelection(
 
 /**
  * Handle activity type selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePresenceTypeMenu(
   interaction: StringSelectMenuInteraction,
@@ -282,7 +289,8 @@ export async function handlePresenceTypeMenu(
 
 /**
  * Show status selection menu
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showStatusSelection(
   interaction: StringSelectMenuInteraction,
@@ -332,7 +340,8 @@ async function showStatusSelection(
 
 /**
  * Handle status selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePresenceStatusMenu(
   interaction: StringSelectMenuInteraction,
@@ -354,7 +363,8 @@ export async function handlePresenceStatusMenu(
 
 /**
  * Handle back button to presence menu
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleBackToPresenceMenu(
   interaction: ButtonInteraction,
@@ -365,7 +375,8 @@ export async function handleBackToPresenceMenu(
 
 /**
  * Handle presence confirm button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePresenceConfirm(
   interaction: ButtonInteraction,

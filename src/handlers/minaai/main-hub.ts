@@ -12,7 +12,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main Mina AI hub with operation selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showMinaAiHub(
   interaction:
@@ -67,7 +68,8 @@ export async function showMinaAiHub(
 
 /**
  * Handle operation selection from main hub
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleMinaAiOperationMenu(
   interaction: StringSelectMenuInteraction,
@@ -96,7 +98,8 @@ export async function handleMinaAiOperationMenu(
 
 /**
  * Handle back button to return to main Mina AI hub
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleMinaAiBackButton(
   interaction: ButtonInteraction,

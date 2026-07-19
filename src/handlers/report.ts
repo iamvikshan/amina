@@ -15,7 +15,7 @@ import { mina } from '@helpers/mina'
 async function handleReportModal(
   interaction: ModalSubmitInteraction,
 ): Promise<any> {
-  const type = interaction.customId.split('_')[2]
+  const type = interaction.customId.split('_')[2] ?? ''
   const title = interaction.fields.getTextInputValue('title')
   const description = interaction.fields.getTextInputValue('description')
   let additionalInfo = ''
@@ -295,9 +295,10 @@ async function sendWebhook(
   }
 
   try {
+    const avatarURL = client.user?.displayAvatarURL()
     await webhookClient.send({
       username: 'mina reports',
-      avatarURL: client.user?.displayAvatarURL() ?? undefined,
+      ...(avatarURL !== undefined && { avatarURL }),
       embeds: [embed],
     })
     return true

@@ -28,6 +28,7 @@ const QUOTE_CACHE_TTL = 30 * 60 * 1000 // 30 minutes
 
 /**
  * Fetch quotes from yurippe.vercel.app API
+ * @returns {Promise<Quote[]>} A promise that resolves when done.
  */
 async function fetchQuotes(): Promise<Quote[]> {
   const now = Date.now()
@@ -74,6 +75,7 @@ async function fetchQuotes(): Promise<Quote[]> {
 
 /**
  * Fallback quotes when API is unavailable
+ * @returns {Quote[]} The result array.
  */
 function getFallbackQuotes(): Quote[] {
   return [
@@ -162,10 +164,11 @@ function getFallbackQuotes(): Quote[] {
 
 /**
  * Get a random item from an array
- * @param arr
+ * @param {T[]} arr - The arr
+ * @returns {T} The result.
  */
 function random<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  return arr[Math.floor(Math.random() * arr.length)] as T
 }
 
 /**
@@ -175,7 +178,8 @@ export const mina = {
   /**
    * Get random response from category
    * Supports dot notation for nested paths: 'music.error.notPlaying'
-   * @param path - Dot-separated path (e.g., 'success', 'music.error.notPlaying')
+   * @param {string} path - Dot-separated path (e.g., 'success', 'music.error.notPlaying')
+   * @returns {string} The result string.
    */
   say: (path: string): string => {
     try {
@@ -205,9 +209,10 @@ export const mina = {
 
   /**
    * Legacy version with category/subcategory params
-   * @param category
-   * @param subcategory
+   * @param {string} category - The category
+   * @param {string} subcategory - The subcategory
    * @deprecated Use say('category.subcategory') instead
+   * @returns {string} The result string.
    */
   sayLegacy: (category: string, subcategory?: string): string => {
     try {
@@ -225,7 +230,8 @@ export const mina = {
 
   /**
    * Get random emoticon by mood
-   * @param mood
+   * @param {EmoticonMood} mood - The mood
+   * @returns {string} The result string.
    */
   emote: (mood: EmoticonMood): string => {
     const pool = responses.emoticons[mood]
@@ -238,6 +244,7 @@ export const mina = {
   /**
    * Get random anime quote (async - fetches from API)
    * Returns full quote (no truncation)
+   * @returns {Promise<{text: string; character: string; anime: string}>} The anime quote.
    */
   quote: async (): Promise<{
     text: string
@@ -265,6 +272,7 @@ export const mina = {
   /**
    * Get random anime quote (sync - uses cache/fallback only)
    * Use this when you can't await
+   * @returns {Object} The anime quote with text, character, and anime fields.
    */
   quoteSync: (): { text: string; character: string; anime: string } => {
     const quotes = quotesCache.length > 0 ? quotesCache : getFallbackQuotes()
@@ -279,6 +287,7 @@ export const mina = {
 
   /**
    * Get random tip
+   * @returns {string} The result string.
    */
   tip: (): string => {
     return random(responses.tips)
@@ -286,6 +295,7 @@ export const mina = {
 
   /**
    * Get random filler response
+   * @returns {string} The result string.
    */
   filler: (): string => {
     return random(responses.filler)
@@ -293,8 +303,9 @@ export const mina = {
 
   /**
    * Template replacement - replaces {var} with values
-   * @param template - String with {placeholders}
-   * @param vars - Key-value pairs to replace
+   * @param {string} template - String with {placeholders}
+   * @param {Record<string, string | number>} vars - Key-value pairs to replace
+   * @returns {string} The result string.
    */
   format: (template: string, vars: Record<string, string | number>): string => {
     return template.replace(/{(\w+)}/g, (_, key) => {
@@ -305,8 +316,9 @@ export const mina = {
 
   /**
    * Combine say + format for convenience
-   * @param path - Dot-separated path (e.g., 'music.success.shuffled')
-   * @param vars - Variables to substitute
+   * @param {string} path - Dot-separated path (e.g., 'music.success.shuffled')
+   * @param {Record<string, string | number>} vars - Variables to substitute
+   * @returns {string} The result string.
    */
   sayf: (path: string, vars: Record<string, string | number>): string => {
     const template = mina.say(path)
@@ -315,6 +327,7 @@ export const mina = {
 
   /**
    * Color getters
+   * @returns {{ primary: ColorResolvable; secondary: ColorResolvable; success: ColorResolvable; error: ColorResolvable; warning: ColorResolvable; info: ColorResolvable; gold: ColorResolvable; muted: ColorResolvable }} The color palette.
    */
   get color() {
     return colors.embed as {
@@ -343,24 +356,29 @@ export const mina = {
 
   /**
    * Get color by name (flexible lookup)
-   * @param name
+   * @param {string} name - The name
+   * @returns {ColorResolvable} The result.
    */
   getColor: (name: string): ColorResolvable => {
     // Check embed colors first
     if (name in colors.embed) {
-      return (colors.embed as Record<string, ColorResolvable>)[name]
+      const val = (colors.embed as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Check palette
     if (name in colors.palette) {
-      return (colors.palette as Record<string, ColorResolvable>)[name]
+      const val = (colors.palette as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Check moderation
     if (name in colors.moderation) {
-      return (colors.moderation as Record<string, ColorResolvable>)[name]
+      const val = (colors.moderation as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Check features
     if (name in colors.features) {
-      return (colors.features as Record<string, ColorResolvable>)[name]
+      const val = (colors.features as Record<string, ColorResolvable>)[name]
+      if (val !== undefined) return val
     }
     // Default to primary
     return colors.embed.primary as ColorResolvable
@@ -372,70 +390,81 @@ export const mina = {
 
   /**
    * Create a markdown link
-   * @param text
-   * @param url
+   * @param {string} text - The text content
+   * @param {string} url - The URL
+   * @returns {string} The result string.
    */
   link: (text: string, url: string): string => `[${text}](${url})`,
 
   /**
    * Italicize text
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   italic: (text: string): string => `*${text}*`,
 
   /**
    * Bold text
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   bold: (text: string): string => `**${text}**`,
 
   /**
    * Bold + italic
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   boldItalic: (text: string): string => `***${text}***`,
 
   /**
    * Strikethrough text
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   strike: (text: string): string => `~~${text}~~`,
 
   /**
    * Underline text
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   underline: (text: string): string => `__${text}__`,
 
   /**
    * Spoiler text
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   spoiler: (text: string): string => `||${text}||`,
 
   /**
    * Inline code
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   code: (text: string): string => `\`${text}\``,
 
   /**
    * Code block with optional language
-   * @param text
-   * @param lang
+   * @param {string} text - The text content
+   * @param {string} lang - The language identifier
+   * @returns {string} The result string.
    */
   codeBlock: (text: string, lang = ''): string =>
     `\`\`\`${lang}\n${text}\n\`\`\``,
 
   /**
    * Block quote (discord style)
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   blockQuote: (text: string): string => `> ${text}`,
 
   /**
    * Multi-line block quote
-   * @param text
+   * @param {string} text - The text content
+   * @returns {string} The result string.
    */
   blockQuoteMulti: (text: string): string => `>>> ${text}`,
 }

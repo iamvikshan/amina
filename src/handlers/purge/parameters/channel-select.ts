@@ -14,13 +14,14 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show optional channel selection
- * @param interaction
- * @param purgeType
- * @param amount
- * @param additionalData
- * @param additionalData.token
- * @param additionalData.userId
- * @param isManualSelection
+ * @param {StringSelectMenuInteraction | ModalSubmitInteraction | ButtonInteraction} interaction - The interaction object
+ * @param {PurgeType} purgeType - The purge type
+ * @param {number} amount - The amount
+ * @param {Object} additionalData - The additional data
+ * @param {Object} additionalData.token - The additional data.token
+ * @param {string} additionalData.userId - The additional data.user id
+ * @param {boolean} isManualSelection - The is manual selection
+ * @returns {void} Nothing.
  */
 export async function showChannelSelect(
   interaction:
@@ -29,7 +30,7 @@ export async function showChannelSelect(
     | ButtonInteraction,
   purgeType: PurgeType,
   amount: number,
-  additionalData?: { token?: string; userId?: string },
+  additionalData?: { token?: string | undefined; userId?: string | undefined },
   isManualSelection?: boolean, // true if user manually selected amount (not default flow)
 ): Promise<void> {
   const embed = MinaEmbed.primary()
@@ -103,12 +104,13 @@ export async function showChannelSelect(
 
 /**
  * Handle channel selection
- * @param interaction
+ * @param {ChannelSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleChannelSelect(
   interaction: ChannelSelectMenuInteraction,
 ): Promise<void> {
-  const channelId = interaction.values[0]
+  const channelId = interaction.values[0] ?? ''
   const channel = interaction.guild?.channels.cache.get(channelId)
 
   if (!channel || !channel.isTextBased()) {
@@ -132,9 +134,9 @@ export async function handleChannelSelect(
   const purgeType = typePart?.split(':')[1] as PurgeType
   const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   // Proceed to preview
   const { showPurgePreview } = await import('../preview')
@@ -146,7 +148,8 @@ export async function handleChannelSelect(
 
 /**
  * Handle "use current channel" button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleUseCurrentChannel(
   interaction: ButtonInteraction,
@@ -174,9 +177,9 @@ export async function handleUseCurrentChannel(
   const purgeType = typePart?.split(':')[1] as PurgeType
   const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   // Proceed to preview
   const { showPurgePreview } = await import('../preview')
@@ -188,7 +191,8 @@ export async function handleUseCurrentChannel(
 
 /**
  * Handle "proceed channel" button for default flow
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProceedChannel(
   interaction: ButtonInteraction,
@@ -216,9 +220,9 @@ export async function handleProceedChannel(
   const purgeType = typePart?.split(':')[1] as PurgeType
   const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   // Proceed to preview
   const { showPurgePreview } = await import('../preview')
@@ -230,7 +234,8 @@ export async function handleProceedChannel(
 
 /**
  * Get human-readable label for purge type
- * @param type
+ * @param {PurgeType} type - The type
+ * @returns {string} The result string.
  */
 function getPurgeTypeLabel(type: PurgeType): string {
   const labels: Record<PurgeType, string> = {

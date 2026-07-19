@@ -5,7 +5,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Handle purge confirmation and execution
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePurgeConfirm(
   interaction: ButtonInteraction,
@@ -35,7 +36,7 @@ export async function handlePurgeConfirm(
   }
 
   try {
-    const decoded = Buffer.from(stateEncoded, 'base64').toString()
+    const decoded = Buffer.from(stateEncoded ?? '', 'base64').toString()
     stateData = JSON.parse(decoded) as typeof stateData
   } catch (error) {
     ;(interaction.client as any).logger.error(
@@ -175,7 +176,8 @@ export async function handlePurgeConfirm(
 
 /**
  * Handle purge cancellation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePurgeCancel(
   interaction: ButtonInteraction,
@@ -197,7 +199,8 @@ export async function handlePurgeCancel(
 
 /**
  * Get human-readable label for purge type
- * @param type
+ * @param {string} type - The type
+ * @returns {string} The result string.
  */
 function getPurgeTypeLabel(type: string): string {
   const labels: Record<string, string> = {

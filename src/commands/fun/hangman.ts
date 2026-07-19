@@ -51,7 +51,9 @@ const command: CommandData = {
         title: mina.sayf('fun.hangman.title', {
           theme: choice.charAt(0).toUpperCase() + choice.slice(1),
         }),
-        color: mina.palette.discordBlurple,
+        ...(mina.palette.discordBlurple !== undefined && {
+          color: mina.palette.discordBlurple,
+        }),
       },
       hangman: {
         hat: '🎩',
@@ -67,20 +69,20 @@ const command: CommandData = {
       playerOnlyMessage: mina.say('fun.hangman.playerOnly'),
     })
 
-    Game.startGame()
+    Game.startGame().catch(() => {})
     Game.on('gameOver', (result: any) => {
       if (result.result === 'win') {
         const embed = MinaEmbed.success()
           .setTitle('hangman champion')
           .setDescription(mina.sayf('fun.hangman.win', { word: result.word }))
           .setTimestamp()
-        interaction.followUp({ embeds: [embed] })
+        interaction.followUp({ embeds: [embed] }).catch(() => {})
       } else if (result.result === 'lose') {
         const embed = MinaEmbed.error()
           .setTitle('hangman game over')
           .setDescription(mina.sayf('fun.hangman.lose', { word: result.word }))
           .setTimestamp()
-        interaction.followUp({ embeds: [embed] })
+        interaction.followUp({ embeds: [embed] }).catch(() => {})
       }
     })
     return

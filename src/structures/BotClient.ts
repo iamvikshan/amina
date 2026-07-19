@@ -48,10 +48,10 @@ export default class BotClient extends Client {
   public contextMenus: Collection<string, any>
   private _loadedEventNames: Set<string> = new Set()
   public counterUpdateQueue: any[]
-  public joinLeaveWebhook?: WebhookClient
+  public joinLeaveWebhook?: WebhookClient | undefined
   public musicManager?: any
   public giveawaysManager?: any
-  public logger: typeof Logger
+  public override logger: typeof Logger
   public honeybadger: typeof Honeybadger
   public database: typeof schemas
   public utils: any
@@ -303,12 +303,14 @@ export default class BotClient extends Client {
     const patternMatch = search.match(/(\d{17,20})/)
     if (patternMatch) {
       const id = patternMatch[1]
-      const fetched = await this.users
-        .fetch(id, { cache: true })
-        .catch(() => {})
-      if (fetched) {
-        users.push(fetched)
-        return users
+      if (id) {
+        const fetched = await this.users
+          .fetch(id, { cache: true })
+          .catch(() => {})
+        if (fetched) {
+          users.push(fetched)
+          return users
+        }
       }
     }
 

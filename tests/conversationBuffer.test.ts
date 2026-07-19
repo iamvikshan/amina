@@ -23,8 +23,10 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
     const history = await buffer.getHistory('test-conv')
 
     expect(history).toHaveLength(1)
-    expect(history[0].role).toBe('user')
-    expect(history[0].content).toBe('Hello world')
+    const first = history[0]
+    if (!first) throw new Error('expected history[0]')
+    expect(first.role).toBe('user')
+    expect(first.content).toBe('Hello world')
   })
 
   test('append assistant message stores content', async () => {
@@ -32,8 +34,10 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
     const history = await buffer.getHistory('test-conv')
 
     expect(history).toHaveLength(1)
-    expect(history[0].role).toBe('assistant')
-    expect(history[0].content).toBe('I can help with that.')
+    const first = history[0]
+    if (!first) throw new Error('expected history[0]')
+    expect(first.role).toBe('assistant')
+    expect(first.content).toBe('I can help with that.')
   })
 
   test('appendAssistantMessage with tool calls', async () => {
@@ -41,7 +45,10 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
       {
         id: 'call_1',
         type: 'function',
-        function: { name: 'timeout', arguments: '{"user":"123","duration":60}' },
+        function: {
+          name: 'timeout',
+          arguments: '{"user":"123","duration":60}',
+        },
       },
     ]
 
@@ -49,9 +56,11 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
     const history = await buffer.getHistory('test-conv')
 
     expect(history).toHaveLength(1)
-    expect(history[0].role).toBe('assistant')
-    expect(history[0].content).toBe('Let me help.')
-    expect(history[0].tool_calls).toEqual(toolCalls)
+    const first = history[0]
+    if (!first) throw new Error('expected history[0]')
+    expect(first.role).toBe('assistant')
+    expect(first.content).toBe('Let me help.')
+    expect(first.tool_calls).toEqual(toolCalls)
   })
 
   test('appendToolResult stores tool message', async () => {
@@ -59,19 +68,29 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
     const history = await buffer.getHistory('test-conv')
 
     expect(history).toHaveLength(1)
-    expect(history[0].role).toBe('tool')
-    expect(history[0].tool_call_id).toBe('call_1')
-    expect(history[0].name).toBe('timeout')
-    expect(history[0].content).toBe('{"ok":true}')
+    const first = history[0]
+    if (!first) throw new Error('expected history[0]')
+    expect(first.role).toBe('tool')
+    expect(first.tool_call_id).toBe('call_1')
+    expect(first.name).toBe('timeout')
+    expect(first.content).toBe('{"ok":true}')
   })
 
   test('getTextContent returns content string', () => {
-    const msg: Message = { role: 'user', content: 'Hello world', timestamp: Date.now() }
+    const msg: Message = {
+      role: 'user',
+      content: 'Hello world',
+      timestamp: Date.now(),
+    }
     expect(ConversationBuffer.getTextContent(msg)).toBe('Hello world')
   })
 
   test('getTextContent returns empty for empty content', () => {
-    const msg: Message = { role: 'assistant', content: '', timestamp: Date.now() }
+    const msg: Message = {
+      role: 'assistant',
+      content: '',
+      timestamp: Date.now(),
+    }
     expect(ConversationBuffer.getTextContent(msg)).toBe('')
   })
 
@@ -79,10 +98,12 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
     buffer.append('test-conv', 'user', 'Hi there', 'user123', 'alice', 'Alice')
     const history = await buffer.getHistory('test-conv')
 
-    expect(history[0].userId).toBe('user123')
-    expect(history[0].username).toBe('alice')
-    expect(history[0].displayName).toBe('Alice')
-    expect(history[0].content).toBe('Hi there')
+    const first = history[0]
+    if (!first) throw new Error('expected history[0]')
+    expect(first.userId).toBe('user123')
+    expect(first.username).toBe('alice')
+    expect(first.displayName).toBe('Alice')
+    expect(first.content).toBe('Hi there')
   })
 
   test('history respects max messages limit', async () => {
@@ -91,9 +112,11 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
     }
     const history = await buffer.getHistory('test-conv', 3)
     expect(history).toHaveLength(3)
-    expect(history[0].content).toBe('msg 2')
-    expect(history[1].content).toBe('msg 3')
-    expect(history[2].content).toBe('msg 4')
+    const [h0, h1, h2] = history
+    if (!h0 || !h1 || !h2) throw new Error('expected 3 elements')
+    expect(h0.content).toBe('msg 2')
+    expect(h1.content).toBe('msg 3')
+    expect(h2.content).toBe('msg 4')
   })
 
   test('formatWithAttribution prepends display name for user messages', () => {
@@ -116,7 +139,11 @@ describe('ConversationBuffer (OpenAI-compatible)', () => {
       content: 'Sure thing!',
       timestamp: Date.now(),
       tool_calls: [
-        { id: 'c1', type: 'function', function: { name: 'cmd', arguments: '{}' } },
+        {
+          id: 'c1',
+          type: 'function',
+          function: { name: 'cmd', arguments: '{}' },
+        },
       ],
     }
     const formatted = ConversationBuffer.formatWithAttribution(msg)
@@ -169,69 +196,119 @@ describe('ConversationBuffer.sanitizeToolPairs', () => {
 
   test('drops leading orphan tool messages', () => {
     const messages: Message[] = [
-      { role: 'tool', content: 'result', timestamp: ts, tool_call_id: 'call_1', name: 'daily' },
+      {
+        role: 'tool',
+        content: 'result',
+        timestamp: ts,
+        tool_call_id: 'call_1',
+        name: 'daily',
+      },
       { role: 'user', content: 'hello', timestamp: ts },
     ]
     const result = ConversationBuffer.sanitizeToolPairs(messages)
     expect(result).toHaveLength(1)
-    expect(result[0].role).toBe('user')
+    const first = result[0]
+    if (!first) throw new Error('expected result[0]')
+    expect(first.role).toBe('user')
   })
 
   test('preserves complete assistant/tool pair after user message', () => {
     const messages: Message[] = [
       { role: 'user', content: 'check daily', timestamp: ts },
       { role: 'assistant', content: '', timestamp: ts, tool_calls: [toolCall] },
-      { role: 'tool', content: 'ok', timestamp: ts, tool_call_id: 'call_1', name: 'daily' },
+      {
+        role: 'tool',
+        content: 'ok',
+        timestamp: ts,
+        tool_call_id: 'call_1',
+        name: 'daily',
+      },
       { role: 'assistant', content: 'Done!', timestamp: ts },
     ]
     const result = ConversationBuffer.sanitizeToolPairs(messages)
     expect(result).toHaveLength(4)
-    expect(result[1].tool_calls).toEqual([toolCall])
-    expect(result[2].role).toBe('tool')
-    expect(result[3].content).toBe('Done!')
+    const r1 = result[1]
+    const r2 = result[2]
+    const r3 = result[3]
+    if (!r1 || !r2 || !r3) throw new Error('expected 4 elements')
+    expect(r1.tool_calls).toEqual([toolCall])
+    expect(r2.role).toBe('tool')
+    expect(r3.content).toBe('Done!')
   })
 
   test('drops leading assistant+tool group without preceding user message', () => {
     const messages: Message[] = [
       { role: 'assistant', content: '', timestamp: ts, tool_calls: [toolCall] },
-      { role: 'tool', content: 'ok', timestamp: ts, tool_call_id: 'call_1', name: 'daily' },
+      {
+        role: 'tool',
+        content: 'ok',
+        timestamp: ts,
+        tool_call_id: 'call_1',
+        name: 'daily',
+      },
       { role: 'user', content: 'hello', timestamp: ts },
       { role: 'assistant', content: 'hi!', timestamp: ts },
     ]
     const result = ConversationBuffer.sanitizeToolPairs(messages)
     expect(result).toHaveLength(2)
-    expect(result[0].role).toBe('user')
-    expect(result[1].content).toBe('hi!')
+    const r0 = result[0]
+    const r1 = result[1]
+    if (!r0 || !r1) throw new Error('expected 2 elements')
+    expect(r0.role).toBe('user')
+    expect(r1.content).toBe('hi!')
   })
 
   test('preserves leading assistant text but strips tool_calls when content is non-empty', () => {
     const messages: Message[] = [
-      { role: 'assistant', content: 'I checked your balance.', timestamp: ts, tool_calls: [toolCall] },
-      { role: 'tool', content: 'ok', timestamp: ts, tool_call_id: 'call_1', name: 'daily' },
+      {
+        role: 'assistant',
+        content: 'I checked your balance.',
+        timestamp: ts,
+        tool_calls: [toolCall],
+      },
+      {
+        role: 'tool',
+        content: 'ok',
+        timestamp: ts,
+        tool_call_id: 'call_1',
+        name: 'daily',
+      },
       { role: 'user', content: 'hello', timestamp: ts },
       { role: 'assistant', content: 'hi!', timestamp: ts },
     ]
     const result = ConversationBuffer.sanitizeToolPairs(messages)
     expect(result).toHaveLength(3)
-    expect(result[0].role).toBe('assistant')
-    expect(result[0].content).toBe('I checked your balance.')
-    expect(result[0].tool_calls).toBeUndefined()
-    expect(result[1].role).toBe('user')
-    expect(result[2].content).toBe('hi!')
+    const r0 = result[0]
+    const r1 = result[1]
+    const r2 = result[2]
+    if (!r0 || !r1 || !r2) throw new Error('expected 3 elements')
+    expect(r0.role).toBe('assistant')
+    expect(r0.content).toBe('I checked your balance.')
+    expect(r0.tool_calls).toBeUndefined()
+    expect(r1.role).toBe('user')
+    expect(r2.content).toBe('hi!')
   })
 
   test('strips tool_calls from assistant when responses are missing (mid-conversation)', () => {
     const messages: Message[] = [
       { role: 'user', content: 'do something', timestamp: ts },
-      { role: 'assistant', content: 'Let me check.', timestamp: ts, tool_calls: [toolCall] },
+      {
+        role: 'assistant',
+        content: 'Let me check.',
+        timestamp: ts,
+        tool_calls: [toolCall],
+      },
       { role: 'user', content: 'next message', timestamp: ts },
     ]
     const result = ConversationBuffer.sanitizeToolPairs(messages)
     expect(result).toHaveLength(3)
-    expect(result[0].role).toBe('user')
-    expect(result[1].role).toBe('assistant')
-    expect(result[1].content).toBe('Let me check.')
-    expect(result[1].tool_calls).toBeUndefined()
+    const r0 = result[0]
+    const r1 = result[1]
+    if (!r0 || !r1) throw new Error('expected at least 2 elements')
+    expect(r0.role).toBe('user')
+    expect(r1.role).toBe('assistant')
+    expect(r1.content).toBe('Let me check.')
+    expect(r1.tool_calls).toBeUndefined()
   })
 
   test('handles multiple tool calls with partial responses (mid-conversation)', () => {
@@ -242,18 +319,33 @@ describe('ConversationBuffer.sanitizeToolPairs', () => {
     }
     const messages: Message[] = [
       { role: 'user', content: 'do stuff', timestamp: ts },
-      { role: 'assistant', content: '', timestamp: ts, tool_calls: [toolCall, call2] },
-      { role: 'tool', content: 'ok', timestamp: ts, tool_call_id: 'call_1', name: 'daily' },
+      {
+        role: 'assistant',
+        content: '',
+        timestamp: ts,
+        tool_calls: [toolCall, call2],
+      },
+      {
+        role: 'tool',
+        content: 'ok',
+        timestamp: ts,
+        tool_call_id: 'call_1',
+        name: 'daily',
+      },
       // Missing tool response for call_2
       { role: 'assistant', content: 'partial', timestamp: ts },
     ]
     const result = ConversationBuffer.sanitizeToolPairs(messages)
     // User kept, incomplete pair: assistant text kept but tool_calls stripped, orphan tool dropped
     expect(result).toHaveLength(3)
-    expect(result[0].role).toBe('user')
-    expect(result[1].tool_calls).toBeUndefined()
-    expect(result[1].content).toBe('')
-    expect(result[2].content).toBe('partial')
+    const r0 = result[0]
+    const r1 = result[1]
+    const r2 = result[2]
+    if (!r0 || !r1 || !r2) throw new Error('expected 3 elements')
+    expect(r0.role).toBe('user')
+    expect(r1.tool_calls).toBeUndefined()
+    expect(r1.content).toBe('')
+    expect(r2.content).toBe('partial')
   })
 
   test('returns empty array for empty input', () => {
@@ -273,14 +365,37 @@ describe('ConversationBuffer.sanitizeToolPairs', () => {
     const messages: Message[] = [
       { role: 'user', content: 'hello', timestamp: ts },
       { role: 'assistant', content: '', timestamp: ts, tool_calls: [toolCall] },
-      { role: 'tool', content: 'done', timestamp: ts, tool_call_id: 'call_1', name: 'daily' },
+      {
+        role: 'tool',
+        content: 'done',
+        timestamp: ts,
+        tool_call_id: 'call_1',
+        name: 'daily',
+      },
       { role: 'assistant', content: 'here you go', timestamp: ts },
-      { role: 'tool', content: 'orphan', timestamp: ts, tool_call_id: 'call_X', name: 'unknown' },
+      {
+        role: 'tool',
+        content: 'orphan',
+        timestamp: ts,
+        tool_call_id: 'call_X',
+        name: 'unknown',
+      },
       { role: 'user', content: 'thanks', timestamp: ts },
     ]
     const result = ConversationBuffer.sanitizeToolPairs(messages)
     expect(result).toHaveLength(5)
-    expect(result.map(m => m.role)).toEqual(['user', 'assistant', 'tool', 'assistant', 'user'])
-    expect(result.every(m => m.role !== 'tool' || m.tool_call_id === 'call_1')).toBe(true)
+    const r0 = result[0]
+    const r4 = result[4]
+    if (!r0 || !r4) throw new Error('expected 5 elements')
+    expect(result.map(m => m.role)).toEqual([
+      'user',
+      'assistant',
+      'tool',
+      'assistant',
+      'user',
+    ])
+    expect(
+      result.every(m => m.role !== 'tool' || m.tool_call_id === 'call_1'),
+    ).toBe(true)
   })
 })

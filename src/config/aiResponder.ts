@@ -1,7 +1,6 @@
 // @root/src/config/aiResponder.ts
 
 // AiConfig type is globally available from types/global.d.ts
-import { getAiConfig } from '@schemas/Dev'
 import { secret } from './secrets'
 import { config } from './config'
 import { loadPrompt } from '@helpers/promptLoader'
@@ -26,6 +25,7 @@ class ConfigCache {
 
   async getConfig(): Promise<AiConfig> {
     if (!this.cache || Date.now() - this.lastFetch > this.TTL) {
+      const { getAiConfig } = await import('@schemas/Dev')
       const dbConfig = await getAiConfig()
       this.cache = dbConfig
       this.lastFetch = Date.now()
@@ -72,6 +72,7 @@ class ConfigCache {
   /**
    * Force immediate refresh of config from database.
    * Bypasses TTL and fetches fresh data.
+   * @returns {void} Nothing.
    */
   async forceRefresh(): Promise<void> {
     this.cache = null

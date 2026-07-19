@@ -1,6 +1,7 @@
 import { Collection, Guild, GuildMember, User, Invite } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
 import { getMember } from '@schemas/Member'
+import Logger from '@helpers/Logger'
 
 interface CachedInvite {
   code: string
@@ -39,7 +40,8 @@ const cacheInvite = (invite: Invite | any, isVanity = false): CachedInvite => ({
 
 /**
  * This function caches all invites for the provided guild
- * @param guild
+ * @param {Guild} guild - The guild object
+ * @returns {Promise<Collection<string, CachedInvite>>} A promise that resolves when done.
  */
 async function cacheGuildInvites(
   guild: Guild,
@@ -62,9 +64,10 @@ async function cacheGuildInvites(
 
 /**
  * Add roles to inviter based on invites count
- * @param guild
- * @param inviterData
- * @param isAdded
+ * @param {Guild} guild - The guild object
+ * @param {any} inviterData - The inviter data
+ * @param {boolean} isAdded - The is added
+ * @returns {void} Nothing.
  */
 const checkInviteRewards = async (
   guild: Guild,
@@ -82,13 +85,13 @@ const checkInviteRewards = async (
     ;(settings as any).invite.ranks.forEach((reward: any) => {
       if (isAdded) {
         if (invites >= reward.invites && !inviter.roles.cache.has(reward._id)) {
-          inviter.roles.add(reward._id)
+          inviter.roles.add(reward._id).catch((err) => Logger.error('Failed to grant invite reward role:', err))
         }
       } else if (
         invites < reward.invites &&
         inviter.roles.cache.has(reward._id)
       ) {
-        inviter.roles.remove(reward._id)
+        inviter.roles.remove(reward._id).catch((err) => Logger.error('Failed to remove invite reward role:', err))
       }
     })
   }
@@ -96,7 +99,8 @@ const checkInviteRewards = async (
 
 /**
  * Track inviter by comparing new invites with cached invites
- * @param member
+ * @param {GuildMember} member - The guild member
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 async function trackJoinedMember(member: GuildMember): Promise<any> {
   const { guild } = member
@@ -154,14 +158,15 @@ async function trackJoinedMember(member: GuildMember): Promise<any> {
     inviterData = inviterDb
   }
 
-  checkInviteRewards(guild, inviterData, true)
+  checkInviteRewards(guild, inviterData, true).catch((err) => Logger.error('Failed to process invite rewards on join:', err))
   return inviterData
 }
 
 /**
  * Fetch inviter data from database
- * @param guild
- * @param user
+ * @param {Guild} guild - The guild object
+ * @param {User} user - The user object
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 async function trackLeftMember(guild: Guild, user: User): Promise<any> {
   if (user.bot) return {}
@@ -180,7 +185,7 @@ async function trackLeftMember(guild: Guild, user: User): Promise<any> {
     inviterData = inviterDb
   }
 
-  checkInviteRewards(guild, inviterData, false)
+  checkInviteRewards(guild, inviterData, false).catch((err) => Logger.error('Failed to process invite rewards on leave:', err))
   return inviterData
 }
 

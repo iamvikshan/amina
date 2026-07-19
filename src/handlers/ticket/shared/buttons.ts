@@ -32,7 +32,8 @@ const OPEN_PERMS = ['ManageChannels'] as const
 
 /**
  * Handle ticket open button interaction
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 export async function handleTicketOpen(
   interaction: ButtonInteraction,
@@ -94,7 +95,7 @@ export async function handleTicketOpen(
       content: mina.say('error.processing'),
       components: [],
     })
-    catName = res.values[0]
+    catName = res.values[0] ?? null
   }
 
   try {
@@ -329,7 +330,8 @@ export async function handleTicketOpen(
 
 /**
  * Handle ticket close button interaction
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 export async function handleTicketClose(
   interaction: ButtonInteraction,
@@ -377,7 +379,8 @@ export async function handleTicketClose(
 
 /**
  * Handle ticket delete button interaction
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleTicketDelete(
   interaction: ButtonInteraction,

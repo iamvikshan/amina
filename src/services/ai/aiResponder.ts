@@ -1509,6 +1509,7 @@ export class AiResponderService {
 
       for (let i = 0; i < toolCalls.length; i++) {
         const call = toolCalls[i]
+        if (!call) continue
         const toolResult = functionResults[i] || 'No result'
         conversationBuffer.appendToolResult(
           conversationId,

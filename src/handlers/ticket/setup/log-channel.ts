@@ -13,7 +13,8 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show channel select for log channel setup
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showLogChannelSelect(
   interaction: StringSelectMenuInteraction,
@@ -46,7 +47,8 @@ export async function showLogChannelSelect(
 
 /**
  * Handle log channel selection
- * @param interaction
+ * @param {ChannelSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleLogChannelSelect(
   interaction: ChannelSelectMenuInteraction,

@@ -10,7 +10,8 @@ export interface BirthdateValidation {
 
 /**
  * Validates and parses a birthdate string
- * @param birthdate
+ * @param {string} birthdate - The birthdate
+ * @returns {BirthdateValidation} The result.
  */
 export function validateBirthdate(birthdate: string): BirthdateValidation {
   const ddmmyyyyRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/
@@ -26,6 +27,11 @@ export function validateBirthdate(birthdate: string): BirthdateValidation {
         error: 'invalid date format! use DD/MM/YYYY or MM/YYYY',
       }
     const [, d, m, y] = match
+    if (!d || !m || !y)
+      return {
+        isValid: false,
+        error: 'invalid date format! use DD/MM/YYYY or MM/YYYY',
+      }
     day = parseInt(d)
     month = parseInt(m) - 1 // JS months are 0-based
     year = parseInt(y)
@@ -37,6 +43,11 @@ export function validateBirthdate(birthdate: string): BirthdateValidation {
         error: 'invalid date format! use DD/MM/YYYY or MM/YYYY',
       }
     const [, m, y] = match
+    if (!m || !y)
+      return {
+        isValid: false,
+        error: 'invalid date format! use DD/MM/YYYY or MM/YYYY',
+      }
     day = 1
     month = parseInt(m) - 1
     year = parseInt(y)
@@ -83,7 +94,8 @@ export function validateBirthdate(birthdate: string): BirthdateValidation {
 
 /**
  * Calculates age from birthdate
- * @param birthdate
+ * @param {Date} birthdate - The birthdate
+ * @returns {number} The result count.
  */
 export function calculateAge(birthdate: Date): number {
   const today = new Date()

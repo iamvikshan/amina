@@ -6,7 +6,7 @@ import {
   StringSelectMenuBuilder,
   MessageComponentInteraction,
 } from 'discord.js'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 // Re-export component classes for backward compatibility
 // New code should import directly from '@structures/components'
@@ -15,9 +15,10 @@ export { MinaButton, MinaRow, MinaSelect } from '@structures/components'
 /**
  * Await a component interaction with timeout handling
  * Automatically disables components on timeout
- * @param message
- * @param filter
- * @param timeoutMs
+ * @param {Message} message - The message object
+ * @param {Object} filter - The filter
+ * @param {Array} timeoutMs - The timeout ms
+ * @returns {Promise<MessageComponentInteraction | null>} The interaction or null on timeout.
  */
 export async function awaitComponentWithTimeout(
   message: Message,
@@ -39,7 +40,8 @@ export async function awaitComponentWithTimeout(
 /**
  * Disable all components in a message
  * Useful for timeout or after action completion
- * @param message
+ * @param {Message} message - The message object
+ * @returns {void} Nothing.
  */
 export async function disableComponents(message: Message): Promise<void> {
   try {
@@ -75,13 +77,14 @@ export async function disableComponents(message: Message): Promise<void> {
 /**
  * Parse custom_id state from pipe-delimited format
  * Example: "roles:menu:cleanup|page:2|filter:prefix" -> { page: "2", filter: "prefix" }
- * @param customId
+ * @param {string} customId - The custom ID
+ * @returns {{ base: string; state: Record<string, string> }} Parsed custom ID parts.
  */
 export function parseCustomIdState(customId: string): {
   base: string
   state: Record<string, string>
 } {
-  const [base, ...stateParts] = customId.split('|')
+  const [base = '', ...stateParts] = customId.split('|')
   const state: Record<string, string> = {}
 
   for (const part of stateParts) {

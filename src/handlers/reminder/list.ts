@@ -12,14 +12,14 @@ import {
 } from '@helpers/componentHelper'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
-import { showEditReminder } from './edit'
 
 const REMINDERS_PER_PAGE = 5
 
 /**
  * Show paginated list of reminders
- * @param interaction
- * @param page
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {number} page - The page number
+ * @returns {void} Nothing.
  */
 export async function showRemindersList(
   interaction:
@@ -156,7 +156,8 @@ export async function showRemindersList(
 
 /**
  * Handle pagination button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleReminderPage(
   interaction: ButtonInteraction,
@@ -168,7 +169,8 @@ export async function handleReminderPage(
 
 /**
  * Handle delete reminder menu
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleDeleteReminderMenu(
   interaction: StringSelectMenuInteraction,
@@ -176,6 +178,7 @@ export async function handleDeleteReminderMenu(
   await interaction.deferUpdate()
 
   const value = interaction.values[0]
+  if (!value) return
   const reminderId = parseInt(value.replace('delete_', ''), 10)
 
   if (isNaN(reminderId)) {
@@ -223,7 +226,8 @@ export async function handleDeleteReminderMenu(
 
 /**
  * Handle edit reminder menu
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleEditReminderMenu(
   interaction: StringSelectMenuInteraction,
@@ -231,6 +235,7 @@ export async function handleEditReminderMenu(
   await interaction.deferUpdate()
 
   const value = interaction.values[0]
+  if (!value) return
   const reminderId = parseInt(value.replace('edit_', ''), 10)
 
   if (isNaN(reminderId)) {
@@ -243,7 +248,7 @@ export async function handleEditReminderMenu(
     return
   }
 
-  await showEditReminder(interaction, reminderId)
+  await (await import('./edit')).showEditReminder(interaction, reminderId)
 }
 
 // Helper functions

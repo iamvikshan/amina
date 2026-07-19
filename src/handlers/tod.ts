@@ -15,9 +15,13 @@ async function handleTodButtonClick(
 
   // Get the current rating from the footer of the previous embed
   const currentEmbed = interaction.message.embeds[0]
+  if (!currentEmbed) {
+    await interaction.deferUpdate().catch(() => {})
+    return
+  }
   const footerText = currentEmbed.data.footer?.text || ''
   const ratingMatch = footerText.match(/rating: ([^|]+)/i)
-  const currentRating = ratingMatch ? ratingMatch[1].trim() : 'PG' // default to PG if no match
+  const currentRating = ratingMatch?.[1]?.trim() ?? 'PG' // default to PG if no match
 
   // Check PG-16 requirement
   if (currentRating === 'PG-16' && userAge && userAge < 16) {

@@ -189,8 +189,9 @@ function buildButtonRow(page: number, showHub: boolean): MinaRow {
 
 /**
  * Show Logging Configuration menu (from admin hub menu interaction)
- * @param interaction
- * @param page
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {number} page - The page number
+ * @returns {void} Nothing.
  */
 export async function showLoggingMenu(
   interaction: StringSelectMenuInteraction,
@@ -211,8 +212,9 @@ export async function showLoggingMenu(
 
 /**
  * Show Logging Configuration menu directly (from /logs command)
- * @param interaction
- * @param page
+ * @param {ChatInputCommandInteraction} interaction - The interaction object
+ * @param {number} page - The page number
+ * @returns {void} Nothing.
  */
 export async function showLoggingMenuDirect(
   interaction: ChatInputCommandInteraction,
@@ -241,7 +243,8 @@ export async function showLoggingMenuDirect(
 
 /**
  * Handle page navigation buttons
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleLoggingPageButton(
   interaction: ButtonInteraction,
@@ -249,6 +252,7 @@ export async function handleLoggingPageButton(
   await interaction.deferUpdate()
 
   const [, , rawAction] = interaction.customId.split(':')
+  if (!rawAction) return
   // Extract base action by removing any context suffix (e.g., "|hub")
   const baseAction = rawAction.split('|')[0]
   const settings = await getSettings(interaction.guild)
@@ -270,12 +274,14 @@ export async function handleLoggingPageButton(
 
 /**
  * Handle Logging action selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleLoggingMenu(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const action = interaction.values[0]
+  if (!action) return
 
   await interaction.deferUpdate()
   const settings = await getSettings(interaction.guild)
@@ -359,11 +365,14 @@ export async function handleLoggingMenu(
         // Navigate to parent and toggle
         let parent: any = settings
         for (let i = 0; i < parts.length - 1; i++) {
-          if (!parent[parts[i]]) parent[parts[i]] = {}
-          parent = parent[parts[i]]
+          const part = parts[i]
+          if (!part) continue
+          if (!parent[part]) parent[part] = {}
+          parent = parent[part]
         }
 
         const lastPart = parts[parts.length - 1]
+        if (!lastPart) return
         const currentValue = parent[lastPart]
 
         // If toggling a category object (channel/role), toggle all sub-settings
@@ -417,7 +426,8 @@ export async function handleLoggingMenu(
 
 /**
  * Handle back to logs button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleBackToLogs(
   interaction: ButtonInteraction,

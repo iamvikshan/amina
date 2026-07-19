@@ -14,12 +14,13 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show amount selection menu
- * @param interaction
- * @param purgeType
- * @param additionalData
- * @param additionalData.token
- * @param additionalData.userId
- * @param isDefault
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {PurgeType} purgeType - The purge type
+ * @param {Object} additionalData - The additional data
+ * @param {Object} additionalData.token - The additional data.token
+ * @param {string} additionalData.userId - The additional data.user id
+ * @param {boolean} isDefault - The is default
+ * @returns {void} Nothing.
  */
 export async function showAmountSelect(
   interaction:
@@ -27,7 +28,7 @@ export async function showAmountSelect(
     | ButtonInteraction
     | ModalSubmitInteraction,
   purgeType: PurgeType,
-  additionalData?: { token?: string; userId?: string },
+  additionalData?: { token?: string | undefined; userId?: string | undefined },
   isDefault?: boolean,
 ): Promise<void> {
   const embed = MinaEmbed.primary()
@@ -108,12 +109,14 @@ export async function showAmountSelect(
 
 /**
  * Handle amount selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAmountSelect(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const selected = interaction.values[0]
+  if (!selected) return
   const customId = interaction.customId
 
   // Parse state from custom_id
@@ -125,9 +128,9 @@ export async function handleAmountSelect(
 
   const purgeType = typePart?.split(':')[1] as PurgeType
   const token = tokenPart
-    ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+    ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
     : undefined
-  const userId = userPart?.split(':')[1]
+  const userId = userPart?.split(':')[1] ?? undefined
 
   if (selected === 'custom') {
     // Show modal for custom amount

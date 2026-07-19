@@ -7,7 +7,7 @@ import {
 } from 'discord.js'
 import type { ColorResolvable } from 'discord.js'
 import { getUser, removeFlagsByServer } from '@schemas/User'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
 
@@ -156,7 +156,7 @@ async function handleRedFlag(
           }),
         )
 
-        const rating = DANGER_RATINGS[userDb.flags.length] || DANGER_RATINGS[5] // Default to max if over 5
+        const rating = DANGER_RATINGS[userDb.flags.length] || DANGER_RATINGS[10]
 
         let description = mina.sayf('utility.redflag.check.description', {
           count: userDb.flags.length.toString(),

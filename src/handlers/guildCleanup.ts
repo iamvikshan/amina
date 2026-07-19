@@ -14,8 +14,8 @@ import { Model as AutomodLogModel } from '@schemas/AutomodLogs'
 /**
  * Cleanup expired guilds (left more than 24 hours ago)
  * Deletes all guild-related data from all collections
- * @param client - The bot client instance
- * @returns Statistics about the cleanup operation
+ * @param {BotClient} client - The bot client instance
+ * @returns {Promise<{success: boolean; expiredGuildsFound: number; guildsCleaned: number; guildsSkipped: number; totalRecordsDeleted: number; errors: number}>} Statistics about the cleanup operation
  */
 export async function cleanupExpiredGuilds(client: BotClient): Promise<{
   success: boolean
@@ -112,8 +112,8 @@ export async function cleanupExpiredGuilds(client: BotClient): Promise<{
 
 /**
  * Delete all data related to a guild
- * @param guildId - The guild ID to delete
- * @returns Statistics about deleted records
+ * @param {string} guildId - The guild ID to delete
+ * @returns {Promise<} Statistics about deleted records
  */
 async function deleteGuildData(guildId: string): Promise<{
   total: number

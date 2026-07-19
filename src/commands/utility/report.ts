@@ -8,7 +8,7 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js'
 import { FEEDBACK } from '@src/config'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 const command: CommandData = {
@@ -67,6 +67,7 @@ const command: CommandData = {
       try {
         if (i.customId === 'report_select' && i.isStringSelectMenu()) {
           const selected = i.values[0]
+          if (!selected) return
           await showReportModal(i, selected)
         }
       } catch (error) {

@@ -6,8 +6,9 @@ import { mina } from '@helpers/mina'
 
 /**
  * Show list of servers with pagination
- * @param interaction
- * @param page
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @param {number} page - The page number
+ * @returns {void} Nothing.
  */
 export async function showListservers(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -49,6 +50,7 @@ export async function showListservers(
   const fields = []
   for (let i = start; i < end; i++) {
     const server = servers[i]
+    if (!server) continue
     fields.push({
       name: server.name,
       value: `ID: ${server.id}\nMembers: ${server.memberCount}`,
@@ -79,7 +81,8 @@ export async function showListservers(
 
 /**
  * Handle pagination button click
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleListserversPage(
   interaction: ButtonInteraction,
@@ -87,7 +90,7 @@ export async function handleListserversPage(
   await interaction.deferUpdate()
 
   const customId = interaction.customId
-  const page = parseInt(customId.split('|')[1], 10)
+  const page = parseInt(customId.split('|')[1] ?? '0', 10)
 
   await showListservers(interaction, page)
 }

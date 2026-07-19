@@ -7,12 +7,13 @@ import {
 } from 'discord.js'
 import { getUser } from '@schemas/User'
 import { MinaRows } from '@helpers/componentHelper'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show privacy settings menu
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showPrivacyMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -82,12 +83,14 @@ export async function showPrivacyMenu(
 
 /**
  * Handle privacy setting toggle
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePrivacyMenu(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   const setting = interaction.values[0]
+  if (!setting) return
 
   try {
     const user = await getUser(interaction.user)

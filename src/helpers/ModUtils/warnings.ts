@@ -6,9 +6,10 @@ import { memberInteract, logModeration } from './core'
 
 /**
  * Warns the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function warnTarget(
   issuer: GuildMember,
@@ -20,7 +21,7 @@ export async function warnTarget(
     return 'BOT_PERM'
 
   try {
-    logModeration(issuer, target, reason, 'Warn')
+    logModeration(issuer, target, reason, 'Warn').catch(() => {})
     const memberDb: any = await getMember(issuer.guild.id, target.id)
     memberDb.warnings += 1
     const settings = await getSettings(issuer.guild)

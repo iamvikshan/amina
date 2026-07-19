@@ -12,7 +12,8 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main purge hub with type selection
- * @param interaction
+ * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showPurgeHub(
   interaction:
@@ -95,7 +96,8 @@ export async function showPurgeHub(
 
 /**
  * Handle purge type selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePurgeTypeMenu(
   interaction: StringSelectMenuInteraction,
@@ -137,7 +139,8 @@ export async function handlePurgeTypeMenu(
 
 /**
  * Handle proceed button for default flow (All Messages preselected)
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProceedType(
   interaction: ButtonInteraction,
@@ -151,7 +154,8 @@ export async function handleProceedType(
 
 /**
  * Handle back button to return to main hub
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handlePurgeBackButton(
   interaction: ButtonInteraction,

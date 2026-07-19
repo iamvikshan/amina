@@ -13,7 +13,8 @@ const MAX_REMINDERS = 25
 
 /**
  * Show main reminder hub with preview
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction | ChatInputCommandInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showReminderHub(
   interaction:
@@ -88,7 +89,8 @@ export async function showReminderHub(
 
 /**
  * Handle operation selection from main hub
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleReminderOperationMenu(
   interaction: StringSelectMenuInteraction,
@@ -118,7 +120,8 @@ export async function handleReminderOperationMenu(
 
 /**
  * Handle back button to return to main reminder hub
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleReminderBackButton(
   interaction: ButtonInteraction,

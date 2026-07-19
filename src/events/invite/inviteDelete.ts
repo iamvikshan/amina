@@ -7,8 +7,9 @@ const { getInviteCache } = inviteHandler
 /**
  * Handles invite deletion event
  * @param {BotClient} client - The bot client instance
- * @param _client
+ * @param {BotClient} _client - The _client
  * @param {Invite} invite - The deleted invite
+ * @returns {void} Nothing.
  */
 export default async (_client: BotClient, invite: Invite): Promise<void> => {
   if (!invite?.guild) return

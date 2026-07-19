@@ -7,8 +7,9 @@ import {
 
 /**
  * Safely reply to a message
- * @param content - The reply content
- * @param seconds - Optional auto-delete timeout in seconds
+ * @param {string | MessagePayload | MessageReplyOptions} content - The reply content
+ * @param {number} seconds - Optional auto-delete timeout in seconds
+ * @returns {Promise<any>} A promise that resolves when done.
  */
 Message.prototype.safeReply = async function (
   this: Message,

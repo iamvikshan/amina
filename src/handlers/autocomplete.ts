@@ -3,6 +3,7 @@ import type { AutocompleteInteraction } from 'discord.js'
 /**
  * Centralized registry for autocomplete providers
  * Format: Map<`${commandName}:${optionName}`, handler>
+ * @returns {void} Nothing.
  */
 export const autocompleteProviders = new Map<
   string,
@@ -11,9 +12,10 @@ export const autocompleteProviders = new Map<
 
 /**
  * Register an autocomplete provider
- * @param commandName - The command name (e.g., 'dev')
- * @param optionName - The option name (e.g., 'command')
- * @param handler - The autocomplete handler function
+ * @param {string} commandName - The command name (e.g., 'dev')
+ * @param {string} optionName - The option name (e.g., 'command')
+ * @param {Object} handler - The autocomplete handler function
+ * @returns {void} Nothing.
  */
 export function registerAutocomplete(
   commandName: string,
@@ -27,7 +29,8 @@ export function registerAutocomplete(
 /**
  * Handle autocomplete interaction
  * Routes to the appropriate provider based on command and option name
- * @param interaction
+ * @param {AutocompleteInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAutocomplete(
   interaction: AutocompleteInteraction,

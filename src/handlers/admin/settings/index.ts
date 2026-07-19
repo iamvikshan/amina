@@ -8,12 +8,12 @@ import {
   ChannelType,
 } from 'discord.js'
 import { getSettings } from '@schemas/Guild'
-import { handleAdminBackButton } from '../main-hub'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show Server Settings submenu
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showServerSettingsMenu(
   interaction: StringSelectMenuInteraction,
@@ -69,7 +69,8 @@ export async function showServerSettingsMenu(
 
 /**
  * Handle Server Settings action selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleServerSettingsMenu(
   interaction: StringSelectMenuInteraction,
@@ -78,6 +79,7 @@ export async function handleServerSettingsMenu(
 
   if (action === 'back') {
     await interaction.deferUpdate()
+    const { handleAdminBackButton } = await import('../main-hub')
     await handleAdminBackButton(interaction as any)
     return
   }
@@ -104,8 +106,9 @@ export async function handleServerSettingsMenu(
 
 /**
  * Show channel selector for updates channel
- * @param interaction
- * @param action
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {string} action - The action
+ * @returns {void} Nothing.
  */
 async function showChannelSelector(
   interaction: StringSelectMenuInteraction,
@@ -139,8 +142,9 @@ async function showChannelSelector(
 
 /**
  * Show role selector for staff roles
- * @param interaction
- * @param action
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @param {string} action - The action
+ * @returns {void} Nothing.
  */
 async function showRoleSelector(
   interaction: StringSelectMenuInteraction,

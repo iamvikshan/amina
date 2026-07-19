@@ -5,7 +5,7 @@ import type { Message } from 'discord.js'
 import type { BotClient } from '@src/structures'
 import { aiResponderService } from '@src/services/ai/aiResponder'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /**
  * Fetches pronouns for multiple users from PronounsDB API v2 (batched)
@@ -78,8 +78,8 @@ function getVerbConjugation(subject: string): string {
 /**
  * Generates a pronoun-aware AFK message
  * @param {object} params Parameters for generating message
- * @param params.pronouns
- * @param params.minutes
+ * @param {string} params.pronouns - The params.pronouns
+ * @param {number} params.minutes - The params.minutes
  * @returns {string} Formatted AFK message
  */
 function generateAfkMessage(params: {
@@ -88,6 +88,7 @@ function generateAfkMessage(params: {
 }): string {
   const { pronouns, minutes = 0 } = params
   const [subject, object] = pronouns.split('/')
+  if (!subject) return ''
 
   // Capitalize first letter of subject pronoun
   const Subject = subject.charAt(0).toUpperCase() + subject.slice(1)
@@ -119,13 +120,15 @@ function generateAfkMessage(params: {
   else category = 'veryLong'
 
   const intros = timeBasedIntros[category]
-  return intros[Math.floor(Math.random() * intros.length)]
+  if (!intros) return ''
+  return intros[Math.floor(Math.random() * intros.length)] ?? ''
 }
 
 /**
  * Handles message creation events
  * @param {BotClient} client - The bot client instance
  * @param {Message} message - The message that was created
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient, message: Message): Promise<void> => {
   if (message.author.bot) return
@@ -135,6 +138,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
   if ((authorData as any).afk?.enabled) {
     const authorPronouns = await fetchPronouns(message.author.id)
     const [subject] = authorPronouns.split('/')
+    if (!subject) return
     const Subject = subject.charAt(0).toUpperCase() + subject.slice(1)
     const verb = getVerbConjugation(subject)
 
@@ -178,6 +182,7 @@ export default async (client: BotClient, message: Message): Promise<void> => {
 
       for (let i = 0; i < mentions.length; i++) {
         const mentionedUser = mentions[i]
+        if (!mentionedUser) continue
         const userData: any = usersData[i]
         const userPronouns = pronounsMap.get(mentionedUser.id) || 'they/them'
 
@@ -205,7 +210,8 @@ export default async (client: BotClient, message: Message): Promise<void> => {
                 1000 /
                 60,
             )
-            const [subject] = userPronouns.split('/')
+            const [subjectRaw] = userPronouns.split('/')
+            const subject = subjectRaw ?? ''
             const verb = getVerbConjugation(subject)
             endTime = `\n⌛ ${subject} should be back in: ${minutesLeft} minutes (unless ${subject}${verb} lost in a parallel dimension~)`
           }

@@ -18,7 +18,8 @@ import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show topics management submenu
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showTopicsMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -69,7 +70,8 @@ export async function showTopicsMenu(
 
   // Disable remove if no topics
   if (topicCount === 0) {
-    menu.components[0].options[2].setDescription('no topics to remove')
+    const removeOption = menu.components[0]?.options[2]
+    if (removeOption) removeOption.setDescription('no topics to remove')
   }
 
   const backRow = MinaRows.backRow('ticket:btn:back_setup')
@@ -82,7 +84,8 @@ export async function showTopicsMenu(
 
 /**
  * Handle topics menu selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleTopicsMenu(
   interaction: StringSelectMenuInteraction,
@@ -111,7 +114,8 @@ export async function handleTopicsMenu(
 
 /**
  * Show list of all topics
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showTopicsList(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -158,7 +162,8 @@ async function showTopicsList(
 
 /**
  * Show modal for adding a topic
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showAddTopicModal(
   interaction: StringSelectMenuInteraction,
@@ -185,7 +190,8 @@ async function showAddTopicModal(
 
 /**
  * Handle add topic modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleAddTopicModal(
   interaction: ModalSubmitInteraction,
@@ -308,7 +314,8 @@ export async function handleAddTopicModal(
 
 /**
  * Show select menu for removing a topic
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 async function showRemoveTopicSelect(
   interaction: StringSelectMenuInteraction,
@@ -366,7 +373,8 @@ async function showRemoveTopicSelect(
 
 /**
  * Handle topic removal selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRemoveTopicSelect(
   interaction: StringSelectMenuInteraction,
@@ -400,7 +408,8 @@ export async function handleRemoveTopicSelect(
 
 /**
  * Handle topic removal confirmation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRemoveTopicConfirm(
   interaction: ButtonInteraction,
@@ -497,7 +506,8 @@ export async function handleRemoveTopicConfirm(
 
 /**
  * Handle topic removal cancellation
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleRemoveTopicCancel(
   interaction: ButtonInteraction,
@@ -508,7 +518,8 @@ export async function handleRemoveTopicCancel(
 
 /**
  * Handle back button to topics menu
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleBackToTopics(
   interaction: ButtonInteraction,

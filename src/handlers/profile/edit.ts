@@ -12,11 +12,12 @@ import { createBasicModal, createMiscModal } from '@commands/utility/profile'
 import { updateProfile, getUser } from '@schemas/User'
 import { validateBirthdate, calculateAge } from './shared/utils'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 /**
  * Show edit profile menu
- * @param interaction
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showEditMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -63,7 +64,8 @@ export async function showEditMenu(
 
 /**
  * Handle edit category selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleEditMenu(
   interaction: StringSelectMenuInteraction,
@@ -92,7 +94,8 @@ export async function handleEditMenu(
 
 /**
  * Handle profile modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleProfileModal(
   interaction: ModalSubmitInteraction,
@@ -107,7 +110,7 @@ export async function handleProfileModal(
 
       if (!birthdateValidation.isValid) {
         await interaction.reply({
-          content: birthdateValidation.error,
+          content: birthdateValidation.error ?? 'invalid date',
           ephemeral: true,
         })
         return

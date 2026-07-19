@@ -3,8 +3,9 @@ import type { MessageReaction, User } from 'discord.js'
 
 /**
  * Handle when a user adds a reaction to a message
- * @param reaction - The message reaction
- * @param user - The user who added the reaction
+ * @param {MessageReaction} reaction - The message reaction
+ * @param {User} user - The user who added the reaction
+ * @returns {void} Nothing.
  */
 export async function handleReactionAdd(
   reaction: MessageReaction,
@@ -22,8 +23,9 @@ export async function handleReactionAdd(
 
 /**
  * Handle when a user removes a reaction from a message
- * @param reaction - The message reaction
- * @param user - The user who removed the reaction
+ * @param {MessageReaction} reaction - The message reaction
+ * @param {User} user - The user who removed the reaction
+ * @returns {void} Nothing.
  */
 export async function handleReactionRemove(
   reaction: MessageReaction,
@@ -41,8 +43,8 @@ export async function handleReactionRemove(
 
 /**
  * Get the role associated with a reaction
- * @param reaction - The message reaction
- * @returns The role if found, null otherwise
+ * @param {MessageReaction} reaction - The message reaction
+ * @returns {Promise<any>} The role if found, null otherwise
  */
 async function getRole(reaction: MessageReaction): Promise<any> {
   const { message, emoji } = reaction

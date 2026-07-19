@@ -7,6 +7,7 @@ import type { Player } from 'lavalink-client'
  * Handles queue end events
  * @param {BotClient} client - The bot client instance
  * @param {Player} player - The player whose queue ended
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient, player: Player): Promise<void> => {
   const guild = client.guilds.cache.get(player.guildId)

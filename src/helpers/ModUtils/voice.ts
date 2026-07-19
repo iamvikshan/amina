@@ -4,9 +4,10 @@ import { memberInteract, logModeration } from './core'
 
 /**
  * Voice mutes the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function vMuteTarget(
   issuer: GuildMember,
@@ -22,7 +23,7 @@ export async function vMuteTarget(
 
   try {
     await target.voice.setMute(true, reason)
-    logModeration(issuer, target, reason, 'Vmute')
+    logModeration(issuer, target, reason, 'Vmute').catch(() => {})
     return true
   } catch (ex) {
     error(`vMuteTarget`, ex)
@@ -32,9 +33,10 @@ export async function vMuteTarget(
 
 /**
  * Voice unmutes the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function vUnmuteTarget(
   issuer: GuildMember,
@@ -50,7 +52,7 @@ export async function vUnmuteTarget(
 
   try {
     await target.voice.setMute(false, reason)
-    logModeration(issuer, target, reason, 'Vunmute')
+    logModeration(issuer, target, reason, 'Vunmute').catch(() => {})
     return true
   } catch (ex) {
     error(`vUnmuteTarget`, ex)
@@ -60,9 +62,10 @@ export async function vUnmuteTarget(
 
 /**
  * Deafens the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function deafenTarget(
   issuer: GuildMember,
@@ -78,7 +81,7 @@ export async function deafenTarget(
 
   try {
     await target.voice.setDeaf(true, reason)
-    logModeration(issuer, target, reason, 'Deafen')
+    logModeration(issuer, target, reason, 'Deafen').catch(() => {})
     return true
   } catch (ex) {
     error(`deafenTarget`, ex)
@@ -88,9 +91,10 @@ export async function deafenTarget(
 
 /**
  * UnDeafens the target and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function unDeafenTarget(
   issuer: GuildMember,
@@ -106,7 +110,7 @@ export async function unDeafenTarget(
 
   try {
     await target.voice.setDeaf(false, reason)
-    logModeration(issuer, target, reason, 'unDeafen')
+    logModeration(issuer, target, reason, 'unDeafen').catch(() => {})
     return true
   } catch (ex) {
     error(`unDeafenTarget`, ex)
@@ -116,9 +120,10 @@ export async function unDeafenTarget(
 
 /**
  * Disconnects the target from voice channel and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function disconnectTarget(
   issuer: GuildMember,
@@ -133,7 +138,7 @@ export async function disconnectTarget(
 
   try {
     await target.voice.disconnect(reason)
-    logModeration(issuer, target, reason, 'Disconnect')
+    logModeration(issuer, target, reason, 'Disconnect').catch(() => {})
     return true
   } catch (ex) {
     error(`disconnectTarget`, ex)
@@ -143,10 +148,11 @@ export async function disconnectTarget(
 
 /**
  * Moves the target to another voice channel and logs to the database, channel
- * @param issuer
- * @param target
- * @param reason
- * @param channel
+ * @param {GuildMember} issuer - The issuer
+ * @param {GuildMember} target - The target
+ * @param {string} reason - The reason
+ * @param {VoiceChannel | StageChannel} channel - The channel object
+ * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function moveTarget(
   issuer: GuildMember,
@@ -166,7 +172,7 @@ export async function moveTarget(
 
   try {
     await target.voice.setChannel(channel, reason)
-    logModeration(issuer, target, reason, 'Move', { channel })
+    logModeration(issuer, target, reason, 'Move', { channel }).catch(() => {})
     return true
   } catch (ex) {
     error(`moveTarget`, ex)

@@ -20,15 +20,15 @@ import {
 } from '@helpers/componentHelper'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { mina } from '@helpers/mina'
-import { showRemindersList } from './list'
 
 const MIN_DURATION_MS = 60000
 const MAX_DURATION_DAYS = 365
 
 /**
  * Show edit reminder view
- * @param interaction
- * @param reminderId
+ * @param {ButtonInteraction | StringSelectMenuInteraction} interaction - The interaction object
+ * @param {number} reminderId - The reminder id
+ * @returns {void} Nothing.
  */
 export async function showEditReminder(
   interaction: ButtonInteraction | StringSelectMenuInteraction,
@@ -91,7 +91,8 @@ export async function showEditReminder(
 
 /**
  * Handle edit action menu
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleEditActionMenu(
   interaction: StringSelectMenuInteraction,
@@ -99,8 +100,9 @@ export async function handleEditActionMenu(
   await interaction.deferUpdate()
 
   const value = interaction.values[0]
+  if (!value) return
   const [action, reminderIdStr] = value.split('_').slice(-2)
-  const reminderId = parseInt(reminderIdStr, 10)
+  const reminderId = parseInt(reminderIdStr ?? 'NaN', 10)
 
   if (isNaN(reminderId)) {
     await interaction.followUp({
@@ -187,7 +189,8 @@ export async function handleEditActionMenu(
 
 /**
  * Handle edit message modal submit
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleEditMessageModal(
   interaction: ModalSubmitInteraction,
@@ -195,7 +198,7 @@ export async function handleEditMessageModal(
   await interaction.deferUpdate()
 
   const { state } = parseCustomIdState(interaction.customId)
-  const reminderId = parseInt(state.id, 10)
+  const reminderId = parseInt(state.id ?? 'NaN', 10)
 
   if (isNaN(reminderId)) {
     await interaction.followUp({
@@ -250,7 +253,7 @@ export async function handleEditMessageModal(
     // Refresh list after a short delay
     setTimeout(async () => {
       try {
-        await showRemindersList(interaction, 1)
+        await (await import('./list')).showRemindersList(interaction, 1)
       } catch (_error) {
         // User may have navigated away
       }
@@ -265,7 +268,8 @@ export async function handleEditMessageModal(
 
 /**
  * Handle edit time modal submit
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleEditTimeModal(
   interaction: ModalSubmitInteraction,
@@ -273,7 +277,7 @@ export async function handleEditTimeModal(
   await interaction.deferUpdate()
 
   const { state } = parseCustomIdState(interaction.customId)
-  const reminderId = parseInt(state.id, 10)
+  const reminderId = parseInt(state.id ?? 'NaN', 10)
 
   if (isNaN(reminderId)) {
     await interaction.followUp({
@@ -356,7 +360,7 @@ export async function handleEditTimeModal(
     // Refresh list after a short delay
     setTimeout(async () => {
       try {
-        await showRemindersList(interaction, 1)
+        await (await import('./list')).showRemindersList(interaction, 1)
       } catch (_error) {
         // User may have navigated away
       }

@@ -29,12 +29,12 @@ export class MemoryService {
   private readonly MAX_MEMORIES_PER_USER = 50
 
   async initialize(options: {
-    geminiApiKey?: string
-    mistralApiKey?: string
-    voyageApiKey?: string
-    voyageMongoApiKey?: string
-    embeddingModel?: string
-    dedupThreshold?: number
+    geminiApiKey?: string | undefined
+    mistralApiKey?: string | undefined
+    voyageApiKey?: string | undefined
+    voyageMongoApiKey?: string | undefined
+    embeddingModel?: string | undefined
+    dedupThreshold?: number | undefined
   }) {
     try {
       this.gemini = options.geminiApiKey

@@ -1,6 +1,6 @@
 import CommandCategory from '@src/structures/CommandCategory'
 import config from '@src/config'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import {
   ActionRowBuilder,
   StringSelectMenuBuilder,
@@ -164,7 +164,8 @@ const waiter = (msg: Message, member: GuildMember) => {
       switch (response.customId) {
         case 'help-menu': {
           const selectResponse = response as StringSelectMenuInteraction
-          const cat = selectResponse.values[0].toUpperCase()
+          const cat = selectResponse.values[0]?.toUpperCase()
+          if (!cat) break
           const client = msg.client as BotClient
           arrEmbeds = getSlashCategoryEmbeds(client, cat, member)
           currentPage = 0
@@ -175,10 +176,13 @@ const waiter = (msg: Message, member: GuildMember) => {
             next: 'nextBtn',
           })
           // Use response.editReply instead of msg.edit
-          await response.editReply({
-            embeds: [arrEmbeds[currentPage]],
-            components: [menuRow, buttonsRow],
-          })
+          const initialEmbed = arrEmbeds[currentPage]
+          if (initialEmbed) {
+            await response.editReply({
+              embeds: [initialEmbed],
+              components: [menuRow, buttonsRow],
+            })
+          }
           break
         }
 
@@ -191,10 +195,13 @@ const waiter = (msg: Message, member: GuildMember) => {
               next: 'nextBtn',
             })
             // Use response.editReply instead of msg.edit
-            await response.editReply({
-              embeds: [arrEmbeds[currentPage]],
-              components: [menuRow, buttonsRow],
-            })
+            const prevEmbed = arrEmbeds[currentPage]
+            if (prevEmbed) {
+              await response.editReply({
+                embeds: [prevEmbed],
+                components: [menuRow, buttonsRow],
+              })
+            }
           }
           break
 
@@ -207,10 +214,13 @@ const waiter = (msg: Message, member: GuildMember) => {
               next: 'nextBtn',
             })
             // Use response.editReply instead of msg.edit
-            await response.editReply({
-              embeds: [arrEmbeds[currentPage]],
-              components: [menuRow, buttonsRow],
-            })
+            const nextEmbed = arrEmbeds[currentPage]
+            if (nextEmbed) {
+              await response.editReply({
+                embeds: [nextEmbed],
+                components: [menuRow, buttonsRow],
+              })
+            }
           }
           break
       }

@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
   TextChannel,
 } from 'discord.js'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 
 const command: CommandData = {
   name: 'say',

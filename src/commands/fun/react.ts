@@ -1,6 +1,6 @@
 import { getUser } from '@schemas/User'
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import axios from 'axios'
 import {
   ApplicationCommandOptionType,
@@ -104,7 +104,10 @@ async function getPronouns(user: User): Promise<PronounInfo> {
 
 function generatePronounForms(pronounString: string | null): PronounForms {
   // Convert pronoun string (e.g. "he/him" or "they/them") to useful forms
-  const [subject] = pronounString?.toLowerCase().split('/') || ['they', 'them']
+  const [subject = 'they'] = pronounString?.toLowerCase().split('/') || [
+    'they',
+    'them',
+  ]
 
   // Handle common pronoun sets
   const pronounForms: Record<string, PronounForms> = {
@@ -119,7 +122,8 @@ function generatePronounForms(pronounString: string | null): PronounForms {
   }
 
   // Use the first pronoun (subject) to get the full set of forms
-  return pronounForms[subject] || pronounForms['they']
+  const defaultPronouns: PronounForms = { subject: 'they', object: 'them', possessive: 'their' }
+  return pronounForms[subject] || pronounForms['they'] || defaultPronouns
 }
 
 function generateReactionMessage(

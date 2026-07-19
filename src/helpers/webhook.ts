@@ -7,7 +7,7 @@ import { secret } from '@src/config'
  * @param {BotClient} client - The Discord bot client
  * @param {string} guildId - The guild ID to refresh
  * @param {string} eventType - The event type ('join' or 'leave')
- * @returns {Promise<void>}
+ * @returns {Promise<void>} A promise that resolves when done.
  */
 export async function notifyDashboard(
   client: BotClient,

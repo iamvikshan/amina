@@ -25,8 +25,9 @@ const MAX_CATEGORY_PAGES = 2 // Maximum pages in category view before showing DM
 
 /**
  * Show memories view (server or DM)
- * @param interaction
- * @param memoryTypeParam
+ * @param {StringSelectMenuInteraction | ButtonInteraction} interaction - The interaction object
+ * @param {Object} memoryTypeParam - The memory type param
+ * @returns {void} Nothing.
  */
 export async function showMemoriesView(
   interaction: StringSelectMenuInteraction | ButtonInteraction,
@@ -93,19 +94,18 @@ export async function showMemoriesView(
     // Group memories by type
     const byType: Record<string, typeof memories> = {}
     for (const memory of memories) {
-      if (!byType[memory.memoryType]) {
-        byType[memory.memoryType] = []
-      }
-      byType[memory.memoryType].push(memory)
+      const bucket = byType[memory.memoryType] ?? []
+      bucket.push(memory)
+      byType[memory.memoryType] = bucket
     }
 
     // Get sorted memory types
     const memoryTypes = Object.keys(byType).sort((a, b) => {
-      const aTotal = byType[a].reduce(
+      const aTotal = (byType[a] ?? []).reduce(
         (sum, m) => sum + m.importance + m.accessCount,
         0,
       )
-      const bTotal = byType[b].reduce(
+      const bTotal = (byType[b] ?? []).reduce(
         (sum, m) => sum + m.importance + m.accessCount,
         0,
       )
@@ -136,6 +136,7 @@ export async function showMemoriesView(
 
     for (const type of memoryTypes) {
       const mems = byType[type]
+      if (!mems) continue
       const previewMems = mems.slice(0, MEMORIES_PER_TYPE_PREVIEW)
 
       const lines = previewMems.map(m => {
@@ -232,7 +233,8 @@ export async function showMemoriesView(
 
 /**
  * Show category detail view - all memories of a specific type
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showCategoryDetailView(
   interaction: ButtonInteraction,
@@ -348,13 +350,13 @@ export async function showCategoryDetailView(
     if (navRow) {
       // Update custom IDs
       if (hasPrev) {
-        navRow.components[0].setCustomId(
+        navRow.components[0]?.setCustomId(
           buildCustomId('category_page', currentPage - 1),
         )
       }
       if (hasNext) {
         const nextIndex = hasPrev ? 1 : 0
-        navRow.components[nextIndex].setCustomId(
+        navRow.components[nextIndex]?.setCustomId(
           buildCustomId('category_page', currentPage + 1),
         )
       }
@@ -414,7 +416,8 @@ export async function showCategoryDetailView(
 
 /**
  * Handle DM Me button - sends embed + pastebin link
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleDmMe(
   interaction: ButtonInteraction,
@@ -475,10 +478,9 @@ export async function handleDmMe(
     if (!isCategoryView || !categoryType) {
       const byType: Record<string, typeof memories> = {}
       for (const memory of memories) {
-        if (!byType[memory.memoryType]) {
-          byType[memory.memoryType] = []
-        }
-        byType[memory.memoryType].push(memory)
+        const bucket = byType[memory.memoryType] ?? []
+        bucket.push(memory)
+        byType[memory.memoryType] = bucket
       }
 
       for (const [type, mems] of Object.entries(byType)) {
@@ -584,7 +586,8 @@ export async function handleDmMe(
 
 /**
  * Handle category pagination button
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleCategoryPage(
   interaction: ButtonInteraction,
@@ -594,7 +597,8 @@ export async function handleCategoryPage(
 
 /**
  * Handle back to main memories view
- * @param interaction
+ * @param {ButtonInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleBackToMemories(
   interaction: ButtonInteraction,

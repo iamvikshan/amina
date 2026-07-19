@@ -80,7 +80,7 @@ const command: CommandData = {
       playerOnlyMessage: mina.say('fun.tictactoe.playerOnlyMessage'),
     })
 
-    Game.startGame()
+    Game.startGame().catch(() => {})
     Game.on('gameOver', (result: any) => {
       const winners = result.winner
       const winner = `<@${winners}>`
@@ -90,14 +90,14 @@ const command: CommandData = {
           .setTitle('tic tac toe results')
           .setDescription(mina.say('fun.tictactoe.tieResult'))
           .setTimestamp()
-        interaction.followUp({ embeds: [embed] })
+        interaction.followUp({ embeds: [embed] }).catch(() => {})
       } else if (result.result === 'win') {
         const embed = MinaEmbed.success()
           .setTitle('tic tac toe champion')
           .setDescription(mina.sayf('fun.tictactoe.winResult', { winner }))
           .setTimestamp()
 
-        interaction.followUp({ embeds: [embed] })
+        interaction.followUp({ embeds: [embed] }).catch(() => {})
       }
     })
     return

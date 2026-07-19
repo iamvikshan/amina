@@ -194,6 +194,7 @@ export default async (
     // Route roles buttons
     if (interaction.customId.startsWith('roles:btn:')) {
       const [, , action] = interaction.customId.split(':')
+      if (!action) return
       if (action === 'back') {
         await rolesHandler.handleRolesBackButton(interaction)
         return
@@ -295,9 +296,9 @@ export default async (
         const purgeType = typePart?.split(':')[1] as any
         const amount = parseInt(amountPart?.split(':')[1] || '100', 10)
         const token = tokenPart
-          ? Buffer.from(tokenPart.split(':')[1], 'base64').toString()
+          ? Buffer.from(tokenPart.split(':')[1] ?? '', 'base64').toString()
           : undefined
-        const userId = userPart?.split(':')[1]
+        const userId = userPart?.split(':')[1] ?? undefined
 
         await interaction.deferUpdate()
         const { showChannelSelect } =
@@ -306,7 +307,7 @@ export default async (
           interaction,
           purgeType,
           amount,
-          { token, userId },
+          { token: token ?? undefined, userId: userId ?? undefined },
           false,
         ) // isManualSelection = false (default flow)
         return
@@ -321,6 +322,7 @@ export default async (
     // Route dev buttons
     if (interaction.customId.startsWith('dev:btn:')) {
       const [, , action] = interaction.customId.split(':')
+      if (!action) return
 
       if (action === 'back') {
         const { handleDevBackButton } = await import('@handlers/dev')
@@ -463,6 +465,7 @@ export default async (
     // Route ticket modals
     if (interaction.customId.startsWith('ticket:modal:')) {
       const [, , action] = interaction.customId.split(':')
+      if (!action) return
       if (action.startsWith('message')) {
         const { handleTicketMessageModal } =
           await import('@handlers/ticket/setup/message')
@@ -501,6 +504,7 @@ export default async (
     // Route roles modals
     if (interaction.customId.startsWith('roles:modal:')) {
       const [, , action] = interaction.customId.split(':')
+      if (!action) return
       if (action.startsWith('create')) {
         // Create role modal
         await rolesHandler.handleCreateRoleModal(interaction)
@@ -514,6 +518,7 @@ export default async (
     // Route dev modals
     if (interaction.customId.startsWith('dev:modal:')) {
       const [, , action] = interaction.customId.split(':')
+      if (!action) return
       if (action === 'presence') {
         const { handlePresenceModal } = await import('@handlers/dev/presence')
         await handlePresenceModal(interaction)
@@ -585,6 +590,7 @@ export default async (
     // Route dev component interactions
     if (interaction.customId.startsWith('dev:menu:')) {
       const [, , submenu] = interaction.customId.split(':')
+      if (!submenu) return
       if (submenu === 'category') {
         const { handleCategoryMenu } = await import('@handlers/dev')
         await handleCategoryMenu(interaction)
@@ -721,6 +727,7 @@ export default async (
     // Route purge component interactions
     if (interaction.customId.startsWith('purge:')) {
       const [, type, submenu] = interaction.customId.split(':')
+      if (!submenu) return
       if (type === 'menu') {
         if (submenu === 'type') {
           const { handlePurgeTypeMenu } = await import('@handlers/purge')
@@ -736,6 +743,7 @@ export default async (
     // Route roles component interactions
     if (interaction.customId.startsWith('roles:')) {
       const [, type, submenu] = interaction.customId.split(':')
+      if (!submenu) return
       if (type === 'menu') {
         if (submenu === 'operation') {
           await rolesHandler.handleRolesOperationMenu(interaction)
@@ -850,6 +858,7 @@ export default async (
     }
     if (interaction.customId.startsWith('roles:role:')) {
       const [, , action] = interaction.customId.split(':')
+      if (!action) return
       if (action === 'autorole_select') {
         await rolesHandler.handleAutoroleRoleSelect(interaction)
       } else if (action.startsWith('assign')) {

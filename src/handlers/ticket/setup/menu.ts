@@ -10,7 +10,8 @@ import { MinaRows } from '@helpers/componentHelper'
 
 /**
  * Show setup menu with configuration options
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showSetupMenu(
   interaction: StringSelectMenuInteraction,
@@ -61,7 +62,8 @@ export async function showSetupMenu(
 
 /**
  * Handle setup menu selection
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleSetupMenu(
   interaction: StringSelectMenuInteraction,

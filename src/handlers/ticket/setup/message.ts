@@ -15,12 +15,13 @@ import {
 import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 import { MinaButtons, MinaRows } from '@helpers/componentHelper'
 import { mina } from '@helpers/mina'
-import { Logger } from '@helpers/Logger'
+import Logger from '@helpers/Logger'
 import { getSettings, updateSettings } from '@schemas/Guild'
 
 /**
  * Show channel select for ticket message setup
- * @param interaction
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function showMessageChannelSelect(
   interaction: StringSelectMenuInteraction,
@@ -48,7 +49,8 @@ export async function showMessageChannelSelect(
 
 /**
  * Handle channel selection for ticket message
- * @param interaction
+ * @param {ChannelSelectMenuInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleMessageChannelSelect(
   interaction: ChannelSelectMenuInteraction,
@@ -95,8 +97,9 @@ export async function handleMessageChannelSelect(
 
 /**
  * Show modal for ticket message customization
- * @param interaction
- * @param channel
+ * @param {ChannelSelectMenuInteraction} interaction - The interaction object
+ * @param {TextChannel} channel - The channel object
+ * @returns {void} Nothing.
  */
 async function showTicketMessageModal(
   interaction: ChannelSelectMenuInteraction,
@@ -144,7 +147,8 @@ async function showTicketMessageModal(
 
 /**
  * Handle ticket message modal submission
- * @param interaction
+ * @param {ModalSubmitInteraction} interaction - The interaction object
+ * @returns {void} Nothing.
  */
 export async function handleTicketMessageModal(
   interaction: ModalSubmitInteraction,

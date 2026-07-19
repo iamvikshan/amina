@@ -42,7 +42,7 @@ const command: CommandData = {
 
     const initialEmbed = MinaEmbed.loading()
       .setTitle("🎮 Amina's Super Special Hack Attack!")
-      .setDescription(chaoticHackStages[0])
+      .setDescription(chaoticHackStages[0] as string)
 
     const message = await interaction.followUp({ embeds: [initialEmbed] })
 
@@ -54,7 +54,7 @@ const command: CommandData = {
 
       const embed = MinaEmbed.loading()
         .setTitle("🎮 Amina's Super Special Hack Attack!")
-        .setDescription(chaoticHackStages[i])
+        .setDescription(chaoticHackStages[i] as string)
 
       await message.edit({ embeds: [embed] })
     }

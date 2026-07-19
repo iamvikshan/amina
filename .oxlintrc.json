@@ -18,6 +18,8 @@
     "es2022": true
   },
   "ignorePatterns": [
+    "api/**",
+    "types/api/**",
     "dist/**",
     "build/**",
     "logs/**",
@@ -57,7 +59,8 @@
       "warn",
       {
         "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
       }
     ],
 

@@ -16,6 +16,7 @@ import { mina } from '@helpers/mina'
  * Handles guild creation event when the bot joins a new server
  * @param {BotClient} client - The bot client instance
  * @param {Guild} guild - The guild that was joined
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient, guild: Guild): Promise<void> => {
   if (!guild.available) return
@@ -35,7 +36,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
   }
 
   // Notify dashboard to refresh guild data (fire-and-forget)
-  notifyDashboard(client, guild.id, 'join')
+  notifyDashboard(client, guild.id, 'join').catch(() => {})
 
   // Check for existing invite link or create a new one
   let inviteLink = guildSettings.server.invite_link
@@ -181,7 +182,7 @@ export default async (client: BotClient, guild: Guild): Promise<void> => {
 
       await client.joinLeaveWebhook.send({
         username: 'Join',
-        avatarURL: client.user?.displayAvatarURL(),
+        avatarURL: client.user?.displayAvatarURL() ?? '',
         embeds: [embed],
       })
       client.logger.success(

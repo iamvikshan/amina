@@ -18,6 +18,7 @@ import BotUtils from '@helpers/BotUtils'
 /**
  * Client ready event handler
  * @param {BotClient} client - The bot client instance
+ * @returns {void} Nothing.
  */
 export default async (client: BotClient): Promise<void> => {
   client.logger.success(
@@ -76,6 +77,9 @@ export default async (client: BotClient): Promise<void> => {
     client.giveawaysManager
       ._init()
       .then(() => client.logger.success('Giveaway Manager initialized'))
+      .catch((err: Error) =>
+        client.logger.error('Failed to initialize Giveaway Manager', err),
+      )
   }
 
   // Initialize Presence Handler
