@@ -334,7 +334,7 @@ Return ONLY valid JSON. No markdown, no explanation, no code fences.`
    * calling (role:'tool' messages or tool_calls on assistant messages cause
    * 400). Convert tool-related turns into plain user/assistant text so the
    * model still sees the context.
-   * @param {ChatMessage[} messages - The messages
+   * @param {ChatMessage[]} messages - The messages
    * @returns {ChatMessage[]} The result array.
    */
   private static sanitizeMessagesForGemini(

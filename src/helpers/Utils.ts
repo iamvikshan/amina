@@ -134,7 +134,7 @@ export default class Utils {
   /**
    * Recursively searches for a file in a directory
    * @param {string} dir - The dir
-   * @param {string[} allowedExtensions - The allowed extensions
+   * @param {string[]} allowedExtensions - The allowed extensions
    * @returns {string[]} The result array.
    */
   static recursiveReadDirSync(

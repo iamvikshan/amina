@@ -164,7 +164,7 @@ function getFallbackQuotes(): Quote[] {
 
 /**
  * Get a random item from an array
- * @param {T[} arr - The arr
+ * @param {T[]} arr - The arr
  * @returns {T} The result.
  */
 function random<T>(arr: T[]): T {
@@ -244,7 +244,7 @@ export const mina = {
   /**
    * Get random anime quote (async - fetches from API)
    * Returns full quote (no truncation)
-   * @returns {Promise<} A promise that resolves when done.
+   * @returns {Promise<{text: string; character: string; anime: string}>} The anime quote.
    */
   quote: async (): Promise<{
     text: string
@@ -304,7 +304,7 @@ export const mina = {
   /**
    * Template replacement - replaces {var} with values
    * @param {string} template - String with {placeholders}
-   * @param {Record<string} vars - Key-value pairs to replace
+   * @param {Record<string, string | number>} vars - Key-value pairs to replace
    * @returns {string} The result string.
    */
   format: (template: string, vars: Record<string, string | number>): string => {
@@ -317,7 +317,7 @@ export const mina = {
   /**
    * Combine say + format for convenience
    * @param {string} path - Dot-separated path (e.g., 'music.success.shuffled')
-   * @param {Record<string} vars - Variables to substitute
+   * @param {Record<string, string | number>} vars - Variables to substitute
    * @returns {string} The result string.
    */
   sayf: (path: string, vars: Record<string, string | number>): string => {

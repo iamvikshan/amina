@@ -98,7 +98,7 @@ const parse = async (
  * @param {string} type - The type
  * @param {GreetingConfig} config - The configuration object
  * @param {InviterData} inviterData - The inviter data
- * @returns {Promise<} A promise that resolves when done.
+ * @returns {Promise<{content?: string | undefined; embeds?: import('discord.js').EmbedBuilder[]} | undefined>} The greeting message.
  */
 const buildGreeting = async (
   member: GuildMember,

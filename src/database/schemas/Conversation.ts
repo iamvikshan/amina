@@ -55,7 +55,7 @@ export const Model = mongoose.model('conversation', ConversationSchema)
 /**
  * Upsert conversation (create or update)
  * @param {string} conversationId - The conversation id
- * @param {any[} messages - The messages
+ * @param {any[]} messages - The messages
  * @param {number} maxMessages - The max messages
  * @returns {void} Nothing.
  */

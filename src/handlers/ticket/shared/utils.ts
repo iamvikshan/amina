@@ -57,7 +57,7 @@ export function getExistingTicketChannel(guild: Guild, userId: string): any {
 /**
  * Parse ticket details from channel topic
  * @param {BaseGuildTextChannel} channel - The channel object
- * @returns {Promise<} A promise that resolves when done.
+ * @returns {Promise<{user?: User | undefined; catName: string} | undefined>} Parsed ticket details.
  */
 export async function parseTicketDetails(
   channel: BaseGuildTextChannel,

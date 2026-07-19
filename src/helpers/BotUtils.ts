@@ -55,7 +55,7 @@ export default class BotUtils {
   /**
    * Get the image url from the message
    * @param {Message} message - The Discord message
-   * @param {string[} args - Command arguments
+   * @param {string[]} args - Command arguments
    * @returns {Promise<string>} A promise that resolves when done.
    */
   static async getImageFromMessage(
