@@ -81,7 +81,7 @@
     "oxfmt": "^0.59.0",
     "oxlint": "^1.74.0",
     "oxlint-tsgolint": "^0.24.0",
-    "semantic-release": "^25.0.7",
+    "semantic-release": "^25.0.8",
     "semantic-release-gitmoji": "^1.6.9"
   },
   "engines": {
