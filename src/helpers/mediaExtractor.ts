@@ -82,7 +82,7 @@ export function extractMediaFromMessage(message: Message): MediaItem[] {
 /**
  * Check if a message contains any media (images, videos, GIFs)
  * @param {Message} message - The message object
- * @returns {boolean} Whether the operation succeeded.
+ * @returns {boolean} Whether the message contains any media.
  */
 export function hasMedia(message: Message): boolean {
   return extractMediaFromMessage(message).length > 0

@@ -538,7 +538,8 @@ describe('MemoryManipulator', () => {
       { query: 'any topic', limit: -5 },
       { userId: 'user123', guildId: null },
     )
-    // Verify it didn't throw -- clamping worked
+    const negativeCall = mockVectorSearch.mock.calls[0]
+    expect(negativeCall[2]).toBe(1)
 
     mockVectorSearch.mockImplementationOnce(() => Promise.resolve([]))
 
@@ -548,7 +549,8 @@ describe('MemoryManipulator', () => {
       { query: 'any topic', limit: 100 },
       { userId: 'user123', guildId: null },
     )
-    // Verify it didn't throw -- clamping worked
+    const overflowCall = mockVectorSearch.mock.calls[1]
+    expect(overflowCall[2]).toBe(10)
   })
 
   test('MEMORY_TOOLS use lowercase OpenAI-format type strings', () => {

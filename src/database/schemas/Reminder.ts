@@ -89,8 +89,8 @@ export async function createReminder(
 /**
  * Get all active reminders for a user
  * @param {string} userId - The user ID
- * @param {boolean} includeNotified - The include notified
- * @returns {Promise<IReminderDocument[]>} A promise that resolves when done.
+ * @param {boolean} includeNotified - Whether to include already-sent reminders
+ * @returns {Promise<IReminderDocument[]>} Matching reminder documents.
  */
 export async function getUserReminders(
   userId: string,
