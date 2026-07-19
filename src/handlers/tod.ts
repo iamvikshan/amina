@@ -15,7 +15,10 @@ async function handleTodButtonClick(
 
   // Get the current rating from the footer of the previous embed
   const currentEmbed = interaction.message.embeds[0]
-  if (!currentEmbed) return
+  if (!currentEmbed) {
+    await interaction.deferUpdate().catch(() => {})
+    return
+  }
   const footerText = currentEmbed.data.footer?.text || ''
   const ratingMatch = footerText.match(/rating: ([^|]+)/i)
   const currentRating = ratingMatch?.[1]?.trim() ?? 'PG' // default to PG if no match
