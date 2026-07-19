@@ -34,7 +34,7 @@ interface GreetingConfig {
  * @param {string} content - The content
  * @param {GuildMember} member - The guild member
  * @param {InviterData} inviterData - The inviter data
- * @returns {void} Nothing.
+ * @returns {Promise<string>} The parsed greeting string.
  */
 const parse = async (
   content: string,

@@ -18,7 +18,7 @@ export { MinaButton, MinaRow, MinaSelect } from '@structures/components'
  * @param {Message} message - The message object
  * @param {Object} filter - The filter
  * @param {Array} timeoutMs - The timeout ms
- * @returns {void} Nothing.
+ * @returns {Promise<MessageComponentInteraction | null>} The interaction or null on timeout.
  */
 export async function awaitComponentWithTimeout(
   message: Message,
@@ -78,7 +78,7 @@ export async function disableComponents(message: Message): Promise<void> {
  * Parse custom_id state from pipe-delimited format
  * Example: "roles:menu:cleanup|page:2|filter:prefix" -> { page: "2", filter: "prefix" }
  * @param {string} customId - The custom ID
- * @returns {void} Nothing.
+ * @returns {{ base: string; state: Record<string, string> }} Parsed custom ID parts.
  */
 export function parseCustomIdState(customId: string): {
   base: string

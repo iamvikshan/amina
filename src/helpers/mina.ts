@@ -327,7 +327,7 @@ export const mina = {
 
   /**
    * Color getters
-   * @returns {void} Nothing.
+   * @returns {{ primary: ColorResolvable; secondary: ColorResolvable; success: ColorResolvable; error: ColorResolvable; warning: ColorResolvable; info: ColorResolvable; gold: ColorResolvable; muted: ColorResolvable }} The color palette.
    */
   get color() {
     return colors.embed as {

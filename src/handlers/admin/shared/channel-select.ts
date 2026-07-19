@@ -35,7 +35,7 @@ function getFreeWillChannels(settings: any): string[] {
  * @param {string[} currentChannels - The current channels
  * @param {string} channelId - The channel ID
  * @param {string} guildId - The guild ID
- * @returns {void} Nothing.
+ * @returns {{ channels: string[]; action: 'added' | 'removed' | 'limit_reached' }} Updated channels and action taken.
  */
 function toggleFreeWillChannel(
   currentChannels: string[],

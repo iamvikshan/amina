@@ -49,7 +49,7 @@ export class MinaRow extends ActionRowBuilder<MinaButton> {
    * @param {Object} customIds.prev - The custom ids.prev
    * @param {Object} customIds.hub - The custom ids.hub
    * @param {Object} customIds.next - The custom ids.next
-   * @returns {void} Nothing.
+   * @returns {MinaRow} The navigation row.
    */
   static navigation(
     hasPrev = true,
