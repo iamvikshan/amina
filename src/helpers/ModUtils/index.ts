@@ -32,7 +32,7 @@ export * from './voice'
  * @param {GuildMember} issuer - The issuer
  * @param {GuildMember} target - The target
  * @param {string} reason - The reason
- * @param {Object} action - The action
+ * @param {'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN'} action - The moderation action
  * @returns {Promise<string | boolean>} A promise that resolves when done.
  */
 export async function addModAction(
@@ -84,7 +84,7 @@ export default class ModUtils {
    * @param {GuildMember} issuer - The issuer
    * @param {GuildMember} target - The target
    * @param {string} reason - The reason
-   * @param {Object} action - The action
+   * @param {'TIMEOUT' | 'KICK' | 'SOFTBAN' | 'BAN'} action - The moderation action
    * @returns {Promise<string | boolean>} A promise that resolves when done.
    */
   static async addModAction(

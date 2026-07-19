@@ -12,7 +12,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main Mina AI hub with operation selection
- * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {StringSelectMenuInteraction} interaction - The interaction object
  * @returns {void} Nothing.
  */
 export async function showMinaAiHub(

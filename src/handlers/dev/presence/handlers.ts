@@ -16,7 +16,7 @@ import { updatePresence } from './update'
 
 /**
  * Show presence management menu (Hub Flow)
- * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {StringSelectMenuInteraction | ButtonInteraction | ModalSubmitInteraction} interaction - The interaction object
  * @returns {void} Nothing.
  */
 export async function showPresenceMenu(

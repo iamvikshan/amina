@@ -10,7 +10,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show main dev hub with category selection
- * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {StringSelectMenuInteraction | ButtonInteraction | ChatInputCommandInteraction} interaction - The interaction object
  * @returns {void} Nothing.
  */
 export async function showDevHub(

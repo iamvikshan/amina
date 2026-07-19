@@ -448,7 +448,7 @@ export const mina = {
   /**
    * Code block with optional language
    * @param {string} text - The text content
-   * @param {Object} lang - The lang
+   * @param {string} lang - The language identifier
    * @returns {string} The result string.
    */
   codeBlock: (text: string, lang = ''): string =>

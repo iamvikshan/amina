@@ -14,7 +14,7 @@ import { MinaEmbed } from '@structures/embeds/MinaEmbed'
 
 /**
  * Show optional channel selection
- * @param {| StringSelectMenuInteraction} interaction - The interaction object
+ * @param {StringSelectMenuInteraction | ModalSubmitInteraction | ButtonInteraction} interaction - The interaction object
  * @param {PurgeType} purgeType - The purge type
  * @param {number} amount - The amount
  * @param {Object} additionalData - The additional data
