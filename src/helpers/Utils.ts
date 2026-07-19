@@ -116,7 +116,7 @@ export default class Utils {
 
   /**
    * Parse permissions array into readable format
-   * @param {PermissionResolvable[} perms - The perms
+   * @param {PermissionResolvable[]} perms - The perms
    * @returns {string} The result string.
    */
   static parsePermissions(perms: PermissionResolvable[]): string {

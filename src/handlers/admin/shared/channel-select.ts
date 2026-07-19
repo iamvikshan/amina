@@ -32,7 +32,7 @@ function getFreeWillChannels(settings: any): string[] {
 /**
  * Add or remove a free-will channel
  * Returns new array of channels
- * @param {string[} currentChannels - The current channels
+ * @param {string[]} currentChannels - The current channels
  * @param {string} channelId - The channel ID
  * @param {string} guildId - The guild ID
  * @returns {{ channels: string[]; action: 'added' | 'removed' | 'limit_reached' }} Updated channels and action taken.
