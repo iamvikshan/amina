@@ -309,9 +309,9 @@ export default class BotClient extends Client {
           .catch(() => {})
         if (fetched) {
           users.push(fetched)
+          return users
         }
       }
-      return users
     }
 
     const matchingTags = this.users.cache.filter(user => user.tag === search)

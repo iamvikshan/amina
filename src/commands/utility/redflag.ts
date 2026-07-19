@@ -156,8 +156,7 @@ async function handleRedFlag(
           }),
         )
 
-        const rating = DANGER_RATINGS[userDb.flags.length] || DANGER_RATINGS[5]
-        if (!rating) return 'No rating found.' // Default to max if over 5
+        const rating = DANGER_RATINGS[userDb.flags.length] || DANGER_RATINGS[10]
 
         let description = mina.sayf('utility.redflag.check.description', {
           count: userDb.flags.length.toString(),

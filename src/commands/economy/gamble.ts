@@ -36,7 +36,7 @@ const command: CommandData = {
 
 function getEmoji(): string {
   const emojis = responses.lists.slotEmojis
-  return emojis[getRandomInt(emojis.length - 1)] as string
+  return emojis[getRandomInt(emojis.length)] as string
 }
 
 function calculateReward(
