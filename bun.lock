@@ -5,7 +5,7 @@
     "": {
       "name": "amina",
       "dependencies": {
-        "@honeybadger-io/js": "^6.15.0",
+        "@honeybadger-io/js": "^6.15.3",
         "@vitalets/google-translate-api": "^9.2.1",
         "axios": "^1.18.1",
         "common-tags": "^1.8.2",
