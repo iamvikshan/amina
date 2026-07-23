@@ -39,7 +39,7 @@
         "@typescript/native-preview": "^7.0.0-dev.20260707.2",
         "conventional-changelog-conventionalcommits": "^9.3.1",
         "husky": "^9.1.7",
-        "lint-staged": "^17.1.0",
+        "lint-staged": "^17.1.1",
         "oxfmt": "^0.60.0",
         "oxlint": "^1.75.0",
         "oxlint-tsgolint": "^0.25.0",
@@ -753,7 +753,7 @@
 
     "lines-and-columns": ["lines-and-columns@1.2.4", "", {}, "sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg=="],
 
-    "lint-staged": ["lint-staged@17.1.0", "", { "dependencies": { "picomatch": "^4.0.5", "string-argv": "^0.3.2", "tinyexec": "^1.2.4" }, "optionalDependencies": { "yaml": "^2.9.0" }, "bin": { "lint-staged": "bin/lint-staged.js" } }, "sha512-d7UQRu/9ZPgfu4+hu/k0wny5GEaIxo+2jb2LJqQDkE7cHRTm1HGqNUDq5UOwsGPpjpaNAFmgAsYo3TR+i9cSJw=="],
+    "lint-staged": ["lint-staged@17.2.0", "", { "dependencies": { "picomatch": "^4.0.5", "string-argv": "^0.3.2", "tinyexec": "^1.2.4" }, "optionalDependencies": { "yaml": "^2.9.0" }, "bin": { "lint-staged": "bin/lint-staged.js" } }, "sha512-FchGnFe4i4B1C/a35SPU9bNGPEHSC1+1iV0plLjzBmKVe9klZrlRfSgK6Cw4VeHyqOXbJUXP0vON61uRftNQ0A=="],
 
     "load-json-file": ["load-json-file@4.0.0", "", { "dependencies": { "graceful-fs": "^4.1.2", "parse-json": "^4.0.0", "pify": "^3.0.0", "strip-bom": "^3.0.0" } }, "sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw=="],
 
