@@ -56,7 +56,7 @@
     "lavalink-client": "^2.10.3",
     "lru-cache": "^11.5.2",
     "module-alias": "^2.3.4",
-    "mongoose": "^9.7.4",
+    "mongoose": "^9.8.0",
     "openai": "^6.48.0",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",
