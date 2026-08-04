@@ -45,7 +45,7 @@
   "dependencies": {
     "@honeybadger-io/js": "^6.16.0",
     "@vitalets/google-translate-api": "^9.2.1",
-    "axios": "^1.18.1",
+    "axios": "^1.19.0",
     "common-tags": "^1.8.2",
     "dayjs": "^1.11.21",
     "discord-gamecord": "^4.4.4",
