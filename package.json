@@ -43,7 +43,7 @@
     "upd": "apt update && apt upgrade -y && bun upgrade && bun update --latest && bun i && bun f"
   },
   "dependencies": {
-    "@honeybadger-io/js": "^6.16.0",
+    "@honeybadger-io/js": "^6.16.1",
     "@vitalets/google-translate-api": "^9.2.1",
     "axios": "^1.19.0",
     "common-tags": "^1.8.2",
