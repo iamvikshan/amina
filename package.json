@@ -75,7 +75,7 @@
     "@types/bun": "^1.4.0",
     "@types/common-tags": "^1.8.4",
     "@typescript/native-preview": "^7.0.0-dev.20260707.2",
-    "conventional-changelog-conventionalcommits": "^9.3.1",
+    "conventional-changelog-conventionalcommits": "^10.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.4.1",
     "oxfmt": "^0.65.0",
