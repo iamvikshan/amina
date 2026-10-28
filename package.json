@@ -57,7 +57,7 @@
     "lru-cache": "^11.5.3",
     "module-alias": "^2.3.4",
     "mongoose": "^9.11.4",
-    "openai": "^6.49.0",
+    "openai": "^7.43.0",
     "pino": "^10.4.0",
     "pino-pretty": "^13.2.0",
     "pretty-ms": "^9.3.1",
