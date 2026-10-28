@@ -60,7 +60,7 @@
     "openai": "^6.49.0",
     "pino": "^10.4.0",
     "pino-pretty": "^13.2.0",
-    "pretty-ms": "^9.3.1",
+    "pretty-ms": "^10.0.0",
     "sourcebin_js": "^0.0.3-ignore",
     "string-progressbar": "^1.0.4",
     "table": "^6.9.0"
