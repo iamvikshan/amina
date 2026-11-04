@@ -55,7 +55,7 @@
     "enhanced-ms": "^5.0.0",
     "lavalink-client": "^2.11.0",
     "lru-cache": "^11.5.3",
-    "module-alias": "^2.3.4",
+    "module-alias": "^2.3.5",
     "mongoose": "^9.11.4",
     "openai": "^6.49.0",
     "pino": "^10.4.0",
