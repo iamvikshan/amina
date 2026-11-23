@@ -39,7 +39,7 @@
         "@typescript/native-preview": "^7.0.0-dev.20260707.2",
         "conventional-changelog-conventionalcommits": "^10.4.1",
         "husky": "^9.1.7",
-        "lint-staged": "^17.6.0",
+        "lint-staged": "^17.6.1",
         "oxfmt": "^0.78.0",
         "oxlint": "^1.93.0",
         "oxlint-tsgolint": "^7.0.2007",
@@ -779,7 +779,7 @@
 
     "lavalink-client": ["lavalink-client@2.11.2", "", { "dependencies": { "tslib": "^2.9.1", "ws": "^8.23.0" } }, "sha512-LHKW8IYqGLjx+ogtMi5sA1tQrCPV+lWafA35EYBpFil2f2T6+IFjIKe13O6vEU6MU9kqJwPSpc7zgJeY4hqnuQ=="],
 
-    "lint-staged": ["lint-staged@17.6.0", "", { "dependencies": { "picomatch": "^4.0.7", "string-argv": "^0.3.2", "tinyexec": "^1.3.1" }, "optionalDependencies": { "yaml": "^2.9.1" }, "bin": { "lint-staged": "bin/lint-staged.js" } }, "sha512-nOhBfYkZEwkFtNzD5pK9s9LkcWoxJ+whLzEnhqi9nl7zTB5n7tg8+9iYgMGx2Wm3VlLu8cbNj0RACzY+nWi5iQ=="],
+    "lint-staged": ["lint-staged@17.6.2", "", { "dependencies": { "picomatch": "^4.0.7", "string-argv": "^0.4.0", "tinyexec": "^1.3.1" }, "optionalDependencies": { "yaml": "^2.9.1" }, "bin": { "lint-staged": "bin/lint-staged.js" } }, "sha512-c/JaXaXmleubmKUwwp4OAcq55RV9Z3HTUNdqdqPh2srtmP9Of3bcR6o00GoWDUye+9JhMuoYkhYqAVPIOZKcsw=="],
 
     "load-json-file": ["load-json-file@4.0.0", "", { "dependencies": { "graceful-fs": "^4.1.2", "parse-json": "^4.0.0", "pify": "^3.0.0", "strip-bom": "^3.0.0" } }, "sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw=="],
 
@@ -1047,7 +1047,7 @@
 
     "stream-combiner2": ["stream-combiner2@1.1.1", "", { "dependencies": { "duplexer2": "~0.1.0", "readable-stream": "^2.0.2" } }, "sha512-3PnJbYgS56AeWgtKF5jtJRT6uFJe56Z0Hc5Ngg/6sI6rIt8iiMBTa9cvdyFfpMQjaVHr8dusbNeFGIIonxOvKw=="],
 
-    "string-argv": ["string-argv@0.3.2", "", {}, "sha512-aqD2Q0144Z+/RqG52NeHEkZauTAUWJO8c6yTftGJKO3Tja5tUgIfmIl6kExvhtxSDP7fXB6DvzkfMpCd/F3G+Q=="],
+    "string-argv": ["string-argv@0.4.0", "", {}, "sha512-UOtaksJ3SK3KLHba2i9I27fvuZNfBlImDP5wKsCOxCDMRDNxlipCe8rmnUAaDpqlQ93upnA0SzF2pjWhttozSA=="],
 
     "string-progressbar": ["string-progressbar@1.0.4", "", {}, "sha512-OpkcFxlFjn7kz5jTWmPGY+FFJVN21lQ9k0fkK0XS5GVvlCgS1stgDNEoMyqnkbZEcVP3Gv6IxqgG7tnD7ChBSw=="],
 
