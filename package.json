@@ -77,10 +77,10 @@
     "@typescript/native-preview": "^7.0.0-dev.20260707.2",
     "conventional-changelog-conventionalcommits": "^10.4.1",
     "husky": "^9.1.7",
-    "lint-staged": "^17.6.1",
+    "lint-staged": "^17.6.2",
     "oxfmt": "^0.79.0",
     "oxlint": "^1.94.0",
-    "oxlint-tsgolint": "^7.0.2007",
+    "oxlint-tsgolint": "^7.0.2008",
     "semantic-release": "^26.0.1",
     "semantic-release-gitmoji": "^1.6.9"
   },
