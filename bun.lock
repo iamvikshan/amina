@@ -5,7 +5,7 @@
     "": {
       "name": "amina",
       "dependencies": {
-        "@honeybadger-io/js": "^6.17.2",
+        "@honeybadger-io/js": "^6.17.4",
         "@vitalets/google-translate-api": "^9.2.1",
         "axios": "^1.21.1",
         "common-tags": "^1.8.2",
@@ -52,7 +52,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@hono/node-server": "^2.1.11",
-        "hono": "^4.13.19",
+        "hono": "^4.13.20",
         "mongodb": "^7.9.1",
         "zod": "^4.6.7",
       },
@@ -165,9 +165,9 @@
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.28.2", "", { "os": "win32", "cpu": "x64" }, "sha512-5ebpxr3nWMzrL/rnUI755Jkuee0bHL/Gq0WTF9lvcpv73wAp5eu8MfBUgWK9bhWvZjj7yX8etf/8tI8Ney695g=="],
 
-    "@honeybadger-io/core": ["@honeybadger-io/core@6.12.2", "", { "dependencies": { "json-nd": "^1.0.0", "stacktrace-parser": "^0.1.10" } }, "sha512-GMa49Dn5tKKjAjkYq/IhFwBnwQh3rsjK8ysIU8o6XsGmcWrqC0hmAcH41npaX1KVlUK/1zjTfjVFLIvS5Sn3Bg=="],
+    "@honeybadger-io/core": ["@honeybadger-io/core@6.12.3", "", { "dependencies": { "json-nd": "^1.0.0", "stacktrace-parser": "^0.1.10" } }, "sha512-vM1eOU1aCu8j4MY5F9Ou5/t15WPkVjrvgMMsEWnWAfSlJ1ro5cpNH1tIVzcorCF7MAihY3gbdhOxM8QMXzKnXQ=="],
 
-    "@honeybadger-io/js": ["@honeybadger-io/js@6.17.2", "", { "dependencies": { "@honeybadger-io/core": "^6.12.2", "@types/aws-lambda": "^8.10.89", "@types/express": "^5.0.3" }, "peerDependencies": { "fastify": ">=4", "fastify-plugin": ">=4" }, "optionalPeers": ["fastify", "fastify-plugin"], "bin": { "honeybadger-checkins-sync": "scripts/check-ins-sync-bin.js" } }, "sha512-Uxcyl94+km1T8JflgEVJtkXCFuhUfS2g1VvHkTHuBe/q5JJsXmt+NbajgZYXlitz5kzFhgBvDYcxl15V0bcBPw=="],
+    "@honeybadger-io/js": ["@honeybadger-io/js@6.17.4", "", { "dependencies": { "@honeybadger-io/core": "^6.12.3", "@types/aws-lambda": "^8.10.89", "@types/express": "^5.0.3" }, "peerDependencies": { "fastify": ">=4", "fastify-plugin": ">=4" }, "optionalPeers": ["fastify", "fastify-plugin"], "bin": { "honeybadger-checkins-sync": "scripts/check-ins-sync-bin.js" } }, "sha512-RAOjE7XRMMd3TX5ZInjQR7zlAvPWDOU7BSrZ5MjFj4O87HaMz45dxtB5MGyDoZCYiOGolmIkRN/UmRbk18lsAA=="],
 
     "@hono/node-server": ["@hono/node-server@2.1.11", "", { "peerDependencies": { "hono": "^4 || ^5.0.0-0" } }, "sha512-KzKz9vl4vvr1vgLHamj+g5uonbrj5NwAdO3yzOS6cd2HjALVeOgTgeZOyAzNxejbkfOOPIcvuf/Tg8l1pEFLog=="],
 
@@ -699,7 +699,7 @@
 
     "highlight.js": ["highlight.js@10.7.3", "", {}, "sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A=="],
 
-    "hono": ["hono@4.13.19", "", {}, "sha512-KmXvQAXwcAHV+muzbIwoJ23niEB5nMoDVr9WcRkU8mvjUECm/1+7v4Jgp7P7a+H6MLFrh+vXrGonGrGS+RQfkA=="],
+    "hono": ["hono@4.13.22", "", {}, "sha512-wncKd5/40Pj8grx0RZ2fgNIicFEmVFwIHT5UFLTnphR8I6AQWFf9c2JoM6ZJ9g8y4pMzg3sNlCVNe0m2Yclg0Q=="],
 
     "hook-std": ["hook-std@4.0.0", "", {}, "sha512-IHI4bEVOt3vRUDJ+bFA9VUJlo7SzvFARPNLw75pqSmAOP2HmTWfFJtPvLBrDrlgjEYXY9zs7SFdHPQaJShkSCQ=="],
 
